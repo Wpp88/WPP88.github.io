@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>工程系统 · 高保真原型（最终版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .phone {
+            width: 414px;
+            height: 736px;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3), 0 0 0 8px #3a3d44;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f8fafc;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f8fafc;
+            height: 44px;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px 8px;
+            min-height: 52px;
+            background: #f8fafc;
+            border-bottom: 1px solid transparent;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn {
+            font-size: 28px;
+            cursor: pointer;
+            color: #2d7aff;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .right-icons {
+            display: flex;
+            gap: 18px;
+        }
+        .bell {
+            position: relative;
+            font-size: 24px;
+            color: #5e6873;
+            cursor: pointer;
+        }
+        .bell .badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #f54545;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            width: 18px;
+            height: 18px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* 工作台专用标题（左中右） */
+        .workbench-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .location-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #eef2f5;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .portal-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .portal-selector {
+            background: white;
+            border: 1px solid #dee2e9;
+            border-radius: 40px;
+            padding: 6px 20px 6px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .portal-selector .icon {
+            font-size: 18px;
+            line-height: 1;
+            color: #2d7aff;
+        }
+        .right-placeholder {
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .internal-title {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: white;
+            border-top: 1px solid #edf0f5;
+            padding: 8px 0 10px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #8a93a3;
+            cursor: pointer;
+            flex: 1;
+        }
+        .nav-item.active {
+            color: #2d7aff;
+            font-weight: 500;
+        }
+        .nav-item i {
+            font-size: 24px;
+            font-style: normal;
+        }
+
+        .page {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px 12px;
+            display: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .page.active {
+            display: block;
+        }
+
+        .welcome-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0 16px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .date-badge {
+            background: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #5e6873;
+            border: 1px solid #e2e6ec;
+        }
+
+        .scroll-cards {
+            display: flex;
+            gap: 8px;
+            padding: 4px 0 16px;
+        }
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 12px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #edf0f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            min-width: 0;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: #eef6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #2d7aff;
+            margin-bottom: 8px;
+        }
+        .stat-content h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .stat-content p {
+            font-size: 12px;
+            color: #8a93a3;
+            white-space: nowrap;
+        }
+
+        /* 模块统计卡片（按状态数量） */
+        .module-stats {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 0 16px;
+            scrollbar-width: none;
+        }
+        .stat-module-card {
+            flex: 0 0 auto;
+            width: 150px;
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+            border: 1px solid #edf0f5;
+            cursor: pointer;
+        }
+        .stat-module-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .stat-numbers {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .stat-number-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .stat-number-item .label {
+            color: #5e6873;
+        }
+        .stat-number-item .value {
+            font-weight: 600;
+        }
+        .stat-number-item .value.progress { color: #2d7aff; }
+        .stat-number-item .value.overdue { color: #f54545; }
+        .stat-number-item .value.pending { color: #FF7300; }
+
+        /* 工作台 · 一周日程卡片 */
+        .week-calendar {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 16px 0;
+            border: 1px solid #edf0f5;
+        }
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .week-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .week-header .all-link {
+            background: #e8f0fe;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            color: #2d7aff;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .week-days {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .week-day-item {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 10px 0;
+            width: 52px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .week-day-item.active {
+            background: #2d7aff;
+            border-color: #2d7aff;
+        }
+        .week-day-item.active .day-number,
+        .week-day-item.active .day-name {
+            color: white;
+        }
+        .day-name {
+            font-size: 12px;
+            color: #8e98a3;
+            margin-bottom: 4px;
+        }
+        .day-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        .day-dots {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 40px;
+        }
+        .task-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 6px;
+            background: #2d7aff;
+        }
+
+        /* 统一任务卡片（用于工作台周视图、日程页面） */
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            background: white;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 8px;
+            border: 1px solid #f0f3f8;
+        }
+        .module-badge {
+            width: 36px;
+            height: 36px;
+            background: #eef6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d7aff;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-info .title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #1e293b;
+        }
+        .task-info .address {
+            font-size: 12px;
+            color: #8e98a3;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .right-labels {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            margin-left: 8px;
+        }
+        .module-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: #f0f3f8;
+            color: #5e6873;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .time-status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .time-status-badge.progress {
+            background: #e8f0fe;
+            color: #2d7aff;
+        }
+        .time-status-badge.upcoming {
+            background: #fff2e5;
+            color: #FF7300;
+        }
+
+        /* 待办列表筛选区域 */
+        .filter-container {
+            margin: 12px 0;
+        }
+        .time-filter {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+            overflow-x: auto;
+        }
+        .time-filter-btn {
+            background: #f0f3f8;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #2c3e50;
+            border: 1px solid #dee2e9;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .time-filter-btn.active {
+            background: #2d7aff;
+            color: white;
+            border-color: #2d7aff;
+        }
+        .time-filter-btn.custom {
+            background: #fff2e5;
+            border-color: #FF7300;
+            color: #FF7300;
+        }
+        .main-tags {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0 12px;
+            scrollbar-width: none;
+        }
+        .main-tag {
+            background: #f0f3f8;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+            border: 1px solid #dee2e9;
+            white-space: nowrap;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .main-tag.active {
+            background: #2d7aff;
+            color: white;
+            border-color: #2d7aff;
+        }
+        .main-tag .count {
+            background: rgba(0,0,0,0.1);
+            border-radius: 30px;
+            padding: 2px 6px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        .main-tag.active .count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .sub-tags {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0 12px;
+            border-bottom: 1px solid #edf0f5;
+        }
+        .sub-tag {
+            background: #f8fafc;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #5e6873;
+            border: 1px solid #dee2e9;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sub-tag.active {
+            background: #2d7aff;
+            color: white;
+            border-color: #2d7aff;
+        }
+        .sub-tag .count {
+            background: #e8f0fe;
+            color: #2d7aff;
+            border-radius: 30px;
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+        .sub-tag.active .count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .task-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #edf0f5;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .module-tag {
+            background: #e8f0fe;
+            color: #2d7aff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 30px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+        .assignee-tag {
+            background: #f0f3f8;
+            color: #5e6873;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 30px;
+        }
+        .task-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .task-address {
+            font-size: 12px;
+            color: #5e6873;
+            background: #f5f7fa;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0 12px;
+        }
+        .module-status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: #f0f3f8;
+            color: #5e6873;
+            font-weight: 500;
+        }
+        .task-status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .task-status-badge.status-progress {
+            background: #e8f0fe;
+            color: #2d7aff;
+        }
+        .task-status-badge.status-upcoming {
+            background: #fff2e5;
+            color: #FF7300;
+        }
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #f0f3f8;
+            padding-top: 12px;
+        }
+        .btn-outline {
+            padding: 6px 16px;
+            border-radius: 30px;
+            background: white;
+            border: 1px solid #ced5e0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .schedule-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 16px 0 12px;
+        }
+        .schedule-view-header .left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .schedule-view-header .avatar {
+            width: 32px;
+            height: 32px;
+            background: #d4e1ff;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #2d7aff;
+        }
+        .schedule-view-header .title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .filter-icon {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #f0f3f8;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .filter-icon span {
+            color: #2d7aff;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: #f0f3f8;
+            border-radius: 30px;
+            padding: 2px;
+            margin-left: 8px;
+        }
+        .view-option {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #5e6873;
+            cursor: pointer;
+        }
+        .view-option.active {
+            background: white;
+            color: #2d7aff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            color: #8e98a3;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        .calendar-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #f0f3f8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .calendar-cell.today {
+            border: 2px solid #2d7aff;
+            background: #f0f6ff;
+        }
+        .calendar-cell.selected {
+            background: #2d7aff;
+            color: white;
+        }
+        .calendar-cell.selected .dot { background: white; }
+        .task-dots {
+            display: flex;
+            gap: 2px;
+            margin-top: 2px;
+        }
+        .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 4px;
+            background: #2d7aff;
+        }
+
+        .selected-date-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        /* 弹窗 - 移动端适配 (底部滑出) */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .bottom-sheet {
+            background: white;
+            width: 100%;
+            border-radius: 30px 30px 0 0;
+            padding: 20px 16px;
+            transform: translateY(100%);
+            transition: 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .bottom-sheet {
+            transform: translateY(0);
+        }
+        .sheet-item {
+            padding: 14px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-sheet {
+            text-align: center;
+            color: #f60;
+            font-weight: 600;
+            margin-top: 12px;
+            padding: 14px;
+            background: #f5f7fa;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        /* 筛选弹窗内样式 */
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        .filter-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-option {
+            background: #f0f3f8;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #dee2e9;
+        }
+        .filter-option.active {
+            background: #2d7aff;
+            color: white;
+            border-color: #2d7aff;
+        }
+        .month-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .month-selector select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #dee2e9;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .supervisor-selector {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .supervisor-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2d7aff;
+            border-radius: 6px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .checkbox.checked {
+            background: #2d7aff;
+            position: relative;
+        }
+        .checkbox.checked::after {
+            content: "✓";
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* 任务详情弹窗 (居中卡片) */
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 340px;
+            border-radius: 28px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+        .modal-content {
+            color: #5e6873;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 40px;
+            background: #2d7aff;
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .modal-btn.secondary {
+            background: #f0f3f8;
+            color: #2c3e50;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .placeholder-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #5e6873;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="phone-screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 🔋 100%</span>
+            </div>
+
+            <!-- 动态顶部导航 -->
+            <div class="nav-header" id="navHeader">
+                <!-- 内部页面专用 (带返回) -->
+                <div class="nav-left internal-title" id="internalHeader">
+                    <span class="back-btn" id="backBtn" onclick="goBack()">←</span>
+                    <span class="title" id="pageTitle">工作台</span>
+                </div>
+                <!-- 工作台专用 (左中右) -->
+                <div class="workbench-header hidden" id="workbenchHeader">
+                    <div class="location-tag">📍运达汇</div>
+                    <div class="portal-wrapper">
+                        <div class="portal-selector" id="portalSelectorBtn">
+                            <span class="icon">⚡</span> 智慧工程 <span class="icon">▼</span>
+                        </div>
+                    </div>
+                    <div class="right-placeholder"></div>
+                </div>
+                <div class="right-icons">
+                    <div class="bell" id="bellIcon">
+                        🔔
+                        <span class="badge">8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 页面容器 -->
+            <div id="workbenchPage" class="page active">
+                <div class="welcome-row">
+                    <div class="greeting">下午好，WP</div>
+                    <div class="date-badge">3月2日 周一</div>
+                </div>
+
+                <div class="scroll-cards">
+                    <div class="stat-card" onclick="navigateToInternal('todo')">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content"><h4 id="todoCount">0</h4><p>我的待办</p></div>
+                    </div>
+                    <div class="stat-card" onclick="navigateToInternal('schedule')">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content"><h4 id="scheduleCount">0</h4><p>本月日程</p></div>
+                    </div>
+                    <div class="stat-card" onclick="navigateToInternal('todo', '超期')">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content"><h4 id="overdueCount">0</h4><p>超期任务</p></div>
+                    </div>
+                </div>
+
+                <!-- 模块统计卡片（按状态数量） -->
+                <div class="module-stats" id="moduleStats"></div>
+
+                <!-- 一周日程视图 -->
+                <div class="week-calendar">
+                    <div class="week-header">
+                        <h3>日程周报</h3>
+                        <span class="all-link" onclick="navigateToInternal('schedule')">全部日程 ></span>
+                    </div>
+                    <!-- 一周日期条 -->
+                    <div class="week-days" id="weekDaysContainer"></div>
+                    <!-- 当日任务列表 -->
+                    <div id="weekTaskList" class="task-list" style="margin-top: 12px;"></div>
+                </div>
+            </div>
+
+            <div id="todoPage" class="page">
+                <!-- 时间筛选 -->
+                <div class="filter-container">
+                    <div class="time-filter" id="timeFilter">
+                        <span class="time-filter-btn active" data-range="week">本周</span>
+                        <span class="time-filter-btn" data-range="month">本月</span>
+                        <span class="time-filter-btn custom" data-range="custom">自定义</span>
+                    </div>
+                    <!-- 主标签 -->
+                    <div class="main-tags" id="mainTagContainer"></div>
+                    <!-- 子标签 -->
+                    <div class="sub-tags" id="subTagContainer"></div>
+                </div>
+                <div class="task-list" id="todoTaskList"></div>
+            </div>
+
+            <div id="schedulePage" class="page">
+                <div class="schedule-view-header">
+                    <div class="left">
+                        <div class="avatar">📅</div>
+                        <span class="title" id="currentMonthTitle">2026.03</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="filter-icon" id="scheduleFilterBtn" onclick="showScheduleFilter()">
+                            <span>📅</span> 筛选
+                        </div>
+                        <div class="view-toggle" id="viewToggle">
+                            <span class="view-option active" data-view="personal">个人</span>
+                            <span class="view-option" data-view="region">区域</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="weekdays">
+                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <div class="selected-date-title" id="selectedDateLabel">2026年3月 全部任务</div>
+                <div id="scheduleTaskList" class="task-list"></div>
+            </div>
+
+            <div id="msgPage" class="page">
+                <div class="msg-tabs">
+                    <span class="msg-tab active" data-filter="all">全部 (13)</span>
+                    <span class="msg-tab" data-filter="unread">未读 (8)</span>
+                    <span class="msg-tab" data-filter="read">已读 (5)</span>
+                </div>
+                <div class="msg-list" id="msgPageList"></div>
+            </div>
+
+            <!-- 应用页面 - 仅显示“当前已上线” -->
+            <div id="appPage" class="page">
+                <div class="placeholder-page">当前已上线</div>
+            </div>
+
+            <!-- 我的页面 - 仅显示“当前已上线” -->
+            <div id="myPage" class="page">
+                <div class="placeholder-page">当前已上线</div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item active" data-page="workbench"><i>🏠</i><span>工作台</span></div>
+                <div class="nav-item" data-page="app"><i>📱</i><span>应用</span></div>
+                <div class="nav-item" data-page="my"><i>👤</i><span>我的</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 门户切换弹窗 -->
+    <div class="modal-overlay" id="portalModal" onclick="hidePortalModal()">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-item" data-portal="门店运营">🏪 门店运营</div>
+            <div class="sheet-item" data-portal="门店管理">📋 门店管理</div>
+            <div class="sheet-item" data-portal="智慧工程">⚡ 智慧工程</div>
+            <div class="sheet-item" data-portal="招商加盟">🤝 招商加盟</div>
+            <div class="sheet-item" data-portal="智慧选址">📍 智慧选址</div>
+            <div class="close-sheet" onclick="hidePortalModal()">取消</div>
+        </div>
+    </div>
+
+    <!-- 日程筛选弹窗 -->
+    <div class="modal-overlay" id="scheduleFilterModal" onclick="hideScheduleFilter()">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <h3 style="margin-bottom: 16px;">日程筛选</h3>
+            <div class="filter-section">
+                <div class="filter-label">时间范围</div>
+                <div class="filter-options" id="scheduleTimeOptions">
+                    <span class="filter-option active" data-range="week">本周</span>
+                    <span class="filter-option" data-range="month">本月</span>
+                    <span class="filter-option" data-range="custom">自定义月份</span>
+                </div>
+                <div class="month-selector hidden" id="customMonthSelector">
+                    <select id="customMonthSelect">
+                        <option value="2026-01">2026年1月</option>
+                        <option value="2026-02">2026年2月</option>
+                        <option value="2026-03" selected>2026年3月</option>
+                        <option value="2026-04">2026年4月</option>
+                        <option value="2026-05">2026年5月</option>
+                        <option value="2026-06">2026年6月</option>
+                        <option value="2026-07">2026年7月</option>
+                        <option value="2026-08">2026年8月</option>
+                        <option value="2026-09">2026年9月</option>
+                        <option value="2026-10">2026年10月</option>
+                        <option value="2026-11">2026年11月</option>
+                        <option value="2026-12">2026年12月</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-section" id="supervisorFilterSection" style="display: none;">
+                <div class="filter-label">选择负责人</div>
+                <div class="supervisor-selector" id="supervisorList"></div>
+            </div>
+            <div style="display: flex; gap:8px; margin-top: 20px;">
+                <span class="btn-outline" style="flex:1; text-align: center;" onclick="resetScheduleFilter()">重置</span>
+                <span class="btn-outline" style="flex:1; text-align: center; background: #2d7aff; color: white; border: none;" onclick="applyScheduleFilter()">确定</span>
+            </div>
+            <div class="close-sheet" onclick="hideScheduleFilter()">取消</div>
+        </div>
+    </div>
+
+    <!-- 任务详情弹窗 -->
+    <div class="modal-overlay" id="taskDetailModal" onclick="hideTaskDetail()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-title">任务详情</div>
+            <div class="modal-content" style="text-align:center; padding:20px 0;">对应的任务页面</div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="hideTaskDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息详情弹窗 -->
+    <div class="modal-overlay" id="msgDetailModal" onclick="hideMsgDetail()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-title" id="detailTitle">消息标题</div>
+            <div class="modal-content" id="detailContent" style="margin-bottom:16px;"></div>
+            <div class="modal-time" id="detailTime" style="color:#9aa5b5; margin-bottom:20px;"></div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="hideMsgDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 当前日期设定 ----------
+            const today = new Date(2026, 2, 2); // 2026-03-02 (月份0基)
+            const todayStr = '2026-03-02';
+
+            // ---------- 当前用户设定：大区负责人WP ----------
+            const currentUser = {
+                name: 'WP',
+                role: '大区负责人',
+                region: '西北大区',
+                supervisors: ['周臣', '向跃', '席伟', '刘康飞', '柳阳顺子']
+            };
+
+            // ---------- 模拟大区负责人及下属监理数据 (基于附件) ----------
+            const regionSupervisors = [
+                { region: '西北大区', head: 'WP', supervisors: ['周臣', '向跃', '席伟', '刘康飞', '柳阳顺子'] },
+                { region: '云南大区', head: '王坤', supervisors: ['张恩华', '金俊威'] },
+                { region: '浙江大区', head: '庞建伟', supervisors: ['邓恩科', '黄凯冰', '陆文锋', '曹炳翔'] },
+                { region: '河南大区', head: '贾凯超', supervisors: ['贾凯超', '杨恒', '杨其其'] },
+                { region: '东北华北大区', head: '杨鹏', supervisors: ['周梦琪', '赵书华', '王辰', '刘自然', '马延明', '李奇'] },
+                { region: '福建大区', head: '廖泽远', supervisors: ['吴仁毅', '李主石'] },
+                { region: '四川大区', head: '周崇辉', supervisors: ['李华东'] },
+                { region: '湖北大区', head: '宋扬', supervisors: ['宋扬', '喻瑜', '石磊'] },
+                { region: '苏沪大区', head: '夏彬炀', supervisors: ['位旭波', '颜成语', '吴波'] },
+                { region: '安徽大区', head: '宋鑫', supervisors: ['吴凡', '梁钢'] },
+                { region: '广东大区', head: '陈冠贤', supervisors: ['张杰', '温林晓', '龙岱雄', '颜晓雷', '杜思汉'] },
+                { region: '桂琼', head: '陶钧', supervisors: ['李勇霖', '陶钧', '周煜杰'] },
+                { region: '湘赣', head: '黎业', supervisors: ['李卓', '刘俊', '任志豪', '喻卓理'] },
+                { region: '贵渝青', head: '邱宇', supervisors: ['陈佳', '谢宇祥', '吴达', '张楚'] }
+            ];
+
+            // ---------- 任务数据模型（含负责人和模块状态）----------
+            const allTasks = [
+                // 项目管理 (项)
+                { id:1, module:'项目管理', moduleShort:'项', title:'【新店】山西大同明堂公园店', time:'09:30', estStart:'2026-03-01', estEnd:'2026-03-05', actualStart:'2026-03-01', status:'待分配', store:'运达汇', distance:'1.2km', assignee:'周臣' },
+                { id:2, module:'项目管理', moduleShort:'项', title:'【新店】河南许昌禹州火龙镇店', time:'10:15', estStart:'2026-03-02', estEnd:'2026-03-06', actualStart:null, status:'待确认', store:'许昌万达', distance:'3.5km', assignee:'向跃' },
+                { id:3, module:'项目管理', moduleShort:'项', title:'【新店】河北石家庄店', time:'14:00', estStart:'2026-03-10', estEnd:'2026-03-15', actualStart:null, status:'待确认', store:'石家庄万达', distance:'2.8km', assignee:'席伟' },
+                // 线下勘场 (勘)
+                { id:4, module:'线下勘场', moduleShort:'勘', title:'【新店】上海市松江玩酷广场店', time:'11:20', estStart:'2026-03-01', estEnd:'2026-03-04', actualStart:'2026-03-01', status:'待勘场', store:'松江万达', distance:'5.7km', assignee:'刘康飞' },
+                { id:5, module:'线下勘场', moduleShort:'勘', title:'【新店】河南商丘梁园医专店', time:'13:45', estStart:'2026-03-02', estEnd:'2026-03-05', actualStart:null, status:'待预约', store:'商丘万达', distance:'2.1km', assignee:'柳阳顺子' },
+                { id:6, module:'线下勘场', moduleShort:'勘', title:'【新店】江苏南京店', time:'09:00', estStart:'2026-03-08', estEnd:'2026-03-11', actualStart:null, status:'待分配', store:'南京新街口', distance:'4.2km', assignee:'周臣' },
+                { id:7, module:'线下勘场', moduleShort:'勘', title:'【新店】安徽合肥店', time:'10:30', estStart:'2026-03-05', estEnd:'2026-03-09', actualStart:null, status:'待定稿', store:'合肥', distance:'3.1km', assignee:'向跃' },
+                // 工程施工 (施)
+                { id:8, module:'工程施工', moduleShort:'施', title:'【新店】黑龙江哈尔滨北马路店', time:'10:00', estStart:'2026-03-01', estEnd:'2026-03-10', actualStart:'2026-03-01', status:'待施工', store:'哈尔滨', distance:'-', assignee:'席伟' },
+                { id:9, module:'工程施工', moduleShort:'施', title:'【新店】吉林长春店', time:'09:30', estStart:'2026-03-05', estEnd:'2026-03-12', actualStart:null, status:'待完工', store:'长春', distance:'-', assignee:'刘康飞' },
+                // 施工巡检 (检)
+                { id:10, module:'施工巡检', moduleShort:'检', title:'【新店】河南郑州白庄店', time:'11:30', estStart:'2026-03-02', estEnd:'2026-03-07', actualStart:null, status:'待巡检', store:'郑州正弘山', distance:'3.3km', assignee:'柳阳顺子' },
+                { id:11, module:'施工巡检', moduleShort:'检', title:'【新店】山东济南店', time:'14:00', estStart:'2026-03-09', estEnd:'2026-03-14', actualStart:null, status:'待巡检', store:'济南', distance:'2.5km', assignee:'周臣' },
+                // 项目验收 (验)
+                { id:12, module:'项目验收', moduleShort:'验', title:'【新店】广西桂林金鸡路店', time:'09:00', estStart:'2026-03-03', estEnd:'2026-03-06', actualStart:null, status:'待验收', store:'桂林', distance:'6.8km', assignee:'向跃' },
+                { id:13, module:'项目验收', moduleShort:'验', title:'【新店】广东广州店', time:'10:30', estStart:'2026-03-12', estEnd:'2026-03-15', actualStart:null, status:'待传确认单', store:'广州', distance:'8.0km', assignee:'席伟' },
+                // 工程整改 (改)
+                { id:14, module:'整改管理', moduleShort:'改', title:'【新店】整改任务A', time:'14:00', estStart:'2026-03-02', estEnd:'2026-03-05', actualStart:'2026-03-02', status:'待整改', store:'某门店', distance:'2km', assignee:'刘康飞' },
+                // 去货管理 (去)
+                { id:15, module:'物资预报', moduleShort:'去', title:'【新店】长沙铁建城店 去货', time:'14:00', estStart:'2026-03-01', estEnd:'2026-03-03', actualStart:'2026-03-01', status:'待分配', store:'铁建城', distance:'2.2km', assignee:'柳阳顺子' },
+                { id:16, module:'物资预报', moduleShort:'去', title:'【新店】武汉店 去货', time:'09:00', estStart:'2026-03-07', estEnd:'2026-03-10', actualStart:null, status:'待去货', store:'武汉', distance:'3.5km', assignee:'周臣' },
+                // 审核中心 (审)
+                { id:17, module:'审核中心', moduleShort:'审', title:'【新店】全套图审核', estStart:null, estEnd:null, actualStart:null, status:'待审核', store:'线上', distance:'-', assignee:'向跃' },
+                { id:18, module:'审核中心', moduleShort:'审', title:'【新店】预算复核', estStart:null, estEnd:null, actualStart:null, status:'待复核', store:'线上', distance:'-', assignee:'席伟' }
+            ];
+
+            // 辅助函数：计算剩余天数或预计时段
+            function getTimeStatusText(task) {
+                if (!task.estStart) return ''; // 无预计时间
+                if (task.actualStart) {
+                    const end = new Date(task.estEnd);
+                    const todayDate = new Date(todayStr);
+                    const diff = Math.ceil((end - todayDate) / (1000*60*60*24));
+                    return `剩余${diff}天`;
+                } else {
+                    const start = task.estStart.slice(5);
+                    const end = task.estEnd.slice(5);
+                    return `预计 ${start}~${end}`;
+                }
+            }
+
+            // 筛选有预计开始时间的任务
+            const tasksWithEstStart = allTasks.filter(t => t.estStart);
+
+            // 待办任务：预计开始 ≤ 今天 且 未完成 (actualEnd不存在)
+            const todoTasks = allTasks.filter(t => t.estStart && t.estStart <= todayStr && !t.actualEnd);
+            // 超期任务：未完成且预计结束 < 今天
+            const overdueTasks = allTasks.filter(t => !t.actualEnd && t.estEnd && t.estEnd < todayStr);
+
+            // 更新统计卡片
+            document.getElementById('todoCount').innerText = todoTasks.length;
+            document.getElementById('scheduleCount').innerText = tasksWithEstStart.length;
+            document.getElementById('overdueCount').innerText = overdueTasks.length;
+
+            // ---------- 工作台模块统计卡片（按状态数量）----------
+            function renderModuleStats() {
+                // 定义需要展示的模块（模拟用户有权限的模块，这里全部展示）
+                const modules = ['项目管理', '线下勘场', '工程施工', '施工巡检', '项目验收', '整改管理', '去货管理', '审核中心'];
+                const container = document.getElementById('moduleStats');
+                let html = '';
+                modules.forEach(mod => {
+                    const tasks = allTasks.filter(t => t.module === mod && t.estStart); // 只统计有预计时间的任务
+                    const inProgress = tasks.filter(t => t.actualStart && !t.actualEnd && t.estEnd >= todayStr).length;
+                    const overdue = tasks.filter(t => !t.actualEnd && t.estEnd && t.estEnd < todayStr).length;
+                    const pending = tasks.filter(t => !t.actualStart && t.estEnd >= todayStr).length;
+                    if (inProgress + overdue + pending === 0) return; // 不显示空模块
+                    html += `<div class="stat-module-card" onclick="navigateToInternal('todo', '${mod}')">
+                        <div class="stat-module-title">${mod}</div>
+                        <div class="stat-numbers">
+                            <div class="stat-number-item"><span class="label">进行中</span><span class="value progress">${inProgress}</span></div>
+                            <div class="stat-number-item"><span class="label">已超期</span><span class="value overdue">${overdue}</span></div>
+                            <div class="stat-number-item"><span class="label">待开始</span><span class="value pending">${pending}</span></div>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html || '<div style="padding:12px; color:#999;">暂无任务数据</div>';
+            }
+            renderModuleStats();
+
+            // ---------- 工作台一周日程 ----------
+            const weekDaysContainer = document.getElementById('weekDaysContainer');
+            const weekTaskList = document.getElementById('weekTaskList');
+            let selectedWeekDate = todayStr;
+
+            function renderWeekDays() {
+                const days = [];
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(today);
+                    d.setDate(today.getDate() + i);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth()+1).padStart(2,'0');
+                    const day = String(d.getDate()).padStart(2,'0');
+                    const dateStr = `${year}-${month}-${day}`;
+                    const weekdays = ['日','一','二','三','四','五','六'];
+                    const dayName = weekdays[d.getDay()];
+                    const dayNumber = d.getDate();
+                    const taskCount = tasksWithEstStart.filter(t => t.estStart === dateStr).length;
+                    days.push({ dateStr, dayName, dayNumber, taskCount });
+                }
+                let html = '';
+                days.forEach(day => {
+                    const activeClass = day.dateStr === selectedWeekDate ? 'active' : '';
+                    let dotsHtml = '';
+                    for (let i=0; i<Math.min(day.taskCount,5); i++) {
+                        dotsHtml += '<span class="task-dot"></span>';
+                    }
+                    html += `<div class="week-day-item ${activeClass}" data-date="${day.dateStr}">
+                        <div class="day-name">${day.dayName}</div>
+                        <div class="day-number">${day.dayNumber}</div>
+                        <div class="day-dots">${dotsHtml}</div>
+                    </div>`;
+                });
+                weekDaysContainer.innerHTML = html;
+                document.querySelectorAll('.week-day-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        document.querySelectorAll('.week-day-item').forEach(item => item.classList.remove('active'));
+                        this.classList.add('active');
+                        selectedWeekDate = this.dataset.date;
+                        renderWeekTasks(selectedWeekDate);
+                    });
+                });
+            }
+
+            function renderWeekTasks(dateStr) {
+                const tasks = tasksWithEstStart.filter(t => t.estStart === dateStr);
+                let html = '';
+                tasks.forEach(t => {
+                    const timeStatus = getTimeStatusText(t);
+                    const timeClass = t.actualStart ? 'progress' : 'upcoming';
+                    html += `<div class="task-item" onclick="showTaskDetail()">
+                        <div class="module-badge">${t.moduleShort}</div>
+                        <div class="task-info">
+                            <div class="title">${t.title}</div>
+                            <div class="address">📍 ${t.store} · ${t.distance}</div>
+                        </div>
+                        <div class="right-labels">
+                            <span class="module-status">${t.status}</span>
+                            <span class="time-status-badge ${timeClass}">${timeStatus}</span>
+                        </div>
+                    </div>`;
+                });
+                if (tasks.length === 0) html = '<div style="text-align:center; padding:20px; color:#999;">当日暂无任务</div>';
+                weekTaskList.innerHTML = html;
+            }
+            renderWeekDays();
+            renderWeekTasks(todayStr);
+
+            // ---------- 日程页面 ----------
+            let currentYear = 2026, currentMonth = 2; // 3月 (月份0基)
+            let selectedDate = null;
+            let currentView = 'personal'; // personal / region
+            let selectedSupervisors = [...currentUser.supervisors]; // 默认全选当前区域下属
+            let scheduleTimeRange = 'week'; // week, month, custom
+            let customMonth = '2026-03'; // 自定义月份
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            const scheduleTaskList = document.getElementById('scheduleTaskList');
+            const selectedDateLabel = document.getElementById('selectedDateLabel');
+            const viewToggle = document.getElementById('viewToggle');
+            const scheduleFilterBtn = document.getElementById('scheduleFilterBtn');
+            const supervisorFilterSection = document.getElementById('supervisorFilterSection');
+
+            function renderCalendar(year, month) {
+                const firstDay = new Date(year, month, 1).getDay();
+                const days = new Date(year, month+1, 0).getDate();
+                let html = '';
+                for (let i = 0; i < firstDay; i++) html += '<div class="calendar-cell empty"></div>';
+                for (let d = 1; d <= days; d++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    let hasTask = false;
+                    if (currentView === 'personal') {
+                        // 个人视图：根据时间范围过滤
+                        const tasksInRange = filterTasksByTimeRange(tasksWithEstStart, scheduleTimeRange);
+                        hasTask = tasksInRange.some(t => t.estStart === dateStr);
+                    } else {
+                        // 区域视图：根据选中的监理和时间范围
+                        if (selectedSupervisors.length === 0) {
+                            hasTask = false;
+                        } else {
+                            const tasksInRange = allTasks.filter(t => {
+                                if (!t.estStart) return false;
+                                if (!selectedSupervisors.includes(t.assignee)) return false;
+                                return isDateInRange(t.estStart, scheduleTimeRange);
+                            });
+                            hasTask = tasksInRange.some(t => t.estStart === dateStr);
+                        }
+                    }
+                    const isToday = (year === 2026 && month === 2 && d === 2);
+                    const isSelected = selectedDate === dateStr;
+                    let cellClass = 'calendar-cell';
+                    if (isToday) cellClass += ' today';
+                    if (isSelected) cellClass += ' selected';
+                    const dot = hasTask ? '<div class="task-dots"><span class="dot"></span></div>' : '';
+                    html += `<div class="${cellClass}" data-date="${dateStr}" onclick="selectDate('${dateStr}')"><span>${d}</span>${dot}</div>`;
+                }
+                calendarGrid.innerHTML = html;
+                document.getElementById('currentMonthTitle').innerText = `${year}.${String(month+1).padStart(2,'0')}`;
+            }
+
+            function isDateInRange(dateStr, range) {
+                const d = new Date(dateStr);
+                if (range === 'week') {
+                    const start = new Date(todayStr);
+                    const end = new Date(todayStr);
+                    end.setDate(today.getDate() + 7);
+                    return d >= start && d <= end;
+                } else if (range === 'month') {
+                    const y = today.getFullYear();
+                    const m = today.getMonth();
+                    return d.getFullYear() === y && d.getMonth() === m;
+                } else if (range === 'custom') {
+                    const [year, month] = customMonth.split('-').map(Number);
+                    return d.getFullYear() === year && d.getMonth() === month-1;
+                }
+                return true;
+            }
+
+            function filterTasksByTimeRange(tasks, range) {
+                return tasks.filter(t => {
+                    if (!t.estStart) return false;
+                    return isDateInRange(t.estStart, range);
+                });
+            }
+
+            window.selectDate = function(dateStr) {
+                document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('selected'));
+                const target = document.querySelector(`.calendar-cell[data-date="${dateStr}"]`);
+                if (target) target.classList.add('selected');
+                selectedDate = dateStr;
+                renderScheduleTasks();
+            };
+
+            function renderScheduleTasks() {
+                let tasks = [];
+                if (currentView === 'personal') {
+                    let baseTasks = tasksWithEstStart;
+                    baseTasks = filterTasksByTimeRange(baseTasks, scheduleTimeRange);
+                    if (selectedDate) {
+                        tasks = baseTasks.filter(t => t.estStart === selectedDate);
+                        selectedDateLabel.innerText = `${selectedDate} 任务`;
+                    } else {
+                        tasks = baseTasks;
+                        let rangeText = scheduleTimeRange === 'week' ? '本周' : (scheduleTimeRange === 'month' ? '本月' : `${customMonth}月`);
+                        selectedDateLabel.innerText = `${rangeText} 全部任务`;
+                    }
+                } else {
+                    // 区域视图
+                    let filteredTasks = allTasks.filter(t => {
+                        if (!t.estStart) return false;
+                        if (selectedSupervisors.length > 0 && !selectedSupervisors.includes(t.assignee)) return false;
+                        return isDateInRange(t.estStart, scheduleTimeRange);
+                    });
+                    if (selectedDate) {
+                        tasks = filteredTasks.filter(t => t.estStart === selectedDate);
+                        selectedDateLabel.innerText = `${selectedDate} 任务（区域）`;
+                    } else {
+                        tasks = filteredTasks;
+                        let rangeText = scheduleTimeRange === 'week' ? '本周' : (scheduleTimeRange === 'month' ? '本月' : `${customMonth}月`);
+                        selectedDateLabel.innerText = `${rangeText} 区域任务`;
+                    }
+                }
+                let html = '';
+                tasks.forEach(t => {
+                    const timeStatus = getTimeStatusText(t);
+                    const timeClass = t.actualStart ? 'progress' : 'upcoming';
+                    html += `<div class="task-item" onclick="showTaskDetail()">
+                        <div class="module-badge">${t.moduleShort}</div>
+                        <div class="task-info">
+                            <div class="title">${t.title}</div>
+                            <div class="address">📍 ${t.store} · ${t.distance}</div>
+                            ${currentView === 'region' ? `<div class="assignee-tag" style="margin-top:4px;">负责人：${t.assignee}</div>` : ''}
+                        </div>
+                        <div class="right-labels">
+                            <span class="module-status">${t.status}</span>
+                            <span class="time-status-badge ${timeClass}">${timeStatus}</span>
+                        </div>
+                    </div>`;
+                });
+                scheduleTaskList.innerHTML = html || '<div style="text-align:center; padding:20px; color:#999;">暂无任务</div>';
+            }
+
+            // 视图切换
+            document.querySelectorAll('.view-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    document.querySelectorAll('.view-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    currentView = this.dataset.view;
+                    if (currentView === 'region') {
+                        supervisorFilterSection.style.display = 'block';
+                        // 默认选中当前区域所有下属
+                        selectedSupervisors = [...currentUser.supervisors];
+                    } else {
+                        supervisorFilterSection.style.display = 'none';
+                    }
+                    selectedDate = null;
+                    renderCalendar(currentYear, currentMonth);
+                    renderScheduleTasks();
+                });
+            });
+
+            // 筛选弹窗
+            window.showScheduleFilter = function() {
+                // 更新弹窗中当前选择
+                document.querySelectorAll('#scheduleTimeOptions .filter-option').forEach(opt => {
+                    if (opt.dataset.range === scheduleTimeRange) {
+                        opt.classList.add('active');
+                    } else {
+                        opt.classList.remove('active');
+                    }
+                });
+                if (scheduleTimeRange === 'custom') {
+                    document.getElementById('customMonthSelector').classList.remove('hidden');
+                } else {
+                    document.getElementById('customMonthSelector').classList.add('hidden');
+                }
+                // 渲染监理列表（区域视图下才显示）
+                if (currentView === 'region') {
+                    renderSupervisorList();
+                }
+                document.getElementById('scheduleFilterModal').classList.add('show');
+            };
+            window.hideScheduleFilter = function() {
+                document.getElementById('scheduleFilterModal').classList.remove('show');
+            };
+
+            // 监理列表渲染
+            function renderSupervisorList() {
+                const container = document.getElementById('supervisorList');
+                let html = '';
+                currentUser.supervisors.forEach(name => {
+                    const checked = selectedSupervisors.includes(name) ? 'checked' : '';
+                    html += `<div class="supervisor-checkbox">
+                        <span class="checkbox ${checked}" data-name="${name}" onclick="toggleSupervisor(this)"></span>
+                        <span>${name}</span>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            }
+
+            window.toggleSupervisor = function(el) {
+                const name = el.dataset.name;
+                if (el.classList.contains('checked')) {
+                    el.classList.remove('checked');
+                    selectedSupervisors = selectedSupervisors.filter(n => n !== name);
+                } else {
+                    el.classList.add('checked');
+                    selectedSupervisors.push(name);
+                }
+            };
+
+            // 时间选项点击
+            document.querySelectorAll('#scheduleTimeOptions .filter-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    document.querySelectorAll('#scheduleTimeOptions .filter-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    scheduleTimeRange = this.dataset.range;
+                    if (scheduleTimeRange === 'custom') {
+                        document.getElementById('customMonthSelector').classList.remove('hidden');
+                    } else {
+                        document.getElementById('customMonthSelector').classList.add('hidden');
+                    }
+                });
+            });
+
+            window.resetScheduleFilter = function() {
+                scheduleTimeRange = 'week';
+                document.querySelectorAll('#scheduleTimeOptions .filter-option').forEach(o => o.classList.remove('active'));
+                document.querySelector('#scheduleTimeOptions .filter-option[data-range="week"]').classList.add('active');
+                document.getElementById('customMonthSelector').classList.add('hidden');
+                if (currentView === 'region') {
+                    selectedSupervisors = [...currentUser.supervisors];
+                    renderSupervisorList();
+                }
+            };
+
+            window.applyScheduleFilter = function() {
+                // 获取自定义月份
+                if (scheduleTimeRange === 'custom') {
+                    customMonth = document.getElementById('customMonthSelect').value;
+                }
+                selectedDate = null;
+                renderCalendar(currentYear, currentMonth);
+                renderScheduleTasks();
+                hideScheduleFilter();
+            };
+
+            // 初始化日程
+            renderCalendar(2026, 2);
+            renderScheduleTasks();
+
+            // ---------- 待办页面 二级筛选 + 时间筛选 ----------
+            const mainModuleDisplayList = ['全部', '项目管理', '线下勘场', '工程施工', '施工巡检', '项目验收', '整改管理', '去货管理', '工程监督', '审核中心'];
+            const displayToModuleMap = {
+                '项目管理': '项目管理',
+                '线下勘场': '线下勘场',
+                '工程施工': '工程施工',
+                '施工巡检': '施工巡检',
+                '项目验收': '项目验收',
+                '整改管理': '整改管理',
+                '去货管理': '物资预报',
+                '工程监督': '工程督查',
+                '审核中心': '审核中心'
+            };
+            const subTypes = [
+                { key: 'inProgress', label: '进行中', filter: task => task.actualStart && !task.actualEnd && task.estEnd >= todayStr },
+                { key: 'overdue', label: '已超期', filter: task => !task.actualEnd && task.estEnd && task.estEnd < todayStr },
+                { key: 'pending', label: '待开始', filter: task => !task.actualStart && task.estEnd >= todayStr }
+            ];
+            let currentMain = '全部';
+            let currentSub = 'inProgress';
+            let currentTimeRange = 'week';
+            let todoCustomStart = '2026-03-01', todoCustomEnd = '2026-03-31';
+
+            const mainContainer = document.getElementById('mainTagContainer');
+            const subContainer = document.getElementById('subTagContainer');
+            const todoListDiv = document.getElementById('todoTaskList');
+
+            function renderMainTags() {
+                let html = '';
+                mainModuleDisplayList.forEach(displayName => {
+                    let count;
+                    if (displayName === '全部') {
+                        count = todoTasks.length;
+                    } else {
+                        const internalModule = displayToModuleMap[displayName];
+                        count = todoTasks.filter(t => t.module === internalModule).length;
+                    }
+                    const activeClass = displayName === currentMain ? 'active' : '';
+                    html += `<span class="main-tag ${activeClass}" data-display="${displayName}">${displayName}<span class="count">${count}</span></span>`;
+                });
+                mainContainer.innerHTML = html;
+                document.querySelectorAll('.main-tag').forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const display = this.dataset.display;
+                        if (display === currentMain) return;
+                        currentMain = display;
+                        renderMainTags();
+                        renderSubTags();
+                        currentSub = 'inProgress';
+                        renderSubTags();
+                        filterTodoList();
+                    });
+                });
+            }
+
+            function renderSubTags() {
+                let baseTasks = todoTasks;
+                if (currentMain !== '全部') {
+                    const internalModule = displayToModuleMap[currentMain];
+                    baseTasks = todoTasks.filter(t => t.module === internalModule);
+                }
+                baseTasks = filterTodoByTimeRange(baseTasks);
+                const counts = {
+                    inProgress: baseTasks.filter(subTypes[0].filter).length,
+                    overdue: baseTasks.filter(subTypes[1].filter).length,
+                    pending: baseTasks.filter(subTypes[2].filter).length
+                };
+                let html = '';
+                subTypes.forEach((sub, index) => {
+                    const activeClass = sub.key === currentSub ? 'active' : '';
+                    html += `<span class="sub-tag ${activeClass}" data-sub="${sub.key}">${sub.label}<span class="count">${counts[sub.key]}</span></span>`;
+                });
+                subContainer.innerHTML = html;
+                document.querySelectorAll('.sub-tag').forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const sub = this.dataset.sub;
+                        if (sub === currentSub) return;
+                        currentSub = sub;
+                        renderSubTags();
+                        filterTodoList();
+                    });
+                });
+            }
+
+            function filterTodoByTimeRange(tasks) {
+                if (currentTimeRange === 'week') {
+                    const start = new Date(todayStr);
+                    const end = new Date(todayStr);
+                    end.setDate(end.getDate() + 7);
+                    return tasks.filter(t => {
+                        if (!t.estStart) return false;
+                        const d = new Date(t.estStart);
+                        return d >= start && d <= end;
+                    });
+                } else if (currentTimeRange === 'month') {
+                    const [y,m] = todayStr.split('-').map(Number);
+                    return tasks.filter(t => {
+                        if (!t.estStart) return false;
+                        const [ty,tm] = t.estStart.split('-').map(Number);
+                        return ty === y && tm === m;
+                    });
+                } else if (currentTimeRange === 'custom') {
+                    const start = new Date(todoCustomStart);
+                    const end = new Date(todoCustomEnd);
+                    return tasks.filter(t => {
+                        if (!t.estStart) return false;
+                        const d = new Date(t.estStart);
+                        return d >= start && d <= end;
+                    });
+                }
+                return tasks;
+            }
+
+            function filterTodoList() {
+                let tasks = todoTasks;
+                if (currentMain !== '全部') {
+                    const internalModule = displayToModuleMap[currentMain];
+                    tasks = tasks.filter(t => t.module === internalModule);
+                }
+                tasks = filterTodoByTimeRange(tasks);
+                const subFilter = subTypes.find(s => s.key === currentSub).filter;
+                tasks = tasks.filter(subFilter);
+                let html = '';
+                tasks.forEach(t => {
+                    const timeStatus = getTimeStatusText(t);
+                    let timeClass = '';
+                    if (t.actualStart && t.estEnd >= todayStr) timeClass = 'status-progress';
+                    else if (!t.actualStart && t.estEnd >= todayStr) timeClass = 'status-upcoming';
+                    else if (t.estEnd < todayStr && !t.actualEnd) timeClass = 'status-progress';
+                    html += `<div class="task-card">
+                        <div class="task-header">
+                            <span class="module-tag">${t.moduleShort}</span>
+                        </div>
+                        <div class="task-title">${t.title}</div>
+                        <div class="task-address">📍 ${t.store} · ${t.distance}</div>
+                        <div class="status-row">
+                            <span class="module-status-badge">${t.status}</span>
+                            <span class="task-status-badge ${timeClass}">${timeStatus}</span>
+                        </div>
+                        <div class="card-actions"><span class="btn-outline" onclick="showTaskDetail()">前往处理</span></div>
+                    </div>`;
+                });
+                todoListDiv.innerHTML = html || '<div style="text-align:center; padding:20px; color:#999;">暂无任务</div>';
+            }
+
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const range = this.dataset.range;
+                    if (range === 'custom') {
+                        // 这里可以使用日期范围选择，但为了简化，我们模拟弹窗
+                        alert('自定义日期范围功能待实现');
+                        return;
+                    }
+                    currentTimeRange = range;
+                    renderSubTags();
+                    filterTodoList();
+                });
+            });
+
+            renderMainTags();
+            renderSubTags();
+            filterTodoList();
+
+            window.setFilterFromExternal = function(type) {
+                if (type === '超期') {
+                    currentMain = '全部';
+                    currentSub = 'overdue';
+                    renderMainTags();
+                    renderSubTags();
+                    filterTodoList();
+                } else if (type) {
+                    if (mainModuleDisplayList.includes(type)) {
+                        currentMain = type;
+                        currentSub = 'inProgress';
+                        renderMainTags();
+                        renderSubTags();
+                        filterTodoList();
+                    }
+                }
+            };
+
+            // ---------- 消息模块 ----------
+            const msgData = [
+                { avatar: '系', title: '【新店】天津大港郭庄子店 待分配', preview: '工程支持待分配', time: '10:00', detail: '请手动指派。', read: false },
+                { avatar: '转', title: '任务转派提醒', preview: '长沙铁建城店 监理转派', time: '昨天 16:23', detail: '原监理A已将任务转派给您。', read: false },
+                { avatar: '催', title: '去货时间催办', preview: '广西防城港金海湾店', time: '每日10:00', detail: '请尽快填写去货时间。', read: false },
+                { avatar: '审', title: '全套图审核通过', preview: '新余广城店', time: '昨天 14:12', detail: '全套图已通过。', read: false },
+                { avatar: '系', title: '【新店】黑龙江哈尔滨北马路店', preview: '待施工', time: '09:30', detail: '项目已进场。', read: true },
+                { avatar: '转', title: '任务转派提醒', preview: '广西桂林金鸡路店', time: '昨天 11:20', detail: '原负责人已转派。', read: true },
+                { avatar: '催', title: '预算催办', preview: '河南郑州白庄店', time: '08:00', detail: '预算单超期。', read: true },
+                { avatar: '审', title: '全套图审核驳回', preview: '长沙龙湖铂金岛店', time: '昨天 17:30', detail: '需修改。', read: true },
+                { avatar: '系', title: '系统通知', preview: '升级维护', time: '2月25日', detail: '系统升级。', read: true }
+            ];
+            const totalMsg = msgData.length;
+            const unreadMsg = msgData.filter(m => !m.read).length;
+            document.querySelector('.bell .badge').innerText = unreadMsg;
+
+            let currentMsgFilter = 'all';
+            const msgTabs = document.querySelectorAll('.msg-tab');
+            msgTabs.forEach((tab, index) => {
+                tab.addEventListener('click', function() {
+                    msgTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    if (index === 0) currentMsgFilter = 'all';
+                    else if (index === 1) currentMsgFilter = 'unread';
+                    else currentMsgFilter = 'read';
+                    renderMsgPageList(currentMsgFilter);
+                });
+            });
+
+            function renderMsgPageList(filter) {
+                const listDiv = document.getElementById('msgPageList');
+                let filtered = filter === 'all' ? msgData : filter === 'unread' ? msgData.filter(m => !m.read) : msgData.filter(m => m.read);
+                let html = '';
+                filtered.forEach(msg => {
+                    const idx = msgData.indexOf(msg);
+                    html += `<div class="msg-item ${!msg.read ? 'unread' : ''}" onclick="showMsgDetailFromIndex(${idx})">
+                        <div class="msg-avatar">${msg.avatar}${!msg.read ? '<span class="unread-dot"></span>' : ''}</div>
+                        <div class="msg-content"><div class="msg-title">${msg.title}</div><div class="msg-preview">${msg.preview}</div><div class="msg-time">${msg.time}</div></div>
+                    </div>`;
+                });
+                listDiv.innerHTML = html || '<div style="text-align:center; padding:40px; color:#999;">暂无消息</div>';
+            }
+            renderMsgPageList('all');
+            document.querySelectorAll('.msg-tab')[0].innerHTML = `全部 (${totalMsg})`;
+            document.querySelectorAll('.msg-tab')[1].innerHTML = `未读 (${unreadMsg})`;
+            document.querySelectorAll('.msg-tab')[2].innerHTML = `已读 (${totalMsg - unreadMsg})`;
+
+            // ---------- 导航控制 ----------
+            let currentMainPage = 'workbench';
+            let currentInternalPage = null;
+
+            const navItems = document.querySelectorAll('.nav-item');
+            const workbenchPage = document.getElementById('workbenchPage');
+            const todoPage = document.getElementById('todoPage');
+            const schedulePage = document.getElementById('schedulePage');
+            const msgPage = document.getElementById('msgPage');
+            const appPage = document.getElementById('appPage');
+            const myPage = document.getElementById('myPage');
+            const pageTitle = document.getElementById('pageTitle');
+            const backBtn = document.getElementById('backBtn');
+            const internalHeader = document.getElementById('internalHeader');
+            const workbenchHeader = document.getElementById('workbenchHeader');
+            const portalSelectorBtn = document.getElementById('portalSelectorBtn');
+            const portalModal = document.getElementById('portalModal');
+            const bellIcon = document.getElementById('bellIcon');
+
+            function hideAllPages() {
+                workbenchPage.classList.remove('active');
+                todoPage.classList.remove('active');
+                schedulePage.classList.remove('active');
+                msgPage.classList.remove('active');
+                appPage.classList.remove('active');
+                myPage.classList.remove('active');
+            }
+            function setNavActive(page) {
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.page === page) item.classList.add('active');
+                });
+            }
+
+            function showMainPage(page) {
+                hideAllPages();
+                if (page === 'workbench') {
+                    workbenchPage.classList.add('active');
+                    internalHeader.classList.add('hidden');
+                    workbenchHeader.classList.remove('hidden');
+                    backBtn.style.display = 'none';
+                } else if (page === 'app') {
+                    appPage.classList.add('active');
+                    internalHeader.classList.remove('hidden');
+                    workbenchHeader.classList.add('hidden');
+                    pageTitle.innerText = '应用';
+                    backBtn.style.display = 'none';
+                } else if (page === 'my') {
+                    myPage.classList.add('active');
+                    internalHeader.classList.remove('hidden');
+                    workbenchHeader.classList.add('hidden');
+                    pageTitle.innerText = '我的';
+                    backBtn.style.display = 'none';
+                }
+                setNavActive(page);
+                currentMainPage = page;
+                currentInternalPage = null;
+            }
+
+            function showInternalPage(page, filterType) {
+                hideAllPages();
+                internalHeader.classList.remove('hidden');
+                workbenchHeader.classList.add('hidden');
+                backBtn.style.display = 'flex';
+                if (page === 'todo') {
+                    todoPage.classList.add('active');
+                    pageTitle.innerText = '我的待办';
+                    if (filterType === '超期') {
+                        setFilterFromExternal('超期');
+                    } else if (filterType) {
+                        if (mainModuleDisplayList.includes(filterType)) {
+                            currentMain = filterType;
+                            currentSub = 'inProgress';
+                            renderMainTags();
+                            renderSubTags();
+                            filterTodoList();
+                        }
+                    } else {
+                        currentMain = '全部';
+                        currentSub = 'inProgress';
+                        renderMainTags();
+                        renderSubTags();
+                        filterTodoList();
+                    }
+                } else if (page === 'schedule') {
+                    schedulePage.classList.add('active');
+                    pageTitle.innerText = '日程';
+                    renderCalendar(currentYear, currentMonth);
+                    renderScheduleTasks();
+                } else if (page === 'msg') {
+                    msgPage.classList.add('active');
+                    pageTitle.innerText = '消息';
+                    renderMsgPageList(currentMsgFilter);
+                }
+                currentInternalPage = page;
+                navItems.forEach(item => item.classList.remove('active'));
+            }
+
+            window.goBack = function() { if (currentInternalPage) showMainPage('workbench'); };
+            window.navigateToInternal = function(page, filter) { showInternalPage(page, filter); };
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => showMainPage(item.dataset.page));
+            });
+
+            bellIcon.addEventListener('click', () => showInternalPage('msg'));
+
+            // 门户切换
+            portalSelectorBtn.addEventListener('click', () => portalModal.classList.add('show'));
+            window.hidePortalModal = function() { portalModal.classList.remove('show'); };
+            document.querySelectorAll('#portalModal .sheet-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const portal = this.dataset.portal;
+                    if (portal) {
+                        portalSelectorBtn.innerHTML = `<span class="icon">⚡</span> ${portal} <span class="icon">▼</span>`;
+                    }
+                    hidePortalModal();
+                });
+            });
+
+            window.showTaskDetail = function() {
+                document.getElementById('taskDetailModal').classList.add('show');
+            };
+            window.hideTaskDetail = function() {
+                document.getElementById('taskDetailModal').classList.remove('show');
+            };
+            window.showMsgDetailFromIndex = function(index) {
+                const msg = msgData[index];
+                document.getElementById('detailTitle').innerText = msg.title;
+                document.getElementById('detailContent').innerText = msg.detail;
+                document.getElementById('detailTime').innerText = msg.time;
+                document.getElementById('msgDetailModal').classList.add('show');
+            };
+            window.hideMsgDetail = function() {
+                document.getElementById('msgDetailModal').classList.remove('show');
+            };
+
+            showMainPage('workbench');
+        })();
+    </script>
+</body>
+</html>
