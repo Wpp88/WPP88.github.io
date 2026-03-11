@@ -14,34 +14,35 @@
         .dashboard { max-width: 1650px; margin: 0 auto; }
 
         .card { background: #17212e; border-radius: 24px; border: 1px solid #26354a; box-shadow: 0 15px 30px -10px rgba(0,0,0,0.7); transition: 0.2s; }
-        .card:hover { border-color: #FF7300; }  /* 橙色强调 */
+        .card:hover { border-color: #FF7300; }
 
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #111a26; padding: 8px; border-radius: 60px; width: fit-content; border: 1px solid #283445; }
         .tab-btn { padding: 12px 32px; border-radius: 40px; background: transparent; border: none; color: #9bb1d0; font-weight: 600; font-size: 16px; cursor: pointer; }
-        .tab-btn.active { background: #FF7300; color: white; box-shadow: 0 4px 12px rgba(255, 115, 0, 0.4); } /* 橙色激活 */
+        .tab-btn.active { background: #FF7300; color: white; box-shadow: 0 4px 12px rgba(255,115,0,0.4); }
 
         .board { display: none; }
         .board.active { display: block; }
 
         .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: #17212e; border-radius: 30px; padding: 12px 20px; margin-bottom: 25px; border: 1px solid #2d3d55; }
         .filter-item { display: flex; align-items: center; gap: 6px; background: #1f2d3f; padding: 5px 14px; border-radius: 40px; border: 1px solid #334a67; }
-        .filter-item i { color: #FF7300; font-size: 13px; }  /* 橙色图标 */
+        .filter-item i { color: #FF7300; font-size: 13px; }
         .filter-item select, .filter-item input { background: transparent; border: none; color: white; font-size: 13px; outline: none; max-width: 130px; }
         .filter-item option { background: #1f2d3f; }
         .btn { background: #2f4568; border: none; color: white; padding: 6px 20px; border-radius: 40px; font-weight: 500; cursor: pointer; border: 1px solid #4f6b94; font-size: 13px; }
-        .btn-primary { background: #FF7300; border: 1px solid #ff9436; }  /* 橙色主按钮 */
+        .btn-primary { background: #FF7300; border: 1px solid #ff9436; }
         .btn-primary:hover { background: #ff8c26; }
 
         .block-group { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
         .block { background: #121c2a; border-radius: 28px; padding: 18px 20px; border: 1px solid #2a3d58; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .block-header h3 { font-size: 18px; color: #b6d0f0; }
-        .block-header h3 i { color: #FF7300; margin-right: 8px; }  /* 橙色图标 */
+        .block-header h3 i { color: #FF7300; margin-right: 8px; }
         .more-btn { background: #253a55; padding: 4px 18px; border-radius: 40px; font-size: 13px; color: #c0d4ff; cursor: pointer; border: 1px solid #3e5b82; }
 
         .kpi-grid { display: grid; gap: 12px; margin-bottom: 15px; }
-        .kpi-card { background: #1c293b; border-radius: 18px; padding: 12px; border-left: 4px solid #FF7300; }  /* 橙色左边框 */
-        .kpi-card .label { font-size: 12px; color: #99b5e8; }
+        .kpi-card { background: #1c293b; border-radius: 18px; padding: 12px; border-left: 4px solid #FF7300; }
+        .kpi-card .label { font-size: 12px; color: #99b5e8; display: flex; align-items: center; gap: 4px; }
+        .kpi-card .label i { color: #FF7300; cursor: help; font-size: 13px; }
         .kpi-card .value { font-size: 22px; font-weight: 700; line-height: 1.2; }
         .kpi-card .sub { font-size: 11px; color: #89a9e0; margin-top: 4px; }
 
@@ -59,7 +60,7 @@
         .modal-content { background: #1a2637; width: 1200px; max-width: 95vw; border-radius: 32px; border: 1px solid #4a6c9a; animation: fadeScale 0.2s; }
         .modal-header { padding: 18px 24px; border-bottom: 1px solid #314a6b; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h2 { font-size: 20px; color: #d2e5ff; }
-        .modal-header i { font-size: 24px; cursor: pointer; color: #FF7300; }  /* 橙色关闭图标 */
+        .modal-header i { font-size: 24px; cursor: pointer; color: #FF7300; }
         .modal-body { padding: 20px 24px; max-height: 60vh; overflow-y: auto; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #314a6b; display: flex; justify-content: flex-end; gap: 16px; }
 
@@ -108,51 +109,51 @@
 
     <!-- ========= 看板1: 项目勘场 (预约+勘场+资料) ========= -->
     <div id="board1" class="board active">
-        <!-- 预约板块 (完整指标) -->
+        <!-- 预约板块 -->
         <div class="block-group">
             <div class="block">
-                <div class="block-header"><h3><i class="fas fa-calendar-check"></i> 预约板块 (完整指标)</h3><span class="more-btn" onclick="openModal('appoint')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
+                <div class="block-header"><h3><i class="fas fa-calendar-check"></i> 预约板块</h3><span class="more-btn" onclick="openModal('appoint')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
                 <div class="kpi-grid grid-7">
-                    <div class="kpi-card"><div class="label">预约成功数量</div><div class="value">1,284</div><div class="sub">成功率 91.3%</div></div>
-                    <div class="kpi-card"><div class="label">未预约成功</div><div class="value">112</div><div class="sub">失败原因</div></div>
-                    <div class="kpi-card"><div class="label">未预约完成</div><div class="value">23</div><div class="sub">超期未约</div></div>
-                    <div class="kpi-card"><div class="label">预约完成总数</div><div class="value">1,396</div><div class="sub">含失败</div></div>
-                    <div class="kpi-card"><div class="label">24h预约完成数</div><div class="value">1,292</div><div class="sub">92.5% 及时</div></div>
-                    <div class="kpi-card"><div class="label">24h预约完成率</div><div class="value">92.5%</div><div class="sub">监理视角</div></div>
-                    <div class="kpi-card"><div class="label">本人预约完成率</div><div class="value">96.2%</div><div class="sub">个人绩效</div></div>
+                    <div class="kpi-card"><div class="label">预约成功数量 <i class="fas fa-question-circle" title="统计周期内成功完成预约的勘场任务数"></i></div><div class="value">1,284</div><div class="sub">成功率 91.3%</div></div>
+                    <div class="kpi-card"><div class="label">未预约成功 <i class="fas fa-question-circle" title="统计周期内预约失败的勘场任务数（已提交预约，预约失败）"></i></div><div class="value">112</div><div class="sub">失败原因</div></div>
+                    <div class="kpi-card"><div class="label">未预约完成 <i class="fas fa-question-circle" title="预约时间为空，但当前日期已过计划预约时间"></i></div><div class="value">23</div><div class="sub">超期未约</div></div>
+                    <div class="kpi-card"><div class="label">预约完成总数 <i class="fas fa-question-circle" title="已提交预约（包含预约成功和失败）"></i></div><div class="value">1,396</div><div class="sub">含失败</div></div>
+                    <div class="kpi-card"><div class="label">24h预约完成数 <i class="fas fa-question-circle" title="从项目确认完成到完成预约未超过24小时完成预约数"></i></div><div class="value">1,292</div><div class="sub">92.5% 及时</div></div>
+                    <div class="kpi-card"><div class="label">24h预约完成率 <i class="fas fa-question-circle" title="当前监理个人负责的预约完成，未超过24小时完成预约数占比"></i></div><div class="value">92.5%</div><div class="sub">监理视角</div></div>
+                    <div class="kpi-card"><div class="label">本人预约完成率 <i class="fas fa-question-circle" title="当前监理个人负责的预约完成占比"></i></div><div class="value">96.2%</div><div class="sub">个人绩效</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="appointChart1"></canvas><p style="text-align:center; font-size:11px;">区域24h预约完成率(降序)</p></div>
                     <div class="sm-chart-card"><canvas id="appointChart2"></canvas><p style="text-align:center; font-size:11px;">每日预约响应趋势</p></div>
                 </div>
             </div>
-            <!-- 勘场板块 (完整) -->
+            <!-- 勘场板块 -->
             <div class="block">
-                <div class="block-header"><h3><i class="fas fa-ruler-combined"></i> 勘场板块 (全指标)</h3><span class="more-btn" onclick="openModal('survey')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
+                <div class="block-header"><h3><i class="fas fa-ruler-combined"></i> 勘场板块</h3><span class="more-btn" onclick="openModal('survey')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
                 <div class="kpi-grid grid-7">
-                    <div class="kpi-card"><div class="label">勘场总数</div><div class="value">1,862</div></div>
-                    <div class="kpi-card"><div class="label">按时勘场数量</div><div class="value">1,493</div></div>
-                    <div class="kpi-card"><div class="label">勘场当天提交占比</div><div class="value">88.4%</div></div>
-                    <div class="kpi-card"><div class="label">未按时勘场数量</div><div class="value">112</div></div>
-                    <div class="kpi-card"><div class="label">本人按时勘场率</div><div class="value">93.2%</div></div>
-                    <div class="kpi-card"><div class="label">勘场数据提交及时率</div><div class="value">86.7%</div></div>
-                    <div class="kpi-card"><div class="label">勘场实际到场率</div><div class="value">94.1%</div></div>
+                    <div class="kpi-card"><div class="label">勘场总数 <i class="fas fa-question-circle" title="统计周期内创建的勘场任务总数"></i></div><div class="value">1,862</div></div>
+                    <div class="kpi-card"><div class="label">按时勘场数量 <i class="fas fa-question-circle" title="在预约时间当天完成勘场的任务数量"></i></div><div class="value">1,493</div></div>
+                    <div class="kpi-card"><div class="label">勘场当天提交占比 <i class="fas fa-question-circle" title="勘场完成当天提交勘场数据完成数量占比"></i></div><div class="value">88.4%</div></div>
+                    <div class="kpi-card"><div class="label">未按时勘场数量 <i class="fas fa-question-circle" title="实际勘场时间晚于预约时间或尚未勘场但预约时间已过"></i></div><div class="value">112</div></div>
+                    <div class="kpi-card"><div class="label">本人按时勘场率 <i class="fas fa-question-circle" title="当前监理个人按时勘场占比"></i></div><div class="value">93.2%</div></div>
+                    <div class="kpi-card"><div class="label">勘场数据提交及时率 <i class="fas fa-question-circle" title="周期内实际勘场当天提交勘场数据的占比"></i></div><div class="value">86.7%</div></div>
+                    <div class="kpi-card"><div class="label">勘场实际到场率 <i class="fas fa-question-circle" title="当月在门店提交勘场资料（50km内）的数量/提交勘场资料的项目数量"></i></div><div class="value">94.1%</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="surveyChart1"></canvas><p style="font-size:11px;">区域勘场准时率排名</p></div>
                     <div class="sm-chart-card"><canvas id="surveyChart2"></canvas><p style="font-size:11px;">到场率趋势</p></div>
                 </div>
             </div>
-            <!-- 勘场资料板块 (完整) -->
+            <!-- 勘场资料板块 -->
             <div class="block">
-                <div class="block-header"><h3><i class="fas fa-file-lines"></i> 勘场资料定稿</h3><span class="more-btn" onclick="openModal('surveyData')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
+                <div class="block-header"><h3><i class="fas fa-file-lines"></i> 勘场定稿</h3><span class="more-btn" onclick="openModal('surveyData')"><i class="fas fa-list-ul"></i> 更多明细</span></div>
                 <div class="kpi-grid grid-6">
-                    <div class="kpi-card"><div class="label">勘场定稿总数</div><div class="value">1,533</div></div>
-                    <div class="kpi-card"><div class="label">已完成立项数量</div><div class="value">1,320</div></div>
-                    <div class="kpi-card"><div class="label">24h内完成数量</div><div class="value">1,201</div></div>
-                    <div class="kpi-card"><div class="label">未完成数量</div><div class="value">84</div></div>
-                    <div class="kpi-card"><div class="label">本人资料提交时效</div><div class="value">12.4h</div></div>
-                    <div class="kpi-card"><div class="label">平均勘场周期</div><div class="value">3.2d</div></div>
+                    <div class="kpi-card"><div class="label">勘场定稿总数 <i class="fas fa-question-circle" title="统计周期内完成的勘场报告数量"></i></div><div class="value">1,533</div></div>
+                    <div class="kpi-card"><div class="label">已完成勘场定稿数量 <i class="fas fa-question-circle" title="勘场资料提交后已完成勘场定稿的任务数量"></i></div><div class="value">1,320</div></div>
+                    <div class="kpi-card"><div class="label">24h内完成数量 <i class="fas fa-question-circle" title="从勘场完成到提交勘场报告在24小时内"></i></div><div class="value">1,201</div></div>
+                    <div class="kpi-card"><div class="label">未完成数量 <i class="fas fa-question-circle" title="已勘场但尚未提交勘场报告"></i></div><div class="value">84</div></div>
+                    <div class="kpi-card"><div class="label">本人资料提交时效 <i class="fas fa-question-circle" title="当前监理个人提交资料的平均时效"></i></div><div class="value">12.4h</div></div>
+                    <div class="kpi-card"><div class="label">平均勘场周期 <i class="fas fa-question-circle" title="统计周期所有勘场任务实际完成时间（从任务开始到勘场资料提交）的平均周期"></i></div><div class="value">3.2d</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="dataChart1"></canvas><p>24h占比</p></div>
@@ -162,24 +163,24 @@
         </div>
     </div>
 
-    <!-- 看板2: 施工看板 (全指标) -->
+    <!-- 看板2: 施工看板 -->
     <div id="board2" class="board">
         <div class="block-group">
             <div class="block">
                 <div class="block-header"><h3><i class="fas fa-construction"></i> 施工进度总览+异常</h3><span class="more-btn" onclick="openModal('construction')">更多明细</span></div>
                 <div class="kpi-grid grid-6">
-                    <div class="kpi-card"><div class="label">当月进场施工</div><div class="value">342</div></div>
-                    <div class="kpi-card"><div class="label">当月按时进场</div><div class="value">269</div></div>
-                    <div class="kpi-card"><div class="label">按时进场率</div><div class="value">78.6%</div></div>
-                    <div class="kpi-card"><div class="label">当月完工项目</div><div class="value">156</div></div>
-                    <div class="kpi-card"><div class="label">工期达标率</div><div class="value">76.8%</div></div>
-                    <div class="kpi-card"><div class="label">冬季施工影响</div><div class="value">12</div></div>
-                    <div class="kpi-card"><div class="label">货架利旧项目</div><div class="value">21</div></div>
-                    <div class="kpi-card"><div class="label">本人超期项目数</div><div class="value">8</div></div>
-                    <div class="kpi-card"><div class="label">平均进场工期</div><div class="value">5.2d</div></div>
-                    <div class="kpi-card"><div class="label">平均施工工期</div><div class="value">18.4d</div></div>
-                    <div class="kpi-card"><div class="label">进场数据提交及时率</div><div class="value">90%</div></div>
-                    <div class="kpi-card"><div class="label">完工数据提交及时率</div><div class="value">84%</div></div>
+                    <div class="kpi-card"><div class="label">当月进场施工 <i class="fas fa-question-circle" title="统计当月实际进场施工的项目数量"></i></div><div class="value">342</div></div>
+                    <div class="kpi-card"><div class="label">当月按时进场 <i class="fas fa-question-circle" title="统计当月按时进场施工的项目数量（基装预算出来后第二天实际进场）"></i></div><div class="value">269</div></div>
+                    <div class="kpi-card"><div class="label">按时进场率 <i class="fas fa-question-circle" title="当月按时进场施工的项目占实际进场数量的占比（考虑延期申请）"></i></div><div class="value">78.6%</div></div>
+                    <div class="kpi-card"><div class="label">当月完工项目 <i class="fas fa-question-circle" title="统计当月完成施工的项目数量"></i></div><div class="value">156</div></div>
+                    <div class="kpi-card"><div class="label">工期达标率 <i class="fas fa-question-circle" title="实际完成时间 ≤ 计划结束时间的项目占比"></i></div><div class="value">76.8%</div></div>
+                    <div class="kpi-card"><div class="label">冬季施工影响 <i class="fas fa-question-circle" title="受冬季施工条件影响的项目数量（根据区域和开工时间判断）"></i></div><div class="value">12</div></div>
+                    <div class="kpi-card"><div class="label">货架利旧项目 <i class="fas fa-question-circle" title="使用旧货架的项目数量"></i></div><div class="value">21</div></div>
+                    <div class="kpi-card"><div class="label">本人超期项目数 <i class="fas fa-question-circle" title="当前监理负责的超期项目数量（节点超期或项目整体超期）"></i></div><div class="value">8</div></div>
+                    <div class="kpi-card"><div class="label">平均进场工期 <i class="fas fa-question-circle" title="统计周期内所有进场项目的平均进场工期（实际进场时间-勘场资料提交完成时间）"></i></div><div class="value">5.2d</div></div>
+                    <div class="kpi-card"><div class="label">平均施工工期 <i class="fas fa-question-circle" title="统计周期内所有完工项目的平均施工工期（实际完工-实际进场）"></i></div><div class="value">18.4d</div></div>
+                    <div class="kpi-card"><div class="label">进场数据提交及时率 <i class="fas fa-question-circle" title="统计周期所有实际进场当天提交数据的占比"></i></div><div class="value">90%</div></div>
+                    <div class="kpi-card"><div class="label">完工数据提交及时率 <i class="fas fa-question-circle" title="统计周期所有实际完工当天提交数据的占比"></i></div><div class="value">84%</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="constructChart1"></canvas><p>工程状态占比</p></div>
@@ -193,17 +194,17 @@
         </div>
     </div>
 
-    <!-- 看板3: 施工巡检 (全指标) -->
+    <!-- 看板3: 施工巡检 -->
     <div id="board3" class="board">
         <div class="block-group">
             <div class="block">
                 <div class="block-header"><h3><i class="fas fa-search"></i> 巡检执行 & 合格率</h3><span class="more-btn" onclick="openModal('inspect')">更多明细</span></div>
                 <div class="kpi-grid grid-5">
-                    <div class="kpi-card"><div class="label">巡检总次数</div><div class="value">1,023</div></div>
-                    <div class="kpi-card"><div class="label">完工按时巡检数</div><div class="value">467</div></div>
-                    <div class="kpi-card"><div class="label">完工巡检率</div><div class="value">92.4%</div></div>
-                    <div class="kpi-card"><div class="label">巡检不合格次数</div><div class="value">89</div></div>
-                    <div class="kpi-card"><div class="label">本人巡检合格率</div><div class="value">96%</div></div>
+                    <div class="kpi-card"><div class="label">巡检总次数 <i class="fas fa-question-circle" title="统计周期内完成的巡检次数（已提交巡检报告）"></i></div><div class="value">1,023</div></div>
+                    <div class="kpi-card"><div class="label">完工按时巡检数 <i class="fas fa-question-circle" title="统计已完工项目中已完成巡检的数量"></i></div><div class="value">467</div></div>
+                    <div class="kpi-card"><div class="label">完工巡检率 <i class="fas fa-question-circle" title="统计已完工项目中完成巡检的占比"></i></div><div class="value">92.4%</div></div>
+                    <div class="kpi-card"><div class="label">巡检不合格次数 <i class="fas fa-question-circle" title="巡检结果为不合格的次数（得分低于合格线或存在不合格项）"></i></div><div class="value">89</div></div>
+                    <div class="kpi-card"><div class="label">本人巡检合格率 <i class="fas fa-question-circle" title="当前监理个人巡检合格率（1 - 不合格次数/巡检总次数）"></i></div><div class="value">96%</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="inspectChart1"></canvas><p>巡检合格率趋势</p></div>
@@ -213,24 +214,24 @@
         </div>
     </div>
 
-    <!-- 看板4: 验收及整改 (完整指标) -->
+    <!-- 看板4: 验收及整改 -->
     <div id="board4" class="board">
         <div class="block-group">
             <div class="block">
                 <div class="block-header"><h3><i class="fas fa-clipboard-check"></i> 验收总览+整改</h3><span class="more-btn" onclick="openModal('accept')">验收明细</span> <span class="more-btn" onclick="openModal('remedy')">整改明细</span></div>
                 <div class="kpi-grid grid-6">
-                    <div class="kpi-card"><div class="label">验收总次数</div><div class="value">653</div></div>
-                    <div class="kpi-card"><div class="label">验收不合格次数</div><div class="value">107</div></div>
-                    <div class="kpi-card"><div class="label">整改完成率</div><div class="value">68.2%</div></div>
-                    <div class="kpi-card"><div class="label">本人验收合格率</div><div class="value">88.5%</div></div>
-                    <div class="kpi-card"><div class="label">本人整改完成率</div><div class="value">71%</div></div>
-                    <div class="kpi-card"><div class="label">超期整改数量</div><div class="value">23</div></div>
-                    <div class="kpi-card"><div class="label">验收平均工期</div><div class="value">1.8d</div></div>
-                    <div class="kpi-card"><div class="label">超期验收数量</div><div class="value">19</div></div>
-                    <div class="kpi-card"><div class="label">超期验收率</div><div class="value">8.2%</div></div>
-                    <div class="kpi-card"><div class="label">验收到场率</div><div class="value">96%</div></div>
-                    <div class="kpi-card"><div class="label">一次性验收通过率</div><div class="value">71.5%</div></div>
-                    <div class="kpi-card"><div class="label">平均整改时长</div><div class="value">4.3d</div></div>
+                    <div class="kpi-card"><div class="label">验收总次数 <i class="fas fa-question-circle" title="统计周期内完成的验收次数（已提交验收表单）"></i></div><div class="value">653</div></div>
+                    <div class="kpi-card"><div class="label">验收不合格次数 <i class="fas fa-question-circle" title="验收结果为不合格的次数（产生整改）"></i></div><div class="value">107</div></div>
+                    <div class="kpi-card"><div class="label">整改完成率 <i class="fas fa-question-circle" title="整改完成项数 / 总整改项数"></i></div><div class="value">68.2%</div></div>
+                    <div class="kpi-card"><div class="label">本人验收合格率 <i class="fas fa-question-circle" title="当前监理个人验收合格占比（1-不合格次数/验收总次数）"></i></div><div class="value">88.5%</div></div>
+                    <div class="kpi-card"><div class="label">本人整改完成率 <i class="fas fa-question-circle" title="当前监理个人负责的整改完成率（本人整改完成数/本人整改总数）"></i></div><div class="value">71%</div></div>
+                    <div class="kpi-card"><div class="label">超期整改数量 <i class="fas fa-question-circle" title="整改任务中超期的数量（未完成且预计结束时间<当前日期）"></i></div><div class="value">23</div></div>
+                    <div class="kpi-card"><div class="label">验收平均工期 <i class="fas fa-question-circle" title="统计周期内实际验收工期的平均值（实际验收日期-实际完工日期）"></i></div><div class="value">1.8d</div></div>
+                    <div class="kpi-card"><div class="label">超期验收数量 <i class="fas fa-question-circle" title="统计周期内超过标准验收工期（48小时）的项目数量"></i></div><div class="value">19</div></div>
+                    <div class="kpi-card"><div class="label">超期验收率 <i class="fas fa-question-circle" title="超期验收项目数量/实际验收项目数量"></i></div><div class="value">8.2%</div></div>
+                    <div class="kpi-card"><div class="label">验收到场率 <i class="fas fa-question-circle" title="当月在门店提交验收资料（50km内）的数量/提交验收资料的项目数量"></i></div><div class="value">96%</div></div>
+                    <div class="kpi-card"><div class="label">一次性验收通过率 <i class="fas fa-question-circle" title="无需整改直接通过验收的项目数 / 总验收项目数"></i></div><div class="value">71.5%</div></div>
+                    <div class="kpi-card"><div class="label">平均整改时长 <i class="fas fa-question-circle" title="从发现整改项到完成整改的平均天数"></i></div><div class="value">4.3d</div></div>
                 </div>
                 <div class="chart-row">
                     <div class="sm-chart-card"><canvas id="acceptChart1"></canvas><p>验收趋势</p></div>
@@ -244,7 +245,7 @@
         </div>
     </div>
 
-    <!-- ========= 明细模态框 (带查询维度字段) ========= -->
+    <!-- 明细模态框 (与原型一致) -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -274,6 +275,7 @@
     </div>
 </div>
 
+<!-- 脚本区域：交互 + 图表初始化 + 联动 -->
 <script>
     // 大区-省份-城市联动数据
     const regionData = {
@@ -317,74 +319,27 @@
     initRegionLinkage('globalRegion','globalProvince','globalCity');
     initRegionLinkage('modalRegion','modalProvince','modalCity');
 
-    // 明细数据：每个板块包含完整维度字段
+    // 明细数据 (各板块列表)
     const detailData = {
-        appoint: { name: '预约明细', columns: ['大区','省份','城市','门店','监理','预约时间','预约状态','是否24h内','失败原因'], rows: [
-            ['华东大区','江苏','南京','南京路店','张立','03-09 14:00','成功','是','-'],
-            ['华东大区','浙江','杭州','西湖店','王敏','03-09 09:30','成功','是','-'],
-            ['西南大区','四川','成都','春熙路店','李响','03-08 11:00','失败','否','门店拒约'],
-            ['华南大区','广东','广州','天河店','赵岩','03-08 16:20','成功','否','-'],
-            ['华北东北','北京','北京','中关村店','陈果','03-07 10:00','预约未完成','-','超期未约']
-        ]},
-        survey: { name: '勘场明细', columns: ['大区','省份','城市','门店','监理','预约时间','实际勘场时间','是否按时','到场证明'], rows: [
-            ['华东','江苏','南京','新街口店','张立','03-09 13:00','03-09 13:20','是','GPS 50m内'],
-            ['华东','浙江','杭州','西湖店','王敏','03-08 09:00','03-08 10:15','是','GPS 120m'],
-            ['西南','四川','成都','春熙路店','李响','03-07 15:30','03-08 09:00','否','GPS 80m'],
-            ['华南','广东','深圳','海岸城店','赵岩','03-06 10:00','03-06 10:30','是','GPS 30m'],
-            ['华北','北京','北京','望京店','陈果','03-05 14:00','-','未勘场','无']
-        ]},
-        surveyData: { name: '勘场资料明细', columns: ['大区','省份','城市','项目编号','监理','勘场时间','报告提交时间','24h内','立项状态'], rows: [
-            ['华东','江苏','南京','PRJ101','张立','03-09 13:20','03-09 14:20','是','成功'],
-            ['华东','浙江','杭州','PRJ102','王敏','03-08 10:15','03-08 11:10','是','成功'],
-            ['西南','四川','成都','PRJ103','李响','03-08 09:00','03-09 09:00','否','待立项'],
-            ['华南','广东','深圳','PRJ104','赵岩','03-06 10:30','03-06 18:30','是','成功'],
-            ['华北','北京','北京','PRJ105','陈果','03-05 10:00','03-06 10:45','否','立项失败']
-        ]},
-        construction: { name: '施工进度明细', columns: ['大区','省份','城市','门店','监理','进场时间','当前节点','工期达标','超期原因'], rows: [
-            ['华东','江苏','南京','国贸店','刘伟','03-01','水电施工','是','-'],
-            ['西南','四川','成都','太古里店','周梅','02-28','瓦工','否','材料未到'],
-            ['华南','广东','广州','正佳店','郑新','03-05','木工','是','-'],
-            ['华东','浙江','杭州','西湖店','吴迪','03-02','防水','否','人员不足'],
-            ['华北','北京','北京','朝阳店','赵宇','02-25','竣工验收','是','-']
-        ]},
-        inspect: { name: '巡检明细', columns: ['大区','省份','城市','门店','巡检人','巡检时间','得分','合格','问题等级'], rows: [
-            ['华东','江苏','南京','夫子庙店','赵岩','03-09','98','是','无'],
-            ['西南','四川','成都','春熙店','李响','03-08','76','否','一般'],
-            ['华南','广东','深圳','壹方城','王敏','03-07','88','是','建议'],
-            ['华东','浙江','杭州','龙井店','张立','03-06','91','是','无'],
-            ['华北','北京','北京','西单店','陈果','03-05','65','否','严重']
-        ]},
-        accept: { name: '验收明细', columns: ['大区','省份','城市','门店','监理','验收时间','结论','整改项','超期验收'], rows: [
-            ['华东','江苏','南京','夫子庙店','周正','03-09','通过','0','否'],
-            ['华中','湖南','长沙','五一店','吴迪','03-08','有条件通过','2','是'],
-            ['西南','重庆','重庆','三峡店','郑新','03-07','不通过','5','是'],
-            ['华东','浙江','杭州','西溪店','赵岩','03-06','通过','0','否'],
-            ['华南','广东','深圳','海岸城','刘伟','03-05','通过','1','否']
-        ]},
-        remedy: { name: '整改明细', columns: ['大区','项目','整改负责人','发现时间','整改期限','状态','超期'], rows: [
-            ['华东','A02','吴迪','03-01','03-12','进行中','否'],
-            ['西南','A03','郑新','03-02','03-10','超期','是'],
-            ['华南','A06','刘伟','03-03','03-15','进行中','否'],
-            ['华东','A07','赵岩','03-04','03-09','已完成','否'],
-            ['华北','A08','王敏','03-05','03-11','进行中','否']
-        ]}
+        appoint: { name: '预约明细', columns: ['大区','省份','城市','门店','监理','预约时间','预约状态','是否24h内','失败原因'], rows: [ ['华东大区','江苏','南京','南京路店','张立','03-09 14:00','成功','是','-'], ['华东大区','浙江','杭州','西湖店','王敏','03-09 09:30','成功','是','-'], ['西南大区','四川','成都','春熙路店','李响','03-08 11:00','失败','否','门店拒约'], ['华南大区','广东','广州','天河店','赵岩','03-08 16:20','成功','否','-'], ['华北东北','北京','北京','中关村店','陈果','03-07 10:00','预约未完成','-','超期未约'] ] },
+        survey: { name: '勘场明细', columns: ['大区','省份','城市','门店','监理','预约时间','实际勘场时间','是否按时','到场证明'], rows: [ ['华东','江苏','南京','新街口店','张立','03-09 13:00','03-09 13:20','是','GPS 50m内'], ['华东','浙江','杭州','西湖店','王敏','03-08 09:00','03-08 10:15','是','GPS 120m'], ['西南','四川','成都','春熙路店','李响','03-07 15:30','03-08 09:00','否','GPS 80m'], ['华南','广东','深圳','海岸城店','赵岩','03-06 10:00','03-06 10:30','是','GPS 30m'], ['华北','北京','北京','望京店','陈果','03-05 14:00','-','未勘场','无'] ] },
+        surveyData: { name: '勘场资料明细', columns: ['大区','省份','城市','项目编号','监理','勘场时间','报告提交时间','24h内','立项状态'], rows: [ ['华东','江苏','南京','PRJ101','张立','03-09 13:20','03-09 14:20','是','成功'], ['华东','浙江','杭州','PRJ102','王敏','03-08 10:15','03-08 11:10','是','成功'], ['西南','四川','成都','PRJ103','李响','03-08 09:00','03-09 09:00','否','待立项'], ['华南','广东','深圳','PRJ104','赵岩','03-06 10:30','03-06 18:30','是','成功'], ['华北','北京','北京','PRJ105','陈果','03-05 10:00','03-06 10:45','否','立项失败'] ] },
+        construction: { name: '施工进度明细', columns: ['大区','省份','城市','门店','监理','进场时间','当前节点','工期达标','超期原因'], rows: [ ['华东','江苏','南京','国贸店','刘伟','03-01','水电施工','是','-'], ['西南','四川','成都','太古里店','周梅','02-28','瓦工','否','材料未到'], ['华南','广东','广州','正佳店','郑新','03-05','木工','是','-'], ['华东','浙江','杭州','西湖店','吴迪','03-02','防水','否','人员不足'], ['华北','北京','北京','朝阳店','赵宇','02-25','竣工验收','是','-'] ] },
+        inspect: { name: '巡检明细', columns: ['大区','省份','城市','门店','巡检人','巡检时间','得分','合格','问题等级'], rows: [ ['华东','江苏','南京','夫子庙店','赵岩','03-09','98','是','无'], ['西南','四川','成都','春熙店','李响','03-08','76','否','一般'], ['华南','广东','深圳','壹方城','王敏','03-07','88','是','建议'], ['华东','浙江','杭州','龙井店','张立','03-06','91','是','无'], ['华北','北京','北京','西单店','陈果','03-05','65','否','严重'] ] },
+        accept: { name: '验收明细', columns: ['大区','省份','城市','门店','监理','验收时间','结论','整改项','超期验收'], rows: [ ['华东','江苏','南京','夫子庙店','周正','03-09','通过','0','否'], ['华中','湖南','长沙','五一店','吴迪','03-08','有条件通过','2','是'], ['西南','重庆','重庆','三峡店','郑新','03-07','不通过','5','是'], ['华东','浙江','杭州','西溪店','赵岩','03-06','通过','0','否'], ['华南','广东','深圳','海岸城','刘伟','03-05','通过','1','否'] ] },
+        remedy: { name: '整改明细', columns: ['大区','项目','整改负责人','发现时间','整改期限','状态','超期'], rows: [ ['华东','A02','吴迪','03-01','03-12','进行中','否'], ['西南','A03','郑新','03-02','03-10','超期','是'], ['华南','A06','刘伟','03-03','03-15','进行中','否'], ['华东','A07','赵岩','03-04','03-09','已完成','否'], ['华北','A08','王敏','03-05','03-11','进行中','否'] ] }
     };
 
     function openModal(type) {
         const data = detailData[type] || { name: '明细', columns: ['暂无数据'], rows: [] };
         document.getElementById('modalTitle').innerHTML = `<i class="fas fa-list"></i> ${data.name}`;
         let html = `<table><thead><tr>${data.columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
-        data.rows.forEach(row => {
-            html += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
-        });
+        data.rows.forEach(row => { html += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'; });
         html += '</tbody></table>';
         document.getElementById('modalTableContainer').innerHTML = html;
         document.getElementById('detailModal').classList.add('active');
     }
-
-    function closeModal() {
-        document.getElementById('detailModal').classList.remove('active');
-    }
+    function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
 
     // 选项卡切换
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -396,7 +351,7 @@
         });
     });
 
-    // 图表初始化
+    // 图表初始化 (橙色)
     window.onload = function() {
         new Chart(document.getElementById('appointChart1'), { type: 'bar', data: { labels: ['华东','华南','华北','西南','华中'], datasets: [{ data: [96,92,88,85,90], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         new Chart(document.getElementById('appointChart2'), { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [88,91,93,90,92], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
@@ -404,7 +359,6 @@
         new Chart(document.getElementById('surveyChart2'), { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [94,92,95,93,96], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         new Chart(document.getElementById('dataChart1'), { type: 'doughnut', data: { labels: ['≤24h','>24h'], datasets: [{ data: [1201,332], backgroundColor: ['#FF7300','#b34a4a'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
         new Chart(document.getElementById('dataChart2'), { type: 'bar', data: { labels: ['装饰A','工程B','安装C','机电D'], datasets: [{ data: [98,87,76,81], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-
         new Chart(document.getElementById('constructChart1'), { type: 'doughnut', data: { labels: ['待施工','施工中','待验收','已完工'], datasets: [{ data: [56,142,67,42], backgroundColor: ['#5470c6','#91cc75','#fac858','#ee6666'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
         new Chart(document.getElementById('constructChart2'), { type: 'bar', data: { labels: ['华东','华北','华南','西南'], datasets: [{ data: [82,78,69,74], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         new Chart(document.getElementById('inspectChart1'), { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [94,87,93,89,86], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
@@ -413,9 +367,8 @@
         new Chart(document.getElementById('acceptChart2'), { type: 'bar', data: { labels: ['公司A','公司B','公司C','公司D'], datasets: [{ data: [92,78,64,55], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     };
 
-    // 点击模态框外部关闭
     document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
-<div style="text-align:center; margin-top:15px; color:#4d668b; font-size:12px;"><i class="far fa-check-circle"></i> </div>
+<div style="text-align:center; margin:20px 0 10px; color:#4d668b; font-size:12px;"><i class="far fa-check-circle"></i> </div>
 </body>
 </html>
