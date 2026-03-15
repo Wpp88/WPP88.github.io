@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>监理·看板 · 数据中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b111c;
+            color: #eef2f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 12px 12px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .dashboard { max-width: 375px; margin: 0 auto; width: 100%; }
+        .block {
+            background: #17212e;
+            border-radius: 28px;
+            border: 1px solid #26354a;
+            box-shadow: 0 8px 20px -8px rgba(0,0,0,0.8);
+            padding: 16px 14px;
+            margin-bottom: 18px;
+        }
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .block-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #d2e5ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .block-header h3 i { color: #FF7300; font-size: 18px; }
+        .more-btn {
+            background: #253a55;
+            padding: 5px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #c0d4ff;
+            border: 1px solid #3e5b82;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .filter-icon {
+            background: #253a55;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FF7300;
+            font-size: 18px;
+            border: 1px solid #3e5b82;
+            cursor: pointer;
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            background: #111a26;
+            padding: 6px;
+            border-radius: 40px;
+            border: 1px solid #283445;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            padding: 10px 22px;
+            border-radius: 40px;
+            background: transparent;
+            border: none;
+            color: #9bb1d0;
+            font-weight: 600;
+            font-size: 15px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #FF7300;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255,115,0,0.4);
+        }
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            background: #17212e;
+            border-radius: 34px;
+            padding: 8px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #2d3d55;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #1f2d3f;
+            padding: 5px 10px;
+            border-radius: 40px;
+            border: 1px solid #334a67;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .kpi-card {
+            background: #1c293b;
+            border-radius: 18px;
+            padding: 12px 8px 10px;
+            border-left: 4px solid #FF7300;
+            cursor: pointer;
+        }
+        .kpi-card .label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #99b5e8;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .kpi-card .value {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 4px 0 2px;
+        }
+        .kpi-card .sub {
+            font-size: 9px;
+            color: #89a9e0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .chart-slider-container {
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+        .chart-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            gap: 16px;
+            padding: 4px 0 12px 0;
+            scrollbar-width: none;
+        }
+        .chart-slider::-webkit-scrollbar { display: none; }
+        .chart-slide {
+            flex: 0 0 86vw;
+            max-width: 330px;
+            scroll-snap-align: start;
+            background: #1a2637;
+            border-radius: 24px;
+            padding: 12px 10px 8px;
+            border: 1px solid #304a6b;
+            height: 170px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-slide canvas { width: 100%; height: 130px; }
+        .slider-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 2px;
+            margin-bottom: 4px;
+        }
+        .slider-pagination .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3a557a;
+            transition: 0.2s;
+        }
+        .slider-pagination .dot.active {
+            background: #FF7300;
+            width: 20px;
+            border-radius: 10px;
+        }
+        .person-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 8px 0 12px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .person-slider::-webkit-scrollbar { display: none; }
+        .person-card {
+            flex: 0 0 280px;
+            background: #1a2637;
+            border-radius: 20px;
+            padding: 12px;
+            border: 1px solid #3e5b82;
+            cursor: pointer;
+        }
+        .person-card h4 {
+            font-size: 15px;
+            color: #FF7300;
+            margin-bottom: 6px;
+        }
+        .person-card p { font-size: 12px; color: #b6d0f0; margin-bottom: 4px; }
+        .person-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .stat-tag {
+            background: #1f2d3f;
+            border-radius: 30px;
+            padding: 4px 8px;
+            font-size: 10px;
+            border-left: 2px solid #FF7300;
+        }
+        .todo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .todo-card {
+            background: #1c293b;
+            border-radius: 16px;
+            padding: 12px 10px;
+            border-left: 4px solid #FF7300;
+            cursor: pointer;
+        }
+        .todo-card .todo-title { font-size: 12px; color: #99b5e8; }
+        .todo-card .todo-count { font-size: 22px; font-weight: 700; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            align-items: flex-end;
+            z-index: 2000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #1a2637;
+            width: 100%;
+            border-radius: 32px 32px 0 0;
+            border: 1px solid #4a6c9a;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.25s ease-out;
+        }
+        .modal-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #314a6b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { font-size: 19px; color: #d2e5ff; }
+        .modal-header i { font-size: 26px; color: #FF7300; cursor: pointer; }
+        .modal-body { padding: 16px 18px; overflow-y: auto; }
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #314a6b;
+            display: flex;
+            justify-content: flex-end;
+            gap: 18px;
+        }
+        .filter-layout {
+            display: flex;
+            gap: 12px;
+            height: 300px;
+        }
+        .filter-left {
+            width: 100px;
+            border-right: 1px solid #314a6b;
+        }
+        .filter-left .filter-cat {
+            padding: 12px 8px;
+            color: #b6d0f0;
+            font-size: 14px;
+            border-radius: 20px 0 0 20px;
+            cursor: pointer;
+        }
+        .filter-left .filter-cat.active {
+            background: #FF7300;
+            color: white;
+        }
+        .filter-right {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            background: #1f2d3f;
+            border: 1px solid #3e5b82;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: white;
+            cursor: pointer;
+        }
+        .tag.selected {
+            background: #FF7300;
+            border-color: #ff9436;
+        }
+        .linkage-row select {
+            background: #1f2d3f;
+            color: white;
+            border: 1px solid #3e5b82;
+            padding: 6px;
+            border-radius: 20px;
+            width: 45%;
+        }
+        .table-responsive { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th { background: #212f45; color: #bdd3ff; padding: 8px 6px; }
+        td { padding: 8px 6px; border-bottom: 1px solid #2d415e; color: #d1e2ff; }
+        .btn-download {
+            background: #FF7300;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .board { display: none; }
+        .board.active { display: block; }
+        .footer-note { text-align: center; margin-top: 16px; color: #4d668b; font-size: 11px; }
+        .extra-row { display: flex; gap: 8px; font-size: 11px; margin-top: 8px; color: #b6d0f0; }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <!-- 顶部标签：项目看板 与 数据中心 -->
+    <div class="tabs" id="tabContainer">
+        <button class="tab-btn active" data-board="board0"><i class="fas fa-chart-pie"></i> 项目看板</button>
+        <button class="tab-btn" data-board="boardData"><i class="fas fa-database"></i> 数据中心</button>
+    </div>
+
+    <!-- 全局筛选条 (保持不变) -->
+    <div class="filter-bar" id="globalFilter">
+        <div class="filter-item"><i class="fas fa-database"></i><select id="globalDataSource"><option>全部数据源</option><option>新系统</option><option>迁移数据</option></select></div>
+        <div class="filter-item"><i class="fas fa-map"></i><select id="globalRegion"><option value="">全部大区</option></select></div>
+        <div class="filter-item"><i class="fas fa-location-dot"></i><select id="globalProvince"><option value="">全部省份</option></select></div>
+        <div class="filter-item"><i class="fas fa-city"></i><select id="globalCity"><option value="">全部城市</option></select></div>
+        <div class="filter-item"><i class="fas fa-store-alt"></i><select id="globalProjectType"><option>全部类型</option><option>新店</option><option>重装升级</option><option>迁址</option></select></div>
+        <div class="filter-item"><i class="fas fa-tag"></i><select id="globalBrand"><option>全部品牌</option><option>零食很忙</option><option>赵一鸣</option></select></div>
+        <div class="filter-item"><i class="far fa-calendar-alt"></i><input type="date" id="globalStartDate" value="2026-03-01" style="width:95px;"></div>
+        <div class="filter-item"><span>-</span><input type="date" id="globalEndDate" value="2026-03-11" style="width:95px;"></div>
+        <div class="filter-item"><i class="fas fa-user-hard-hat"></i><select id="globalSupervisor"><option>全部监理</option><option>张立</option><option>王敏</option><option>李响</option></select></div>
+        <button class="btn btn-primary" onclick="alert('全局筛选模拟已应用')"><i class="fas fa-search"></i></button>
+        <button class="btn" onclick="alert('导出看板概览')"><i class="fas fa-download"></i></button>
+    </div>
+
+    <!-- ========= 项目看板 board0 (优化版) ========= -->
+    <div id="board0" class="board active">
+        <!-- 项目总览 -->
+        <div class="block">
+            <div class="block-header">
+                <h3><i class="fas fa-chart-bar"></i> 项目总览·状态占比</h3>
+                <div class="filter-icon" onclick="openFilterModal('overview')"><i class="fas fa-sliders-h"></i></div>
+            </div>
+            <!-- 数字卡片 -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr); margin-bottom:8px;">
+                <div class="kpi-card" onclick="openProjectListModal('全部项目')">
+                    <div class="label">项目总数</div>
+                    <div class="value">386</div>
+                </div>
+                <div class="kpi-card" onclick="openProjectListModal('今日完工')">
+                    <div class="label">今日完工</div>
+                    <div class="value">8</div>
+                </div>
+                <div class="kpi-card" onclick="openProjectListModal('本周完工')">
+                    <div class="label">本周完工</div>
+                    <div class="value">43</div>
+                </div>
+                <div class="kpi-card" onclick="openProjectListModal('未来一周完工')">
+                    <div class="label">未来一周完工</div>
+                    <div class="value">27</div>
+                </div>
+            </div>
+            <div class="chart-slider-container">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="projectStatusChart"></canvas><p>点击柱状图下钻</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人员项目占比 -->
+        <div class="block">
+            <div class="block-header">
+                <h3><i class="fas fa-users"></i> 人员项目占比</h3>
+                <div class="filter-icon" onclick="openFilterModal('person')"><i class="fas fa-sliders-h"></i></div>
+            </div>
+            <div class="person-slider" id="personSlider">
+                <div class="person-card" onclick="openPersonProjectModal('张立','华南')">
+                    <h4>张立 <span style="font-size:12px;">(华南)</span></h4>
+                    <p>项目总数: 24 · 占比 18%</p>
+                    <div class="person-stats">
+                        <span class="stat-tag">待分配 2</span><span class="stat-tag">施工中 10</span><span class="stat-tag">已完成 5</span>
+                    </div>
+                </div>
+                <div class="person-card" onclick="openPersonProjectModal('王敏','华南')">
+                    <h4>王敏 <span style="font-size:12px;">(华南)</span></h4>
+                    <p>项目总数: 18 · 占比 13.5%</p>
+                    <div class="person-stats">
+                        <span class="stat-tag">待确认 3</span><span class="stat-tag">勘场中 4</span><span class="stat-tag">施工中 8</span>
+                    </div>
+                </div>
+                <div class="person-card" onclick="openPersonProjectModal('李响','华南')">
+                    <h4>李响 <span style="font-size:12px;">(华南)</span></h4>
+                    <p>项目总数: 12 · 占比 9%</p>
+                    <div class="person-stats">
+                        <span class="stat-tag">待分配 1</span><span class="stat-tag">设计中 3</span><span class="stat-tag">施工中 5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目节点待办 -->
+        <div class="block">
+            <div class="block-header">
+                <h3><i class="fas fa-tasks"></i> 项目节点待办</h3>
+                <div class="filter-icon" onclick="openFilterModal('todo')"><i class="fas fa-sliders-h"></i></div>
+            </div>
+            <div class="todo-grid">
+                <div class="todo-card" onclick="openNodeListModal('待分配')"><div class="todo-title">待分配</div><div class="todo-count">23</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待确认')"><div class="todo-title">待确认</div><div class="todo-count">12</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待预约')"><div class="todo-title">待预约</div><div class="todo-count">18</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待勘场')"><div class="todo-title">待勘场</div><div class="todo-count">9</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待定稿')"><div class="todo-title">待定稿</div><div class="todo-count">14</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待施工')"><div class="todo-title">待施工</div><div class="todo-count">31</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待完工')"><div class="todo-title">待完工</div><div class="todo-count">22</div></div>
+                <div class="todo-card" onclick="openNodeListModal('巡检待施工')"><div class="todo-title">巡检待施工</div><div class="todo-count">7</div></div>
+                <div class="todo-card" onclick="openNodeListModal('巡检待完工')"><div class="todo-title">巡检待完工</div><div class="todo-count">11</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待验收')"><div class="todo-title">待验收</div><div class="todo-count">16</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待传确认单')"><div class="todo-title">待传确认单</div><div class="todo-count">8</div></div>
+                <div class="todo-card" onclick="openNodeListModal('待整改')"><div class="todo-title">待整改</div><div class="todo-count">13</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= 数据中心 boardData (完整保留原board1-4) ========= -->
+    <div id="boardData" class="board">
+        <!-- 项目勘场板块 (原board1) -->
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-calendar-check"></i> 预约板块</h3><span class="more-btn" onclick="openModal('appoint')"><i class="fas fa-list-ul"></i> 明细</span></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 预约成功数量</div><div class="value">1,284</div><div class="sub">成功率 91.3% <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 未预约成功</div><div class="value">112</div><div class="sub">失败原因 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 未预约完成</div><div class="value">23</div><div class="sub">超期未约 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 预约完成总数</div><div class="value">1,396</div><div class="sub">含失败 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 24h预约完成数</div><div class="value">1,292</div><div class="sub">92.5% 及时 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 24h预约完成率</div><div class="value">92.5%</div><div class="sub">监理视角 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 本人预约完成率</div><div class="value">96.2%</div><div class="sub">个人绩效 <span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label"><i class="fas fa-question-circle"></i> 区域24h预约完成率</div><div class="value">92.5%</div><div class="sub">华东96% 华南92% <span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider1">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="appointChart1"></canvas><p>区域24h预约完成率(降序)</p></div>
+                    <div class="chart-slide"><canvas id="appointChart2"></canvas><p>每日预约响应趋势</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination1"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-ruler-combined"></i> 线下勘场</h3><span class="more-btn" onclick="openModal('survey')">明细</span></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label">勘场总数</div><div class="value">1,862</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">按时勘场数量</div><div class="value">1,493</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">勘场当天提交占比</div><div class="value">88.4%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">未按时勘场数量</div><div class="value">112</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">本人按时勘场率</div><div class="value">93.2%</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">区域勘场准时率排名</div><div class="value">92%</div><div class="sub">华东第一 <span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">勘场数据提交及时率</div><div class="value">86.7%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">勘场实际到场率</div><div class="value">94.1%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">勘场延期原因</div><div class="value">门店协调(42%)</div><div class="sub">图纸(33%) <span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">线下勘场通过率</div><div class="value">88.2%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider2">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="surveyChart1"></canvas><p>区域勘场准时率排名</p></div>
+                    <div class="chart-slide"><canvas id="surveyChart2"></canvas><p>延期原因饼图</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination2"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-file-lines"></i> 勘场定稿</h3><span class="more-btn" onclick="openModal('surveyData')">明细</span></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label">勘场定稿总数</div><div class="value">1,533</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">已完成立项数量</div><div class="value">1,320</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">24h内完成数量</div><div class="value">1,201</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">未完成数量</div><div class="value">84</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">本人资料提交时效</div><div class="value">12.4h</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">施工单位提交时效排名</div><div class="value">98%</div><div class="sub">装饰A <span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">勘场定稿通过率</div><div class="value">91.5%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">平均勘场周期</div><div class="value">3.2d</div><div class="sub"><span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider3">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="dataChart1"></canvas><p>24h占比</p></div>
+                    <div class="chart-slide"><canvas id="dataChart2"></canvas><p>施工单位提交排名</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination3"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+        </div>
+
+        <!-- 施工看板 (原board2) -->
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-construction"></i> 施工进度+异常</h3><span class="more-btn" onclick="openModal('construction')">明细</span></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label">工程状态占比</div><div class="value">待施工12%</div><div class="sub">施工中31% <span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">当月进场施工</div><div class="value">342</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">当月按时进场</div><div class="value">269</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">按时进场率</div><div class="value">78.6%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">当月完工项目</div><div class="value">156</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">工期达标率</div><div class="value">76.8%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">冬季施工影响</div><div class="value">12</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">货架利旧项目</div><div class="value">21</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">本人超期项目数</div><div class="value">8</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">平均进场工期</div><div class="value">5.2d</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">平均施工工期</div><div class="value">18.4d</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">进场数据提交及时率</div><div class="value">90%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">完工数据提交及时率</div><div class="value">84%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider4">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="constructChart1"></canvas><p>工程状态占比</p></div>
+                    <div class="chart-slide"><canvas id="constructChart2"></canvas><p>区域工期达标排名</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination4"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+            <div class="extra-row">
+                <div class="extra-item"><i class="fas fa-chart-pie"></i> 超期原因: 材料38% 人员27% 设计22% 其他13%</div>
+                <div class="extra-item"><i class="fas fa-chart-bar"></i> 延期进场: 门店协调42% 图纸33% 货期25%</div>
+            </div>
+        </div>
+
+        <!-- 施工巡检 (原board3) -->
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-search"></i> 巡检执行 & 合格率</h3><span class="more-btn" onclick="openModal('inspect')">明细</span></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label">巡检总次数</div><div class="value">1,023</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">完工按时巡检数</div><div class="value">467</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">完工巡检率</div><div class="value">92.4%</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">巡检不合格次数</div><div class="value">89</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">本人巡检合格率</div><div class="value">96%</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">区域巡检合格率排名</div><div class="value">华北96%</div><div class="sub">华东92% <span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">巡检到场率</div><div class="value">97.2%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider5">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="inspectChart1"></canvas><p>巡检合格率趋势</p></div>
+                    <div class="chart-slide"><canvas id="inspectChart2"></canvas><p>区域巡检合格率排名</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination5"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+        </div>
+
+        <!-- 验收及整改 (原board4) -->
+        <div class="block">
+            <div class="block-header"><h3><i class="fas fa-clipboard-check"></i> 验收+整改</h3><div><span class="more-btn" onclick="openModal('accept')">验收</span><span class="more-btn" style="margin-left:6px;" onclick="openModal('remedy')">整改</span></div></div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="label">验收总次数</div><div class="value">653</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">验收不合格次数</div><div class="value">107</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">整改完成率</div><div class="value">68.2%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">本人验收合格率</div><div class="value">88.5%</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">本人整改完成率</div><div class="value">71%</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">施工单位验收不合格排名</div><div class="value">公司A 92%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">超期整改数量</div><div class="value">23</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">验收平均工期</div><div class="value">1.8d</div><div class="sub"><span class="update-badge">实时</span></div></div>
+                <div class="kpi-card"><div class="label">超期验收数量</div><div class="value">19</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">超期验收率</div><div class="value">8.2%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">验收到场率</div><div class="value">96%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">一次性验收通过率</div><div class="value">71.5%</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">平均整改时长</div><div class="value">4.3d</div><div class="sub"><span class="update-badge">每日</span></div></div>
+                <div class="kpi-card"><div class="label">验收清单TOP10问题</div><div class="value">防水(28次)</div><div class="sub">电路(22次) <span class="update-badge">每日</span></div></div>
+            </div>
+            <div class="chart-slider-container" id="slider6">
+                <div class="chart-slider">
+                    <div class="chart-slide"><canvas id="acceptChart1"></canvas><p>验收趋势</p></div>
+                    <div class="chart-slide"><canvas id="acceptChart2"></canvas><p>施工单位不合格排名</p></div>
+                </div>
+                <div class="slider-pagination" id="pagination6"><span class="dot active"></span><span class="dot"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选弹窗 (分类左侧) -->
+    <div id="filterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2><i class="fas fa-filter"></i> 筛选</h2><i class="fas fa-times" onclick="closeFilterModal()"></i></div>
+            <div class="modal-body">
+                <div class="filter-layout">
+                    <div class="filter-left">
+                        <div class="filter-cat active" data-cat="source">数据源</div>
+                        <div class="filter-cat" data-cat="region">大区省市</div>
+                        <div class="filter-cat" data-cat="type">工程类型</div>
+                        <div class="filter-cat" data-cat="brand">品牌</div>
+                        <div class="filter-cat" data-cat="supervisor">监理</div>
+                        <div class="filter-cat" data-cat="date">日期范围</div>
+                    </div>
+                    <div class="filter-right" id="filterRightPanel"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="alert('重置')">重置</button>
+                <button class="btn btn-primary" onclick="applyFilter()">应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目列表弹窗 (增强版) -->
+    <div id="projectListModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="projectListTitle">项目明细</h2>
+                <div style="display:flex; gap:10px;">
+                    <i class="fas fa-sliders-h" onclick="openFilterModal('list')" style="font-size:22px;"></i>
+                    <i class="fas fa-times" onclick="closeProjectListModal()"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>数据源</th><th>品牌</th><th>项目名称</th><th>状态</th><th>监理</th><th>大区</th><th>省市</th><th>预计开始</th><th>预计结束</th><th>剩余时间</th></tr></thead>
+                        <tbody id="listTableBody">
+                            <tr><td>新系统</td><td>零食很忙</td><td>南京路店</td><td>施工中</td><td>张立</td><td>华东</td><td>江苏-南京</td><td>03-10</td><td>03-20</td><td>4天</td></tr>
+                            <tr><td>迁移数据</td><td>赵一鸣</td><td>春熙路店</td><td>待验收</td><td>李响</td><td>西南</td><td>四川-成都</td><td>03-05</td><td>03-15</td><td>-1天</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn-download" onclick="alert('下载报表')"><i class="fas fa-download"></i> 下载报表</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note"><i class="far fa-check-circle"></i> 数据截止 2026-03-12 · 点击卡片/图表下钻</div>
+</div>
+
+<script>
+    (function() {
+        // 省市区联动 (全局筛选)
+        const regionData = {
+            "华北东北大区": { provinces: ["北京","天津","辽宁","吉林","黑龙江"], cities: { "北京":["北京"],"天津":["天津"],"辽宁":["沈阳"],"吉林":["长春"],"黑龙江":["哈尔滨"] } },
+            "华东大区": { provinces: ["上海","江苏","浙江","安徽"], cities: { "上海":["上海"],"江苏":["南京","苏州"],"浙江":["杭州","宁波"],"安徽":["合肥"] } },
+            "华南大区": { provinces: ["广东","广西","海南"], cities: { "广东":["广州","深圳"],"广西":["南宁"],"海南":["海口"] } },
+            "西南大区": { provinces: ["四川","重庆","贵州","云南"], cities: { "四川":["成都"],"重庆":["重庆"],"贵州":["贵阳"],"云南":["昆明"] } }
+        };
+        function initRegionLinkage(regionId, provinceId, cityId) {
+            const regionSel = document.getElementById(regionId);
+            const provinceSel = document.getElementById(provinceId);
+            const citySel = document.getElementById(cityId);
+            if(!regionSel) return;
+            regionSel.innerHTML = '<option value="">全部大区</option>';
+            Object.keys(regionData).forEach(r => { let opt = document.createElement('option'); opt.value = r; opt.textContent = r; regionSel.appendChild(opt); });
+            function updateProvinces() {
+                const selectedRegion = regionSel.value;
+                provinceSel.innerHTML = '<option value="">全部省份</option>';
+                citySel.innerHTML = '<option value="">全部城市</option>';
+                if (selectedRegion && regionData[selectedRegion]) {
+                    regionData[selectedRegion].provinces.forEach(p => { let opt = document.createElement('option'); opt.value = p; opt.textContent = p; provinceSel.appendChild(opt); });
+                }
+            }
+            function updateCities() {
+                const selectedRegion = regionSel.value;
+                const selectedProvince = provinceSel.value;
+                citySel.innerHTML = '<option value="">全部城市</option>';
+                if (selectedRegion && selectedProvince && regionData[selectedRegion].cities[selectedProvince]) {
+                    regionData[selectedRegion].cities[selectedProvince].forEach(c => { let opt = document.createElement('option'); opt.value = c; opt.textContent = c; citySel.appendChild(opt); });
+                }
+            }
+            regionSel.addEventListener('change', () => { updateProvinces(); updateCities(); });
+            provinceSel.addEventListener('change', updateCities);
+            updateProvinces();
+        }
+        initRegionLinkage('globalRegion','globalProvince','globalCity');
+
+        // 明细数据 (更多明细)
+        const detailData = {
+            appoint: { name: '预约明细', columns: ['大区','门店','监理','预约状态','24h内'], rows: [['华东','南京路店','张立','成功','是'],['西南','春熙路店','李响','失败','否']] },
+            survey: { name: '勘场明细', columns: ['大区','门店','实际时间','是否按时'], rows: [['华东','新街口店','03-09','是'],['西南','春熙路店','03-08','否']] },
+            surveyData: { name: '勘场资料', columns: ['项目','提交时间','24h内'], rows: [['PRJ101','03-09','是'],['PRJ103','03-09','否']] },
+            construction: { name: '施工明细', columns: ['门店','当前节点','超期原因'], rows: [['国贸店','水电','无'],['太古里店','瓦工','材料']] },
+            inspect: { name: '巡检明细', columns: ['门店','得分','问题'], rows: [['夫子庙店','98','无'],['春熙店','76','防水']] },
+            accept: { name: '验收明细', columns: ['门店','结论','整改项'], rows: [['夫子庙店','通过','0'],['五一店','有条件','2']] },
+            remedy: { name: '整改明细', columns: ['项目','状态','超期'], rows: [['A02','进行中','否'],['A03','超期','是']] }
+        };
+        window.openModal = function(type) {
+            const data = detailData[type] || { name: '明细', columns: ['暂无'], rows: [] };
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-list"></i> ${data.name}`;
+            let html = `<table><thead><tr>${data.columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+            data.rows.forEach(row => { html += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>'; });
+            html += '</tbody></table>';
+            document.getElementById('modalTableContainer').innerHTML = html;
+            document.getElementById('detailModal').classList.add('active');
+        };
+        // 原明细模态框 (未使用但保留)
+        const detailModalHTML = `<div id="detailModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle"><i class="fas fa-table"></i> 明细</h2><i class="fas fa-times" onclick="document.getElementById('detailModal').classList.remove('active')"></i></div><div class="modal-body"><div class="table-responsive" id="modalTableContainer"></div></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', detailModalHTML);
+
+        // 筛选弹窗逻辑
+        const filterModal = document.getElementById('filterModal');
+        const filterRight = document.getElementById('filterRightPanel');
+        const filterCats = document.querySelectorAll('.filter-cat');
+        window.openFilterModal = function(context) {
+            // 激活第一个分类
+            document.querySelectorAll('.filter-cat').forEach(c => c.classList.remove('active'));
+            document.querySelector('.filter-cat[data-cat="source"]').classList.add('active');
+            renderFilterPanel('source');
+            filterModal.classList.add('active');
+        };
+        window.closeFilterModal = () => filterModal.classList.remove('active');
+        function renderFilterPanel(cat) {
+            let html = '';
+            if (cat === 'source') {
+                html = `<div class="tag-group"><span class="tag selected" data-multi="source">新系统</span><span class="tag" data-multi="source">迁移数据</span></div>`;
+            } else if (cat === 'region') {
+                html = `<div class="linkage-row"><select><option>华南大区</option><option>华东大区</option></select><select><option>广东</option><option>广西</option></select></div>
+                        <div class="linkage-row" style="margin-top:8px;"><select><option>广州</option><option>深圳</option></select></div>`;
+            } else if (cat === 'type') {
+                html = `<div class="tag-group"><span class="tag selected">新店</span><span class="tag">迁址</span><span class="tag">重装升级</span></div>`;
+            } else if (cat === 'brand') {
+                html = `<div class="tag-group"><span class="tag selected">零食很忙</span><span class="tag">赵一鸣</span></div>`;
+            } else if (cat === 'supervisor') {
+                html = `<div class="tag-group"><span class="tag selected">张立</span><span class="tag">王敏</span><span class="tag">李响</span></div>`;
+            } else if (cat === 'date') {
+                html = `<div><label>开始</label><input type="date" class="form-control" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;"></div>
+                        <div style="margin-top:8px;"><label>结束</label><input type="date" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;"></div>`;
+            }
+            filterRight.innerHTML = html;
+            filterRight.querySelectorAll('.tag').forEach(t => {
+                t.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('selected');
+                });
+            });
+        }
+        filterCats.forEach(cat => {
+            cat.addEventListener('click', function() {
+                filterCats.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                renderFilterPanel(this.dataset.cat);
+            });
+        });
+        window.applyFilter = function() { alert('筛选条件已应用'); closeFilterModal(); };
+
+        // 项目列表弹窗
+        const listModal = document.getElementById('projectListModal');
+        const listTitle = document.getElementById('projectListTitle');
+        window.openProjectListModal = function(title) {
+            listTitle.innerText = '项目明细 - ' + title;
+            listModal.classList.add('active');
+        };
+        window.openPersonProjectModal = function(name, region) {
+            listTitle.innerText = `项目明细 - ${name}（${region}）`;
+            listModal.classList.add('active');
+        };
+        window.openNodeListModal = function(state) {
+            listTitle.innerText = `项目节点 - ${state}`;
+            listModal.classList.add('active');
+        };
+        window.closeProjectListModal = () => listModal.classList.remove('active');
+        listModal.addEventListener('click', e => { if (e.target === listModal) closeProjectListModal(); });
+
+        // 图表配置全集
+        const chartConfigs = {
+            projectStatusChart: {
+                type: 'bar',
+                data: { labels: ['待分配','待确认','勘场中','定稿中','施工中','验收','已完成'], datasets: [{ data: [23,12,18,14,142,31,67], backgroundColor: '#FF7300' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    onClick: (e, item) => { if (item.length>0) { const labels = ['待分配','待确认','勘场中','定稿中','施工中','验收','已完成']; openNodeListModal(labels[item[0].index]); } }
+                }
+            },
+            appointChart1: { type: 'bar', data: { labels: ['华东','华南','华北','西南','华中'], datasets: [{ data: [96,92,88,85,90], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            appointChart2: { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [88,91,93,90,92], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            surveyChart1: { type: 'bar', data: { labels: ['华东','华南','华北','西南'], datasets: [{ data: [92,88,84,91], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            surveyChart2: { type: 'doughnut', data: { labels: ['门店协调','图纸问题','货期','其他'], datasets: [{ data: [42,33,25,10], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#ffe1c6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } },
+            dataChart1: { type: 'doughnut', data: { labels: ['≤24h','>24h'], datasets: [{ data: [1201,332], backgroundColor: ['#FF7300','#b34a4a'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } },
+            dataChart2: { type: 'bar', data: { labels: ['装饰A','工程B','安装C','机电D'], datasets: [{ data: [98,87,76,81], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            constructChart1: { type: 'doughnut', data: { labels: ['待施工','施工中','待验收','已完工'], datasets: [{ data: [56,142,67,42], backgroundColor: ['#5470c6','#91cc75','#fac858','#ee6666'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } },
+            constructChart2: { type: 'bar', data: { labels: ['华东','华北','华南','西南'], datasets: [{ data: [82,78,69,74], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            inspectChart1: { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [94,87,93,89,86], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            inspectChart2: { type: 'bar', data: { labels: ['华北','华东','华南','西南'], datasets: [{ data: [96,92,88,85], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            acceptChart1: { type: 'line', data: { labels: ['03-05','03-06','03-07','03-08','03-09'], datasets: [{ data: [85,82,88,84,89], borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
+            acceptChart2: { type: 'bar', data: { labels: ['公司A','公司B','公司C','公司D'], datasets: [{ data: [92,78,64,55], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } }
+        };
+
+        let chartInstances = {};
+        function destroyAllCharts() { Object.values(chartInstances).forEach(c => c.destroy()); chartInstances = {}; }
+        function initBoardCharts(boardId) {
+            const board = document.getElementById(boardId);
+            if (!board) return;
+            board.querySelectorAll('canvas').forEach(canvas => {
+                if (!canvas.id || chartInstances[canvas.id]) return;
+                const config = chartConfigs[canvas.id];
+                if (config) {
+                    try { chartInstances[canvas.id] = new Chart(canvas, config); } catch (e) { console.warn('chart error', canvas.id); }
+                }
+            });
+        }
+
+        // 选项卡切换
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.board').forEach(b => b.classList.remove('active'));
+                const target = btn.dataset.board;
+                document.getElementById(target).classList.add('active');
+                destroyAllCharts();
+                initBoardCharts(target);
+            });
+        });
+
+        // 初始化当前看板 (board0)
+        initBoardCharts('board0');
+
+        // 滑动指示器 (简单绑定，多滑块场景仅演示)
+        function setupPagination() {
+            document.querySelectorAll('.chart-slider').forEach((slider, idx) => {
+                const parent = slider.closest('.block');
+                if (!parent) return;
+                const pagination = parent.querySelector('.slider-pagination');
+                if (!pagination) return;
+                const dots = pagination.querySelectorAll('.dot');
+                const updateDots = () => {
+                    const scrollLeft = slider.scrollLeft;
+                    const slideWidth = slider.querySelector('.chart-slide')?.offsetWidth || 1;
+                    const gap = 16;
+                    const index = Math.round(scrollLeft / (slideWidth + gap));
+                    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+                };
+                slider.addEventListener('scroll', updateDots);
+                updateDots();
+            });
+        }
+        setupPagination();
+        // 每次切换后重新绑定（简单处理）
+        const originalSwitch = tabBtns[0].click; // 略
+        tabBtns.forEach(btn => {
+            const oldClick = btn.click;
+            btn.addEventListener('click', function() {
+                setTimeout(setupPagination, 100);
+            });
+        });
+    })();
+</script>
+<!-- 注意：数据中心板块已完整保留原board1-4全部内容，图表配置也已集成。 -->
+</body>
+</html>
