@@ -424,7 +424,7 @@
             </div>
         </div>
 
-        <!-- 人员项目占比 -->
+        <!-- 人员项目占比 (使用最新状态) -->
         <div class="block">
             <div class="block-header">
                 <h3><i class="fas fa-users"></i> 人员项目占比</h3>
@@ -435,35 +435,36 @@
                     <h4>张立 <span style="font-size:12px;">(华南)</span></h4>
                     <p>项目总数: 24 · 占比 18%</p>
                     <div class="person-stats">
-                        <span class="stat-tag">待分配 2</span><span class="stat-tag">施工中 10</span><span class="stat-tag">已完成 5</span>
+                        <span class="stat-tag">勘场中 3</span><span class="stat-tag">定稿中 4</span><span class="stat-tag">设计中 2</span>
+                        <span class="stat-tag">施工中 8</span><span class="stat-tag">验收交付中 5</span><span class="stat-tag">暂停中 2</span>
                     </div>
                 </div>
                 <div class="person-card" onclick="openPersonProjectModal('王敏','华南')">
                     <h4>王敏 <span style="font-size:12px;">(华南)</span></h4>
                     <p>项目总数: 18 · 占比 13.5%</p>
                     <div class="person-stats">
-                        <span class="stat-tag">待确认 3</span><span class="stat-tag">勘场中 4</span><span class="stat-tag">施工中 8</span>
+                        <span class="stat-tag">勘场中 2</span><span class="stat-tag">定稿中 3</span><span class="stat-tag">设计中 1</span>
+                        <span class="stat-tag">施工中 7</span><span class="stat-tag">验收交付中 3</span><span class="stat-tag">暂停中 2</span>
                     </div>
                 </div>
                 <div class="person-card" onclick="openPersonProjectModal('李响','华南')">
                     <h4>李响 <span style="font-size:12px;">(华南)</span></h4>
                     <p>项目总数: 12 · 占比 9%</p>
                     <div class="person-stats">
-                        <span class="stat-tag">待分配 1</span><span class="stat-tag">设计中 3</span><span class="stat-tag">施工中 5</span>
+                        <span class="stat-tag">勘场中 2</span><span class="stat-tag">定稿中 2</span><span class="stat-tag">设计中 1</span>
+                        <span class="stat-tag">施工中 4</span><span class="stat-tag">验收交付中 2</span><span class="stat-tag">暂停中 1</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 项目节点待办 -->
+        <!-- 项目节点待办 (去掉待分配、待确认) -->
         <div class="block">
             <div class="block-header">
                 <h3><i class="fas fa-tasks"></i> 项目节点待办</h3>
                 <div class="filter-icon" onclick="openFilterModal('todo')"><i class="fas fa-sliders-h"></i></div>
             </div>
             <div class="todo-grid">
-                <div class="todo-card" onclick="openNodeListModal('待分配')"><div class="todo-title">待分配</div><div class="todo-count">23</div></div>
-                <div class="todo-card" onclick="openNodeListModal('待确认')"><div class="todo-title">待确认</div><div class="todo-count">12</div></div>
                 <div class="todo-card" onclick="openNodeListModal('待预约')"><div class="todo-title">待预约</div><div class="todo-count">18</div></div>
                 <div class="todo-card" onclick="openNodeListModal('待勘场')"><div class="todo-title">待勘场</div><div class="todo-count">9</div></div>
                 <div class="todo-card" onclick="openNodeListModal('待定稿')"><div class="todo-title">待定稿</div><div class="todo-count">14</div></div>
@@ -478,7 +479,7 @@
         </div>
     </div>
 
-    <!-- ========= 数据中心 boardData (完整保留原board1-4) ========= -->
+    <!-- ========= 数据中心 boardData (完整保留原board1-4，此处为简写但实际完整内容已在之前版本中保留，为了完整输出再次嵌入) ========= -->
     <div id="boardData" class="board">
         <!-- 项目勘场板块 (原board1) -->
         <div class="block">
@@ -734,16 +735,15 @@
             document.getElementById('modalTableContainer').innerHTML = html;
             document.getElementById('detailModal').classList.add('active');
         };
-        // 原明细模态框 (未使用但保留)
+        // 原明细模态框
         const detailModalHTML = `<div id="detailModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle"><i class="fas fa-table"></i> 明细</h2><i class="fas fa-times" onclick="document.getElementById('detailModal').classList.remove('active')"></i></div><div class="modal-body"><div class="table-responsive" id="modalTableContainer"></div></div></div></div>`;
-        document.body.insertAdjacentHTML('beforeend', detailModalHTML);
+        if (!document.getElementById('detailModal')) document.body.insertAdjacentHTML('beforeend', detailModalHTML);
 
         // 筛选弹窗逻辑
         const filterModal = document.getElementById('filterModal');
         const filterRight = document.getElementById('filterRightPanel');
         const filterCats = document.querySelectorAll('.filter-cat');
         window.openFilterModal = function(context) {
-            // 激活第一个分类
             document.querySelectorAll('.filter-cat').forEach(c => c.classList.remove('active'));
             document.querySelector('.filter-cat[data-cat="source"]').classList.add('active');
             renderFilterPanel('source');
@@ -764,8 +764,8 @@
             } else if (cat === 'supervisor') {
                 html = `<div class="tag-group"><span class="tag selected">张立</span><span class="tag">王敏</span><span class="tag">李响</span></div>`;
             } else if (cat === 'date') {
-                html = `<div><label>开始</label><input type="date" class="form-control" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;"></div>
-                        <div style="margin-top:8px;"><label>结束</label><input type="date" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;"></div>`;
+                html = `<div><label>开始</label><input type="date" class="form-control" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;" value="2026-03-01"></div>
+                        <div style="margin-top:8px;"><label>结束</label><input type="date" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;" value="2026-03-12"></div>`;
             }
             filterRight.innerHTML = html;
             filterRight.querySelectorAll('.tag').forEach(t => {
@@ -802,13 +802,22 @@
         window.closeProjectListModal = () => listModal.classList.remove('active');
         listModal.addEventListener('click', e => { if (e.target === listModal) closeProjectListModal(); });
 
-        // 图表配置全集
+        // 图表配置全集 (更新项目总览状态)
         const chartConfigs = {
             projectStatusChart: {
                 type: 'bar',
-                data: { labels: ['待分配','待确认','勘场中','定稿中','施工中','验收','已完成'], datasets: [{ data: [23,12,18,14,142,31,67], backgroundColor: '#FF7300' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    onClick: (e, item) => { if (item.length>0) { const labels = ['待分配','待确认','勘场中','定稿中','施工中','验收','已完成']; openNodeListModal(labels[item[0].index]); } }
+                data: { labels: ['勘场中','定稿中','设计中','施工中','验收交付中','暂停中'], 
+                        datasets: [{ data: [18, 14, 9, 142, 31, 5], backgroundColor: '#FF7300' }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    onClick: (e, item) => { 
+                        if (item.length > 0) { 
+                            const labels = ['勘场中','定稿中','设计中','施工中','验收交付中','暂停中']; 
+                            openNodeListModal(labels[item[0].index]); 
+                        } 
+                    }
                 }
             },
             appointChart1: { type: 'bar', data: { labels: ['华东','华南','华北','西南','华中'], datasets: [{ data: [96,92,88,85,90], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
@@ -850,13 +859,14 @@
                 document.getElementById(target).classList.add('active');
                 destroyAllCharts();
                 initBoardCharts(target);
+                setTimeout(setupPagination, 100);
             });
         });
 
         // 初始化当前看板 (board0)
         initBoardCharts('board0');
 
-        // 滑动指示器 (简单绑定，多滑块场景仅演示)
+        // 滑动指示器
         function setupPagination() {
             document.querySelectorAll('.chart-slider').forEach((slider, idx) => {
                 const parent = slider.closest('.block');
@@ -876,16 +886,7 @@
             });
         }
         setupPagination();
-        // 每次切换后重新绑定（简单处理）
-        const originalSwitch = tabBtns[0].click; // 略
-        tabBtns.forEach(btn => {
-            const oldClick = btn.click;
-            btn.addEventListener('click', function() {
-                setTimeout(setupPagination, 100);
-            });
-        });
     })();
 </script>
-<!-- 注意：数据中心板块已完整保留原board1-4全部内容，图表配置也已集成。 -->
 </body>
 </html>
