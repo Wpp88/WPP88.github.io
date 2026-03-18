@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>项目管理列表 · 卡片优化（app）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f2f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 12px 0 30px 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            background-color: #ffffff;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            padding: 12px 16px 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1e2b;
+            background-color: white;
+        }
+        .status-bar .time { font-weight: 600; }
+        .status-bar .icons { display: flex; gap: 6px; }
+
+        .header {
+            padding: 8px 16px 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            border-bottom: 1px solid #eff0f4;
+        }
+        .header-left {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f1825;
+        }
+        .header-right {
+            display: flex;
+            gap: 18px;
+        }
+        .header-right span {
+            font-size: 20px;
+            color: #2e3a4b;
+        }
+
+        /* 搜索 + 筛选按钮 */
+        .search-section {
+            padding: 12px 16px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-box {
+            flex: 1;
+            background-color: #f5f7fa;
+            border-radius: 24px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d7885;
+            font-size: 15px;
+        }
+        .filter-btn {
+            width: 44px;
+            height: 44px;
+            background-color: #f5f7fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #2e3a4b;
+            cursor: default;
+            transition: 0.1s;
+        }
+        .filter-btn:active {
+            background-color: #e6e9f0;
+        }
+
+        /* 主标签栏 (第一行) */
+        .main-tabs {
+            display: flex;
+            padding: 8px 16px 0 16px;
+            background-color: white;
+            border-bottom: 1px solid #ebedf2;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            gap: 18px;
+        }
+        .main-tabs::-webkit-scrollbar { display: none; }
+        .main-tab {
+            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6c7483;
+            position: relative;
+            cursor: default;
+        }
+        .main-tab.active {
+            color: #2266ff;
+            font-weight: 600;
+        }
+        .main-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #2266ff;
+            border-radius: 3px 3px 0 0;
+        }
+        .main-tab span {
+            color: #9aa2b1;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        /* 子标签栏 (第二行) */
+        .sub-tabs {
+            display: flex;
+            padding: 10px 16px 8px 16px;
+            background-color: white;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            gap: 16px;
+            border-bottom: 1px solid #f0f2f6;
+        }
+        .sub-tabs::-webkit-scrollbar { display: none; }
+        .sub-tab {
+            font-size: 14px;
+            padding: 4px 0 6px 0;
+            color: #5f6b7e;
+            font-weight: 500;
+            position: relative;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .sub-tab.active {
+            color: #2266ff;
+            font-weight: 600;
+        }
+        .sub-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #2266ff;
+            border-radius: 2px 2px 0 0;
+        }
+
+        .card-list {
+            padding: 12px 16px 24px 16px;
+            background-color: #f8fafd;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .project-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 18px 16px 16px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            border: 1px solid #ffffff;
+            cursor: pointer;
+        }
+        .project-card:active {
+            background-color: #f5f9ff;
+            border-color: #d9e5ff;
+            transform: scale(0.99);
+        }
+
+        /* 标题行：店名 + 状态标签（无更多图标） */
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .shop-name-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+        .shop-name {
+            font-weight: 650;
+            font-size: 16px;
+            color: #1e293b;
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .header-stage {
+            flex-shrink: 0;
+            padding: 4px 10px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: #eef2ff;
+            color: #2266ff;
+        }
+        .header-stage.shi-gong {    /* 施工中 */
+            background-color: #fff3e5;
+            color: #e56c1c;
+        }
+        .header-stage.sheji {        /* 设计中 */
+            background-color: #f1e6ff;
+            color: #8b5cf6;
+        }
+
+        /* 第二行：工程监理 */
+        .row-supervisor {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #3f4a5c;
+        }
+        .supervisor-icon {
+            font-size: 16px;
+        }
+
+        /* 剩余工期 + 距离 (含节点剩余括号标红) */
+        .row-deadline-dist {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .deadline-block {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #2d3a4e;
+            flex-wrap: wrap;
+        }
+        .deadline-icon { font-size: 16px; }
+        .original-deadline {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .node-deadline {
+            color: #d03131;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        /* 节点剩余时间前的括号保留，但不属于红色部分，用普通颜色 */
+        .node-deadline::before {
+            content: '(';
+            color: #2d3a4e;  /* 与普通文字同色 */
+            font-weight: normal;
+        }
+        .node-deadline::after {
+            content: ')';
+            color: #2d3a4e;
+            font-weight: normal;
+        }
+        .distance {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #5f6b7e;
+            flex-shrink: 0;
+        }
+        .distance span:first-child { font-size: 14px; }
+
+        /* 项目开始/预计结束 (标红) */
+        .row-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background-color: #fff8f8;
+            padding: 8px 8px;
+            border-radius: 14px;
+        }
+        .date-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #3a4458;
+        }
+        .date-item .label {
+            color: #6f7889;
+            margin-right: 2px;
+        }
+        .date-value {
+            color: #d03131;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: help;  /* 表示有提示 */
+            border-bottom: 1px dashed #d03131; /* 视觉提示可点击查看说明 */
+        }
+
+        /* 当前节点预计时间 (标红) */
+        .row-node-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            background-color: #fff8f8;
+            padding: 8px 8px;
+            border-radius: 14px;
+        }
+        .node-date-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #3a4458;
+        }
+        .node-date-item .label {
+            color: #6f7889;
+        }
+        .node-value {
+            color: #d03131;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+
+        /* 提示条 */
+        .optimize-note {
+            font-size: 12px;
+            color: #b33;
+            background: #ffe5e5;
+            padding: 8px 12px;
+            border-radius: 40px;
+            text-align: center;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span class="time">19:26</span>
+            <span class="icons">📶 📶 🔋 100%</span>
+        </div>
+
+        <!-- 导航 -->
+        <div class="header">
+            <div class="header-left">项目管理</div>
+            <div class="header-right">
+                <span>🔔</span>
+                <span>👤</span>
+            </div>
+        </div>
+
+        <!-- 搜索 + 筛选按钮 -->
+        <div class="search-section">
+            <div class="search-box">
+                <span>🔍</span>
+                <span>Q搜索门店</span>
+            </div>
+            <div class="filter-btn" role="button" tabindex="0">⚙️</div>
+        </div>
+
+        <!-- 主标签栏 (默认选中“进行中”) -->
+        <div class="main-tabs">
+            <div class="main-tab">全部</div>
+            <div class="main-tab">待分配 <span>(0)</span></div>
+            <div class="main-tab">待确认 <span>(0)</span></div>
+            <div class="main-tab active">进行中 <span>(32)</span></div>
+            <div class="main-tab">已完成 <span>(0)</span></div>
+        </div>
+
+        <!-- 子标签栏 (默认选中“全部”) -->
+        <div class="sub-tabs">
+            <div class="sub-tab active">全部</div>
+            <div class="sub-tab">线下勘场</div>
+            <div class="sub-tab">勘场定稿</div>
+            <div class="sub-tab">工程施工</div>
+            <div class="sub-tab">施工巡检</div>
+            <div class="sub-tab">更多···</div>
+        </div>
+
+        <!-- 卡片列表 -->
+        <div class="card-list">
+
+            <!-- 卡片1: 河工大店 (勘场中) 所有新增字段值均带title提示 -->
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="shop-name-wrapper">
+                        <span class="shop-name">【新店】河南郑州河工大店</span>
+                    </div>
+                    <span class="header-stage">勘场中</span>
+                </div>
+                <div class="row-supervisor">
+                    <span class="supervisor-icon">👤</span>
+                    <span>工程监理：工程监理：贾凯超</span>
+                </div>
+
+                <!-- 剩余工期行：项目剩余工期 + 节点剩余时间(括号标红) -->
+                <div class="row-deadline-dist">
+                    <div class="deadline-block">
+                        <span class="deadline-icon">⏳</span>
+                        <span class="original-deadline">14天20小时</span>
+                        <span class="node-deadline" title="节点剩余日历时间 = 节点预计结束时间 - 当前时间，当前剩余7天4小时">剩余7天4小时</span>
+                    </div>
+                    <div class="distance">
+                        <span>📍</span> <span>&gt;10km</span>
+                    </div>
+                </div>
+
+                <!-- 当前节点预计时间 (节点开始/结束) -->
+                <div class="row-node-dates">
+                    <div class="node-date-item">
+                        <span class="label">节点开始:</span>
+                        <span class="node-value" title="当前节点计划开始日期">2025-02-25</span>
+                    </div>
+                    <div class="node-date-item">
+                        <span class="label">节点结束:</span>
+                        <span class="node-value" title="当前节点计划结束日期，用于计算节点剩余时间">2025-03-10</span>
+                    </div>
+                </div>
+
+                <!-- 项目开始/预计结束 -->
+                <div class="row-dates">
+                    <div class="date-item">
+                        <span class="label">开始:</span>
+                        <span class="date-value" title="项目整体计划开始日期">2025-02-20</span>
+                    </div>
+                    <div class="date-item">
+                        <span class="label">预计结束:</span>
+                        <span class="date-value" title="项目整体计划结束日期">2025-04-10</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片2: 福都广场金博大店 (勘场中) -->
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="shop-name-wrapper">
+                        <span class="shop-name">【新店】河南郑州福都广场金博大店</span>
+                    </div>
+                    <span class="header-stage">勘场中</span>
+                </div>
+                <div class="row-supervisor">
+                    <span class="supervisor-icon">👤</span>
+                    <span>工程监理：贾凯超</span>
+                </div>
+                <div class="row-deadline-dist">
+                    <div class="deadline-block">
+                        <span class="deadline-icon">⏳</span>
+                        <span class="original-deadline">27天14小时</span>
+                        <span class="node-deadline" title="节点剩余日历时间 = 节点预计结束时间 - 当前时间，当前剩余10天8小时">剩余10天8小时</span>
+                    </div>
+                    <div class="distance"><span>📍</span> <span>&gt;10km</span></div>
+                </div>
+                <div class="row-node-dates">
+                    <div class="node-date-item"><span class="label">节点开始:</span><span class="node-value" title="当前节点计划开始日期">2025-02-18</span></div>
+                    <div class="node-date-item"><span class="label">节点结束:</span><span class="node-value" title="当前节点计划结束日期">2025-03-15</span></div>
+                </div>
+                <div class="row-dates">
+                    <div class="date-item"><span class="label">开始:</span><span class="date-value" title="项目整体计划开始日期">2025-02-15</span></div>
+                    <div class="date-item"><span class="label">预计结束:</span><span class="date-value" title="项目整体计划结束日期">2025-04-20</span></div>
+                </div>
+            </div>
+
+            <!-- 卡片3: 荆胡社区店 (施工中) -->
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="shop-name-wrapper">
+                        <span class="shop-name">【新店】河南郑州荆胡社区店</span>
+                    </div>
+                    <span class="header-stage shi-gong">施工中</span>
+                </div>
+                <div class="row-supervisor">
+                    <span class="supervisor-icon">👤</span>
+                    <span>工程监理：贾凯超</span>
+                </div>
+                <div class="row-deadline-dist">
+                    <div class="deadline-block">
+                        <span class="deadline-icon">⏳</span>
+                        <span class="original-deadline">22天23小时</span>
+                        <span class="node-deadline" title="节点剩余日历时间 = 节点预计结束时间 - 当前时间，当前剩余8天12小时">剩余8天12小时</span>
+                    </div>
+                    <div class="distance"><span>📍</span> <span>&gt;10km</span></div>
+                </div>
+                <div class="row-node-dates">
+                    <div class="node-date-item"><span class="label">节点开始:</span><span class="node-value" title="当前节点计划开始日期">2025-03-01</span></div>
+                    <div class="node-date-item"><span class="label">节点结束:</span><span class="node-value" title="当前节点计划结束日期">2025-03-20</span></div>
+                </div>
+                <div class="row-dates">
+                    <div class="date-item"><span class="label">开始:</span><span class="date-value" title="项目整体计划开始日期">2025-02-10</span></div>
+                    <div class="date-item"><span class="label">预计结束:</span><span class="date-value" title="项目整体计划结束日期">2025-04-05</span></div>
+                </div>
+            </div>
+
+            <!-- 卡片4: 瑞锦小区店 (设计中) -->
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="shop-name-wrapper">
+                        <span class="shop-name">【新店】河南郑州瑞锦小区店</span>
+                    </div>
+                    <span class="header-stage sheji">设计中</span>
+                </div>
+                <div class="row-supervisor">
+                    <span class="supervisor-icon">👤</span>
+                    <span>工程监理：贾凯超</span>
+                </div>
+                <div class="row-deadline-dist">
+                    <div class="deadline-block">
+                        <span class="deadline-icon">⏳</span>
+                        <span class="original-deadline">14天20小时</span>
+                        <span class="node-deadline" title="节点剩余日历时间 = 节点预计结束时间 - 当前时间，当前剩余5天6小时">剩余5天6小时</span>
+                    </div>
+                    <div class="distance"><span>📍</span> <span>&gt;10km</span></div>
+                </div>
+                <div class="row-node-dates">
+                    <div class="node-date-item"><span class="label">节点开始:</span><span class="node-value" title="当前节点计划开始日期">2025-03-05</span></div>
+                    <div class="node-date-item"><span class="label">节点结束:</span><span class="node-value" title="当前节点计划结束日期">2025-03-18</span></div>
+                </div>
+                <div class="row-dates">
+                    <div class="date-item"><span class="label">开始:</span><span class="date-value" title="项目整体计划开始日期">2025-03-01</span></div>
+                    <div class="date-item"><span class="label">预计结束:</span><span class="date-value" title="项目整体计划结束日期">2025-04-01</span></div>
+                </div>
+            </div>
+
+            <!-- 卡片5: 建设西路店 (设计中) -->
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="shop-name-wrapper">
+                        <span class="shop-name">【新店】河南郑州建设西路店</span>
+                    </div>
+                    <span class="header-stage sheji">设计中</span>
+                </div>
+                <div class="row-supervisor">
+                    <span class="supervisor-icon">👤</span>
+                    <span>工程监理：贾凯超</span>
+                </div>
+                <div class="row-deadline-dist">
+                    <div class="deadline-block">
+                        <span class="deadline-icon">⏳</span>
+                        <span class="original-deadline">23天21小时</span>
+                        <span class="node-deadline" title="节点剩余日历时间 = 节点预计结束时间 - 当前时间，当前剩余9天10小时">剩余9天10小时</span>
+                    </div>
+                    <div class="distance"><span>📍</span> <span>&gt;10km</span></div>
+                </div>
+                <div class="row-node-dates">
+                    <div class="node-date-item"><span class="label">节点开始:</span><span class="node-value" title="当前节点计划开始日期">2025-03-02</span></div>
+                    <div class="node-date-item"><span class="label">节点结束:</span><span class="node-value" title="当前节点计划结束日期">2025-03-25</span></div>
+                </div>
+                <div class="row-dates">
+                    <div class="date-item"><span class="label">开始:</span><span class="date-value" title="项目整体计划开始日期">2025-02-25</span></div>
+                    <div class="date-item"><span class="label">预计结束:</span><span class="date-value" title="项目整体计划结束日期">2025-04-15</span></div>
+                </div>
+            </div>
+
+            <!-- 提示标红及tips说明 -->
+            <div class="optimize-note">
+                ⚡ 标红数值均带有字段说明（鼠标悬停可查看字段说明）。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // 卡片点击交互 (模拟进入详情)
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.filter-btn')) return;
+                    console.log('卡片点击 (可进入详情)');
+                });
+            });
+
+            // 筛选按钮点击模拟
+            const filterBtn = document.querySelector('.filter-btn');
+            if (filterBtn) {
+                filterBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    alert('筛选面板 (模拟)');
+                });
+            }
+
+            // 搜索框点击模拟
+            const searchBox = document.querySelector('.search-box');
+            if (searchBox) {
+                searchBox.addEventListener('click', () => {
+                    alert('跳转搜索页 (模拟)');
+                });
+            }
+
+            // 标签点击切换效果（仅演示UI状态）
+            const mainTabs = document.querySelectorAll('.main-tab');
+            mainTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    mainTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+
+            const subTabs = document.querySelectorAll('.sub-tab');
+            subTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    subTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
