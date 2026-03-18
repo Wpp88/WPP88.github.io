@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>项目验收 · 卡片列表（app）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f2f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 12px 0 30px 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            background-color: #ffffff;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            padding: 12px 16px 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1e2b;
+            background-color: white;
+        }
+        .status-bar .time { font-weight: 600; }
+        .status-bar .icons { display: flex; gap: 6px; }
+
+        .header {
+            padding: 8px 16px 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            border-bottom: 1px solid #eff0f4;
+        }
+        .header-left {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f1825;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .header-right span {
+            font-size: 20px;
+            color: #2e3a4b;
+        }
+
+        .search-section {
+            padding: 12px 16px;
+            background-color: white;
+        }
+        .search-box {
+            background-color: #f5f7fa;
+            border-radius: 24px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d7885;
+            font-size: 15px;
+        }
+        .search-box span:first-child {
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            padding: 8px 16px 0 16px;
+            background-color: white;
+            border-bottom: 1px solid #ebedf2;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            gap: 20px;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-item {
+            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6c7483;
+            position: relative;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .tab-item.active {
+            color: #2266ff;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #2266ff;
+            border-radius: 3px 3px 0 0;
+        }
+        .tab-item span {
+            color: #9aa2b1;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .card-list {
+            padding: 12px 16px 24px 16px;
+            background-color: #f8fafd;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .project-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 18px 16px 16px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ffffff;
+        }
+
+        .shop-name-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shop-name {
+            font-weight: 650;
+            font-size: 16px;
+            color: #1e293b;
+            letter-spacing: -0.2px;
+        }
+        .status-tag {
+            padding: 4px 12px;
+            background-color: #f0e6ff;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8b5cf6;
+        }
+
+        /* 新增地址行 */
+        .address {
+            font-size: 14px;
+            color: #5f6b7e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .supervisor-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .supervisor-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .supervisor-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .duration-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .duration-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .duration-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        /* 开始时间行 */
+        .start-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .start-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .start-value {
+            font-weight: 500;
+            color: #d03131;
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+
+        /* 结束时间行 */
+        .end-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .end-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .end-value-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .end-value {
+            font-weight: 500;
+            color: #d03131;
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+        .end-estimate {
+            color: #9aa2b1;
+            font-size: 13px;
+        }
+
+        .demo-note {
+            font-size: 12px;
+            color: #2266ff;
+            background: #e8f0fe;
+            padding: 6px 12px;
+            border-radius: 40px;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            <span class="time">17:50</span>
+            <span class="icons">📶 📶 🔋 100%</span>
+        </div>
+
+        <div class="header">
+            <div class="header-left">项目验收</div>
+            <div class="header-right">
+                <span>🔔</span>
+                <span>👤</span>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <span>🔍</span>
+                <span>Q搜索门店</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-item active">全部</div>
+            <div class="tab-item">待开始 <span>(56)</span></div>
+            <div class="tab-item">进行中 <span>(161)</span></div>
+            <div class="tab-item">已完成 <span>(14917)</span></div>
+            <div class="tab-item">暂</div>
+        </div>
+
+        <div class="card-list">
+
+            <!-- 卡片1：陕西西安周至楼观镇店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】陕西西安周至楼观镇店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">陕西省西安市周至县楼观镇焦镇村十字东200米</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">刘康飞</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" 
+                          title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。例如工程施工完成时间即为本字段值。">
+                        2026-03-18 16:04
+                    </span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务未实际开始）= 预计开始时间 + 标准工期（验收工期）。标准工期为1天。">
+                            2026-03-20 16:04
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片2：陕西渭南富力城店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】陕西渭南富力城店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">陕西省渭南市临渭区乐天大街与杜化路十字西南角</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">刘康飞</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。">2026-03-18 10:30</span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" title="预计结束时间 = 预计开始时间 + 标准工期（1天）">2026-03-19 10:30</span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片3：【迁址】河北沧州泊头解放西... -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【迁址】河北沧州泊头解放西...</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">河北省沧州市泊头市解放西路与红旗大街交叉口西北角</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">周梦琪</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。">2026-03-18 09:15</span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" title="预计结束时间 = 预计开始时间 + 标准工期（1天）">2026-03-19 09:15</span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片4：【新店】湖北孝感首衡城店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】湖北孝感首衡城店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">湖北省孝感市孝南区首衡城农产品交易中心B区12栋</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">喻瑜</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。">2026-03-18 14:20</span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" title="预计结束时间 = 预计开始时间 + 标准工期（1天）">2026-03-19 14:20</span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片5：【新店】广西钦州灵山檀圩镇店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】广西钦州灵山檀圩镇店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">广西壮族自治区钦州市灵山县檀圩镇檀圩街225号</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">李勇霖</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。">2026-03-18 11:45</span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" title="预计结束时间 = 预计开始时间 + 标准工期（1天）">2026-03-19 11:45</span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片6：【新店】浙江台州温岭箬横镇.. -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】浙江台州温岭箬横镇..</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">浙江省台州市温岭市箬横镇人民南路北88号</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">赵新</span>
+                </div>
+
+                <div class="duration-row">
+                    <span class="duration-label">验收工期</span>
+                    <span class="duration-value">1天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" title="预计开始时间：上一节点（工程施工）结束 = 当前节点开始。">2026-03-18 08:00</span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" title="预计结束时间 = 预计开始时间 + 标准工期（1天）">2026-03-19 08:00</span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-note">
+                ⚡ 标识红色字体是本次增加字段，红色时间字段带业务规则提示。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.project-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('卡片点击，可进入详情');
+            });
+        });
+    </script>
+</body>
+</html>
