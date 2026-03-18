@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>监理·看板 · 数据中心</title>
+    <title>工程监理 · 看板（app）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -135,6 +135,7 @@
             padding: 12px 8px 10px;
             border-left: 4px solid #FF7300;
             cursor: pointer;
+            position: relative;
         }
         .kpi-card .label {
             font-size: 11px;
@@ -150,18 +151,13 @@
             line-height: 1.2;
             margin: 4px 0 2px;
         }
-        .kpi-card .sub {
-            font-size: 9px;
-            color: #89a9e0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .update-badge {
-            font-size: 8px;
-            background: #2f4568;
-            padding: 2px 6px;
-            border-radius: 30px;
-            color: #bdd3ff;
+        .kpi-card .info-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #99b5e8;
+            font-size: 14px;
+            cursor: pointer;
         }
         .chart-slider-container {
             position: relative;
@@ -246,6 +242,7 @@
             padding: 4px 8px;
             font-size: 10px;
             border-left: 2px solid #FF7300;
+            cursor: pointer;
         }
         .stage-slider {
             display: flex;
@@ -255,20 +252,20 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
+        .stage-slider::-webkit-scrollbar { display: none; }
         .stage-card {
             flex: 0 0 280px;
             background: #1a2637;
             border-radius: 20px;
             padding: 12px;
             border: 1px solid #3e5b82;
-            cursor: pointer;
         }
         .stage-title {
             font-size: 15px;
             color: #FF7300;
             margin-bottom: 6px;
         }
-        .stage-pie { height: 100px; width: 100%; margin: 5px 0; }
+        .stage-pie { height: 100px; width: 100%; margin: 5px 0; cursor: pointer; }
         .stage-stats {
             display: flex;
             flex-wrap: wrap;
@@ -281,21 +278,200 @@
             padding: 4px 8px;
             border-radius: 20px;
             border-left: 2px solid #FF7300;
-        }
-        .todo-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .todo-card {
-            background: #1c293b;
-            border-radius: 16px;
-            padding: 12px 10px;
-            border-left: 4px solid #FF7300;
             cursor: pointer;
         }
-        .todo-card .todo-title { font-size: 12px; color: #99b5e8; }
-        .todo-card .todo-count { font-size: 22px; font-weight: 700; }
+        .board { display: none; }
+        .board.active { display: block; }
+        .list-page {
+            display: none;
+            background: #0b111c;
+            min-height: 100vh;
+            padding-bottom: 20px;
+        }
+        .list-page.active { display: block; }
+        .list-header {
+            background: #17212e;
+            border-radius: 0 0 28px 28px;
+            padding: 12px 16px 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #26354a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .list-header .back-btn {
+            font-size: 24px;
+            color: #FF7300;
+            cursor: pointer;
+        }
+        .list-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            flex: 1;
+        }
+        .list-header .right-icon {
+            font-size: 20px;
+            color: #c0d4ff;
+        }
+        .search-section {
+            padding: 12px 16px;
+            background-color: #17212e;
+        }
+        .search-box {
+            background-color: #1f2d3f;
+            border-radius: 24px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #9bb1d0;
+            font-size: 15px;
+            border: 1px solid #334a67;
+        }
+        .list-tabs {
+            display: flex;
+            padding: 8px 16px 0;
+            background: #17212e;
+            border-bottom: 1px solid #26354a;
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 16px;
+        }
+        .list-tab {
+            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #9bb1d0;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .list-tab.active {
+            color: #FF7300;
+            font-weight: 600;
+        }
+        .list-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #FF7300;
+            border-radius: 3px 3px 0 0;
+        }
+        .list-tab span {
+            color: #6f8bb0;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+        .card-list {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .project-card {
+            background: #17212e;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #26354a;
+        }
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shop-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #eef2f8;
+        }
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #253a55;
+            color: #FF7300;
+        }
+        .address {
+            font-size: 14px;
+            color: #9bb1d0;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .info-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1f2d3f;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .info-label {
+            color: #99b5e8;
+        }
+        .info-value {
+            color: #eef2f8;
+            font-weight: 500;
+        }
+        .deadline-row {
+            display: flex;
+            justify-content: space-between;
+            background: #1f2d3f;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            background: #1f2d3f;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .time-label {
+            color: #99b5e8;
+        }
+        .time-value {
+            color: #eef2f8;
+        }
+        .estimate-tag {
+            color: #8aa9d6;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .notice-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #1f2d3f;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #FF7300;
+            margin-top: 8px;
+        }
+        .notice-icon {
+            background: #FF7300;
+            color: #0b111c;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .footer-note { text-align: center; margin-top: 16px; color: #4d668b; font-size: 11px; }
+        /* 筛选弹窗 - 优化可见性 */
         .modal {
             display: none;
             position: fixed;
@@ -307,7 +483,7 @@
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: #1a2637;
+            background: #26354a; /* 调亮背景色，提高对比度 */
             width: 100%;
             border-radius: 32px 32px 0 0;
             border: 1px solid #4a6c9a;
@@ -318,17 +494,17 @@
         }
         .modal-header {
             padding: 18px 20px 12px;
-            border-bottom: 1px solid #314a6b;
+            border-bottom: 1px solid #3a557a;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .modal-header h2 { font-size: 19px; color: #d2e5ff; }
+        .modal-header h2 { font-size: 19px; color: #ffffff; }
         .modal-header i { font-size: 26px; color: #FF7300; cursor: pointer; }
         .modal-body { padding: 16px 18px; overflow-y: auto; }
         .modal-footer {
             padding: 16px 20px;
-            border-top: 1px solid #314a6b;
+            border-top: 1px solid #3a557a;
             display: flex;
             justify-content: flex-end;
             gap: 18px;
@@ -340,11 +516,11 @@
         }
         .filter-left {
             width: 100px;
-            border-right: 1px solid #314a6b;
+            border-right: 1px solid #3a557a;
         }
         .filter-left .filter-cat {
             padding: 12px 8px;
-            color: #b6d0f0;
+            color: #cbd9f0;
             font-size: 14px;
             border-radius: 20px 0 0 20px;
             cursor: pointer;
@@ -367,7 +543,7 @@
         }
         .tag {
             background: #1f2d3f;
-            border: 1px solid #3e5b82;
+            border: 1px solid #4a6c9a;
             padding: 6px 12px;
             border-radius: 30px;
             font-size: 13px;
@@ -381,47 +557,35 @@
         .linkage-row select {
             background: #1f2d3f;
             color: white;
-            border: 1px solid #3e5b82;
+            border: 1px solid #4a6c9a;
             padding: 6px;
             border-radius: 20px;
             width: 45%;
         }
-        .table-responsive { overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        th { background: #212f45; color: #bdd3ff; padding: 8px 6px; }
-        td { padding: 8px 6px; border-bottom: 1px solid #2d415e; color: #d1e2ff; }
-        .btn-download {
-            background: #FF7300;
+        .btn {
+            padding: 8px 24px;
+            border-radius: 30px;
             border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 14px;
             font-weight: 600;
-            width: 100%;
-            margin-top: 8px;
+            cursor: pointer;
         }
-        .board { display: none; }
-        .board.active { display: block; }
-        .footer-note { text-align: center; margin-top: 16px; color: #4d668b; font-size: 11px; }
-        .extra-row { display: flex; gap: 8px; font-size: 11px; margin-top: 8px; color: #b6d0f0; }
-        .pie-container { height: 120px; width: 100%; margin: 5px 0; }
+        .btn-primary {
+            background: #FF7300;
+            color: white;
+        }
         .text-red { color: #ff4d4d; }
         .text-yellow { color: #ffaa00; }
     </style>
 </head>
 <body>
 <div class="dashboard">
+    <!-- 顶部选项卡 -->
     <div class="tabs" id="tabContainer">
         <button class="tab-btn active" data-board="board0"><i class="fas fa-chart-pie"></i> 项目看板</button>
         <button class="tab-btn" data-board="boardData"><i class="fas fa-database"></i> 数据中心</button>
     </div>
 
-    <!-- 全局筛选条 (保持不变) -->
+    <!-- 全局筛选条 -->
     <div class="filter-bar" id="globalFilter">
         <div class="filter-item"><i class="fas fa-database"></i><select id="globalDataSource"><option>全部数据源</option><option>新系统</option><option>迁移数据</option></select></div>
         <div class="filter-item"><i class="fas fa-map"></i><select id="globalRegion"><option value="">全部大区</option></select></div>
@@ -438,27 +602,27 @@
 
     <!-- ========= 项目看板 board0 ========= -->
     <div id="board0" class="board active">
-        <!-- 项目总览 -->
+        <!-- 项目总览·状态占比 -->
         <div class="block">
             <div class="block-header">
                 <h3><i class="fas fa-chart-bar"></i> 项目总览·状态占比</h3>
                 <div class="filter-icon" onclick="openFilterModal('overview')"><i class="fas fa-sliders-h"></i></div>
             </div>
             <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr); margin-bottom:8px;">
-                <div class="kpi-card" onclick="openProjectListModal('进行中的项目')">
-                    <div class="label">进行中的数量</div>
+                <div class="kpi-card" onclick="showList('list-project')">
+                    <div class="label">进行中的项目总数 <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); alert('项目生命周期状态：勘场中、定稿中、设计中、施工中、验收交付中、暂停中')"></i></div>
                     <div class="value">219</div>
                 </div>
-                <div class="kpi-card" onclick="openProjectListModal('今日完工')">
-                    <div class="label">今日完工</div>
+                <div class="kpi-card" onclick="showList('list-project')">
+                    <div class="label">今日完工 <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); alert('预计完工日期等于当前日期')"></i></div>
                     <div class="value">8</div>
                 </div>
-                <div class="kpi-card" onclick="openProjectListModal('本周完工')">
-                    <div class="label">本周完工</div>
+                <div class="kpi-card" onclick="showList('list-project')">
+                    <div class="label">本周完工 <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); alert('预计完工日期在本周（周一至周日）内')"></i></div>
                     <div class="value">43</div>
                 </div>
-                <div class="kpi-card" onclick="openProjectListModal('未来一周完工')">
-                    <div class="label">未来一周完工</div>
+                <div class="kpi-card" onclick="showList('list-project')">
+                    <div class="label">未来一周完工 <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); alert('预计完工日期在未来一周内，且实际完工日期为空')"></i></div>
                     <div class="value">27</div>
                 </div>
             </div>
@@ -469,41 +633,53 @@
             </div>
         </div>
 
-        <!-- 人员项目占比 (饼图版) -->
+        <!-- 人员项目占比 -->
         <div class="block">
             <div class="block-header">
                 <h3><i class="fas fa-chart-pie"></i> 人员项目占比</h3>
                 <div class="filter-icon" onclick="openFilterModal('person')"><i class="fas fa-sliders-h"></i></div>
             </div>
             <div class="person-slider" id="personSlider">
-                <div class="person-card" onclick="openPersonProjectModal('张立','华南')">
+                <div class="person-card" onclick="showList('list-project')">
                     <h4>张立 <span>总数:24 (24%)</span></h4>
                     <div class="pie-container"><canvas id="pieZhang"></canvas></div>
                     <div class="person-stats">
-                        <span class="stat-tag">勘场中 3</span><span class="stat-tag">定稿中 4</span><span class="stat-tag">设计中 2</span>
-                        <span class="stat-tag">施工中 8</span><span class="stat-tag">验收交付中 5</span><span class="stat-tag">暂停中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">勘场中 3</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">定稿中 4</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">设计中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">施工中 8</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">验收交付中 5</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">暂停中 2</span>
                     </div>
                 </div>
-                <div class="person-card" onclick="openPersonProjectModal('王敏','华南')">
+                <div class="person-card" onclick="showList('list-project')">
                     <h4>王敏 <span>总数:18 (18%)</span></h4>
                     <div class="pie-container"><canvas id="pieWang"></canvas></div>
                     <div class="person-stats">
-                        <span class="stat-tag">勘场中 2</span><span class="stat-tag">定稿中 3</span><span class="stat-tag">设计中 1</span>
-                        <span class="stat-tag">施工中 7</span><span class="stat-tag">验收交付中 3</span><span class="stat-tag">暂停中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">勘场中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">定稿中 3</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">设计中 1</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">施工中 7</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">验收交付中 3</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">暂停中 2</span>
                     </div>
                 </div>
-                <div class="person-card" onclick="openPersonProjectModal('李响','华南')">
+                <div class="person-card" onclick="showList('list-project')">
                     <h4>李响 <span>总数:12 (12%)</span></h4>
                     <div class="pie-container"><canvas id="pieLi"></canvas></div>
                     <div class="person-stats">
-                        <span class="stat-tag">勘场中 2</span><span class="stat-tag">定稿中 2</span><span class="stat-tag">设计中 1</span>
-                        <span class="stat-tag">施工中 4</span><span class="stat-tag">验收交付中 2</span><span class="stat-tag">暂停中 1</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">勘场中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">定稿中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">设计中 1</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">施工中 4</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">验收交付中 2</span>
+                        <span class="stat-tag" onclick="event.stopPropagation(); showList('list-project')">暂停中 1</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 项目节点待办 (阶段饼图) -->
+        <!-- 项目阶段节点 -->
         <div class="block">
             <div class="block-header">
                 <h3><i class="fas fa-diagram-project"></i> 项目阶段节点</h3>
@@ -511,48 +687,48 @@
             </div>
             <div class="stage-slider" id="stageSlider">
                 <!-- 线下勘场阶段 -->
-                <div class="stage-card" onclick="openStageListModal('线下勘场')">
+                <div class="stage-card">
                     <div class="stage-title">线下勘场</div>
-                    <div class="stage-pie"><canvas id="stage1Chart"></canvas></div>
+                    <div class="stage-pie" onclick="showList('list-survey')"><canvas id="stage1Chart"></canvas></div>
                     <div class="stage-stats">
-                        <span class="stage-stat-item">待预约 10 <span class="text-red">已超期1</span> <span class="text-yellow">将到期3</span></span>
-                        <span class="stage-stat-item">待勘场 20 <span class="text-red">已超期0</span> <span class="text-yellow">将到期8</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-survey')">待预约 10 <span class="text-red">已超期1</span> <span class="text-yellow">将到期3</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-survey')">待勘场 20 <span class="text-red">已超期0</span> <span class="text-yellow">将到期8</span></span>
                     </div>
                 </div>
                 <!-- 勘场定稿阶段 -->
-                <div class="stage-card" onclick="openStageListModal('勘场定稿')">
+                <div class="stage-card">
                     <div class="stage-title">勘场定稿</div>
-                    <div class="stage-pie"><canvas id="stage2Chart"></canvas></div>
+                    <div class="stage-pie" onclick="showList('list-survey')"><canvas id="stage2Chart"></canvas></div>
                     <div class="stage-stats">
-                        <span class="stage-stat-item">待定稿 14 <span class="text-red">已超期2</span> <span class="text-yellow">将到期5</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-survey')">待定稿 14 <span class="text-red">已超期2</span> <span class="text-yellow">将到期5</span></span>
                     </div>
                 </div>
                 <!-- 工程施工阶段 -->
-                <div class="stage-card" onclick="openStageListModal('工程施工')">
+                <div class="stage-card">
                     <div class="stage-title">工程施工</div>
-                    <div class="stage-pie"><canvas id="stage3Chart"></canvas></div>
+                    <div class="stage-pie" onclick="showList('list-construction')"><canvas id="stage3Chart"></canvas></div>
                     <div class="stage-stats">
-                        <span class="stage-stat-item">待施工 31 <span class="text-red">已超期3</span> <span class="text-yellow">将到期12</span></span>
-                        <span class="stage-stat-item">待完工 22 <span class="text-red">已超期4</span> <span class="text-yellow">将到期9</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-construction')">待施工 31 <span class="text-red">已超期3</span> <span class="text-yellow">将到期12</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-construction')">待完工 22 <span class="text-red">已超期4</span> <span class="text-yellow">将到期9</span></span>
                     </div>
                 </div>
                 <!-- 工程巡检阶段 -->
-                <div class="stage-card" onclick="openStageListModal('工程巡检')">
+                <div class="stage-card">
                     <div class="stage-title">工程巡检</div>
-                    <div class="stage-pie"><canvas id="stage4Chart"></canvas></div>
+                    <div class="stage-pie" onclick="showList('list-inspection')"><canvas id="stage4Chart"></canvas></div>
                     <div class="stage-stats">
-                        <span class="stage-stat-item">待巡检 7 <span class="text-red">已超期0</span> <span class="text-yellow">将到期2</span></span>
-                        <span class="stage-stat-item">未巡检 11 <span class="text-red">已超期1</span> <span class="text-yellow">将到期3</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-inspection')">待巡检 7 <span class="text-red">已超期0</span> <span class="text-yellow">将到期2</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-inspection')">未巡检 11 <span class="text-red">已超期1</span> <span class="text-yellow">将到期3</span></span>
                     </div>
                 </div>
                 <!-- 验收整改阶段 -->
-                <div class="stage-card" onclick="openStageListModal('验收整改')">
+                <div class="stage-card">
                     <div class="stage-title">验收整改</div>
-                    <div class="stage-pie"><canvas id="stage5Chart"></canvas></div>
+                    <div class="stage-pie" onclick="showList('list-acceptance')"><canvas id="stage5Chart"></canvas></div>
                     <div class="stage-stats">
-                        <span class="stage-stat-item">待验收 16 <span class="text-red">已超期2</span> <span class="text-yellow">将到期5</span></span>
-                        <span class="stage-stat-item">待传确认单 8 <span class="text-red">已超期1</span> <span class="text-yellow">将到期2</span></span>
-                        <span class="stage-stat-item">待整改 13 <span class="text-red">已超期3</span> <span class="text-yellow">将到期4</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-acceptance')">待验收 16 <span class="text-red">已超期2</span> <span class="text-yellow">将到期5</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-acceptance')">待传确认单 8 <span class="text-red">已超期1</span> <span class="text-yellow">将到期2</span></span>
+                        <span class="stage-stat-item" onclick="showList('list-rectify')">待整改 13 <span class="text-red">已超期3</span> <span class="text-yellow">将到期4</span></span>
                     </div>
                 </div>
             </div>
@@ -563,15 +739,14 @@
     <div id="boardData" class="board">
         <!-- 预约板块 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-calendar-check"></i> 预约板块</h3><span class="more-btn" onclick="openDetailListModal('appoint','预约明细')">明细</span></div>
-            <!-- 漏斗图模拟卡片组，点击卡片跳转列表 -->
+            <div class="block-header"><h3><i class="fas fa-calendar-check"></i> 预约板块</h3><span class="more-btn" onclick="showList('list-survey')">明细</span></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('appoint','预约成功')"><div class="label">预约成功数量</div><div class="value">1,284</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('appoint','未预约成功')"><div class="label">未预约成功</div><div class="value">112</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('appoint','未预约完成')"><div class="label">未预约完成</div><div class="value">23</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('appoint','预约完成总数')"><div class="label">预约完成总数</div><div class="value">1,396</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('appoint','24h预约完成数')"><div class="label">24h预约完成数</div><div class="value">1,292</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('appoint','24h预约完成率')"><div class="label">24h预约完成率</div><div class="value">92.5%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">预约成功数量</div><div class="value">1,284</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">未预约成功</div><div class="value">112</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">未预约完成</div><div class="value">23</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">预约完成总数</div><div class="value">1,396</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">24h预约完成数</div><div class="value">1,292</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">24h预约完成率</div><div class="value">92.5%</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
@@ -583,16 +758,16 @@
         </div>
         <!-- 线下勘场板块 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-ruler-combined"></i> 线下勘场</h3><span class="more-btn" onclick="openDetailListModal('survey','勘场明细')">明细</span></div>
+            <div class="block-header"><h3><i class="fas fa-ruler-combined"></i> 线下勘场</h3><span class="more-btn" onclick="showList('list-survey')">明细</span></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('survey','勘场总数')"><div class="label">勘场总数</div><div class="value">1,862</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','按时勘场')"><div class="label">按时勘场数量</div><div class="value">1,493</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','当天提交占比')"><div class="label">勘场当天提交占比</div><div class="value">88.4%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','未按时勘场')"><div class="label">未按时勘场数量</div><div class="value">112</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','按时勘场率')"><div class="label">按时勘场率</div><div class="value">93.2%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','数据提交及时率')"><div class="label">数据提交及时率</div><div class="value">86.7%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','实际到场率')"><div class="label">实际到场率</div><div class="value">94.1%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('survey','线下通过率')"><div class="label">线下通过率</div><div class="value">88.2%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">勘场总数</div><div class="value">1,862</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">按时勘场</div><div class="value">1,493</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">当天提交占比</div><div class="value">88.4%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">未按时勘场</div><div class="value">112</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">按时勘场率</div><div class="value">93.2%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">数据提交及时率</div><div class="value">86.7%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">实际到场率</div><div class="value">94.1%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">线下通过率</div><div class="value">88.2%</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
@@ -604,17 +779,17 @@
         </div>
         <!-- 勘场定稿板块 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-file-lines"></i> 勘场定稿</h3><span class="more-btn" onclick="openDetailListModal('surveyData','定稿明细')">明细</span></div>
+            <div class="block-header"><h3><i class="fas fa-file-lines"></i> 勘场定稿</h3><span class="more-btn" onclick="showList('list-survey')">明细</span></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','定稿总数')"><div class="label">定稿总数</div><div class="value">1,533</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','已完成立项')"><div class="label">已完成立项</div><div class="value">1,320</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','24h内完成')"><div class="label">24h内完成</div><div class="value">1,201(78.4%)</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','未完成')"><div class="label">未完成</div><div class="value">84</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','资料提交时效')"><div class="label">资料提交时效</div><div class="value">12.4h</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','通过率')"><div class="label">通过率</div><div class="value">91.5%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','平均周期')"><div class="label">平均定稿周期</div><div class="value">3.2d</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','设计已接单')"><div class="label">设计已接单</div><div class="value">980</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('surveyData','设计未接单')"><div class="label">设计未接单</div><div class="value">340</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">定稿总数</div><div class="value">1,533</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">已完成立项</div><div class="value">1,320</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">24h内完成</div><div class="value">1,201(78.4%)</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">未完成</div><div class="value">84</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">资料提交时效</div><div class="value">12.4h</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">通过率</div><div class="value">91.5%</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">平均周期</div><div class="value">3.2d</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">设计已接单</div><div class="value">980</div></div>
+                <div class="kpi-card" onclick="showList('list-survey')"><div class="label">设计未接单</div><div class="value">340</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
@@ -624,19 +799,19 @@
         </div>
         <!-- 施工进度+异常 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-construction"></i> 施工进度+异常</h3><span class="more-btn" onclick="openDetailListModal('construction','施工明细')">明细</span></div>
+            <div class="block-header"><h3><i class="fas fa-construction"></i> 施工进度+异常</h3><span class="more-btn" onclick="showList('list-construction')">明细</span></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('construction','当月进场')"><div class="label">当月进场施工</div><div class="value">342</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','按时进场')"><div class="label">按时进场</div><div class="value">269</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','按时进场率')"><div class="label">按时进场率</div><div class="value">78.6%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','当月完工')"><div class="label">当月完工</div><div class="value">156</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','工期达标率')"><div class="label">工期达标率</div><div class="value">76.8%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','货架利旧')"><div class="label">货架利旧</div><div class="value">21</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','冬季影响')"><div class="label">冬季影响</div><div class="value">12</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','平均进场周期')"><div class="label">平均进场周期</div><div class="value">5.2d</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','平均施工周期')"><div class="label">平均施工周期</div><div class="value">18.4d</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','进场提交及时率')"><div class="label">进场提交及时率</div><div class="value">90%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('construction','完工提交及时率')"><div class="label">完工提交及时率</div><div class="value">84%</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">当月进场施工</div><div class="value">342</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">按时进场</div><div class="value">269</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">按时进场率</div><div class="value">78.6%</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">当月完工</div><div class="value">156</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">工期达标率</div><div class="value">76.8%</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">货架利旧</div><div class="value">21</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">冬季影响</div><div class="value">12</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">平均进场周期</div><div class="value">5.2d</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">平均施工周期</div><div class="value">18.4d</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">进场提交及时率</div><div class="value">90%</div></div>
+                <div class="kpi-card" onclick="showList('list-construction')"><div class="label">完工提交及时率</div><div class="value">84%</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
@@ -648,14 +823,14 @@
         </div>
         <!-- 巡检执行+合格率 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-search"></i> 巡检执行+合格率</h3><span class="more-btn" onclick="openDetailListModal('inspect','巡检明细')">明细</span></div>
+            <div class="block-header"><h3><i class="fas fa-search"></i> 巡检执行+合格率</h3><span class="more-btn" onclick="showList('list-inspection')">明细</span></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('inspect','巡检总次数')"><div class="label">巡检总次数</div><div class="value">1,023</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('inspect','完工按时巡检')"><div class="label">完工按时巡检</div><div class="value">467</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('inspect','完工巡检率')"><div class="label">完工巡检率</div><div class="value">92.4%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('inspect','巡检不合格')"><div class="label">巡检不合格</div><div class="value">89</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('inspect','巡检合格率')"><div class="label">巡检合格率</div><div class="value">96%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('inspect','巡检到场率')"><div class="label">巡检到场率</div><div class="value">97.2%</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">巡检总次数</div><div class="value">1,023</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">完工按时巡检</div><div class="value">467</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">完工巡检率</div><div class="value">92.4%</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">巡检不合格</div><div class="value">89</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">巡检合格率</div><div class="value">96%</div></div>
+                <div class="kpi-card" onclick="showList('list-inspection')"><div class="label">巡检到场率</div><div class="value">97.2%</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
@@ -667,28 +842,28 @@
         </div>
         <!-- 验收+整改 -->
         <div class="block">
-            <div class="block-header"><h3><i class="fas fa-clipboard-check"></i> 验收+整改</h3><div><span class="more-btn" onclick="openDetailListModal('accept','验收明细')">验收</span><span class="more-btn" style="margin-left:6px;" onclick="openDetailListModal('remedy','整改明细')">整改</span></div></div>
+            <div class="block-header"><h3><i class="fas fa-clipboard-check"></i> 验收+整改</h3><div><span class="more-btn" onclick="showList('list-acceptance')">验收</span><span class="more-btn" style="margin-left:6px;" onclick="showList('list-rectify')">整改</span></div></div>
             <div class="kpi-grid">
-                <div class="kpi-card" onclick="openDetailListModal('accept','验收总数')"><div class="label">验收总数</div><div class="value">653</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','验收不合格')"><div class="label">验收不合格</div><div class="value">107</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('remedy','整改完成率')"><div class="label">整改完成率</div><div class="value">68.2%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','验收合格率')"><div class="label">验收合格率</div><div class="value">83.6%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','超期验收数')"><div class="label">超期验收数</div><div class="value">19</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','超期验收率')"><div class="label">超期验收率</div><div class="value">8.2%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','验收到场率')"><div class="label">验收到场率</div><div class="value">96%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('accept','一次性通过率')"><div class="label">一次性通过率</div><div class="value">71.5%</div></div>
-                <div class="kpi-card" onclick="openDetailListModal('remedy','平均整改时长')"><div class="label">平均整改时长</div><div class="value">4.3d</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">验收总数</div><div class="value">653</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">验收不合格</div><div class="value">107</div></div>
+                <div class="kpi-card" onclick="showList('list-rectify')"><div class="label">整改完成率</div><div class="value">68.2%</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">验收合格率</div><div class="value">83.6%</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">超期验收数</div><div class="value">19</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">超期验收率</div><div class="value">8.2%</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">验收到场率</div><div class="value">96%</div></div>
+                <div class="kpi-card" onclick="showList('list-acceptance')"><div class="label">一次性通过率</div><div class="value">71.5%</div></div>
+                <div class="kpi-card" onclick="showList('list-rectify')"><div class="label">平均整改时长</div><div class="value">4.3d</div></div>
             </div>
             <div class="chart-slider-container">
                 <div class="chart-slider">
                     <div class="chart-slide"><canvas id="acceptChart1"></canvas><p>施工单位不合格TOP10(点击更多)</p></div>
                 </div>
             </div>
-            <div style="text-align:right; margin-top:5px;"><span class="more-btn" onclick="openDetailListModal('companyRank','更多不合格单位')">更多TOP10 <i class="fas fa-arrow-right"></i></span></div>
+            <div style="text-align:right; margin-top:5px;"><span class="more-btn" onclick="showList('list-rectify')">更多TOP10 <i class="fas fa-arrow-right"></i></span></div>
         </div>
     </div>
 
-    <!-- 筛选弹窗 (完整版) -->
+    <!-- ========= 筛选弹窗 ========= -->
     <div id="filterModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -717,57 +892,698 @@
         </div>
     </div>
 
-    <!-- 项目列表弹窗 (用于项目看板) -->
-    <div id="projectListModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="projectListTitle">项目明细</h2>
-                <div style="display:flex; gap:10px;">
-                    <i class="fas fa-sliders-h" onclick="openFilterModal('list')" style="font-size:22px;"></i>
-                    <i class="fas fa-times" onclick="closeProjectListModal()"></i>
+    <!-- ========= 六个列表页面 ========= -->
+    <!-- 项目管理列表 -->
+    <div id="list-project" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>项目管理</h2>
+            <i class="fas fa-bell right-icon"></i>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">待分配 <span>(0)</span></span>
+            <span class="list-tab">待确认 <span>(0)</span></span>
+            <span class="list-tab">进行中 <span>(32)</span></span>
+            <span class="list-tab">已完成</span>
+        </div>
+        <div class="list-tabs" style="border-bottom: none; padding-top: 0;">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">线下勘场</span>
+            <span class="list-tab">勘场定稿</span>
+            <span class="list-tab">工程施工</span>
+            <span class="list-tab">施工巡检</span>
+            <span class="list-tab">更多...</span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州河工大店</span>
+                    <span class="status-tag">勘场中</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                </div>
+                <div class="deadline-row">
+                    <span>14天20小时 (剩余7天4小时)</span>
+                    <span><i class="fas fa-map-marker-alt"></i> >10km</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计开始</span>
+                    <span class="time-value">2025-02-25</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计结束</span>
+                    <span class="time-value">2025-03-10</span>
                 </div>
             </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>项目编号</th><th>项目名称</th><th>品牌</th><th>区域地址</th><th>状态</th><th>工程节点</th><th>项目周期</th><th>项目工时</th><th>监理</th><th>支持</th><th>开始时间</th><th>结束时间</th><th>创建时间</th></tr></thead>
-                        <tbody id="listTableBody">
-                            <tr><td>2026-03-16 09:43</td><td>海南海口侨中路店</td><td>零食很忙</td><td>海南海口侨中路</td><td>勘场中</td><td>线下勘场</td><td>1天</td><td class="text-red">已超期3小时(剩余28天21h)</td><td>sys</td><td>admin</td><td>03-16 09:43</td><td>04-14 09:43</td><td>03-16 09:43</td></tr>
-                            <tr><td>2026-03-16 10:20</td><td>三亚解放路店</td><td>赵一鸣</td><td>海南三亚解放路</td><td>施工中</td><td>工程施工</td><td>3天</td><td class="text-yellow">3小时(剩余2天5h)</td><td>sys</td><td>admin</td><td>03-16 10:20</td><td>04-13 10:20</td><td>03-16 10:20</td></tr>
-                            <tr><td>2026-03-15 14:30</td><td>广州天河店</td><td>零食很忙</td><td>广东广州天河</td><td>待验收</td><td>验收整改</td><td>2天</td><td>5小时(剩余1天3h)</td><td>sys</td><td>admin</td><td>03-15 14:30</td><td>04-12 14:30</td><td>03-15 14:30</td></tr>
-                        </tbody>
-                    </table>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州福都广场金...</span>
+                    <span class="status-tag">勘场中</span>
                 </div>
-                <button class="btn-download" onclick="alert('下载报表')"><i class="fas fa-download"></i> 下载报表</button>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                </div>
+                <div class="deadline-row">
+                    <span>27天14小时 (剩余10天8小时)</span>
+                    <span><i class="fas fa-map-marker-alt"></i> >10km</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计开始</span>
+                    <span class="time-value">2025-02-18</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计结束</span>
+                    <span class="time-value">2025-03-15</span>
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州荆胡社区店</span>
+                    <span class="status-tag">施工中</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                </div>
+                <div class="deadline-row">
+                    <span>22天23小时 (剩余8天12小时)</span>
+                    <span><i class="fas fa-map-marker-alt"></i> >10km</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计开始</span>
+                    <span class="time-value">2025-03-01</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计结束</span>
+                    <span class="time-value">2025-03-20</span>
+                </div>
+            </div>
+            <!-- 卡片4 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州瑞锦小区店</span>
+                    <span class="status-tag">设计中</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                </div>
+                <div class="deadline-row">
+                    <span>14天20小时 (剩余5天6小时)</span>
+                    <span><i class="fas fa-map-marker-alt"></i> >10km</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计开始</span>
+                    <span class="time-value">2025-03-05</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计结束</span>
+                    <span class="time-value">2025-03-18</span>
+                </div>
+            </div>
+            <!-- 卡片5 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州建设西路店</span>
+                    <span class="status-tag">设计中</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                </div>
+                <div class="deadline-row">
+                    <span>23天21小时 (剩余9天10小时)</span>
+                    <span><i class="fas fa-map-marker-alt"></i> >10km</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计开始</span>
+                    <span class="time-value">2025-03-02</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">预计结束</span>
+                    <span class="time-value">2025-03-25</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 通用明细弹窗 (用于数据中心各模块) -->
-    <div id="detailListModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="detailListTitle">明细列表</h2>
-                <div style="display:flex; gap:10px;">
-                    <i class="fas fa-sliders-h" onclick="openFilterModal('detail')" style="font-size:22px;"></i>
-                    <i class="fas fa-times" onclick="closeDetailListModal()"></i>
+    <!-- 勘场列表 -->
+    <div id="list-survey" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>勘场列表</h2>
+            <span class="right-icon" style="background:#FF7300; padding:6px 12px; border-radius:30px; color:white; font-size:14px;">指派任务</span>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">待分配 <span>(0)</span></span>
+            <span class="list-tab">待开始 <span>(286)</span></span>
+            <span class="list-tab">进行中 <span>(195)</span></span>
+            <span class="list-tab">已完成</span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】贵州毕节黔西第一中..</span>
+                    <span class="status-tag">待预约</span>
+                </div>
+                <div class="address">莲城大道372号</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">吴达</span>
+                    <span style="margin-left:auto;">勘场工时 20小时</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">交铺时间</span>
+                    <span class="time-value">2026-03-25</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 13:44</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 13:44 <span class="estimate-tag">预计</span></span>
                 </div>
             </div>
-            <div class="modal-body">
-                <div class="table-responsive" id="detailListTable"></div>
-                <button class="btn-download" onclick="alert('下载报表')"><i class="fas fa-download"></i> 下载报表</button>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】山东德州迎宾大街店</span>
+                    <span class="status-tag">待预约</span>
+                </div>
+                <div class="address">山东省德州市德城区迎宾路1266号北大药房北侧一层</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">周梦琪</span>
+                    <span style="margin-left:auto;">勘场工时 1小时</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">交铺时间</span>
+                    <span class="time-value">2026-03-19</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 14:30</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 14:30 <span class="estimate-tag">预计</span></span>
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南郑州河工大店</span>
+                    <span class="status-tag">待预约</span>
+                </div>
+                <div class="address">河南省郑州市高新区莲花街100号</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">贾凯超</span>
+                    <span style="margin-left:auto;">勘场工时 3小时</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">交铺时间</span>
+                    <span class="time-value">2026-03-22</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 09:00</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 09:00 <span class="estimate-tag">预计</span></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="footer-note"><i class="far fa-check-circle"></i> 数据截止 2026-03-16 · 点击卡片/图表下钻</div>
+    <!-- 工程施工列表 -->
+    <div id="list-construction" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>工程施工</h2>
+            <i class="fas fa-bell right-icon"></i>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部 <span>(24866)</span></span>
+            <span class="list-tab">待开始 <span>(257)</span></span>
+            <span class="list-tab">进行中 <span>(395)</span></span>
+            <span class="list-tab">已完成</span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】河南濮阳江汉路店</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">河南省濮阳市华龙区江汉路与扶余路交叉口门面房</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">杨恒</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">剩余工期</span>
+                    <span class="time-value">15天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-21 16:36</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-04-05 16:36</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计3天后开始施工
+                </div>
+            </div>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】浙江绍兴解放南路店</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">浙江省绍兴市越城区华通花园01幢01-05营业房</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">邓恩科</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">剩余工期</span>
+                    <span class="time-value">15天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-21 10:00</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-04-05 09:59</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计3天后开始施工
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】福建宁德霞浦山河一..</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">福建省宁德市霞浦县山河路166号山河一品1#楼112#、11...</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">吴仁毅</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">剩余工期</span>
+                    <span class="time-value">15天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-21 14:30</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-04-05 14:29</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计3天后开始施工
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目验收列表 -->
+    <div id="list-acceptance" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>项目验收</h2>
+            <i class="fas fa-bell right-icon"></i>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">待开始 <span>(56)</span></span>
+            <span class="list-tab">进行中 <span>(161)</span></span>
+            <span class="list-tab">已完成 <span>(14917)</span></span>
+            <span class="list-tab">暂</span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】陕西西安周至楼观镇店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">陕西省西安市周至县楼观镇焦村镇十字东200米</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">刘康飞</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">验收工期</span>
+                    <span class="time-value">1天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 16:04</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-20 16:04</span>
+                </div>
+            </div>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】陕西渭南富力城店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">陕西省渭南市临渭区乐天大街与杜化路十字西南角</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">刘康飞</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">验收工期</span>
+                    <span class="time-value">1天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 10:30</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 10:30</span>
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【迁址】河北沧州泊头解放西...</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">河北省沧州市泊头市解放西路与红旗大街交叉口西北角</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">周梦琪</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">验收工期</span>
+                    <span class="time-value">1天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 09:15</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 09:15</span>
+                </div>
+            </div>
+            <!-- 卡片4 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】湖北孝感首衡城店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">湖北省孝感市孝南区首衡城农产品交易中心B区12栋</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">喻瑜</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">验收工期</span>
+                    <span class="time-value">1天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 14:20</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 14:20</span>
+                </div>
+            </div>
+            <!-- 卡片5 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】广西钦州灵山檀圩镇店</span>
+                    <span class="status-tag">待验收</span>
+                </div>
+                <div class="address">广西壮族自治区钦州市灵山县檀圩镇檀圩街225号</div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">李勇霖</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">验收工期</span>
+                    <span class="time-value">1天</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-18 11:45</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-19 11:45</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 巡检列表 -->
+    <div id="list-inspection" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>巡检列表</h2>
+            <i class="fas fa-bell right-icon"></i>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">待开始 <span>(77)</span></span>
+            <span class="list-tab">待巡检 <span>(124)</span></span>
+            <span class="list-tab">已完成 <span>(22086)</span></span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】广西柳州西江路店</span>
+                    <span class="status-tag">待开始</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">陶钧</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">巡检工时</span>
+                    <span class="info-value"></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-20 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-29 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计2天后可进行巡检~
+                </div>
+            </div>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】广东惠州新圩镇牧云..</span>
+                    <span class="status-tag">待开始</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">张杰</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">巡检工时</span>
+                    <span class="info-value"></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-19 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-29 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计今天开始巡检~
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】山西临汾刘村镇泊庄店</span>
+                    <span class="status-tag">待开始</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">向跃</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">巡检工时</span>
+                    <span class="info-value"></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">开始时间</span>
+                    <span class="time-value">2026-03-21 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">结束时间</span>
+                    <span class="time-value">2026-03-30 <span class="estimate-tag">预计</span></span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 预计2天后可进行巡检~
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 整改管理列表 -->
+    <div id="list-rectify" class="list-page">
+        <div class="list-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showBoard('board0')"></i>
+            <h2>整改管理</h2>
+            <i class="fas fa-bell right-icon"></i>
+        </div>
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <span>Q搜索门店</span>
+            </div>
+        </div>
+        <div class="list-tabs">
+            <span class="list-tab active">全部</span>
+            <span class="list-tab">待整改 <span>(919)</span></span>
+            <span class="list-tab">整改完成 <span>(2603)</span></span>
+        </div>
+        <div class="card-list">
+            <!-- 卡片1 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】浙江杭州场口镇店</span>
+                    <span class="status-tag">待整改</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">曹炳翔</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">整改工期</span>
+                    <span class="time-value">3小时</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 1个待整改问题
+                </div>
+            </div>
+            <!-- 卡片2 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】海南海口旧州镇店</span>
+                    <span class="status-tag">待整改</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">周煜杰</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">整改工期</span>
+                    <span class="time-value">4小时</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 1个待整改问题
+                </div>
+            </div>
+            <!-- 卡片3 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】辽宁大连长海大长山..</span>
+                    <span class="status-tag">待整改</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">王辰</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">整改工期</span>
+                    <span class="time-value">5小时</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 2个待整改问题
+                </div>
+            </div>
+            <!-- 卡片4 -->
+            <div class="project-card">
+                <div class="card-row">
+                    <span class="shop-name">【新店】安徽黄山黔县宏村镇店</span>
+                    <span class="status-tag">待整改</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">工程监理</span>
+                    <span class="info-value">梁钢</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">整改工期</span>
+                    <span class="time-value">6小时</span>
+                </div>
+                <div class="notice-row">
+                    <span class="notice-icon">①</span> 3个待整改问题
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note"><i class="far fa-check-circle"></i> 数据截止 2026-03-16 · 点击卡片/图标下钻</div>
 </div>
 
 <script>
     (function() {
         Chart.register(ChartDataLabels);
 
-        // ---------- 省市区联动 (全局筛选) ----------
+        // 省市区联动
         const regionData = {
             "华北东北大区": { provinces: ["北京","天津","辽宁","吉林","黑龙江"], cities: { "北京":["北京"],"天津":["天津"],"辽宁":["沈阳"],"吉林":["长春"],"黑龙江":["哈尔滨"] } },
             "华东大区": { provinces: ["上海","江苏","浙江","安徽"], cities: { "上海":["上海"],"江苏":["南京","苏州"],"浙江":["杭州","宁波"],"安徽":["合肥"] } },
@@ -803,13 +1619,12 @@
         }
         initRegionLinkage('globalRegion','globalProvince','globalCity');
 
-        // ---------- 筛选弹窗逻辑 ----------
+        // 筛选弹窗
         const filterModal = document.getElementById('filterModal');
         const filterRight = document.getElementById('filterRightPanel');
         const filterCats = document.querySelectorAll('.filter-cat');
 
         window.openFilterModal = function(context) {
-            // 激活第一个分类
             document.querySelectorAll('.filter-cat').forEach(c => c.classList.remove('active'));
             document.querySelector('.filter-cat[data-cat="source"]').classList.add('active');
             renderFilterPanel('source');
@@ -820,54 +1635,21 @@
         function renderFilterPanel(cat) {
             let html = '';
             if (cat === 'source') {
-                html = `<div class="tag-group">
-                    <span class="tag selected" data-multi="source">新系统</span>
-                    <span class="tag" data-multi="source">迁移数据</span>
-                </div>`;
+                html = `<div class="tag-group"><span class="tag selected" data-multi="source">新系统</span><span class="tag" data-multi="source">迁移数据</span></div>`;
             } else if (cat === 'region') {
-                html = `<div class="linkage-row">
-                    <select id="filterRegion"><option>华南大区</option><option>华东大区</option><option>华北大区</option><option>西南大区</option></select>
-                    <select id="filterProvince"><option>广东</option><option>广西</option><option>海南</option></select>
-                </div>
-                <div class="linkage-row" style="margin-top:8px;">
-                    <select id="filterCity"><option>广州</option><option>深圳</option><option>珠海</option></select>
-                </div>`;
+                html = `<div class="linkage-row"><select id="filterRegion"><option>华南大区</option><option>华东大区</option><option>华北大区</option><option>西南大区</option></select><select id="filterProvince"><option>广东</option><option>广西</option><option>海南</option></select></div><div class="linkage-row" style="margin-top:8px;"><select id="filterCity"><option>广州</option><option>深圳</option><option>珠海</option></select></div>`;
             } else if (cat === 'type') {
-                html = `<div class="tag-group">
-                    <span class="tag selected">新店</span>
-                    <span class="tag">迁址</span>
-                    <span class="tag">重装升级</span>
-                </div>`;
+                html = `<div class="tag-group"><span class="tag selected">新店</span><span class="tag">迁址</span><span class="tag">重装升级</span></div>`;
             } else if (cat === 'brand') {
-                html = `<div class="tag-group">
-                    <span class="tag selected">零食很忙</span>
-                    <span class="tag">赵一鸣</span>
-                </div>`;
+                html = `<div class="tag-group"><span class="tag selected">零食很忙</span><span class="tag">赵一鸣</span></div>`;
             } else if (cat === 'supervisor') {
-                html = `<div class="tag-group">
-                    <span class="tag selected">张立</span>
-                    <span class="tag">王敏</span>
-                    <span class="tag">李响</span>
-                    <span class="tag">陈强</span>
-                </div>`;
+                html = `<div class="tag-group"><span class="tag selected">张立</span><span class="tag">王敏</span><span class="tag">李响</span><span class="tag">陈强</span></div>`;
             } else if (cat === 'date') {
-                html = `<div style="margin-bottom:8px;">
-                    <label style="color:#b6d0f0; font-size:12px;">开始日期</label>
-                    <input type="date" class="form-control" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;width:100%;" value="2026-03-01">
-                </div>
-                <div>
-                    <label style="color:#b6d0f0; font-size:12px;">结束日期</label>
-                    <input type="date" style="background:#1f2d3f;color:white;border:1px solid #3e5b82;border-radius:20px;padding:6px;width:100%;" value="2026-03-12">
-                </div>`;
+                html = `<div style="margin-bottom:8px;"><label style="color:#b6d0f0;">开始日期</label><input type="date" style="background:#1f2d3f;color:white;border:1px solid #4a6c9a;border-radius:20px;padding:6px;width:100%;" value="2026-03-01"></div><div><label style="color:#b6d0f0;">结束日期</label><input type="date" style="background:#1f2d3f;color:white;border:1px solid #4a6c9a;border-radius:20px;padding:6px;width:100%;" value="2026-03-12"></div>`;
             }
             filterRight.innerHTML = html;
-
-            // 给所有tag添加多选交互
             filterRight.querySelectorAll('.tag').forEach(t => {
-                t.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('selected');
-                });
+                t.addEventListener('click', function(e) { this.classList.toggle('selected'); });
             });
         }
 
@@ -883,61 +1665,28 @@
             renderFilterPanel(document.querySelector('.filter-cat.active').dataset.cat);
             alert('筛选条件已重置');
         };
-
         window.applyFilter = function() {
             alert('筛选条件已应用');
             closeFilterModal();
         };
 
-        // ---------- 弹窗控制 ----------
-        const projectListModal = document.getElementById('projectListModal');
-        const detailListModal = document.getElementById('detailListModal');
-        const projectListTitle = document.getElementById('projectListTitle');
-        const detailListTitle = document.getElementById('detailListTitle');
-        const detailListTable = document.getElementById('detailListTable');
-
-        window.openProjectListModal = function(title) {
-            projectListTitle.innerText = '项目明细 - ' + title;
-            projectListModal.classList.add('active');
-        };
-        window.closeProjectListModal = () => projectListModal.classList.remove('active');
-
-        window.openPersonProjectModal = function(name, region) {
-            projectListTitle.innerText = `项目明细 - ${name}（${region}）`;
-            projectListModal.classList.add('active');
-        };
-
-        window.openStageListModal = function(stage) {
-            projectListTitle.innerText = `阶段明细 - ${stage}`;
-            projectListModal.classList.add('active');
-        };
-
-        window.openDetailListModal = function(type, label) {
-            detailListTitle.innerText = label + ' - 明细';
-            // 模拟表格内容
-            let html = `<table><thead><tr><th>项目编号</th><th>项目名称</th><th>品牌</th><th>大区</th><th>区域地址</th><th>工程节点</th><th>节点状态</th><th>工期</th><th>工时</th><th>监理</th><th>开始时间</th><th>结束时间</th></tr></thead><tbody>`;
-            html += `<tr><td>2026-03-16 09:43</td><td>海南海口侨中路店</td><td>零食很忙</td><td>1区</td><td>海南海口</td><td>线下勘场</td><td>待预约</td><td>1天</td><td>3小时(剩余21h)</td><td>sys</td><td>03-16</td><td>04-14</td></tr>`;
-            html += `<tr><td>2026-03-16 10:20</td><td>三亚解放路店</td><td>赵一鸣</td><td>2区</td><td>海南三亚</td><td>线下勘场</td><td>待勘场</td><td>2天</td><td class="text-yellow">3小时(剩余5h)</td><td>sys</td><td>03-16</td><td>04-13</td></tr>`;
-            html += `</tbody></table>`;
-            detailListTable.innerHTML = html;
-            detailListModal.classList.add('active');
-        };
-        window.closeDetailListModal = () => detailListModal.classList.remove('active');
-
-        // 点击外部关闭弹窗
-        filterModal.addEventListener('click', e => { if (e.target === filterModal) closeFilterModal(); });
-        projectListModal.addEventListener('click', e => { if (e.target === projectListModal) closeProjectListModal(); });
-        detailListModal.addEventListener('click', e => { if (e.target === detailListModal) closeDetailListModal(); });
-
-        // ---------- 图表配置 ----------
+        // 图表配置
+        const total = 18+14+9+142+31+5; // 219
+        const percentages = [18,14,9,142,31,5].map(v => ((v/total*100).toFixed(1)+'%'));
         const chartConfigs = {
             projectStatusChart: {
                 type: 'bar',
                 data: { labels: ['勘场中','定稿中','设计中','施工中','验收交付中','暂停中'], datasets: [{ data: [18,14,9,142,31,5], backgroundColor: '#FF7300' }] },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#FF7300', font: { size: 10 }, formatter: (v) => v } },
-                    onClick: (e,item) => { if(item.length>0) openProjectListModal(['勘场中','定稿中','设计中','施工中','验收交付中','暂停中'][item[0].index]); }
+                    plugins: { 
+                        legend: { display: false }, 
+                        datalabels: { 
+                            anchor: 'end', align: 'top', color: '#FF7300', font: { size: 10 }, 
+                            formatter: (value, context) => value + ' (' + percentages[context.dataIndex] + ')'
+                        } 
+                    },
+                    onClick: (e,item) => { if(item.length>0) showList('list-project'); }
                 }
             },
             pieZhang: { type: 'pie', data: { labels: ['勘','定稿','设','施','验','暂'], datasets: [{ data: [3,4,2,8,5,2], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#5470c6','#91cc75','#fac858'] }] }, options: { plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { size: 8 }, formatter: (v) => v } } } },
@@ -948,15 +1697,15 @@
             stage3Chart: { type: 'doughnut', data: { labels: ['待施工','待完工'], datasets: [{ data: [31,22], backgroundColor: ['#5470c6','#91cc75'] }] }, options: { plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { size: 8 }, formatter: (v) => v } } } },
             stage4Chart: { type: 'doughnut', data: { labels: ['待巡检','未巡检'], datasets: [{ data: [7,11], backgroundColor: ['#fac858','#ee6666'] }] }, options: { plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { size: 8 }, formatter: (v) => v } } } },
             stage5Chart: { type: 'doughnut', data: { labels: ['待验收','待确认','待整改'], datasets: [{ data: [16,8,13], backgroundColor: ['#FF7300','#ffa75c','#ffc491'] }] }, options: { plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { size: 8 }, formatter: (v) => v } } } },
-            appointChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [96,94,92,90,88,85,83,80,78,75,72,70,68,65], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('appoint','区域预约明细'); } } },
+            appointChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [96,94,92,90,88,85,83,80,78,75,72,70,68,65], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) showList('list-survey'); } } },
             appointChart2: { type: 'line', data: { labels: Array.from({length:30},(_,i)=>`${i+1}日`), datasets: [{ data: Array.from({length:30},()=>Math.floor(80+Math.random()*15)), borderColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } },
-            surveyChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [92,90,88,86,84,82,80,78,76,74,72,70,68,66], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('survey','区域勘场明细'); } } },
-            surveyChart2: { type: 'doughnut', data: { labels: ['门店协调','图纸问题','货期','其他'], datasets: [{ data: [42,33,25,10], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#ffe1c6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('survey','延期原因明细'); } } },
-            dataChart1: { type: 'doughnut', data: { labels: ['≤24h','>24h'], datasets: [{ data: [1201,332], backgroundColor: ['#FF7300','#b34a4a'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('surveyData','24h占比明细'); } } },
+            surveyChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [92,90,88,86,84,82,80,78,76,74,72,70,68,66], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) showList('list-survey'); } } },
+            surveyChart2: { type: 'doughnut', data: { labels: ['门店协调','图纸问题','货期','其他'], datasets: [{ data: [42,33,25,10], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#ffe1c6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) showList('list-survey'); } } },
+            dataChart1: { type: 'doughnut', data: { labels: ['≤24h','>24h'], datasets: [{ data: [1201,332], backgroundColor: ['#FF7300','#b34a4a'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) showList('list-survey'); } } },
             constructChart1: { type: 'doughnut', data: { labels: ['待施工','待完工','暂停中','已退回'], datasets: [{ data: [56,142,5,3], backgroundColor: ['#5470c6','#91cc75','#fac858','#ee6666'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } },
-            constructChart2: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [82,80,78,76,74,72,70,68,66,64,62,60,58,56], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('construction','区域工期达标明细'); } } },
-            inspectChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [96,94,92,90,88,86,84,82,80,78,76,74,72,70], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('inspect','区域巡检合格明细'); } } },
-            inspectChart2: { type: 'doughnut', data: { labels: ['防水问题','电路问题','材料不符','尺寸偏差','其他'], datasets: [{ data: [28,22,15,12,12], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#5470c6','#91cc75'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) openDetailListModal('inspect','巡检问题明细'); } } },
+            constructChart2: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [82,80,78,76,74,72,70,68,66,64,62,60,58,56], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) showList('list-construction'); } } },
+            inspectChart1: { type: 'bar', data: { labels: ['1区','2区','3区','广东','东北华北','西北','浙江','云南','福建','四川','苏沪','安徽','湖北','河南'], datasets: [{ data: [96,94,92,90,88,86,84,82,80,78,76,74,72,70], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (e,item) => { if(item.length>0) showList('list-inspection'); } } },
+            inspectChart2: { type: 'doughnut', data: { labels: ['防水问题','电路问题','材料不符','尺寸偏差','其他'], datasets: [{ data: [28,22,15,12,12], backgroundColor: ['#FF7300','#ffa75c','#ffc491','#5470c6','#91cc75'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, onClick: (e,item) => { if(item.length>0) showList('list-inspection'); } } },
             acceptChart1: { type: 'bar', data: { labels: ['公司A','公司B','公司C','公司D','公司E','公司F','公司G','公司H','公司I','公司J'], datasets: [{ data: [92,78,64,55,48,42,38,35,30,25], backgroundColor: '#FF7300' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } }
         };
 
@@ -974,44 +1723,35 @@
             });
         }
 
-        // 选项卡切换
+        window.showList = function(listId) {
+            document.querySelectorAll('.board').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.list-page').forEach(l => l.classList.remove('active'));
+            document.getElementById(listId).classList.add('active');
+            document.getElementById('tabContainer').style.display = 'none';
+            document.getElementById('globalFilter').style.display = 'none';
+        };
+        window.showBoard = function(boardId) {
+            document.querySelectorAll('.board').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.list-page').forEach(l => l.classList.remove('active'));
+            document.getElementById(boardId).classList.add('active');
+            document.getElementById('tabContainer').style.display = 'flex';
+            document.getElementById('globalFilter').style.display = 'flex';
+            destroyAllCharts();
+            initBoardCharts(boardId);
+        };
+
         const tabBtns = document.querySelectorAll('.tab-btn');
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                document.querySelectorAll('.board').forEach(b => b.classList.remove('active'));
-                const target = btn.dataset.board;
-                document.getElementById(target).classList.add('active');
-                destroyAllCharts();
-                initBoardCharts(target);
-                setTimeout(setupPagination, 100);
+                showBoard(btn.dataset.board);
             });
         });
 
-        // 初始化当前看板 (board0)
         initBoardCharts('board0');
 
-        // 滑动指示器
-        function setupPagination() {
-            document.querySelectorAll('.chart-slider').forEach((slider, idx) => {
-                const parent = slider.closest('.block');
-                if (!parent) return;
-                const pagination = parent.querySelector('.slider-pagination');
-                if (!pagination) return;
-                const dots = pagination.querySelectorAll('.dot');
-                const updateDots = () => {
-                    const scrollLeft = slider.scrollLeft;
-                    const slideWidth = slider.querySelector('.chart-slide')?.offsetWidth || 1;
-                    const gap = 16;
-                    const index = Math.round(scrollLeft / (slideWidth + gap));
-                    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
-                };
-                slider.addEventListener('scroll', updateDots);
-                updateDots();
-            });
-        }
-        setupPagination();
+        filterModal.addEventListener('click', e => { if (e.target === filterModal) closeFilterModal(); });
     })();
 </script>
 </body>
