@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>工程施工 · 列表卡片（app）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f2f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 12px 0 30px 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            background-color: #ffffff;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            padding: 12px 16px 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1e2b;
+            background-color: white;
+        }
+        .status-bar .time { font-weight: 600; }
+        .status-bar .icons { display: flex; gap: 6px; }
+
+        .header {
+            padding: 8px 16px 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            border-bottom: 1px solid #eff0f4;
+        }
+        .header-left {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f1825;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .header-right span {
+            font-size: 20px;
+            color: #2e3a4b;
+        }
+
+        .search-section {
+            padding: 12px 16px;
+            background-color: white;
+        }
+        .search-box {
+            background-color: #f5f7fa;
+            border-radius: 24px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d7885;
+            font-size: 15px;
+        }
+        .search-box span:first-child {
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            padding: 8px 16px 0 16px;
+            background-color: white;
+            border-bottom: 1px solid #ebedf2;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            gap: 20px;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-item {
+            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6c7483;
+            position: relative;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .tab-item.active {
+            color: #2266ff;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #2266ff;
+            border-radius: 3px 3px 0 0;
+        }
+        .tab-item span {
+            color: #9aa2b1;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .card-list {
+            padding: 12px 16px 24px 16px;
+            background-color: #f8fafd;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .project-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 18px 16px 16px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ffffff;
+        }
+
+        .shop-name-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shop-name {
+            font-weight: 650;
+            font-size: 16px;
+            color: #1e293b;
+            letter-spacing: -0.2px;
+        }
+        .status-tag {
+            padding: 4px 12px;
+            background-color: #e6f7ff;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0099cc;
+        }
+
+        .address {
+            font-size: 14px;
+            color: #5f6b7e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .supervisor-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .supervisor-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .supervisor-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .remaining-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .remaining-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .remaining-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        /* 开始时间行 */
+        .start-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .start-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .start-value-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .start-value {
+            font-weight: 500;
+            color: #d03131;  /* 红色 */
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+        .start-estimate {
+            color: #9aa2b1;
+            font-size: 13px;
+        }
+
+        /* 结束时间行 */
+        .end-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .end-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .end-value-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .end-value {
+            font-weight: 500;
+            color: #d03131;  /* 红色 */
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+        .end-estimate {
+            color: #9aa2b1;
+            font-size: 13px;
+        }
+
+        /* 底部提示（带圆圈①） */
+        .notice-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #5f6b7e;
+            font-size: 13px;
+            margin-top: 4px;
+            background-color: #f2f4f8;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .notice-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: #2266ff;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .demo-note {
+            font-size: 12px;
+            color: #2266ff;
+            background: #e8f0fe;
+            padding: 6px 12px;
+            border-radius: 40px;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span class="time">17:02</span>
+            <span class="icons">📶 📶 🔋 100%</span>
+        </div>
+
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-left">工程施工</div>
+            <div class="header-right">
+                <span>🔔</span>
+                <span>👤</span>
+            </div>
+        </div>
+
+        <!-- 搜索 -->
+        <div class="search-section">
+            <div class="search-box">
+                <span>🔍</span>
+                <span>Q搜索门店</span>
+            </div>
+        </div>
+
+        <!-- 标签栏 -->
+        <div class="tabs">
+            <div class="tab-item active">全部 <span>(24866)</span></div>
+            <div class="tab-item">待开始 <span>(257)</span></div>
+            <div class="tab-item">进行中 <span>(395)</span></div>
+            <div class="tab-item">已完成 <span>(2)</span></div>
+        </div>
+
+        <!-- 卡片列表 -->
+        <div class="card-list">
+
+            <!-- 卡片1：河南濮阳江汉路店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】河南濮阳江汉路店</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">河南省濮阳市华龙区江汉路与扶余路交叉口门面房</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">杨恒</span>
+                </div>
+
+                <div class="remaining-row">
+                    <span class="remaining-label">剩余工期</span>
+                    <span class="remaining-value">15天</span>
+                </div>
+
+                <!-- 新增：开始时间（红色 + 提示） -->
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <div class="start-value-wrapper">
+                        <span class="start-value" 
+                              title="预计开始时间取值规则：1)初始值：勘察现场确定后第4天早上10:00；2)若施工前条件满足但未进场，则修改为当前条件完成时间+1天早10:00；3)若延期进场，以末次更新记录为准。">
+                            2026-03-21 16:36
+                        </span>
+                        <span class="start-estimate">预计</span>
+                    </div>
+                </div>
+
+                <!-- 新增：结束时间（红色 + 提示） -->
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务未实际开始）=预计开始时间+标准工期+1天（前一天23:59分）。标准工期按门店规模+常规施工计算。">
+                            2026-04-05 16:36
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+
+                <!-- 底部提示 -->
+                <div class="notice-row">
+                    <span class="notice-icon">①</span>
+                    <span>预计3天后开始施工</span>
+                </div>
+            </div>
+
+            <!-- 卡片2：浙江绍兴解放南路店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】浙江绍兴解放南路店</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">浙江省绍兴市越城区华通花园01幢01-05营业房</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">邓恩科</span>
+                </div>
+
+                <div class="remaining-row">
+                    <span class="remaining-label">剩余工期</span>
+                    <span class="remaining-value">15天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <div class="start-value-wrapper">
+                        <span class="start-value" 
+                              title="预计开始时间取值规则：1)初始值：勘察现场确定后第4天早上10:00；2)若施工前条件满足但未进场，则修改为当前条件完成时间+1天早10:00；3)若延期进场，以末次更新记录为准。">
+                            2026-03-21 10:00
+                        </span>
+                        <span class="start-estimate">预计</span>
+                    </div>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务未实际开始）=预计开始时间+标准工期+1天（前一天23:59分）。标准工期按门店规模+常规施工计算。">
+                            2026-04-05 09:59
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+
+                <div class="notice-row">
+                    <span class="notice-icon">①</span>
+                    <span>预计3天后开始施工</span>
+                </div>
+            </div>
+
+            <!-- 卡片3：福建宁德霞浦山河一.. -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】福建宁德霞浦山河一..</span>
+                    <span class="status-tag">待施工</span>
+                </div>
+                <div class="address">福建省宁德市霞浦县山河路166号山河一品1#楼112#、11...</div>
+
+                <div class="supervisor-row">
+                    <span class="supervisor-label">工程监理</span>
+                    <span class="supervisor-value">吴仁毅</span>
+                </div>
+
+                <div class="remaining-row">
+                    <span class="remaining-label">剩余工期</span>
+                    <span class="remaining-value">15天</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <div class="start-value-wrapper">
+                        <span class="start-value" 
+                              title="预计开始时间取值规则：1)初始值：勘察现场确定后第4天早上10:00；2)若施工前条件满足但未进场，则修改为当前条件完成时间+1天早10:00；3)若延期进场，以末次更新记录为准。">
+                            2026-03-21 14:30
+                        </span>
+                        <span class="start-estimate">预计</span>
+                    </div>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务未实际开始）=预计开始时间+标准工期+1天（前一天23:59分）。标准工期按门店规模+常规施工计算。">
+                            2026-04-05 14:29
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+
+                <div class="notice-row">
+                    <span class="notice-icon">①</span>
+                    <span>预计3天后开始施工</span>
+                </div>
+            </div>
+
+            <!-- 提示说明 -->
+            <div class="demo-note">
+                ⚡ 红色字段已添加业务规则提示，鼠标悬停可查看详细计算逻辑。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的卡片点击交互模拟
+        const cards = document.querySelectorAll('.project-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('卡片点击，可进入详情');
+            });
+        });
+    </script>
+</body>
+</html>
