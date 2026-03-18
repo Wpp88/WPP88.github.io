@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>勘场列表 ·卡片优化 (app)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f2f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 12px 0 30px 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            background-color: #ffffff;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            padding: 12px 16px 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1e2b;
+            background-color: white;
+        }
+        .status-bar .time { font-weight: 600; }
+        .status-bar .icons { display: flex; gap: 6px; }
+
+        .header {
+            padding: 8px 16px 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            border-bottom: 1px solid #eff0f4;
+        }
+        .header-left {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f1825;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .header-right .assign-btn {
+            background-color: #2266ff;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .header-right .icon {
+            font-size: 20px;
+            color: #2e3a4b;
+        }
+
+        .search-section {
+            padding: 12px 16px;
+            background-color: white;
+        }
+        .search-box {
+            background-color: #f5f7fa;
+            border-radius: 24px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d7885;
+            font-size: 15px;
+        }
+        .search-box span:first-child {
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            padding: 8px 16px 0 16px;
+            background-color: white;
+            border-bottom: 1px solid #ebedf2;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            gap: 20px;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-item {
+            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6c7483;
+            position: relative;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .tab-item.active {
+            color: #2266ff;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #2266ff;
+            border-radius: 3px 3px 0 0;
+        }
+        .tab-item span {
+            color: #9aa2b1;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .card-list {
+            padding: 12px 16px 24px 16px;
+            background-color: #f8fafd;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .project-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 18px 16px 16px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ffffff;
+        }
+
+        .shop-name-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shop-name {
+            font-weight: 650;
+            font-size: 16px;
+            color: #1e293b;
+            letter-spacing: -0.2px;
+        }
+        .status-tag {
+            padding: 4px 12px;
+            background-color: #fff3e0;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e68a2e;
+        }
+
+        .address {
+            font-size: 14px;
+            color: #5f6b7e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .info-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #3f4a5c;
+        }
+        .info-item .label {
+            color: #6f7889;
+        }
+        .info-item .value {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .delivery-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .delivery-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .delivery-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        /* 开始时间行 - 标红 */
+        .start-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        .start-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .start-value {
+            font-weight: 500;
+            color: #d03131;  /* 红色 */
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+
+        /* 结束时间行 - 标红 */
+        .end-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9fafc;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-bottom: 4px;
+        }
+        .end-label {
+            color: #6f7889;
+            font-size: 14px;
+        }
+        .end-value-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .end-value {
+            font-weight: 500;
+            color: #d03131;  /* 红色 */
+            font-size: 14px;
+            cursor: help;
+            border-bottom: 1px dashed #d03131;
+        }
+        .end-estimate {
+            color: #9aa2b1;
+            font-size: 13px;
+        }
+
+        /* 提示说明条 */
+        .demo-note {
+            font-size: 12px;
+            color: #2266ff;
+            background: #e8f0fe;
+            padding: 6px 12px;
+            border-radius: 40px;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span class="time">13:48</span>
+            <span class="icons">📶 📶 🔋 100%</span>
+        </div>
+
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-left">勘场列表</div>
+            <div class="header-right">
+                <span class="assign-btn">指派任务</span>
+                <span class="icon">🔔</span>
+            </div>
+        </div>
+
+        <!-- 搜索 -->
+        <div class="search-section">
+            <div class="search-box">
+                <span>🔍</span>
+                <span>Q 搜索门店</span>
+            </div>
+        </div>
+
+        <!-- 标签栏 -->
+        <div class="tabs">
+            <div class="tab-item active">全部</div>
+            <div class="tab-item">待分配 <span>(0)</span></div>
+            <div class="tab-item">待开始 <span>(286)</span></div>
+            <div class="tab-item">进行中 <span>(195)</span></div>
+            <div class="tab-item">已完成 <span>(0)</span></div>
+        </div>
+
+        <!-- 卡片列表 -->
+        <div class="card-list">
+            <!-- 卡片1：贵州毕节黔西第一中.. -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】贵州毕节黔西第一中..</span>
+                    <span class="status-tag">待预约</span>
+                </div>
+                <div class="address">莲城大道372号</div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">工程监理</span>
+                        <span class="value">吴达</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">勘场工时</span>
+                        <span class="value">20小时</span>
+                    </div>
+                </div>
+
+                <div class="delivery-time-row">
+                    <span class="delivery-label">交铺时间</span>
+                    <span class="delivery-value">2026-03-25</span>
+                </div>
+
+                <!-- 开始时间（红色 + title提示） -->
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" 
+                          title="实际开始时间：完成项目确认后，立即开始。例如项目确认完成时刻即为本字段值。">
+                        2026-03-18 13:44
+                    </span>
+                </div>
+
+                <!-- 结束时间（红色 + title提示） -->
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务已实际开始）：若有预约勘场且成功，则等于预约勘场时间；若预约失败，则判断交铺日期：若交铺日期>当前日期，则等于交铺日期，否则等于实际开始时间+标准工期。">
+                            2026-03-19 13:44
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片2：山东德州迎宾大街店 -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】山东德州迎宾大街店</span>
+                    <span class="status-tag">待勘场</span>
+                </div>
+                <div class="address">山东省德州市德城区迎宾路1266号北大药房北侧一层</div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">工程监理</span>
+                        <span class="value">周梦琪</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">勘场工时</span>
+                        <span class="value">1小时</span>
+                    </div>
+                </div>
+
+                <div class="delivery-time-row">
+                    <span class="delivery-label">交铺时间</span>
+                    <span class="delivery-value">2026-03-19</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" 
+                          title="实际开始时间：完成项目确认后，立即开始。例如项目确认完成时刻即为本字段值。">
+                        2026-03-18 14:30
+                    </span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务已实际开始）：若有预约勘场且成功，则等于预约勘场时间；若预约失败，则判断交铺日期：若交铺日期>当前日期，则等于交铺日期，否则等于实际开始时间+标准工期。">
+                            2026-03-19 14:30
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片3：河南郑州河工大店（示例） -->
+            <div class="project-card">
+                <div class="shop-name-row">
+                    <span class="shop-name">【新店】河南郑州河工大店</span>
+                    <span class="status-tag">待预约</span>
+                </div>
+                <div class="address">河南省郑州市高新区莲花街100号</div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">工程监理</span>
+                        <span class="value">贾凯超</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">勘场工时</span>
+                        <span class="value">3小时</span>
+                    </div>
+                </div>
+
+                <div class="delivery-time-row">
+                    <span class="delivery-label">交铺时间</span>
+                    <span class="delivery-value">2026-03-22</span>
+                </div>
+
+                <div class="start-time-row">
+                    <span class="start-label">开始时间</span>
+                    <span class="start-value" 
+                          title="实际开始时间：完成项目确认后，立即开始。例如项目确认完成时刻即为本字段值。">
+                        2026-03-18 09:00
+                    </span>
+                </div>
+
+                <div class="end-time-row">
+                    <span class="end-label">结束时间</span>
+                    <div class="end-value-wrapper">
+                        <span class="end-value" 
+                              title="预计结束时间（当前任务已实际开始）：若有预约勘场且成功，则等于预约勘场时间；若预约失败，则判断交铺日期：若交铺日期>当前日期，则等于交铺日期，否则等于实际开始时间+标准工期。">
+                            2026-03-19 09:00
+                        </span>
+                        <span class="end-estimate">预计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 说明条 -->
+            <div class="demo-note">
+                ⚡ 红色字段已添加业务规则提示，鼠标悬停可查看计算逻辑。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 卡片点击模拟
+        const cards = document.querySelectorAll('.project-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('卡片点击，可进入详情');
+            });
+        });
+    </script>
+</body>
+</html>
