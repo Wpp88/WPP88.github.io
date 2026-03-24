@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>【设计管理】➡️【设计效能】➡️设计交付时效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f1f5f9;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 32px 24px;
+            color: #0f172a;
+        }
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            border: 1px solid #e9eef3;
+            transition: all 0.2s;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e2f41, #2c6280);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .badge-version {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e40af;
+        }
+        .desc-text {
+            color: #475569;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+            background: #fafcff;
+            border-radius: 0 12px 12px 0;
+        }
+        .design-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            align-items: center;
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 12px 24px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #1f2a48;
+        }
+        /* 维度切换已注释，不再显示 */
+        .dimension-tabs {
+            display: none;
+        }
+        .filter-bar {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .filter-group {
+            flex: 2;
+            min-width: 260px;
+        }
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5b6e8c;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .multi-select {
+            position: relative;
+            width: 100%;
+        }
+        .select-trigger {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.85rem;
+            min-height: 44px;
+        }
+        .select-trigger:hover {
+            border-color: #94a3b8;
+        }
+        .dropdown-panel {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .dropdown-panel.show {
+            display: block;
+        }
+        .dropdown-option {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .dropdown-option:hover {
+            background: #f1f5f9;
+        }
+        .dropdown-option input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+        .select-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .btn-sm {
+            background: #f1f5f9;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .selected-summary {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 14px 20px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+        }
+        .stats-badge {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: white;
+            border-radius: 48px;
+            padding: 5px 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid #ecf3f9;
+            position: relative;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-label .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 4px;
+        }
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #ecf3f9;
+            background: white;
+            margin-top: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 1000px;
+        }
+        .data-table th {
+            background: #f8fafd;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e2a44;
+            border-bottom: 1px solid #e2edf2;
+        }
+        .data-table td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #eff3f8;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: #e6f0ff;
+            color: #1e4bd2;
+        }
+        .type-badge.third {
+            background: #f0e9fe;
+            color: #7c3aed;
+        }
+        .view-trend-btn {
+            background: #eef2ff;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #1e40af;
+            font-weight: 500;
+            transition: 0.1s;
+        }
+        .view-trend-btn:hover {
+            background: #e0e7ff;
+        }
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.7rem;
+            color: #5f6c86;
+            text-align: right;
+        }
+        .empty-row td {
+            text-align: center;
+            padding: 48px;
+            color: #94a3b8;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        /* 模态框 */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-mask.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 32px;
+            max-width: 500px;
+            width: 90%;
+            padding: 24px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eef2f6;
+            padding-bottom: 12px;
+        }
+        .modal-content p {
+            margin: 8px 0;
+        }
+        .trend-stats {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 20px;
+            margin-top: 12px;
+        }
+        .close-modal {
+            margin-top: 20px;
+            text-align: right;
+        }
+        @media (max-width: 680px) {
+            body { padding: 20px 12px; }
+            .card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- 头部 -->
+    <div class="card">
+        <div class="flex-between">
+            <div>
+                <h1>📐 【设计管理】➡️【设计效能】➡️设计交付时效</h1>
+                <div class="desc-text">
+                    迭代需求
+                </div>
+            </div>
+            <div class="badge-version">原型</div>
+        </div>
+    </div>
+    <!-- 维度切换已隐藏，仅保留导出按钮 -->
+    <div class="card">
+        <div class="flex-between">
+            <div></div>
+            <button class="btn-primary" id="exportCurrentBtn">📎 导出</button>
+        </div>
+
+        <!-- 动态筛选区域（设计师多选） -->
+        <div id="filterArea" style="margin-top: 20px;"></div>
+        
+        <!-- 合并时效汇总卡片 - 展示所有设计师汇总（不含第三方） -->
+        <div class="selected-summary" id="summaryCard">
+            <div style="font-weight: 500;" id="summaryTitle">📊 设计师汇总（含第三方）</div>
+            <div class="stats-badge" id="mergedStatsArea">
+                <div class="stat-item">
+                    <span class="stat-label">📈 24h内交付率 
+                        <span class="info-icon" title="24小时内完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
+                    </span>
+                    <div class="stat-number" id="merged24hVal">--%</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">⏱️ 48h内交付率 
+                        <span class="info-icon" title="48小时内完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
+                    </span>
+                    <div class="stat-number" id="merged48hVal">--%</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">⏳ >48h交付率 
+                        <span class="info-icon" title="超过48小时完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
+                    </span>
+                    <div class="stat-number" id="mergedGt48Val">--%</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">⏱️ 平均时效(h) 
+                        <span class="info-icon" title="平均交付时效 = (24h内数量×12h + 48h内数量×36h + >48h数量×72h) ÷ 完成总数（仅统计设计师）">?</span>
+                    </span>
+                    <div class="stat-number" id="mergedAvgVal">--</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">✅ 完成总数 
+                        <span class="info-icon" title="已完成水电&平面项目总数（24h内+48h内+>48h），仅统计设计师">?</span>
+                    </span>
+                    <div class="stat-number" id="totalCompletedVal">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 表格展示区 -->
+    <div class="card" style="padding: 0 0 4px 0; overflow: hidden;">
+        <div class="table-wrapper">
+            <table class="data-table" id="dataTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+        </div>
+        <div class="footer-note">
+            * 时效分母 = 已完成水电&平面总数 (24h内+48h内+>48h) &nbsp;|&nbsp; 平均时效 = (24h内数量×12h + 48h内数量×36h + >48h数量×72h) / 完成总数
+        </div>
+    </div>
+</div>
+
+<!-- 趋势弹窗模板 -->
+<div id="trendModal" class="modal-mask">
+    <div class="modal-container">
+        <div class="modal-header" id="modalTitle">交付趋势详情</div>
+        <div class="modal-content" id="modalContent"></div>
+        <div class="close-modal">
+            <button class="btn-sm" id="closeModalBtn">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 原始数据：设计师个体 + 第三方个体（用于汇总）----------
+    const rawStaffData = [
+        { id: 1, name: "张罗继", type: "设计师", orderCount: 51, cnt24: 10, cnt48: 37, cntGT48: 9, region: "广东" },
+        { id: 2, name: "何思", type: "设计师", orderCount: 48, cnt24: 29, cnt48: 35, cntGT48: 5, region: "1区" },
+        { id: 3, name: "冯焯诗", type: "设计师", orderCount: 42, cnt24: 29, cnt48: 37, cntGT48: 1, region: "浙江" },
+        { id: 4, name: "张华", type: "设计师", orderCount: 36, cnt24: 15, cnt48: 30, cntGT48: 2, region: "东北华北" },
+        { id: 5, name: "周旭", type: "设计师", orderCount: 30, cnt24: 13, cnt48: 25, cntGT48: 3, region: "四川" },
+        { id: 6, name: "梁福星", type: "设计师", orderCount: 29, cnt24: 27, cnt48: 28, cntGT48: 0, region: "福建" },
+        { id: 7, name: "黄树双", type: "设计师", orderCount: 29, cnt24: 22, cnt48: 27, cntGT48: 1, region: "苏沪" },
+        { id: 8, name: "韩琪", type: "设计师", orderCount: 28, cnt24: 24, cnt48: 26, cntGT48: 0, region: "云南" },
+        // 第三方个体（用于汇总）
+        { id: 9, name: "刘思远(三方)", type: "第三方", orderCount: 22, cnt24: 12, cnt48: 8, cntGT48: 2, region: "2区" },
+        { id: 10, name: "BIM协同组", type: "第三方", orderCount: 18, cnt24: 6, cnt48: 9, cntGT48: 3, region: "3区" },
+        { id: 11, name: "外协·艺境", type: "第三方", orderCount: 14, cnt24: 4, cnt48: 7, cntGT48: 2, region: "西北" },
+        { id: 12, name: "筑梦深化", type: "第三方", orderCount: 20, cnt24: 11, cnt48: 7, cntGT48: 2, region: "安徽" },
+        { id: 13, name: "一维设计", type: "第三方", orderCount: 16, cnt24: 8, cnt48: 6, cntGT48: 2, region: "湖北" },
+        { id: 14, name: "墨线工作室", type: "第三方", orderCount: 19, cnt24: 9, cnt48: 8, cntGT48: 1, region: "河南" }
+    ];
+
+    // 计算单个人的扩展指标
+    function enrichPerson(p) {
+        const total = p.cnt24 + p.cnt48 + p.cntGT48;
+        const rate24 = total === 0 ? 0 : (p.cnt24 / total) * 100;
+        const rate48 = total === 0 ? 0 : ((p.cnt24 + p.cnt48) / total) * 100;
+        const rateGT48 = total === 0 ? 0 : (p.cntGT48 / total) * 100;
+        const avgHours = total === 0 ? 0 : (p.cnt24 * 12 + p.cnt48 * 36 + p.cntGT48 * 72) / total;
+        return { ...p, totalCompleted: total, rate24, rate48, rateGT48, avgHours };
+    }
+
+    let allStaff = rawStaffData.map(enrichPerson);
+    // 构建第三方汇总对象
+    const thirdPartyStaffList = allStaff.filter(s => s.type === "第三方");
+    let thirdPartySummary = null;
+    if (thirdPartyStaffList.length > 0) {
+        const sumOrders = thirdPartyStaffList.reduce((acc, s) => acc + s.orderCount, 0);
+        const sum24 = thirdPartyStaffList.reduce((acc, s) => acc + s.cnt24, 0);
+        const sum48 = thirdPartyStaffList.reduce((acc, s) => acc + s.cnt48, 0);
+        const sumGT48 = thirdPartyStaffList.reduce((acc, s) => acc + s.cntGT48, 0);
+        const totalComp = sum24 + sum48 + sumGT48;
+        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
+        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
+        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
+        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
+        thirdPartySummary = {
+            id: 999,
+            name: "第三方(汇总)",
+            type: "第三方",
+            orderCount: sumOrders,
+            cnt24: sum24,
+            cnt48: sum48,
+            cntGT48: sumGT48,
+            region: "汇总",
+            totalCompleted: totalComp,
+            rate24, rate48, rateGT48, avgHours
+        };
+    }
+
+    // 设计师模式下的展示数据源：所有设计师个体 + 第三方汇总
+    const designerModeBase = () => {
+        const designers = allStaff.filter(s => s.type === "设计师");
+        const result = [...designers];
+        if (thirdPartySummary) result.push(thirdPartySummary);
+        return result;
+    };
+
+    // 全局状态：仅支持设计师模式
+    let selectedDesignerEntities = [];
+
+    // DOM 元素
+    const filterArea = document.getElementById("filterArea");
+    const summaryTitleSpan = document.getElementById("summaryTitle");
+    const merged24hSpan = document.getElementById("merged24hVal");
+    const merged48hSpan = document.getElementById("merged48hVal");
+    const mergedGt48Span = document.getElementById("mergedGt48Val");
+    const mergedAvgSpan = document.getElementById("mergedAvgVal");
+    const totalCompletedSpan = document.getElementById("totalCompletedVal");
+    const tableHeader = document.getElementById("tableHeader");
+    const tableBody = document.getElementById("tableBody");
+    const exportBtn = document.getElementById("exportCurrentBtn");
+    const modal = document.getElementById("trendModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalContent = document.getElementById("modalContent");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    function closeModal() { modal.classList.remove("active"); }
+    function openModal(title, dataObj) {
+        modalTitle.innerText = `${title} - 交付趋势详情`;
+        const total = dataObj.totalCompleted || 0;
+        const cnt24 = dataObj.cnt24 || 0;
+        const cnt48 = dataObj.cnt48 || 0;
+        const cntGT48 = dataObj.cntGT48 || 0;
+        const rate24 = dataObj.rate24 !== undefined ? dataObj.rate24.toFixed(2) : '0.00';
+        const rate48 = dataObj.rate48 !== undefined ? dataObj.rate48.toFixed(2) : '0.00';
+        const rateGT48 = dataObj.rateGT48 !== undefined ? dataObj.rateGT48.toFixed(2) : '0.00';
+        const avg = dataObj.avgHours !== undefined ? dataObj.avgHours.toFixed(1) : '0.0';
+        modalContent.innerHTML = `
+            <div class="trend-stats">
+                <p><strong>📦 派单总数：</strong> ${dataObj.orderCount || 0}</p>
+                <p><strong>✅ 已完成水电&平面项目：</strong> ${total}</p>
+                <p><strong>⚡ 24h内完成：</strong> ${cnt24} 个 (占比 ${rate24}%)</p>
+                <p><strong>⏱️ 48h内完成：</strong> ${cnt48} 个 (占比 ${rate48}%)</p>
+                <p><strong>⏳ >48h完成：</strong> ${cntGT48} 个 (占比 ${rateGT48}%)</p>
+                <p><strong>📊 平均交付时效：</strong> ${avg} 小时</p>
+                <p style="margin-top:12px; font-size:0.75rem; color:#4b5563;">※ 平均时效基于区间中值估算：≤24h按12h，24-48h按36h，>48h按72h。</p>
+            </div>
+        `;
+        modal.classList.add("active");
+    }
+
+    // 获取当前展示数据（仅设计师模式）
+    function getCurrentDisplayData() {
+        let allItems = designerModeBase();
+        let filtered = allItems.filter(item => selectedDesignerEntities.includes(item.name));
+        return { type: "designer", data: filtered };
+    }
+
+    // 渲染表格
+    function renderTable() {
+        const display = getCurrentDisplayData();
+        tableHeader.innerHTML = `<tr>
+            <th>设计师 / 第三方</th><th>类型</th><th>派单数</th>
+            <th>✅24h内</th><th>✅48h内</th><th>⏳>48h</th>
+            <th>⚡24h率</th><th>⏰48h率</th><th>⏳>48h率</th><th>⏱️平均时效(h)</th><th>📈交付趋势</th>
+        </tr>`;
+        if (display.data.length === 0) {
+            tableBody.innerHTML = `<tr class="empty-row"><td colspan="11">未筛选到任何人员，请调整筛选条件</td></tr>`;
+            return;
+        }
+        let html = '';
+        display.data.forEach(s => {
+            const typeClass = s.type === '设计师' ? 'type-badge' : 'type-badge third';
+            const typeDisplay = s.type === '设计师' ? '🎨 设计师' : '📐 第三方(汇总)';
+            html += `<tr>
+                <td><strong>${s.name}</strong></td>
+                <td><span class="${typeClass}">${typeDisplay}</span></td>
+                <td>${s.orderCount}</td>
+                <td>${s.cnt24}</td><td>${s.cnt48}</td><td>${s.cntGT48}</td>
+                <td>${s.rate24.toFixed(2)}%</td>
+                <td>${s.rate48.toFixed(2)}%</td>
+                <td>${s.rateGT48.toFixed(2)}%</td>
+                <td>${s.avgHours.toFixed(1)} h</td>
+                <td><button class="view-trend-btn" data-name="${s.name}" data-mode="designer">查看详情</button></td>
+            </tr>`;
+        });
+        tableBody.innerHTML = html;
+        document.querySelectorAll('.view-trend-btn[data-mode="designer"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const name = btn.getAttribute('data-name');
+                const item = display.data.find(d => d.name === name);
+                if (item) openModal(item.name, item);
+            });
+        });
+    }
+
+    // 计算全体设计师汇总（不包含第三方）
+    function computeAllDesignersSummary() {
+        const designers = allStaff.filter(s => s.type === "设计师");
+        let sumOrders = 0, sum24 = 0, sum48 = 0, sumGT48 = 0;
+        designers.forEach(d => {
+            sumOrders += d.orderCount;
+            sum24 += d.cnt24;
+            sum48 += d.cnt48;
+            sumGT48 += d.cntGT48;
+        });
+        const totalComp = sum24 + sum48 + sumGT48;
+        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
+        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
+        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
+        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
+        return {
+            name: "设计师汇总（全部）",
+            type: "汇总",
+            orderCount: sumOrders,
+            cnt24: sum24,
+            cnt48: sum48,
+            cntGT48: sumGT48,
+            rate24,
+            rate48,
+            rateGT48,
+            avgHours,
+            totalCompleted: totalComp
+        };
+    }
+
+    // 更新顶部卡片（展示全体设计师汇总，不含第三方）
+    function updateTopSummary() {
+        const summary = computeAllDesignersSummary();
+        merged24hSpan.innerText = summary.rate24.toFixed(2) + '%';
+        merged48hSpan.innerText = summary.rate48.toFixed(2) + '%';
+        mergedGt48Span.innerText = summary.rateGT48.toFixed(2) + '%';
+        mergedAvgSpan.innerText = summary.avgHours.toFixed(1);
+        totalCompletedSpan.innerText = summary.totalCompleted;
+    }
+
+    // 动态构建筛选器（设计师多选下拉）
+    let currentDropdown = null;
+    function closeAllDropdowns() { if(currentDropdown) currentDropdown.style.display = 'none'; }
+
+    function buildFilter() {
+        const designerItems = designerModeBase();
+        filterArea.innerHTML = `
+            <div class="filter-group">
+                <div class="filter-label">🔍 多选设计师 / 第三方汇总</div>
+                <div class="multi-select" id="designerMultiSelect">
+                    <div class="select-trigger" id="designerTrigger">
+                        <span id="designerSelectedText">已选 ${selectedDesignerEntities.length} 项</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="dropdown-panel" id="designerDropdown">
+                        <div style="padding: 8px 12px; border-bottom:1px solid #edf2f7;">
+                            <button class="btn-sm" id="designerSelectAllBtn">全选</button>
+                            <button class="btn-sm" id="designerClearAllBtn" style="margin-left:8px;">清空</button>
+                        </div>
+                        <div id="designerOptionsList"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        const optionsContainer = document.getElementById("designerOptionsList");
+        function renderOptions() {
+            optionsContainer.innerHTML = designerItems.map(item => `
+                <div class="dropdown-option" data-name="${item.name}">
+                    <input type="checkbox" value="${item.name}" ${selectedDesignerEntities.includes(item.name) ? 'checked' : ''}>
+                    <span>${item.name} (${item.type === '设计师' ? '设计师' : '第三方汇总'})</span>
+                </div>
+            `).join('');
+            document.querySelectorAll('#designerOptionsList .dropdown-option').forEach(opt => {
+                const cb = opt.querySelector('input');
+                const name = opt.getAttribute('data-name');
+                opt.addEventListener('click', (e) => {
+                    if(e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
+                    const isChecked = cb.checked;
+                    if(isChecked) { if(!selectedDesignerEntities.includes(name)) selectedDesignerEntities.push(name); }
+                    else { selectedDesignerEntities = selectedDesignerEntities.filter(n => n !== name); }
+                    document.getElementById("designerSelectedText").innerText = `已选 ${selectedDesignerEntities.length} 项`;
+                    updateAll();
+                    renderOptions();
+                });
+                cb.addEventListener('change', (e) => e.stopPropagation());
+            });
+        }
+        renderOptions();
+        const trigger = document.getElementById("designerTrigger");
+        const dropdown = document.getElementById("designerDropdown");
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.style.display === 'block';
+            closeAllDropdowns();
+            if(!isOpen) { dropdown.style.display = 'block'; currentDropdown = dropdown; }
+            else dropdown.style.display = 'none';
+        });
+        document.getElementById("designerSelectAllBtn").addEventListener("click", () => {
+            selectedDesignerEntities = designerItems.map(i => i.name);
+            document.getElementById("designerSelectedText").innerText = `已选 ${selectedDesignerEntities.length} 项`;
+            updateAll(); renderOptions();
+        });
+        document.getElementById("designerClearAllBtn").addEventListener("click", () => {
+            selectedDesignerEntities = [];
+            document.getElementById("designerSelectedText").innerText = `已选 0 项`;
+            updateAll(); renderOptions();
+        });
+    }
+
+    function updateAll() {
+        renderTable();
+        buildFilter();
+        // 注意：顶部卡片不受筛选影响，始终显示全体设计师汇总，因此不需要在updateAll中更新顶部卡片，只需初始化时调用一次即可
+    }
+
+    // 导出CSV，底部增加设计师汇总行（全部设计师，不包含第三方）
+    function exportCurrentView() {
+        const display = getCurrentDisplayData();
+        const headers = ["人员姓名","类型","派单数","24h内完成","48h内完成",">48h完成","24h交付率(%)","48h交付率(%)",">48h交付率(%)","平均时效(小时)"];
+        // 当前筛选数据行
+        let rows = display.data.map(d => [
+            d.name,
+            d.type,
+            d.orderCount,
+            d.cnt24,
+            d.cnt48,
+            d.cntGT48,
+            d.rate24.toFixed(2),
+            d.rate48.toFixed(2),
+            d.rateGT48.toFixed(2),
+            d.avgHours.toFixed(1)
+        ]);
+        // 计算所有设计师汇总（不包含第三方）
+        const designerSummary = computeAllDesignersSummary();
+        const summaryRow = [
+            designerSummary.name,
+            designerSummary.type,
+            designerSummary.orderCount,
+            designerSummary.cnt24,
+            designerSummary.cnt48,
+            designerSummary.cntGT48,
+            designerSummary.rate24.toFixed(2),
+            designerSummary.rate48.toFixed(2),
+            designerSummary.rateGT48.toFixed(2),
+            designerSummary.avgHours.toFixed(1)
+        ];
+        rows.push(summaryRow);
+        
+        if(rows.length === 0){ alert("暂无数据可导出"); return; }
+        const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", `设计时效_设计师_${new Date().toISOString().slice(0,19)}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // 事件绑定
+    document.addEventListener('click', (e) => { if(!e.target.closest('.multi-select')) closeAllDropdowns(); });
+    exportBtn.addEventListener('click', exportCurrentView);
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    // 初始化
+    selectedDesignerEntities = designerModeBase().map(i => i.name);
+    updateTopSummary();      // 设置顶部卡片（全体设计师汇总）
+    updateAll();             // 渲染表格和筛选器
+</script>
+</body>
+</html>
