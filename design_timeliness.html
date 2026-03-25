@@ -635,6 +635,36 @@
         };
     }
 
+    // 计算设计部汇总（含第三方：设计师个体+第三方个体）
+    function computeDepartmentSummary() {
+        // 所有人员（设计师+第三方个体）
+        let sumOrders = 0, sum24 = 0, sum48 = 0, sumGT48 = 0;
+        allStaff.forEach(p => {
+            sumOrders += p.orderCount;
+            sum24 += p.cnt24;
+            sum48 += p.cnt48;
+            sumGT48 += p.cntGT48;
+        });
+        const totalComp = sum24 + sum48 + sumGT48;
+        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
+        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
+        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
+        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
+        return {
+            name: "设计部汇总（含第三方）",
+            type: "汇总",
+            orderCount: sumOrders,
+            cnt24: sum24,
+            cnt48: sum48,
+            cntGT48: sumGT48,
+            rate24,
+            rate48,
+            rateGT48,
+            avgHours,
+            totalCompleted: totalComp
+        };
+    }
+
     // 更新顶部卡片（展示全体设计师汇总，不含第三方）
     function updateTopSummary() {
         const summary = computeAllDesignersSummary();
@@ -717,10 +747,10 @@
     function updateAll() {
         renderTable();
         buildFilter();
-        // 注意：顶部卡片不受筛选影响，始终显示全体设计师汇总，因此不需要在updateAll中更新顶部卡片，只需初始化时调用一次即可
+        // 顶部卡片不受筛选影响
     }
 
-    // 导出CSV，底部增加设计师汇总行（全部设计师，不包含第三方）
+    // 导出CSV：底部增加设计师汇总（不含第三方） + 设计部汇总（含第三方）
     function exportCurrentView() {
         const display = getCurrentDisplayData();
         const headers = ["人员姓名","类型","派单数","24h内完成","48h内完成",">48h完成","24h交付率(%)","48h交付率(%)",">48h交付率(%)","平均时效(小时)"];
@@ -737,9 +767,9 @@
             d.rateGT48.toFixed(2),
             d.avgHours.toFixed(1)
         ]);
-        // 计算所有设计师汇总（不包含第三方）
+        // 设计师汇总（不含第三方）
         const designerSummary = computeAllDesignersSummary();
-        const summaryRow = [
+        const designerSummaryRow = [
             designerSummary.name,
             designerSummary.type,
             designerSummary.orderCount,
@@ -751,7 +781,22 @@
             designerSummary.rateGT48.toFixed(2),
             designerSummary.avgHours.toFixed(1)
         ];
-        rows.push(summaryRow);
+        rows.push(designerSummaryRow);
+        // 设计部汇总（含第三方）
+        const deptSummary = computeDepartmentSummary();
+        const deptSummaryRow = [
+            deptSummary.name,
+            deptSummary.type,
+            deptSummary.orderCount,
+            deptSummary.cnt24,
+            deptSummary.cnt48,
+            deptSummary.cntGT48,
+            deptSummary.rate24.toFixed(2),
+            deptSummary.rate48.toFixed(2),
+            deptSummary.rateGT48.toFixed(2),
+            deptSummary.avgHours.toFixed(1)
+        ];
+        rows.push(deptSummaryRow);
         
         if(rows.length === 0){ alert("暂无数据可导出"); return; }
         const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
