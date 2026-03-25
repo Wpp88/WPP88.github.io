@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>设计效能 | 项目统计看板 </title>
+    <!-- 引入 ECharts 核心库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f2f8;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 40px 24px;
+            color: #1e293b;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+            border: 1px solid #eef2f8;
+            position: relative;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e2f41, #2c6280);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .stats-badge {
+            background: #eef2ff;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e40af;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-badge span {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #0f2b3d;
+        }
+        .desc-text {
+            color: #475569;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+            background: #fafcff;
+            border-radius: 0 12px 12px 0;
+        }
+        .chart-wrapper {
+            position: relative;
+        }
+        .chart-container {
+            width: 100%;
+            height: 620px;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+        /* 自定义按钮组：位于图表右上角 */
+        .chart-toolbar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 12px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e2edf2;
+        }
+        .tool-btn {
+            background: #f8fafc;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .tool-btn:hover {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+        .footer-note {
+            margin-top: 24px;
+            font-size: 0.7rem;
+            color: #5f6c86;
+            text-align: right;
+            border-top: 1px solid #ecf3f9;
+            padding-top: 16px;
+        }
+        /* 模态框样式 */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+        .modal-mask.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-header {
+            padding: 20px 24px 12px 24px;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f2b3d;
+        }
+        .close-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            color: #5b6e8c;
+            transition: color 0.2s;
+        }
+        .close-icon:hover {
+            color: #ef4444;
+        }
+        .modal-body {
+            padding: 16px 24px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .designer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .designer-table th {
+            text-align: left;
+            padding: 10px 8px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .designer-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #edf2f7;
+            color: #334155;
+        }
+        .designer-table tr:hover td {
+            background: #fafcff;
+        }
+        .total-row {
+            background: #fef9e3;
+            font-weight: 600;
+            border-top: 2px solid #e2e8f0;
+        }
+        .total-row td {
+            background: #fef9e3;
+        }
+        @media (max-width: 680px) {
+            body { padding: 20px 16px; }
+            .card { padding: 20px; }
+            .chart-container { height: 520px; }
+            h1 { font-size: 1.4rem; }
+            .modal-body { padding: 12px 16px; }
+            .chart-toolbar {
+                top: 10px;
+                right: 10px;
+                padding: 4px 8px;
+            }
+            .tool-btn {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+            .designer-table th, .designer-table td {
+                font-size: 0.75rem;
+                padding: 8px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="card">
+        <div class="header-section">
+            <h1>📊 设计师门店数 & 今日派单量 · 迭代优化</h1>
+            <div class="stats-badge">
+                🏢 总门店数 <span id="totalStores">0</span> &nbsp;|&nbsp; 📦 今日总派单 <span id="totalOrdersToday">0</span>
+            </div>
+        </div>
+        <div class="desc-text">
+        </div>
+        <!-- 图表包装器，用于绝对定位按钮 -->
+        <div class="chart-wrapper">
+            <div id="barChart" class="chart-container"></div>
+            <!-- 自定义按钮组：更多在左，下载在右 -->
+            <div class="chart-toolbar">
+                <button id="moreBtn" class="tool-btn">📋 更多</button>
+                <button id="downloadBtn" class="tool-btn">📸 下载图片</button>
+            </div>
+        </div>
+        <!-- <div class="footer-note">
+            * 门店数，今日派单量为当日新分配项目数。
+        </div>
+    </div> -->
+</div>
+
+<!-- 模态框：展示全部设计师列表（含今日派单量） -->
+<div id="modalOverlay" class="modal-mask">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>📋 设计师门店数 & 今日派单明细</h3>
+            <span class="close-icon" id="closeModalBtn">&times;</span>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- 动态生成表格 -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 原始数据：设计师姓名、原始门店数（可能含小数）、今日派单量 ----------
+    const designers = [
+        "张罗维", "冯烨诗", "周旭", "尹哲睿", "韩琪", 
+        "梁福星", "朱培栋", "余玉洁", "戴佳树", "周景智", 
+        "文明岳", "周道鉴", "李珊"
+    ];
+    // 原始门店数（可能含小数）
+    const rawStoreCounts = [53, 42.5, 37, 32.5, 30, 29.5, 28.5, 27.5, 27, 26, 25, 12, 6];
+    // 今日派单量 (整数)
+    const todayOrders = [8, 5, 6, 3, 4, 2, 5, 3, 2, 4, 1, 1, 2];
+    
+    // 门店数取整（四舍五入）
+    const storeCounts = rawStoreCounts.map(v => Math.round(v));
+    
+    // 计算总门店数和今日总派单（使用取整后的门店数求和）
+    const totalStores = storeCounts.reduce((acc, val) => acc + val, 0);
+    const totalTodayOrders = todayOrders.reduce((acc, val) => acc + val, 0);
+    document.getElementById("totalStores").innerText = totalStores;
+    document.getElementById("totalOrdersToday").innerText = totalTodayOrders;
+    
+    // 初始化 ECharts 图表
+    const chartDom = document.getElementById("barChart");
+    const myChart = echarts.init(chartDom);
+    
+    // 配置项：柱状图展示门店数，并在每个柱子上方显示今日派单量（通过自定义label显示两行）
+    // 使用 ECharts 的 label 富文本功能，在柱子上方显示两行文字：门店数和今日派单量
+    const option = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function(params) {
+                const data = params[0];
+                const idx = data.dataIndex;
+                const storeVal = storeCounts[idx];
+                const orderVal = todayOrders[idx];
+                return `<strong>${data.name}</strong><br/>
+                        🏪 门店数: <b>${storeVal}</b> 个<br/>
+                        📦 今日派单量: <b>${orderVal}</b> 单`;
+            },
+            backgroundColor: 'rgba(255,255,255,0.96)',
+            borderColor: '#cbd5e1',
+            borderWidth: 1,
+            textStyle: { color: '#1e293b', fontSize: 12 },
+            extraCssText: 'box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-radius: 12px; padding: 8px 12px;'
+        },
+        grid: {
+            left: '8%',
+            right: '8%',
+            bottom: '12%',
+            top: '15%',
+            containLabel: true,
+            backgroundColor: '#fff',
+            borderWidth: 0
+        },
+        xAxis: {
+            type: 'category',
+            data: designers,
+            axisTick: { show: false, alignWithLabel: true },
+            axisLine: { lineStyle: { color: '#cbd5e1', width: 1 } },
+            axisLabel: {
+                rotate: 35,
+                interval: 0,
+                margin: 12,
+                fontSize: 11,
+                fontWeight: 500,
+                color: '#334155',
+                rotate: 30
+            },
+            axisPointer: { show: true, type: 'shadow' }
+        },
+        yAxis: {
+            type: 'value',
+            name: '门店数 (个)',
+            nameLocation: 'middle',
+            nameGap: 45,
+            nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#475569' },
+            splitLine: { lineStyle: { color: '#e9eef3', type: 'dashed' } },
+            axisLabel: { fontSize: 11, color: '#475569' },
+            axisLine: { show: false },
+            axisTick: { show: false }
+        },
+        series: [
+            {
+                name: '门店数',
+                type: 'bar',
+                data: storeCounts,
+                barWidth: '65%',
+                barGap: '20%',
+                itemStyle: {
+                    borderRadius: [8, 8, 0, 0],
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: '#3b82f6' },
+                            { offset: 1, color: '#2563eb' }
+                        ]
+                    },
+                    shadowColor: 'rgba(59,130,246,0.2)',
+                    shadowBlur: 6,
+                    shadowOffsetY: 2
+                },
+                // 自定义标签：在柱子上方显示两行信息（门店数和今日派单量）
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: function(params) {
+                        const idx = params.dataIndex;
+                        const storeVal = storeCounts[idx];
+                        const orderVal = todayOrders[idx];
+                        // 使用换行符分行显示，并通过富文本设置样式
+                        return `🏪 ${storeVal} 店\n📦 ${orderVal} 单`;
+                    },
+                    fontSize: 10,
+                    fontWeight: '500',
+                    color: '#1e40af',
+                    backgroundColor: 'rgba(255,255,245,0.85)',
+                    padding: [4, 8, 4, 8],
+                    borderRadius: 16,
+                    borderWidth: 0,
+                    lineHeight: 16,
+                    offset: [0, 6],
+                    rich: {
+                        store: {
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            color: '#1e40af'
+                        },
+                        order: {
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            color: '#f97316'
+                        }
+                    }
+                },
+                emphasis: {
+                    focus: 'series',
+                    itemStyle: {
+                        shadowBlur: 12,
+                        shadowOffsetY: 4,
+                        color: '#f97316',
+                        borderRadius: [10, 10, 0, 0]
+                    },
+                    label: {
+                        show: true,
+                        fontWeight: 'bold',
+                        fontSize: 11,
+                        backgroundColor: '#fff0e0',
+                        color: '#c2410c'
+                    }
+                },
+                animation: true,
+                animationDuration: 800,
+                animationEasing: 'cubicOut'
+            }
+        ]
+    };
+    
+    myChart.setOption(option);
+    
+    // 自适应窗口大小
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+    
+    // ---------- 自定义下载图片功能 ----------
+    const downloadBtn = document.getElementById('downloadBtn');
+    downloadBtn.addEventListener('click', function() {
+        const url = myChart.getDataURL({
+            type: 'png',
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `设计师门店数_今日派单_${new Date().toISOString().slice(0,19)}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+    
+    // ---------- 弹窗展示全部设计师列表（含今日派单量，门店数为整数） ----------
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalBody = document.getElementById('modalBody');
+    const moreBtn = document.getElementById('moreBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    
+    // 渲染表格函数（包含序号、姓名、门店数、今日派单量）
+    function renderDesignerTable() {
+        let tableHtml = `
+            <table class="designer-table">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">序号</th>
+                        <th style="width: 48%;">设计师</th>
+                        <th style="width: 20%;">门店数（个）</th>
+                        <th style="width: 20%;">今日派单量（单）</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        designers.forEach((name, idx) => {
+            let storeVal = storeCounts[idx];
+            let orderVal = todayOrders[idx];
+            tableHtml += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${name}</td>
+                    <td><strong>${storeVal}</strong></td>
+                    <td><strong>${orderVal}</strong></td>
+                </tr>
+            `;
+        });
+        let totalStoresVal = totalStores;
+        let totalOrdersVal = totalTodayOrders;
+        tableHtml += `
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2" style="text-align: right; font-weight: 700;">总计</td>
+                        <td style="font-weight: 800;">${totalStoresVal}</td>
+                        <td style="font-weight: 800;">${totalOrdersVal}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        `;
+        modalBody.innerHTML = tableHtml;
+    }
+    
+    function openModal() {
+        renderDesignerTable();
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    moreBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    // 点击遮罩层关闭
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    // ESC 键关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // 柱状图点击控制台输出（可选）
+    myChart.on('click', function(params) {
+        if (params.componentType === 'series' && params.seriesName === '门店数') {
+            const idx = params.dataIndex;
+            console.log(`点击了 ${designers[idx]}，门店数: ${storeCounts[idx]}，今日派单: ${todayOrders[idx]}`);
+        }
+    });
+</script>
+</body>
+</html>
