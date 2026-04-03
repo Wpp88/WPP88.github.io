@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>【设计管理】➡️【设计效能】➡️设计交付时效</title>
+    <title>【设计效能】设计交付时效看板</title>
     <style>
         * {
             margin: 0;
@@ -27,7 +27,6 @@
             padding: 20px 28px;
             margin-bottom: 24px;
             border: 1px solid #e9eef3;
-            transition: all 0.2s;
         }
         .flex-between {
             display: flex;
@@ -62,45 +61,17 @@
             background: #fafcff;
             border-radius: 0 12px 12px 0;
         }
-        .design-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 28px;
-            align-items: center;
-            background: #f8fafd;
-            border-radius: 20px;
-            padding: 12px 24px;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #0f172a;
-        }
-        .radio-group {
-            display: flex;
-            gap: 24px;
-        }
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: #1f2a48;
-        }
-        /* 维度切换已注释，不再显示 */
-        .dimension-tabs {
-            display: none;
-        }
-        .filter-bar {
-            margin-top: 20px;
+        .filter-bar-row {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-end;
-            gap: 20px;
+            gap: 24px;
+            margin-bottom: 20px;
             justify-content: space-between;
         }
         .filter-group {
-            flex: 2;
-            min-width: 260px;
+            flex: 1;
+            min-width: 220px;
         }
         .filter-label {
             font-size: 0.75rem;
@@ -109,6 +80,38 @@
             color: #5b6e8c;
             margin-bottom: 6px;
             letter-spacing: 0.5px;
+        }
+        .month-picker {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            width: 100%;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .reset-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .reset-btn:hover {
+            background: #e6edf5;
+        }
+        .design-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            align-items: center;
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 12px 24px;
+            margin-bottom: 16px;
         }
         .multi-select {
             position: relative;
@@ -123,12 +126,8 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: 0.1s;
             font-size: 0.85rem;
             min-height: 44px;
-        }
-        .select-trigger:hover {
-            border-color: #94a3b8;
         }
         .dropdown-panel {
             position: absolute;
@@ -165,11 +164,6 @@
             cursor: pointer;
             accent-color: #3b82f6;
         }
-        .select-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
         .btn-sm {
             background: #f1f5f9;
             border: none;
@@ -200,7 +194,6 @@
             padding: 5px 20px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
             border: 1px solid #ecf3f9;
-            position: relative;
             display: inline-flex;
             align-items: baseline;
             gap: 6px;
@@ -212,7 +205,7 @@
             align-items: center;
             gap: 4px;
         }
-        .stat-label .info-icon {
+        .info-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -279,21 +272,6 @@
             cursor: pointer;
             color: #1e40af;
             font-weight: 500;
-            transition: 0.1s;
-        }
-        .view-trend-btn:hover {
-            background: #e0e7ff;
-        }
-        .footer-note {
-            margin-top: 16px;
-            font-size: 0.7rem;
-            color: #5f6c86;
-            text-align: right;
-        }
-        .empty-row td {
-            text-align: center;
-            padding: 48px;
-            color: #94a3b8;
         }
         .btn-primary {
             background: #3b82f6;
@@ -303,12 +281,7 @@
             border-radius: 40px;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-        /* 模态框 */
         .modal-mask {
             position: fixed;
             top: 0;
@@ -335,26 +308,14 @@
             max-width: 500px;
             width: 90%;
             padding: 24px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.2);
         }
-        .modal-header {
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #eef2f6;
-            padding-bottom: 12px;
-        }
-        .modal-content p {
+        .trend-stats p {
             margin: 8px 0;
         }
-        .trend-stats {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 20px;
-            margin-top: 12px;
-        }
-        .close-modal {
-            margin-top: 20px;
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.7rem;
+            color: #5f6c86;
             text-align: right;
         }
         @media (max-width: 680px) {
@@ -365,163 +326,256 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <!-- 头部 -->
     <div class="card">
         <div class="flex-between">
             <div>
                 <h1>📐 【设计管理】➡️【设计效能】➡️设计交付时效</h1>
                 <div class="desc-text">
-                    迭代需求
+                    ✅ 新增「指派时间」维度筛选 | 按指派月份考核设计师交付时效（支持跨月指派任务统计）
                 </div>
             </div>
-            <div class="badge-version">原型</div>
+            <div class="badge-version"></div>
         </div>
     </div>
-    <!-- 维度切换已隐藏，仅保留导出按钮 -->
+
     <div class="card">
-        <div class="flex-between">
-            <div></div>
-            <button class="btn-primary" id="exportCurrentBtn">📎 导出</button>
+        <div class="filter-bar-row">
+            <div class="filter-group">
+                <div class="filter-label">📅 指派时间（考核月份）</div>
+                <input type="month" id="assignMonthPicker" class="month-picker" value="2026-04">
+                <div style="font-size:0.7rem; color:#5b6e8c; margin-top:6px;">仅统计指派时间在选定月份内的任务</div>
+            </div>
+            <div>
+                <button id="resetMonthBtn" class="reset-btn">⟳ 重置全部时间</button>
+            </div>
+            <div style="flex:1; text-align:right;">
+                <button id="exportCurrentBtn" class="btn-primary">📎 导出当前数据</button>
+            </div>
         </div>
 
-        <!-- 动态筛选区域（设计师多选） -->
-        <div id="filterArea" style="margin-top: 20px;"></div>
-        
-        <!-- 合并时效汇总卡片 - 展示所有设计师汇总（不含第三方） -->
+        <div class="design-info">
+            <span class="info-label">🎯 考核维度：指派时间</span>
+            <span style="font-size:0.8rem; color:#2c3e66;">任务创建时间与指派时间可能跨月，以「指派日期」为准计入对应月份绩效</span>
+        </div>
+
+        <!-- 多选筛选区域（设计师/第三方汇总） -->
+        <div id="filterArea"></div>
+
+        <!-- 汇总卡片：全体设计师（不含第三方）时效汇总 -->
         <div class="selected-summary" id="summaryCard">
-            <div style="font-weight: 500;" id="summaryTitle">📊 设计师汇总（不含第三方）</div>
+            <div style="font-weight: 500;" id="summaryTitle">📊 全体设计师汇总（不含第三方）</div>
             <div class="stats-badge" id="mergedStatsArea">
-                <div class="stat-item">
-                    <span class="stat-label">📈 24h内交付率 
-                        <span class="info-icon" title="24小时内完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
-                    </span>
-                    <div class="stat-number" id="merged24hVal">--%</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">⏱️ 48h内交付率 
-                        <span class="info-icon" title="48小时内完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
-                    </span>
-                    <div class="stat-number" id="merged48hVal">--%</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">⏳ >48h交付率 
-                        <span class="info-icon" title="超过48小时完成水电&平面的项目数 ÷ 已完成水电&平面项目总数 × 100%（仅统计设计师）">?</span>
-                    </span>
-                    <div class="stat-number" id="mergedGt48Val">--%</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">⏱️ 平均时效(h) 
-                        <span class="info-icon" title="平均交付时效 = (24h内数量×12h + 48h内数量×36h + >48h数量×72h) ÷ 完成总数（仅统计设计师）">?</span>
-                    </span>
-                    <div class="stat-number" id="mergedAvgVal">--</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">✅ 完成总数 
-                        <span class="info-icon" title="已完成水电&平面项目总数（24h内+48h内+>48h），仅统计设计师">?</span>
-                    </span>
-                    <div class="stat-number" id="totalCompletedVal">0</div>
-                </div>
+                <div class="stat-item"><span class="stat-label">⚡ 24h内交付率 <span class="info-icon" title="24小时内完成水电&平面的项目占比（仅统计设计师）">?</span></span><div class="stat-number" id="merged24hVal">--%</div></div>
+                <div class="stat-item"><span class="stat-label">⏱️ 48h内交付率 <span class="info-icon">?</span></span><div class="stat-number" id="merged48hVal">--%</div></div>
+                <div class="stat-item"><span class="stat-label">⏳ >48h交付率</span><div class="stat-number" id="mergedGt48Val">--%</div></div>
+                <div class="stat-item"><span class="stat-label">📊 平均时效(h)</span><div class="stat-number" id="mergedAvgVal">--</div></div>
+                <div class="stat-item"><span class="stat-label">✅ 完成总数</span><div class="stat-number" id="totalCompletedVal">0</div></div>
             </div>
         </div>
     </div>
 
-    <!-- 表格展示区 -->
-    <div class="card" style="padding: 0 0 4px 0; overflow: hidden;">
+    <div class="card" style="padding: 0 0 4px 0;">
         <div class="table-wrapper">
             <table class="data-table" id="dataTable">
                 <thead id="tableHeader"></thead>
                 <tbody id="tableBody"></tbody>
-              </table>
+            </table>
         </div>
         <div class="footer-note">
-            * 时效分母 = 已完成水电&平面总数 (24h内+48h内+>48h) &nbsp;|&nbsp; 平均时效 = (24h内数量×12h + 48h内数量×36h + >48h数量×72h) / 完成总数
+            * 时效分母 = 已完成水电&平面总数 (24h内+48h内+>48h) &nbsp;|&nbsp; 平均时效 = (24h内数量×12h + 48h内数量×36h + >48h数量×72h) / 完成总数 &nbsp;|&nbsp; 指派时间维度考核
         </div>
     </div>
 </div>
 
-<!-- 趋势弹窗模板 -->
 <div id="trendModal" class="modal-mask">
     <div class="modal-container">
-        <div class="modal-header" id="modalTitle">交付趋势详情</div>
+        <div class="modal-header" style="font-weight:700; font-size:1.2rem; margin-bottom:16px;" id="modalTitle">交付趋势详情</div>
         <div class="modal-content" id="modalContent"></div>
-        <div class="close-modal">
+        <div class="close-modal" style="margin-top:20px; text-align:right;">
             <button class="btn-sm" id="closeModalBtn">关闭</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- 原始数据：设计师个体 + 第三方个体（用于汇总）----------
-    const rawStaffData = [
-        { id: 1, name: "张罗继", type: "设计师", orderCount: 51, cnt24: 10, cnt48: 37, cntGT48: 9, region: "广东" },
-        { id: 2, name: "何思", type: "设计师", orderCount: 48, cnt24: 29, cnt48: 35, cntGT48: 5, region: "1区" },
-        { id: 3, name: "冯焯诗", type: "设计师", orderCount: 42, cnt24: 29, cnt48: 37, cntGT48: 1, region: "浙江" },
-        { id: 4, name: "张华", type: "设计师", orderCount: 36, cnt24: 15, cnt48: 30, cntGT48: 2, region: "东北华北" },
-        { id: 5, name: "周旭", type: "设计师", orderCount: 30, cnt24: 13, cnt48: 25, cntGT48: 3, region: "四川" },
-        { id: 6, name: "梁福星", type: "设计师", orderCount: 29, cnt24: 27, cnt48: 28, cntGT48: 0, region: "福建" },
-        { id: 7, name: "黄树双", type: "设计师", orderCount: 29, cnt24: 22, cnt48: 27, cntGT48: 1, region: "苏沪" },
-        { id: 8, name: "韩琪", type: "设计师", orderCount: 28, cnt24: 24, cnt48: 26, cntGT48: 0, region: "云南" },
-        // 第三方个体（用于汇总）
-        { id: 9, name: "刘思远(三方)", type: "第三方", orderCount: 22, cnt24: 12, cnt48: 8, cntGT48: 2, region: "2区" },
-        { id: 10, name: "BIM协同组", type: "第三方", orderCount: 18, cnt24: 6, cnt48: 9, cntGT48: 3, region: "3区" },
-        { id: 11, name: "外协·艺境", type: "第三方", orderCount: 14, cnt24: 4, cnt48: 7, cntGT48: 2, region: "西北" },
-        { id: 12, name: "筑梦深化", type: "第三方", orderCount: 20, cnt24: 11, cnt48: 7, cntGT48: 2, region: "安徽" },
-        { id: 13, name: "一维设计", type: "第三方", orderCount: 16, cnt24: 8, cnt48: 6, cntGT48: 2, region: "湖北" },
-        { id: 14, name: "墨线工作室", type: "第三方", orderCount: 19, cnt24: 9, cnt48: 8, cntGT48: 1, region: "河南" }
+    // --------------------------------------------------------------
+    // 1. 人员基础信息 (设计师 + 第三方个体)
+    const DESIGNERS = [
+        "张罗继", "何思", "冯焯诗", "张华", "周旭", "梁福星", "黄树双", "韩琪"
     ];
-
-    // 计算单个人的扩展指标
-    function enrichPerson(p) {
-        const total = p.cnt24 + p.cnt48 + p.cntGT48;
-        const rate24 = total === 0 ? 0 : (p.cnt24 / total) * 100;
-        const rate48 = total === 0 ? 0 : ((p.cnt24 + p.cnt48) / total) * 100;
-        const rateGT48 = total === 0 ? 0 : (p.cntGT48 / total) * 100;
-        const avgHours = total === 0 ? 0 : (p.cnt24 * 12 + p.cnt48 * 36 + p.cntGT48 * 72) / total;
-        return { ...p, totalCompleted: total, rate24, rate48, rateGT48, avgHours };
+    const THIRD_PARTY_INDIVIDUALS = [
+        "刘思远(三方)", "BIM协同组", "外协·艺境", "筑梦深化", "一维设计", "墨线工作室"
+    ];
+    const ALL_PERSONNEL = [...DESIGNERS, ...THIRD_PARTY_INDIVIDUALS];
+    
+    // 辅助函数：随机生成日期范围内的日期
+    function randomDate(start, end) {
+        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    }
+    // 计算小时差
+    function hoursDiff(date1, date2) {
+        return Math.abs(date2 - date1) / (1000 * 60 * 60);
     }
 
-    let allStaff = rawStaffData.map(enrichPerson);
-    // 构建第三方汇总对象
-    const thirdPartyStaffList = allStaff.filter(s => s.type === "第三方");
-    let thirdPartySummary = null;
-    if (thirdPartyStaffList.length > 0) {
-        const sumOrders = thirdPartyStaffList.reduce((acc, s) => acc + s.orderCount, 0);
-        const sum24 = thirdPartyStaffList.reduce((acc, s) => acc + s.cnt24, 0);
-        const sum48 = thirdPartyStaffList.reduce((acc, s) => acc + s.cnt48, 0);
-        const sumGT48 = thirdPartyStaffList.reduce((acc, s) => acc + s.cntGT48, 0);
-        const totalComp = sum24 + sum48 + sumGT48;
-        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
-        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
-        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
-        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
-        thirdPartySummary = {
-            id: 999,
-            name: "第三方(汇总)",
-            type: "第三方",
-            orderCount: sumOrders,
-            cnt24: sum24,
-            cnt48: sum48,
-            cntGT48: sumGT48,
-            region: "汇总",
-            totalCompleted: totalComp,
+    // 生成模拟任务数据 (指派时间 2026-03-01 ~ 2026-04-20)
+    function generateMockTasks() {
+        const tasks = [];
+        let taskId = 1;
+        const assignStart = new Date(2026, 2, 1);   // 3月1日
+        const assignEnd = new Date(2026, 3, 20);    // 4月20日
+        
+        for (const person of ALL_PERSONNEL) {
+            const isDesigner = DESIGNERS.includes(person);
+            const type = isDesigner ? "设计师" : "第三方";
+            // 每个人员生成 18~32 个任务
+            const taskCount = Math.floor(Math.random() * 20) + 18;
+            for (let i = 0; i < taskCount; i++) {
+                const assignDate = randomDate(assignStart, assignEnd);
+                // 创建时间在指派时间前0~5天
+                const createDate = new Date(assignDate);
+                createDate.setDate(assignDate.getDate() - Math.floor(Math.random() * 6));
+                // 完成状态: 85% 完成, 15% 未完成（不计入时效但计入派单数）
+                const isCompleted = Math.random() < 0.85;
+                let completeDate = null;
+                let hoursSpent = null;
+                if (isCompleted) {
+                    // 完成时间在指派后 8~80 小时之间，体现不同时效
+                    hoursSpent = Math.floor(Math.random() * 72) + 8;
+                    completeDate = new Date(assignDate);
+                    completeDate.setHours(assignDate.getHours() + hoursSpent);
+                }
+                tasks.push({
+                    id: taskId++,
+                    designerName: person,
+                    designerType: type,
+                    createDate: createDate,
+                    assignDate: assignDate,
+                    completeDate: completeDate,
+                    isCompleted: isCompleted,
+                    hoursSpent: hoursSpent
+                });
+            }
+        }
+        // 添加一些极端情况保证数据多样性: 少数 >48h
+        return tasks;
+    }
+    
+    let allTasks = generateMockTasks();
+    
+    // 根据指派月份筛选任务 (月份格式 YYYY-MM)
+    function filterTasksByAssignMonth(tasks, monthStr) {
+        if (!monthStr) return tasks;
+        const [year, month] = monthStr.split('-').map(Number);
+        return tasks.filter(task => {
+            const assign = task.assignDate;
+            return assign.getFullYear() === year && assign.getMonth() + 1 === month;
+        });
+    }
+    
+    // 聚合单个人员指标 (基于过滤后的任务)
+    function aggregatePersonMetrics(tasks, personName) {
+        const personTasks = tasks.filter(t => t.designerName === personName);
+        const totalAssigned = personTasks.length;
+        const completedTasks = personTasks.filter(t => t.isCompleted === true);
+        const totalCompleted = completedTasks.length;
+        let cnt24 = 0, cnt48 = 0, cntGT48 = 0;
+        for (const t of completedTasks) {
+            const hours = t.hoursSpent;
+            if (hours <= 24) cnt24++;
+            else if (hours <= 48) cnt48++;
+            else cntGT48++;
+        }
+        const sum24_48_gt = cnt24 + cnt48 + cntGT48;
+        const rate24 = sum24_48_gt === 0 ? 0 : (cnt24 / sum24_48_gt) * 100;
+        const rate48 = sum24_48_gt === 0 ? 0 : ((cnt24 + cnt48) / sum24_48_gt) * 100;
+        const rateGT48 = sum24_48_gt === 0 ? 0 : (cntGT48 / sum24_48_gt) * 100;
+        const avgHours = sum24_48_gt === 0 ? 0 : (cnt24 * 12 + cnt48 * 36 + cntGT48 * 72) / sum24_48_gt;
+        return {
+            name: personName,
+            type: DESIGNERS.includes(personName) ? "设计师" : "第三方",
+            orderCount: totalAssigned,
+            totalCompleted: totalCompleted,
+            cnt24, cnt48, cntGT48,
             rate24, rate48, rateGT48, avgHours
         };
     }
-
-    // 设计师模式下的展示数据源：所有设计师个体 + 第三方汇总
-    const designerModeBase = () => {
-        const designers = allStaff.filter(s => s.type === "设计师");
-        const result = [...designers];
-        if (thirdPartySummary) result.push(thirdPartySummary);
-        return result;
-    };
-
-    // 全局状态：仅支持设计师模式
-    let selectedDesignerEntities = [];
-
+    
+    // 获取第三方汇总 (所有第三方个体聚合)
+    function getThirdPartySummary(tasks, thirdPartyList) {
+        const thirdTasks = tasks.filter(t => thirdPartyList.includes(t.designerName));
+        const totalAssigned = thirdTasks.length;
+        const completedTasks = thirdTasks.filter(t => t.isCompleted);
+        const totalCompleted = completedTasks.length;
+        let cnt24 = 0, cnt48 = 0, cntGT48 = 0;
+        for (const t of completedTasks) {
+            if (t.hoursSpent <= 24) cnt24++;
+            else if (t.hoursSpent <= 48) cnt48++;
+            else cntGT48++;
+        }
+        const sum = cnt24 + cnt48 + cntGT48;
+        const rate24 = sum === 0 ? 0 : (cnt24 / sum) * 100;
+        const rate48 = sum === 0 ? 0 : ((cnt24 + cnt48) / sum) * 100;
+        const rateGT48 = sum === 0 ? 0 : (cntGT48 / sum) * 100;
+        const avgHours = sum === 0 ? 0 : (cnt24 * 12 + cnt48 * 36 + cntGT48 * 72) / sum;
+        return {
+            name: "第三方(汇总)",
+            type: "第三方",
+            orderCount: totalAssigned,
+            totalCompleted: totalCompleted,
+            cnt24, cnt48, cntGT48,
+            rate24, rate48, rateGT48, avgHours
+        };
+    }
+    
+    // 全体设计师汇总（不含第三方）
+    function getAllDesignersSummary(tasks, designersList) {
+        const designerTasks = tasks.filter(t => designersList.includes(t.designerName));
+        const totalAssigned = designerTasks.length;
+        const completed = designerTasks.filter(t => t.isCompleted);
+        const totalCompleted = completed.length;
+        let cnt24 = 0, cnt48 = 0, cntGT48 = 0;
+        for (const t of completed) {
+            if (t.hoursSpent <= 24) cnt24++;
+            else if (t.hoursSpent <= 48) cnt48++;
+            else cntGT48++;
+        }
+        const sum = cnt24 + cnt48 + cntGT48;
+        const rate24 = sum === 0 ? 0 : (cnt24 / sum) * 100;
+        const rate48 = sum === 0 ? 0 : ((cnt24 + cnt48) / sum) * 100;
+        const rateGT48 = sum === 0 ? 0 : (cntGT48 / sum) * 100;
+        const avgHours = sum === 0 ? 0 : (cnt24 * 12 + cnt48 * 36 + cntGT48 * 72) / sum;
+        return { totalCompleted: sum, rate24, rate48, rateGT48, avgHours, orderCount: totalAssigned, cnt24, cnt48, cntGT48 };
+    }
+    
+    // 设计部汇总（含第三方全部）
+    function getDepartmentSummary(tasks) {
+        const completed = tasks.filter(t => t.isCompleted);
+        const totalCompleted = completed.length;
+        let cnt24 = 0, cnt48 = 0, cntGT48 = 0;
+        for (const t of completed) {
+            if (t.hoursSpent <= 24) cnt24++;
+            else if (t.hoursSpent <= 48) cnt48++;
+            else cntGT48++;
+        }
+        const sum = cnt24 + cnt48 + cntGT48;
+        const rate24 = sum === 0 ? 0 : (cnt24 / sum) * 100;
+        const rate48 = sum === 0 ? 0 : ((cnt24 + cnt48) / sum) * 100;
+        const rateGT48 = sum === 0 ? 0 : (cntGT48 / sum) * 100;
+        const avgHours = sum === 0 ? 0 : (cnt24 * 12 + cnt48 * 36 + cntGT48 * 72) / sum;
+        return { totalCompleted: sum, rate24, rate48, rateGT48, avgHours, orderCount: tasks.length, cnt24, cnt48, cntGT48 };
+    }
+    
+    // 全局状态
+    let currentAssignMonth = "2026-04";     // 默认4月考核
+    let filteredTasks = [];
+    let designersMetrics = [];      // 设计师个体指标列表
+    let thirdPartySummaryMetrics = null;   // 第三方汇总指标
+    let selectedEntities = [];      // 选中的展示实体 (设计师name + "第三方(汇总)")
+    
     // DOM 元素
+    const monthPicker = document.getElementById("assignMonthPicker");
+    const resetBtn = document.getElementById("resetMonthBtn");
     const filterArea = document.getElementById("filterArea");
-    const summaryTitleSpan = document.getElementById("summaryTitle");
     const merged24hSpan = document.getElementById("merged24hVal");
     const merged48hSpan = document.getElementById("merged48hVal");
     const mergedGt48Span = document.getElementById("mergedGt48Val");
@@ -534,53 +588,68 @@
     const modalTitle = document.getElementById("modalTitle");
     const modalContent = document.getElementById("modalContent");
     const closeModalBtn = document.getElementById("closeModalBtn");
-
-    function closeModal() { modal.classList.remove("active"); }
+    
+    function closeModalFn() { modal.classList.remove("active"); }
     function openModal(title, dataObj) {
-        modalTitle.innerText = `${title} - 交付趋势详情`;
+        modalTitle.innerText = `${title} - 交付趋势详情 (指派时间: ${currentAssignMonth || '全部'})`;
         const total = dataObj.totalCompleted || 0;
-        const cnt24 = dataObj.cnt24 || 0;
-        const cnt48 = dataObj.cnt48 || 0;
-        const cntGT48 = dataObj.cntGT48 || 0;
-        const rate24 = dataObj.rate24 !== undefined ? dataObj.rate24.toFixed(2) : '0.00';
-        const rate48 = dataObj.rate48 !== undefined ? dataObj.rate48.toFixed(2) : '0.00';
-        const rateGT48 = dataObj.rateGT48 !== undefined ? dataObj.rateGT48.toFixed(2) : '0.00';
-        const avg = dataObj.avgHours !== undefined ? dataObj.avgHours.toFixed(1) : '0.0';
         modalContent.innerHTML = `
             <div class="trend-stats">
-                <p><strong>📦 派单总数：</strong> ${dataObj.orderCount || 0}</p>
+                <p><strong>📦 派单总数（指派月份内）：</strong> ${dataObj.orderCount || 0}</p>
                 <p><strong>✅ 已完成水电&平面项目：</strong> ${total}</p>
-                <p><strong>⚡ 24h内完成：</strong> ${cnt24} 个 (占比 ${rate24}%)</p>
-                <p><strong>⏱️ 48h内完成：</strong> ${cnt48} 个 (占比 ${rate48}%)</p>
-                <p><strong>⏳ >48h完成：</strong> ${cntGT48} 个 (占比 ${rateGT48}%)</p>
-                <p><strong>📊 平均交付时效：</strong> ${avg} 小时</p>
-                <p style="margin-top:12px; font-size:0.75rem; color:#4b5563;">※ 平均时效基于区间中值估算：≤24h按12h，24-48h按36h，>48h按72h。</p>
+                <p><strong>⚡ 24h内完成：</strong> ${dataObj.cnt24} 个 (占比 ${dataObj.rate24.toFixed(2)}%)</p>
+                <p><strong>⏱️ 48h内完成：</strong> ${dataObj.cnt48} 个 (占比 ${dataObj.rate48.toFixed(2)}%)</p>
+                <p><strong>⏳ >48h完成：</strong> ${dataObj.cntGT48} 个 (占比 ${dataObj.rateGT48.toFixed(2)}%)</p>
+                <p><strong>📊 平均交付时效：</strong> ${dataObj.avgHours.toFixed(1)} 小时</p>
+                <p style="margin-top:12px; font-size:0.75rem;">※ 基于指派时间筛选: ${currentAssignMonth || '全部时间'}</p>
             </div>
         `;
         modal.classList.add("active");
     }
-
-    // 获取当前展示数据（仅设计师模式）
-    function getCurrentDisplayData() {
-        let allItems = designerModeBase();
-        let filtered = allItems.filter(item => selectedDesignerEntities.includes(item.name));
-        return { type: "designer", data: filtered };
+    
+    // 刷新数据聚合 (基于当前月份)
+    function refreshAggregations() {
+        if (currentAssignMonth === "") {
+            filteredTasks = [...allTasks];
+        } else {
+            filteredTasks = filterTasksByAssignMonth(allTasks, currentAssignMonth);
+        }
+        // 计算每个设计师指标
+        designersMetrics = DESIGNERS.map(d => aggregatePersonMetrics(filteredTasks, d));
+        // 第三方汇总指标
+        thirdPartySummaryMetrics = getThirdPartySummary(filteredTasks, THIRD_PARTY_INDIVIDUALS);
     }
-
+    
+    // 获取所有可选实体列表 (用于多选)
+    function getAllSelectableEntities() {
+        const designersList = designersMetrics.map(d => d.name);
+        return [...designersList, "第三方(汇总)"];
+    }
+    
+    // 获取当前展示数据行 (根据选中的实体)
+    function getCurrentDisplayRows() {
+        const rows = [];
+        for (const entity of selectedEntities) {
+            if (entity === "第三方(汇总)") {
+                if (thirdPartySummaryMetrics) rows.push({ ...thirdPartySummaryMetrics });
+            } else {
+                const metric = designersMetrics.find(d => d.name === entity);
+                if (metric) rows.push({ ...metric });
+            }
+        }
+        return rows;
+    }
+    
     // 渲染表格
     function renderTable() {
-        const display = getCurrentDisplayData();
-        tableHeader.innerHTML = `<tr>
-            <th>设计师 / 第三方</th><th>类型</th><th>派单数</th>
-            <th>✅24h内</th><th>✅48h内</th><th>⏳>48h</th>
-            <th>⚡24h率</th><th>⏰48h率</th><th>⏳>48h率</th><th>⏱️平均时效(h)</th><th>📈交付趋势</th>
-        </tr>`;
-        if (display.data.length === 0) {
-            tableBody.innerHTML = `<tr class="empty-row"><td colspan="11">未筛选到任何人员，请调整筛选条件</td></tr>`;
+        tableHeader.innerHTML = `<tr><th>人员姓名</th><th>类型</th><th>派单数</th><th>✅24h内</th><th>✅48h内</th><th>⏳>48h</th><th>⚡24h率</th><th>⏰48h率</th><th>⏳>48h率</th><th>⏱️平均时效(h)</th><th>📈交付趋势</th></tr>`;
+        const rows = getCurrentDisplayRows();
+        if (rows.length === 0) {
+            tableBody.innerHTML = `<tr class="empty-row"><td colspan="11">未筛选任何人员，请调整筛选条件</td></tr>`;
             return;
         }
         let html = '';
-        display.data.forEach(s => {
+        for (const s of rows) {
             const typeClass = s.type === '设计师' ? 'type-badge' : 'type-badge third';
             const typeDisplay = s.type === '设计师' ? '🎨 设计师' : '📐 第三方(汇总)';
             html += `<tr>
@@ -592,233 +661,156 @@
                 <td>${s.rate48.toFixed(2)}%</td>
                 <td>${s.rateGT48.toFixed(2)}%</td>
                 <td>${s.avgHours.toFixed(1)} h</td>
-                <td><button class="view-trend-btn" data-name="${s.name}" data-mode="designer">查看详情</button></td>
+                <td><button class="view-trend-btn" data-name="${s.name}">查看详情</button></td>
             </tr>`;
-        });
+        }
         tableBody.innerHTML = html;
-        document.querySelectorAll('.view-trend-btn[data-mode="designer"]').forEach(btn => {
+        document.querySelectorAll('.view-trend-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const name = btn.getAttribute('data-name');
-                const item = display.data.find(d => d.name === name);
-                if (item) openModal(item.name, item);
+                let targetData = null;
+                if (name === "第三方(汇总)") targetData = thirdPartySummaryMetrics;
+                else targetData = designersMetrics.find(d => d.name === name);
+                if (targetData) openModal(name, targetData);
             });
         });
     }
-
-    // 计算全体设计师汇总（不包含第三方）
-    function computeAllDesignersSummary() {
-        const designers = allStaff.filter(s => s.type === "设计师");
-        let sumOrders = 0, sum24 = 0, sum48 = 0, sumGT48 = 0;
-        designers.forEach(d => {
-            sumOrders += d.orderCount;
-            sum24 += d.cnt24;
-            sum48 += d.cnt48;
-            sumGT48 += d.cntGT48;
-        });
-        const totalComp = sum24 + sum48 + sumGT48;
-        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
-        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
-        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
-        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
-        return {
-            name: "设计师汇总（全部）",
-            type: "汇总",
-            orderCount: sumOrders,
-            cnt24: sum24,
-            cnt48: sum48,
-            cntGT48: sumGT48,
-            rate24,
-            rate48,
-            rateGT48,
-            avgHours,
-            totalCompleted: totalComp
-        };
-    }
-
-    // 计算设计部汇总（含第三方：设计师个体+第三方个体）
-    function computeDepartmentSummary() {
-        // 所有人员（设计师+第三方个体）
-        let sumOrders = 0, sum24 = 0, sum48 = 0, sumGT48 = 0;
-        allStaff.forEach(p => {
-            sumOrders += p.orderCount;
-            sum24 += p.cnt24;
-            sum48 += p.cnt48;
-            sumGT48 += p.cntGT48;
-        });
-        const totalComp = sum24 + sum48 + sumGT48;
-        const rate24 = totalComp === 0 ? 0 : (sum24 / totalComp) * 100;
-        const rate48 = totalComp === 0 ? 0 : ((sum24 + sum48) / totalComp) * 100;
-        const rateGT48 = totalComp === 0 ? 0 : (sumGT48 / totalComp) * 100;
-        const avgHours = totalComp === 0 ? 0 : (sum24 * 12 + sum48 * 36 + sumGT48 * 72) / totalComp;
-        return {
-            name: "设计部汇总（含第三方）",
-            type: "汇总",
-            orderCount: sumOrders,
-            cnt24: sum24,
-            cnt48: sum48,
-            cntGT48: sumGT48,
-            rate24,
-            rate48,
-            rateGT48,
-            avgHours,
-            totalCompleted: totalComp
-        };
-    }
-
-    // 更新顶部卡片（展示全体设计师汇总，不含第三方）
+    
+    // 更新顶部卡片（全体设计师汇总）
     function updateTopSummary() {
-        const summary = computeAllDesignersSummary();
+        const summary = getAllDesignersSummary(filteredTasks, DESIGNERS);
         merged24hSpan.innerText = summary.rate24.toFixed(2) + '%';
         merged48hSpan.innerText = summary.rate48.toFixed(2) + '%';
         mergedGt48Span.innerText = summary.rateGT48.toFixed(2) + '%';
         mergedAvgSpan.innerText = summary.avgHours.toFixed(1);
         totalCompletedSpan.innerText = summary.totalCompleted;
     }
-
-    // 动态构建筛选器（设计师多选下拉）
+    
+    // 构建多选下拉 (设计师 + 第三方汇总)
     let currentDropdown = null;
-    function closeAllDropdowns() { if(currentDropdown) currentDropdown.style.display = 'none'; }
-
-    function buildFilter() {
-        const designerItems = designerModeBase();
+    function closeDropdowns() { if (currentDropdown) currentDropdown.style.display = 'none'; }
+    function buildMultiSelect() {
+        const selectable = getAllSelectableEntities();
         filterArea.innerHTML = `
             <div class="filter-group">
-                <div class="filter-label">🔍 多选设计师 / 第三方汇总</div>
-                <div class="multi-select" id="designerMultiSelect">
-                    <div class="select-trigger" id="designerTrigger">
-                        <span id="designerSelectedText">已选 ${selectedDesignerEntities.length} 项</span>
+                <div class="filter-label">👥 多选设计师 / 第三方汇总</div>
+                <div class="multi-select" id="personMultiSelect">
+                    <div class="select-trigger" id="personTrigger">
+                        <span id="selectedCountText">已选 ${selectedEntities.length} 项</span>
                         <span>▼</span>
                     </div>
-                    <div class="dropdown-panel" id="designerDropdown">
+                    <div class="dropdown-panel" id="personDropdown">
                         <div style="padding: 8px 12px; border-bottom:1px solid #edf2f7;">
-                            <button class="btn-sm" id="designerSelectAllBtn">全选</button>
-                            <button class="btn-sm" id="designerClearAllBtn" style="margin-left:8px;">清空</button>
+                            <button class="btn-sm" id="selectAllBtn">全选</button>
+                            <button class="btn-sm" id="clearAllBtn" style="margin-left:8px;">清空</button>
                         </div>
-                        <div id="designerOptionsList"></div>
+                        <div id="optionsList"></div>
                     </div>
                 </div>
             </div>
         `;
-        const optionsContainer = document.getElementById("designerOptionsList");
+        const optionsContainer = document.getElementById("optionsList");
         function renderOptions() {
-            optionsContainer.innerHTML = designerItems.map(item => `
-                <div class="dropdown-option" data-name="${item.name}">
-                    <input type="checkbox" value="${item.name}" ${selectedDesignerEntities.includes(item.name) ? 'checked' : ''}>
-                    <span>${item.name} (${item.type === '设计师' ? '设计师' : '第三方汇总'})</span>
+            optionsContainer.innerHTML = selectable.map(item => `
+                <div class="dropdown-option" data-name="${item}">
+                    <input type="checkbox" value="${item}" ${selectedEntities.includes(item) ? 'checked' : ''}>
+                    <span>${item} ${item === "第三方(汇总)" ? '(汇总所有第三方)' : '(设计师)'}</span>
                 </div>
             `).join('');
-            document.querySelectorAll('#designerOptionsList .dropdown-option').forEach(opt => {
+            document.querySelectorAll('#optionsList .dropdown-option').forEach(opt => {
                 const cb = opt.querySelector('input');
                 const name = opt.getAttribute('data-name');
                 opt.addEventListener('click', (e) => {
-                    if(e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
+                    if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
                     const isChecked = cb.checked;
-                    if(isChecked) { if(!selectedDesignerEntities.includes(name)) selectedDesignerEntities.push(name); }
-                    else { selectedDesignerEntities = selectedDesignerEntities.filter(n => n !== name); }
-                    document.getElementById("designerSelectedText").innerText = `已选 ${selectedDesignerEntities.length} 项`;
-                    updateAll();
+                    if (isChecked) { if (!selectedEntities.includes(name)) selectedEntities.push(name); }
+                    else { selectedEntities = selectedEntities.filter(n => n !== name); }
+                    document.getElementById("selectedCountText").innerText = `已选 ${selectedEntities.length} 项`;
+                    renderTable();
                     renderOptions();
                 });
                 cb.addEventListener('change', (e) => e.stopPropagation());
             });
         }
         renderOptions();
-        const trigger = document.getElementById("designerTrigger");
-        const dropdown = document.getElementById("designerDropdown");
+        const trigger = document.getElementById("personTrigger");
+        const dropdown = document.getElementById("personDropdown");
         trigger.addEventListener("click", (e) => {
             e.stopPropagation();
             const isOpen = dropdown.style.display === 'block';
-            closeAllDropdowns();
-            if(!isOpen) { dropdown.style.display = 'block'; currentDropdown = dropdown; }
+            closeDropdowns();
+            if (!isOpen) { dropdown.style.display = 'block'; currentDropdown = dropdown; }
             else dropdown.style.display = 'none';
         });
-        document.getElementById("designerSelectAllBtn").addEventListener("click", () => {
-            selectedDesignerEntities = designerItems.map(i => i.name);
-            document.getElementById("designerSelectedText").innerText = `已选 ${selectedDesignerEntities.length} 项`;
-            updateAll(); renderOptions();
+        document.getElementById("selectAllBtn").addEventListener("click", () => {
+            selectedEntities = [...selectable];
+            document.getElementById("selectedCountText").innerText = `已选 ${selectedEntities.length} 项`;
+            renderTable(); renderOptions();
         });
-        document.getElementById("designerClearAllBtn").addEventListener("click", () => {
-            selectedDesignerEntities = [];
-            document.getElementById("designerSelectedText").innerText = `已选 0 项`;
-            updateAll(); renderOptions();
+        document.getElementById("clearAllBtn").addEventListener("click", () => {
+            selectedEntities = [];
+            document.getElementById("selectedCountText").innerText = `已选 0 项`;
+            renderTable(); renderOptions();
         });
     }
-
-    function updateAll() {
+    
+    // 全量更新
+    function fullUpdate() {
+        refreshAggregations();
+        updateTopSummary();
+        if (!selectedEntities.length) {
+            selectedEntities = getAllSelectableEntities(); // 默认全选
+        } else {
+            // 清理已失效实体
+            const valid = getAllSelectableEntities();
+            selectedEntities = selectedEntities.filter(e => valid.includes(e));
+            if (!selectedEntities.length) selectedEntities = [...valid];
+        }
+        buildMultiSelect();
         renderTable();
-        buildFilter();
-        // 顶部卡片不受筛选影响
     }
-
-    // 导出CSV：底部增加设计师汇总（不含第三方） + 设计部汇总（含第三方）
-    function exportCurrentView() {
-        const display = getCurrentDisplayData();
+    
+    // 导出CSV (当前表格展示行 + 设计师汇总+设计部汇总)
+    function exportCSV() {
+        const displayRows = getCurrentDisplayRows();
         const headers = ["人员姓名","类型","派单数","24h内完成","48h内完成",">48h完成","24h交付率(%)","48h交付率(%)",">48h交付率(%)","平均时效(小时)"];
-        // 当前筛选数据行
-        let rows = display.data.map(d => [
-            d.name,
-            d.type,
-            d.orderCount,
-            d.cnt24,
-            d.cnt48,
-            d.cntGT48,
-            d.rate24.toFixed(2),
-            d.rate48.toFixed(2),
-            d.rateGT48.toFixed(2),
-            d.avgHours.toFixed(1)
+        let rows = displayRows.map(d => [
+            d.name, d.type, d.orderCount, d.cnt24, d.cnt48, d.cntGT48,
+            d.rate24.toFixed(2), d.rate48.toFixed(2), d.rateGT48.toFixed(2), d.avgHours.toFixed(1)
         ]);
-        // 设计师汇总（不含第三方）
-        const designerSummary = computeAllDesignersSummary();
-        const designerSummaryRow = [
-            designerSummary.name,
-            designerSummary.type,
-            designerSummary.orderCount,
-            designerSummary.cnt24,
-            designerSummary.cnt48,
-            designerSummary.cntGT48,
-            designerSummary.rate24.toFixed(2),
-            designerSummary.rate48.toFixed(2),
-            designerSummary.rateGT48.toFixed(2),
-            designerSummary.avgHours.toFixed(1)
-        ];
-        rows.push(designerSummaryRow);
-        // 设计部汇总（含第三方）
-        const deptSummary = computeDepartmentSummary();
-        const deptSummaryRow = [
-            deptSummary.name,
-            deptSummary.type,
-            deptSummary.orderCount,
-            deptSummary.cnt24,
-            deptSummary.cnt48,
-            deptSummary.cntGT48,
-            deptSummary.rate24.toFixed(2),
-            deptSummary.rate48.toFixed(2),
-            deptSummary.rateGT48.toFixed(2),
-            deptSummary.avgHours.toFixed(1)
-        ];
-        rows.push(deptSummaryRow);
-        
-        if(rows.length === 0){ alert("暂无数据可导出"); return; }
+        const designerSum = getAllDesignersSummary(filteredTasks, DESIGNERS);
+        rows.push(["全体设计师汇总(不含第三方)", "汇总", designerSum.orderCount, designerSum.cnt24, designerSum.cnt48, designerSum.cntGT48, designerSum.rate24.toFixed(2), designerSum.rate48.toFixed(2), designerSum.rateGT48.toFixed(2), designerSum.avgHours.toFixed(1)]);
+        const deptSum = getDepartmentSummary(filteredTasks);
+        rows.push(["设计部汇总(含第三方)", "汇总", deptSum.orderCount, deptSum.cnt24, deptSum.cnt48, deptSum.cntGT48, deptSum.rate24.toFixed(2), deptSum.rate48.toFixed(2), deptSum.rateGT48.toFixed(2), deptSum.avgHours.toFixed(1)]);
         const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
         const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.href = url;
-        link.setAttribute("download", `设计时效_设计师_${new Date().toISOString().slice(0,19)}.csv`);
+        link.setAttribute("download", `设计时效_指派${currentAssignMonth || '全部'}_${new Date().toISOString().slice(0,19)}.csv`);
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
         URL.revokeObjectURL(url);
     }
-
-    // 事件绑定
-    document.addEventListener('click', (e) => { if(!e.target.closest('.multi-select')) closeAllDropdowns(); });
-    exportBtn.addEventListener('click', exportCurrentView);
-    closeModalBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
-
+    
+    // 事件监听
+    monthPicker.addEventListener("change", (e) => {
+        currentAssignMonth = e.target.value;
+        fullUpdate();
+    });
+    resetBtn.addEventListener("click", () => {
+        currentAssignMonth = "";
+        monthPicker.value = "";
+        fullUpdate();
+    });
+    exportBtn.addEventListener("click", exportCSV);
+    closeModalBtn.addEventListener("click", closeModalFn);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModalFn(); });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.multi-select')) closeDropdowns(); });
+    
     // 初始化
-    selectedDesignerEntities = designerModeBase().map(i => i.name);
-    updateTopSummary();      // 设置顶部卡片（全体设计师汇总）
-    updateAll();             // 渲染表格和筛选器
+    currentAssignMonth = "2026-04";
+    monthPicker.value = "2026-04";
+    fullUpdate();
 </script>
 </body>
 </html>
