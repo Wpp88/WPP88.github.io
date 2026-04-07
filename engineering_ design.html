@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>鸣鸣很忙 ·（分类+设备+门店设计信息）</title>
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f6;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            color: #1e2f3e;
+        }
+
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e9edf2;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .logo-area {
+            padding: 24px 20px;
+            border-bottom: 1px solid #eff3f8;
+        }
+
+        .logo-area h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0f3b5c, #1f7b9e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .nav-parent {
+            font-weight: 600;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2c5f8a;
+            border-radius: 14px;
+            background: #f8fafd;
+            margin-bottom: 4px;
+            cursor: default;
+        }
+
+        .sub-menu {
+            padding-left: 32px;
+        }
+
+        .sub-item {
+            padding: 10px 16px;
+            margin: 4px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4a627a;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sub-item:hover {
+            background: #eef3fc;
+        }
+
+        .sub-item.active {
+            background: #e2f0fa;
+            color: #0f5b82;
+            font-weight: 600;
+        }
+
+        /* 右侧 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            background: #f5f9fe;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #0a334a;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 6px 18px 6px 12px;
+            border-radius: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0, 32, 64, 0.05);
+            border: 1px solid #e6edf4;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header-actions {
+            padding: 20px 28px;
+            border-bottom: 1px solid #eef3fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .card-header-actions h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f5e83;
+        }
+
+        .btn-primary {
+            background: #1f6c94;
+            color: white;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #0e5478;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #cbdde9;
+            color: #2c6e96;
+            padding: 6px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-outline:hover {
+            background: #f0f6fc;
+        }
+
+        .search-input {
+            border: 1px solid #dce5ec;
+            border-radius: 40px;
+            padding: 8px 16px;
+            width: 260px;
+            font-size: 0.8rem;
+        }
+
+        .tree-container {
+            padding: 16px 20px 24px 20px;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            list-style: none;
+            margin: 0;
+        }
+
+        .node-content {
+            display: flex;
+            align-items: center;
+            padding: 8px 8px 8px 0;
+            border-radius: 12px;
+            transition: background 0.1s;
+            cursor: pointer;
+        }
+
+        .node-content:hover {
+            background: #f5f9ff;
+        }
+
+        .node-expand {
+            width: 24px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #7f8fa4;
+        }
+
+        .node-icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .node-name {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3b4f;
+        }
+
+        .node-status {
+            font-size: 0.65rem;
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #eef3fc;
+            color: #2c6e96;
+        }
+
+        .node-status.disabled {
+            background: #ffe6e5;
+            color: #c23d3d;
+        }
+
+        .node-actions {
+            display: none;
+            gap: 12px;
+            margin-left: 12px;
+        }
+
+        .node-content:hover .node-actions {
+            display: flex;
+        }
+
+        .node-actions span {
+            cursor: pointer;
+            color: #8ba3bc;
+            font-size: 0.85rem;
+        }
+
+        .node-actions span:hover {
+            color: #1f6c94;
+        }
+
+        .children-wrapper {
+            padding-left: 28px;
+        }
+
+        .empty-tree {
+            text-align: center;
+            padding: 48px;
+            color: #8ea3bb;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 20px 20px 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 12px;
+            background: #fafdff;
+            color: #2c5f82;
+            border-bottom: 1px solid #e2ebf3;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eff4fa;
+            vertical-align: middle;
+        }
+
+        .badge-cat {
+            background: #eef3fc;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #2c6e96;
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 14px;
+        }
+
+        .action-icons span {
+            cursor: pointer;
+            color: #7b99b5;
+        }
+
+        .action-icons span:hover {
+            color: #1f6c94;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 20px;
+            margin-top: 8px;
+            border-bottom: 1px solid #eef3fa;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: #5d7b9c;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #1f6c94;
+            border-bottom-color: #1f6c94;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-container {
+            background: white;
+            width: 880px;
+            max-width: 90vw;
+            border-radius: 32px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid #e9f0f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px 28px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .form-field label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2c5a7a;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .form-field label .required {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d0dfec;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .close-modal-x {
+            cursor: pointer;
+            font-size: 26px;
+            color: #8fa6c0;
+        }
+
+        .preview-table {
+            max-height: 300px;
+            overflow: auto;
+            font-size: 0.75rem;
+            border: 1px solid #e2edf5;
+            border-radius: 16px;
+            margin-top: 16px;
+        }
+
+        .preview-table table {
+            width: 100%;
+        }
+
+        .error-msg {
+            color: #d9534f;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+
+        .size-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .size-group input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div class="sidebar">
+        <div class="logo-area"><h2>🏪 鸣鸣很忙</h2><p></p></div>
+        <div class="nav-menu">
+            <div class="nav-parent">📁 档案管理</div>
+            <div class="sub-menu">
+                <div class="sub-item active" data-module="category">📂 设备分类列表</div>
+                <div class="sub-item" data-module="device">📦 设备档案</div>
+            </div>
+            <div class="nav-parent" style="margin-top: 16px;">🏬 设计列表</div>
+            <div class="sub-menu">
+                <div class="sub-item" data-module="storeDesign">📐 设计详情（设计信息）</div>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title" id="mainTitle">设备分类列表</div>
+            <div class="user-info"><span>👤</span> 王鹏 · admin</div>
+        </div>
+
+        <!-- 分类模块 -->
+        <div id="categoryPanel" class="panel-card">
+            <div class="card-header-actions"><h3>🌳 分类列表 </h3><button class="btn-primary" id="addRootCategoryBtn">+ 新建分类</button></div>
+            <div class="tree-container" id="categoryTreeContainer">加载中...</div>
+        </div>
+
+        <!-- 设备模块 -->
+        <div id="devicePanel" class="panel-card" style="display: none;">
+            <div class="card-header-actions"><h3>📦 设备档案库</h3><div style="display:flex; gap:12px;"><input type="text" id="deviceSearchInput" class="search-input" placeholder="🔍 设备名称/商品编码"><button class="btn-outline" id="downloadDeviceTemplateBtn">📎 下载模板</button><button class="btn-primary" id="batchImportDeviceBtn">📂 批量导入</button><button class="btn-primary" id="openAddDeviceBtn">+ 新增设备</button></div></div>
+            <div class="table-wrapper"><table id="deviceTable"><thead><tr><th>商品编码</th><th>商品名称</th><th>所属分类</th><th>单位</th><th>功率(W)</th><th>外形尺寸</th><th>操作</th></tr></thead><tbody id="deviceTableBody"></tbody></table></div>
+        </div>
+
+        <!-- 门店设计中心模块 -->
+        <div id="storeDesignPanel" class="panel-card" style="display: none;">
+            <div class="card-header-actions"><h3>🏬 门店设计清单 (设备/货架/弱电)</h3><div></div></div>
+            <div class="tabs">
+                <button class="tab-btn active" data-design-tab="equipment">📟 门店设备 (关联档案)</button>
+                <button class="tab-btn" data-design-tab="shelf">📚 货架数据</button>
+                <button class="tab-btn" data-design-tab="weakcurrent">⚡ 弱电数据</button>
+            </div>
+            <!-- 门店设备列表 -->
+            <div id="equipmentTab" class="design-tab-content">
+                <div style="padding: 16px 20px 0 20px; display: flex; justify-content: flex-end; gap:12px;">
+                    <button class="btn-outline" id="downloadStoreEquipTemplateBtn">📎 设备导入模板</button>
+                    <button class="btn-primary" id="batchImportStoreEquipBtn">📂 批量导入设备</button>
+                    <button class="btn-primary" id="addStoreEquipBtn">+ 新增门店设备</button>
+                </div>
+                <div class="table-wrapper"><table id="storeEquipmentTable"><thead><tr><th>设备档案(名称/编码)</th><th>数量</th><th>使用位置/备注</th><th>操作</th></tr></thead><tbody id="storeEquipBody"></tbody></table></div>
+            </div>
+            <!-- 货架数据列表 -->
+            <div id="shelfTab" class="design-tab-content" style="display:none;">
+                <div style="padding: 16px 20px 0 20px; display: flex; justify-content: flex-end; gap:12px;">
+                    <button class="btn-outline" id="downloadShelfTemplateBtn">📎 货架导入模板</button>
+                    <button class="btn-primary" id="batchImportShelfBtn">📂 批量导入货架</button>
+                    <button class="btn-primary" id="addShelfBtn">+ 新增货架</button>
+                </div>
+                <div class="table-wrapper"><table id="shelfTable"><thead><tr><th>货架属性</th><th>货架类型</th><th>货架编号</th><th>货架名称</th><th>尺寸(长×宽×高/mm)</th><th>货框数量</th><th>层数</th><th>操作</th></tr></thead><tbody id="shelfBody"></tbody></table></div>
+            </div>
+            <!-- 弱电数据列表 -->
+            <div id="weakcurrentTab" class="design-tab-content" style="display:none;">
+                <div style="padding: 16px 20px 0 20px; display: flex; justify-content: flex-end; gap:12px;">
+                    <button class="btn-outline" id="downloadWeakTemplateBtn">📎 弱电导入模板</button>
+                    <button class="btn-primary" id="batchImportWeakBtn">📂 批量导入弱电</button>
+                    <button class="btn-primary" id="addWeakBtn">+ 新增弱电记录</button>
+                </div>
+                <div class="table-wrapper"><table id="weakTable"><thead><tr><th>分类</th><th>数量</th><th>备注</th><th>操作</th></tr></thead><tbody id="weakBody"></tbody></table></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 分类编辑模态框 -->
+<div id="categoryModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="catModalTitle">新增分类</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-field"><label>分类名称 <span class="required">*</span></label><input type="text" id="catName" placeholder="请输入分类名称"></div><div class="form-field"><label>上级分类</label><select id="catParentId"><option value="">无 (一级分类)</option></select></div><div class="form-row"><div class="form-field"><label>排序序号</label><input type="number" id="catSort" value="0"></div><div class="form-field"><label>状态</label><div class="toggle-switch" style="display:flex; gap:8px; align-items:center;"><input type="checkbox" id="catEnabled" checked> <span>启用</span></div></div></div><div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="confirmCategoryBtn">保存</button></div></div></div></div>
+
+<!-- 设备档案模态框 -->
+<div id="deviceModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="deviceModalTitle">新增设备档案</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-row"><div class="form-field"><label>所属分类 <span class="required">*</span></label><select id="devCategoryId"></select></div><div class="form-field"><label>商品编码</label><input type="text" id="devProductCode" placeholder="自动生成"></div></div><div class="form-row"><div class="form-field"><label>商品名称 <span class="required">*</span></label><input type="text" id="devName"></div><div class="form-field"><label>单位</label><select id="devUnit"><option>台</option><option>套</option><option>个</option></select></div></div><div class="form-row"><div class="form-field"><label>外形尺寸(长x宽x高 mm)</label><input type="text" id="devDimensions"></div><div class="form-field"><label>功率(W)</label><input type="number" id="devPower"></div></div><div class="form-row"><div class="form-field"><label>总容积(L)</label><input type="text" id="devVolume"></div><div class="form-field"><label>温度范围(℃)</label><input type="text" id="devTemp"></div></div><div class="form-row"><div class="form-field"><label>供应商编码</label><input type="text" id="devSupplierCode"></div><div class="form-field"><label>条形码</label><input type="text" id="devBarcode"></div></div><div class="form-row"><div class="form-field"><label>品牌</label><input type="text" id="devBrand"></div><div class="form-field"><label>维保期限(月)</label><input type="number" id="devWarranty"></div></div><div style="display:flex; justify-content:flex-end; gap:12px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveDeviceBtn">保存设备</button></div></div></div></div>
+
+<!-- 门店设备模态框 -->
+<div id="storeEquipModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="storeEquipTitle">新增门店设备</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-field"><label>选择设备档案 <span class="required">*</span></label><select id="storeEquipDeviceSelect"></select></div><div class="form-row"><div class="form-field"><label>数量</label><input type="number" id="storeEquipQty" value="1"></div><div class="form-field"><label>位置/备注</label><input type="text" id="storeEquipRemark"></div></div><div style="display:flex; justify-content:flex-end; gap:12px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveStoreEquipBtn">保存</button></div></div></div></div>
+
+<!-- 货架模态框 -->
+<div id="shelfModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="shelfModalTitle">新增/编辑货架</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-row"><div class="form-field"><label>货架属性</label><select id="shelfAttr"><option>标准货架</option><option>非标准货架</option></select></div><div class="form-field"><label>货架类型</label><select id="shelfType"><option>定量</option><option>散称</option><option>挂包</option><option>中式糕点</option><option>雪糕柜货架</option><option>糖玩货架</option><option>洞洞板</option><option>端架</option></select></div></div><div class="form-row"><div class="form-field"><label>货架编号</label><input id="shelfCode"></div><div class="form-field"><label>货架名称</label><input id="shelfName"></div></div><div class="form-row"><div class="form-field"><label>长 (mm)</label><input type="number" id="shelfLen"></div><div class="form-field"><label>宽 (mm)</label><input type="number" id="shelfWid"></div><div class="form-field"><label>高 (mm)</label><input type="number" id="shelfHei"></div></div><div class="form-row"><div class="form-field"><label>货框数量</label><input type="number" id="shelfBoxQty" value="0"></div><div class="form-field"><label>货架层数</label><input type="number" id="shelfLevels" value="1"></div></div><div style="display:flex; justify-content:flex-end; gap:12px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveShelfBtn">保存</button></div></div></div></div>
+
+<!-- 弱电模态框 -->
+<div id="weakModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="weakModalTitle">新增弱电记录</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-field"><label>分类</label><select id="weakCategory"><option>弱电设备</option><option>消防设备</option><option>专用点位</option><option>强电设备</option><option>插座</option></select></div><div class="form-row"><div class="form-field"><label>数量</label><input type="number" id="weakQty" value="1"></div><div class="form-field"><label>备注</label><input type="text" id="weakRemark"></div></div><div style="display:flex; justify-content:flex-end; gap:12px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveWeakBtn">保存</button></div></div></div></div>
+
+<!-- 通用批量导入模态框 -->
+<div id="genericImportModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="importModalTitle">批量导入</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><input type="file" id="genericImportFile" accept=".xlsx, .xls"><button class="btn-outline" id="parseGenericBtn" style="margin:12px 0;">解析文件</button><div id="genericImportPreview"></div><div style="display:flex; justify-content:flex-end; gap:12px;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="confirmGenericImportBtn" disabled>确认导入</button></div></div></div></div>
+
+<script>
+    // ---------- 分类核心 ----------
+    let categoryTree = []; let nextNodeId = 200;
+    function genId() { return 'cat_' + (nextNodeId++); }
+    function buildInitialTree() {
+        const raw = [{ l1:"货架", l2:"标准货架", l3:"定量货架" },{ l1:"货架", l2:"标准货架", l3:"散称货架" },{ l1:"货架", l2:"专用货架", l3:"中式糕点货架" },{ l1:"设备", l2:"冷链设备", l3:"风幕柜" },{ l1:"设备", l2:"热食加工设备", l3:"烤肠机" },{ l1:"广告", l2:"灯箱", l3:"门头灯箱" },{ l1:"弱电", l2:"弱电设备", l3:"插座" }];
+        const map = new Map();
+        raw.forEach(item => {
+            let l1 = map.get(item.l1); if(!l1){ l1 = { id:genId(), name:item.l1, level:1, sort:0, enabled:true, children:[] }; map.set(item.l1,l1); categoryTree.push(l1); }
+            let l2 = l1.children.find(c=>c.name===item.l2); if(!l2){ l2 = { id:genId(), name:item.l2, level:2, sort:0, enabled:true, children:[] }; l1.children.push(l2); }
+            let l3 = { id:genId(), name:item.l3, level:3, sort:0, enabled:true, children:[] }; l2.children.push(l3);
+        });
+        categoryTree.forEach((r,i)=>r.sort=i*10);
+    }
+    buildInitialTree();
+    function findNodeById(id, nodes=categoryTree) { for(let n of nodes){ if(n.id===id) return n; if(n.children){ let f=findNodeById(id,n.children); if(f) return f; } } return null; }
+    function getFullCategoryPath(node) { function find(cur,id,arr){ if(cur.id===id) return [...arr, cur.name]; if(cur.children) for(let c of cur.children){ let r=find(c,id,[...arr,cur.name]); if(r) return r; } return null; } for(let r of categoryTree){ let p=find(r,node.id,[]); if(p) return p.join(' / '); } return node.name; }
+    function getThirdLevelNodes() { let thirds=[]; function trav(nodes){ nodes.forEach(n=>{ if(n.level===3 && n.enabled) thirds.push({ id:n.id, name:n.name, fullPath:getFullCategoryPath(n) }); if(n.children) trav(n.children); }); } trav(categoryTree); return thirds; }
+    function isDeviceUnderCategory(catId) { return devices.some(d=>d.categoryId===catId); }
+    function hasDeviceUnderNode(nodeId){ let n=findNodeById(nodeId); if(!n) return false; if(n.level===3 && isDeviceUnderCategory(n.id)) return true; if(n.children) return n.children.some(ch=>hasDeviceUnderNode(ch.id)); return false; }
+
+    // 设备模型
+    let devices = [];
+    function initDevices(){
+        const thirds=getThirdLevelNodes();
+        const getCatId=(name)=> { let t=thirds.find(t=>t.name===name); return t?t.id:null; };
+        devices = [{ id:'dev1', productCode:'DEV-10001', name:'8尺风幕柜', categoryId:getCatId('风幕柜'), unit:'台', dimensions:'2490x750x2000', power:1000, volume:'1200L', tempRange:'2~8℃', supplierCode:'HR001', barcode:'690123', brand:'海容', warrantyMonths:12 },
+                   { id:'dev2', productCode:'DEV-10002', name:'六管烤肠机', categoryId:getCatId('烤肠机'), unit:'台', dimensions:'650x350x250', power:800, volume:'—', tempRange:'50~200℃', supplierCode:'KJ001', barcode:'697456', brand:'小熊', warrantyMonths:6 }];
+    }
+    initDevices();
+    function generateProductCode() { let max=0; devices.forEach(d=>{ let m=d.productCode.match(/\d+$/); if(m) max=Math.max(max,parseInt(m[0])); }); return 'DEV-' + String(max+1).padStart(5,'0'); }
+
+    // 渲染分类树
+    function renderCategoryTree() {
+        const container = document.getElementById('categoryTreeContainer');
+        if(!container) return;
+        function sortChildren(node){ if(node.children) { node.children.sort((a,b)=>(a.sort||0)-(b.sort||0)); node.children.forEach(ch=>sortChildren(ch)); } }
+        categoryTree.forEach(root=>sortChildren(root));
+        function renderNode(node) {
+            const hasChildren = node.children?.length>0;
+            const expandId = `exp-${node.id}`;
+            const isExpanded = localStorage.getItem(expandId)!=='false';
+            const childrenHtml = hasChildren && isExpanded ? `<div class="children-wrapper">${node.children.map(ch=>renderNode(ch)).join('')}</div>` : (hasChildren ? `<div class="children-wrapper" style="display:none;" data-parent="${node.id}"></div>` : '');
+            const statusClass = node.enabled ? '' : 'disabled';
+            const statusText = node.enabled ? '启用' : '停用';
+            const expandSymbol = hasChildren ? `<span class="node-expand" data-id="${node.id}">${isExpanded ? '📂' : '📁'}</span>` : `<span class="node-expand" style="opacity:0">📄</span>`;
+            return `<div class="tree-node" data-node-id="${node.id}"><div class="node-content">${expandSymbol}<span class="node-icon">${node.level===1?'🗂️':'📄'}</span><span class="node-name">${escapeHtml(node.name)} <span class="node-status ${statusClass}">${statusText}</span></span><div class="node-actions"><span class="add-child">➕</span><span class="edit-node">✏️</span><span class="toggle-status">${node.enabled?'🔴停用':'🟢启用'}</span><span class="delete-node">🗑️</span></div></div>${childrenHtml}</div>`;
+        }
+        container.innerHTML = `<div>${categoryTree.map(renderNode).join('')}</div>`;
+        document.querySelectorAll('.node-expand').forEach(el=>{ el.onclick=(e)=>{ e.stopPropagation(); let pid=el.getAttribute('data-id'); let wrap=el.closest('.tree-node')?.querySelector('.children-wrapper'); if(wrap){ let vis=wrap.style.display!=='none'; wrap.style.display=vis?'none':'block'; el.innerHTML=vis?'📁':'📂'; localStorage.setItem(`exp-${pid}`,!vis); } }; });
+        attachTreeEvents();
+    }
+    function attachTreeEvents(){
+        document.querySelectorAll('.add-child').forEach(btn=>{ btn.onclick=(e)=>{ e.stopPropagation(); let pid=btn.closest('.tree-node').getAttribute('data-node-id'); let parent=findNodeById(pid); if(parent && parent.level<3) openCategoryDialog('add',parent); else alert('已达最大三级层级'); }; });
+        document.querySelectorAll('.edit-node').forEach(btn=>{ btn.onclick=(e)=>{ let nid=btn.closest('.tree-node').getAttribute('data-node-id'); let node=findNodeById(nid); if(node) openCategoryDialog('edit',null,node); }; });
+        document.querySelectorAll('.toggle-status').forEach(btn=>{ btn.onclick=(e)=>{ let nid=btn.closest('.tree-node').getAttribute('data-node-id'); let node=findNodeById(nid); if(node){ node.enabled=!node.enabled; renderCategoryTree(); refreshDeviceSelects(); renderDeviceTable(); } }; });
+        document.querySelectorAll('.delete-node').forEach(btn=>{ btn.onclick=(e)=>{ let nid=btn.closest('.tree-node').getAttribute('data-node-id'); if(hasDeviceUnderNode(nid)){ alert('该分类下存在设备档案，无法删除'); return; } if(confirm('永久删除分类？')){ function remove(nodes,id){ for(let i=0;i<nodes.length;i++){ if(nodes[i].id===id){ nodes.splice(i,1); return true; } if(nodes[i].children && remove(nodes[i].children,id)) return true; } return false; } remove(categoryTree,nid); renderCategoryTree(); refreshDeviceSelects(); renderDeviceTable(); } }; });
+    }
+    function openCategoryDialog(mode, parent=null, edit=null){
+        const allCats=getAllCategoriesForSelect();
+        let selectParent=document.getElementById('catParentId');
+        selectParent.innerHTML='<option value="">无 (一级分类)</option>';
+        allCats.forEach(c=>{ if(c.level<3 && (mode!=='edit' || c.id!==edit?.id)) selectParent.appendChild(new Option(c.name,c.id)); });
+        if(mode==='edit' && edit){ document.getElementById('catName').value=edit.name; let parentNode=findParentInTree(edit.id); selectParent.value=parentNode?parentNode.id:''; document.getElementById('catSort').value=edit.sort||0; document.getElementById('catEnabled').checked=edit.enabled; window.currentCatEdit=edit; } else { document.getElementById('catName').value=''; if(mode==='add' && parent) selectParent.value=parent.id; else selectParent.value=''; document.getElementById('catSort').value=0; document.getElementById('catEnabled').checked=true; window.currentCatEdit=null; }
+        document.getElementById('categoryModal').classList.add('active');
+    }
+    function findParentInTree(nodeId, nodes=categoryTree, parent=null){ for(let n of nodes){ if(n.id===nodeId) return parent; if(n.children){ let res=findParentInTree(nodeId, n.children, n); if(res) return res; } } return null; }
+    function getAllCategoriesForSelect(){ let list=[]; function trav(nodes,prefix=''){ nodes.forEach(n=>{ list.push({ id:n.id, name:prefix+n.name, level:n.level }); if(n.children) trav(n.children,prefix+n.name+' / '); }); } trav(categoryTree); return list; }
+    document.getElementById('confirmCategoryBtn').onclick=()=>{
+        let name=document.getElementById('catName').value.trim(); if(!name) return alert('请输入名称');
+        let parentId=document.getElementById('catParentId').value; let sortVal=parseInt(document.getElementById('catSort').value)||0; let enabled=document.getElementById('catEnabled').checked;
+        if(window.currentCatEdit){
+            window.currentCatEdit.name=name; window.currentCatEdit.sort=sortVal; window.currentCatEdit.enabled=enabled;
+            let oldParent=findParentInTree(window.currentCatEdit.id); let newParent=parentId?findNodeById(parentId):null;
+            if(oldParent!==newParent){ if(oldParent) oldParent.children=oldParent.children.filter(c=>c.id!==window.currentCatEdit.id); if(newParent){ if(newParent.level+1>3){ alert('层级超限'); closeAllModals(); renderCategoryTree(); return; } newParent.children.push(window.currentCatEdit); } else categoryTree.push(window.currentCatEdit); }
+        } else {
+            let newLevel=1; let newParent=null; if(parentId){ newParent=findNodeById(parentId); if(newParent) newLevel=newParent.level+1; }
+            if(newLevel>3){ alert('分类层级不能超过三级'); return; }
+            let newNode={ id:genId(), name:name, level:newLevel, sort:sortVal, enabled:enabled, children:[] };
+            if(newParent) newParent.children.push(newNode); else categoryTree.push(newNode);
+        }
+        renderCategoryTree(); refreshDeviceSelects(); renderDeviceTable(); closeAllModals();
+    };
+    function refreshDeviceSelects(){ let select=document.getElementById('devCategoryId'); if(select){ let thirds=getThirdLevelNodes(); select.innerHTML='<option value="">请选择三级分类</option>'; thirds.forEach(c=>{ select.appendChild(new Option(c.fullPath, c.id)); }); } let storeSelect=document.getElementById('storeEquipDeviceSelect'); if(storeSelect){ storeSelect.innerHTML='<option value="">请选择设备档案</option>'; devices.forEach(dev=>{ storeSelect.appendChild(new Option(`${dev.name} (${dev.productCode})`, JSON.stringify({id:dev.id,name:dev.name,code:dev.productCode}))); }); } }
+    function renderDeviceTable(){
+        let tbody=document.getElementById('deviceTableBody'); if(!tbody) return;
+        let keyword=document.getElementById('deviceSearchInput')?.value.toLowerCase()||'';
+        let filtered=devices.filter(d=>d.name.toLowerCase().includes(keyword)||(d.productCode||'').toLowerCase().includes(keyword));
+        tbody.innerHTML=''; filtered.forEach(dev=>{ let catNode=findNodeById(dev.categoryId); let catPath=catNode?getFullCategoryPath(catNode):'未分类'; let row=tbody.insertRow(); row.insertCell(0).innerText=dev.productCode; row.insertCell(1).innerHTML=`<strong>${escapeHtml(dev.name)}</strong>`; row.insertCell(2).innerHTML=`<span class="badge-cat">${escapeHtml(catPath)}</span>`; row.insertCell(3).innerText=dev.unit; row.insertCell(4).innerText=dev.power||'—'; row.insertCell(5).innerText=dev.dimensions||'—'; row.insertCell(6).innerHTML=`<div class="action-icons"><span class="edit-device-btn" data-id="${dev.id}">✏️</span><span class="del-device-btn" data-id="${dev.id}">🗑️</span></div>`; });
+        document.querySelectorAll('.edit-device-btn').forEach(el=>{ el.onclick=()=>{ let dev=devices.find(d=>d.id===el.getAttribute('data-id')); if(dev) openDeviceModal(dev); }; });
+        document.querySelectorAll('.del-device-btn').forEach(el=>{ el.onclick=()=>{ if(confirm('删除设备档案？')){ let id=el.getAttribute('data-id'); devices=devices.filter(d=>d.id!==id); renderDeviceTable(); refreshDeviceSelects(); } }; });
+    }
+    let editingDeviceId=null;
+    function openDeviceModal(dev=null){ editingDeviceId=dev?.id||null; refreshDeviceSelects(); if(dev){ document.getElementById('devProductCode').value=dev.productCode; document.getElementById('devName').value=dev.name; document.getElementById('devCategoryId').value=dev.categoryId; document.getElementById('devUnit').value=dev.unit; document.getElementById('devDimensions').value=dev.dimensions||''; document.getElementById('devPower').value=dev.power||''; document.getElementById('devVolume').value=dev.volume||''; document.getElementById('devTemp').value=dev.tempRange||''; document.getElementById('devSupplierCode').value=dev.supplierCode||''; document.getElementById('devBarcode').value=dev.barcode||''; document.getElementById('devBrand').value=dev.brand||''; document.getElementById('devWarranty').value=dev.warrantyMonths||''; } else { document.getElementById('devProductCode').value=generateProductCode(); document.getElementById('devName').value=''; document.getElementById('devCategoryId').value=''; document.getElementById('devUnit').value='台'; document.getElementById('devDimensions').value=''; document.getElementById('devPower').value=''; document.getElementById('devVolume').value=''; document.getElementById('devTemp').value=''; document.getElementById('devSupplierCode').value=''; document.getElementById('devBarcode').value=''; document.getElementById('devBrand').value=''; document.getElementById('devWarranty').value=''; } document.getElementById('deviceModalTitle').innerText=editingDeviceId?'编辑设备':'新增设备'; document.getElementById('deviceModal').classList.add('active'); }
+    document.getElementById('saveDeviceBtn').onclick=()=>{ let catId=document.getElementById('devCategoryId').value; let name=document.getElementById('devName').value.trim(); if(!catId||!name) return alert('请填写完整'); let productCode=document.getElementById('devProductCode').value.trim()||generateProductCode(); let unit=document.getElementById('devUnit').value; let dimensions=document.getElementById('devDimensions').value; let power=document.getElementById('devPower').value; let volume=document.getElementById('devVolume').value; let temp=document.getElementById('devTemp').value; let supplier=document.getElementById('devSupplierCode').value; let barcode=document.getElementById('devBarcode').value; let brand=document.getElementById('devBrand').value; let warranty=document.getElementById('devWarranty').value; if(editingDeviceId){ let idx=devices.findIndex(d=>d.id===editingDeviceId); if(idx!==-1) devices[idx]={...devices[idx], productCode,name,categoryId:catId,unit,dimensions,power,volume,tempRange:temp,supplierCode:supplier,barcode,brand,warrantyMonths:warranty}; } else { devices.push({ id:'dev_'+Date.now(), productCode,name,categoryId:catId,unit,dimensions,power,volume,tempRange:temp,supplierCode:supplier,barcode,brand,warrantyMonths:warranty }); } renderDeviceTable(); refreshDeviceSelects(); closeAllModals(); };
+
+    // 门店设计数据模型
+    let storeEquipments = []; let shelves = []; let weakItems = [];
+    function initDesignData(){ storeEquipments=[{ id:'se1', deviceId:'dev1', deviceName:'8尺风幕柜', deviceCode:'DEV-10001', quantity:2, remark:'主通道' }]; shelves=[{ id:'sh1', shelfAttr:'标准货架', shelfType:'定量', shelfCode:'SH-01', shelfName:'双面货架', lengthMm:1800, widthMm:600, heightMm:1800, boxQty:8, levels:4 }]; weakItems=[{ id:'wk1', category:'监控设备', quantity:4, remark:'收银区' }]; } initDesignData();
+    function renderStoreEquipment(){ let tbody=document.getElementById('storeEquipBody'); if(!tbody) return; tbody.innerHTML=''; storeEquipments.forEach(eq=>{ let row=tbody.insertRow(); row.insertCell(0).innerHTML=`<strong>${escapeHtml(eq.deviceName)}</strong><br><span style="font-size:0.7rem;">${escapeHtml(eq.deviceCode)}</span>`; row.insertCell(1).innerText=eq.quantity; row.insertCell(2).innerText=eq.remark||'—'; row.insertCell(3).innerHTML=`<div class="action-icons"><span class="edit-store-equip" data-id="${eq.id}">✏️</span><span class="del-store-equip" data-id="${eq.id}">🗑️</span></div>`; }); attachStoreEquipActions(); }
+    function attachStoreEquipActions(){ document.querySelectorAll('.edit-store-equip').forEach(el=>{ el.onclick=()=>{ let eq=storeEquipments.find(e=>e.id===el.getAttribute('data-id')); if(eq) openStoreEquipModal(eq); }; }); document.querySelectorAll('.del-store-equip').forEach(el=>{ el.onclick=()=>{ storeEquipments=storeEquipments.filter(e=>e.id!==el.getAttribute('data-id')); renderStoreEquipment(); }; }); }
+    function openStoreEquipModal(edit=null){ refreshDeviceSelects(); if(edit){ document.getElementById('storeEquipQty').value=edit.quantity; document.getElementById('storeEquipRemark').value=edit.remark||''; let val=JSON.stringify({id:edit.deviceId,name:edit.deviceName,code:edit.deviceCode}); document.getElementById('storeEquipDeviceSelect').value=val; window.currentStoreEquipId=edit.id; } else { document.getElementById('storeEquipQty').value=1; document.getElementById('storeEquipRemark').value=''; document.getElementById('storeEquipDeviceSelect').value=''; window.currentStoreEquipId=null; } document.getElementById('storeEquipModal').classList.add('active'); }
+    document.getElementById('saveStoreEquipBtn').onclick=()=>{ let val=document.getElementById('storeEquipDeviceSelect').value; if(!val) return alert('请选择设备'); let dev=JSON.parse(val); let qty=parseInt(document.getElementById('storeEquipQty').value)||1; let remark=document.getElementById('storeEquipRemark').value; if(window.currentStoreEquipId){ let idx=storeEquipments.findIndex(e=>e.id===window.currentStoreEquipId); if(idx!==-1) storeEquipments[idx]={...storeEquipments[idx], deviceId:dev.id, deviceName:dev.name, deviceCode:dev.code, quantity:qty, remark}; } else { storeEquipments.push({ id:'se_'+Date.now(), deviceId:dev.id, deviceName:dev.name, deviceCode:dev.code, quantity:qty, remark }); } renderStoreEquipment(); closeAllModals(); };
+    function renderShelves(){ let tbody=document.getElementById('shelfBody'); if(!tbody) return; tbody.innerHTML=''; shelves.forEach(s=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=s.shelfAttr; row.insertCell(1).innerText=s.shelfType; row.insertCell(2).innerText=s.shelfCode; row.insertCell(3).innerText=s.shelfName; row.insertCell(4).innerText=`${s.lengthMm}×${s.widthMm}×${s.heightMm}`; row.insertCell(5).innerText=s.boxQty; row.insertCell(6).innerText=s.levels; row.insertCell(7).innerHTML=`<div class="action-icons"><span class="edit-shelf" data-id="${s.id}">✏️</span><span class="del-shelf" data-id="${s.id}">🗑️</span></div>`; }); attachShelfActions(); }
+    function attachShelfActions(){ document.querySelectorAll('.edit-shelf').forEach(el=>{ el.onclick=()=>{ let s=shelves.find(sh=>sh.id===el.getAttribute('data-id')); if(s) openShelfModal(s); }; }); document.querySelectorAll('.del-shelf').forEach(el=>{ el.onclick=()=>{ shelves=shelves.filter(sh=>sh.id!==el.getAttribute('data-id')); renderShelves(); }; }); }
+    function openShelfModal(edit=null){ if(edit){ document.getElementById('shelfAttr').value=edit.shelfAttr; document.getElementById('shelfType').value=edit.shelfType; document.getElementById('shelfCode').value=edit.shelfCode; document.getElementById('shelfName').value=edit.shelfName; document.getElementById('shelfLen').value=edit.lengthMm; document.getElementById('shelfWid').value=edit.widthMm; document.getElementById('shelfHei').value=edit.heightMm; document.getElementById('shelfBoxQty').value=edit.boxQty; document.getElementById('shelfLevels').value=edit.levels; window.currentShelfId=edit.id; } else { document.getElementById('shelfAttr').value='标准货架'; document.getElementById('shelfType').value='定量'; document.getElementById('shelfCode').value=''; document.getElementById('shelfName').value=''; document.getElementById('shelfLen').value=''; document.getElementById('shelfWid').value=''; document.getElementById('shelfHei').value=''; document.getElementById('shelfBoxQty').value=0; document.getElementById('shelfLevels').value=1; window.currentShelfId=null; } document.getElementById('shelfModal').classList.add('active'); }
+    document.getElementById('saveShelfBtn').onclick=()=>{ let obj={ shelfAttr:document.getElementById('shelfAttr').value, shelfType:document.getElementById('shelfType').value, shelfCode:document.getElementById('shelfCode').value, shelfName:document.getElementById('shelfName').value, lengthMm:parseInt(document.getElementById('shelfLen').value)||0, widthMm:parseInt(document.getElementById('shelfWid').value)||0, heightMm:parseInt(document.getElementById('shelfHei').value)||0, boxQty:parseInt(document.getElementById('shelfBoxQty').value)||0, levels:parseInt(document.getElementById('shelfLevels').value)||1 }; if(window.currentShelfId){ let idx=shelves.findIndex(s=>s.id===window.currentShelfId); if(idx!==-1) shelves[idx]={...shelves[idx], ...obj}; } else { shelves.push({ id:'sh_'+Date.now(), ...obj }); } renderShelves(); closeAllModals(); };
+    function renderWeak(){ let tbody=document.getElementById('weakBody'); if(!tbody) return; tbody.innerHTML=''; weakItems.forEach(w=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=w.category; row.insertCell(1).innerText=w.quantity; row.insertCell(2).innerText=w.remark||'—'; row.insertCell(3).innerHTML=`<div class="action-icons"><span class="edit-weak" data-id="${w.id}">✏️</span><span class="del-weak" data-id="${w.id}">🗑️</span></div>`; }); attachWeakActions(); }
+    function attachWeakActions(){ document.querySelectorAll('.edit-weak').forEach(el=>{ el.onclick=()=>{ let w=weakItems.find(wk=>wk.id===el.getAttribute('data-id')); if(w) openWeakModal(w); }; }); document.querySelectorAll('.del-weak').forEach(el=>{ el.onclick=()=>{ weakItems=weakItems.filter(wk=>wk.id!==el.getAttribute('data-id')); renderWeak(); }; }); }
+    function openWeakModal(edit=null){ if(edit){ document.getElementById('weakCategory').value=edit.category; document.getElementById('weakQty').value=edit.quantity; document.getElementById('weakRemark').value=edit.remark||''; window.currentWeakId=edit.id; } else { document.getElementById('weakCategory').value='监控设备'; document.getElementById('weakQty').value=1; document.getElementById('weakRemark').value=''; window.currentWeakId=null; } document.getElementById('weakModal').classList.add('active'); }
+    document.getElementById('saveWeakBtn').onclick=()=>{ let obj={ category:document.getElementById('weakCategory').value, quantity:parseInt(document.getElementById('weakQty').value)||0, remark:document.getElementById('weakRemark').value }; if(window.currentWeakId){ let idx=weakItems.findIndex(w=>w.id===window.currentWeakId); if(idx!==-1) weakItems[idx]={...weakItems[idx], ...obj}; } else { weakItems.push({ id:'wk_'+Date.now(), ...obj }); } renderWeak(); closeAllModals(); };
+
+    // 批量导入逻辑 (略简化但完整)
+    let importContext=null, pendingImportData=[];
+    function openGenericImport(context){ importContext=context; document.getElementById('importModalTitle').innerText=context==='equipment'?'批量导入门店设备':(context==='shelf'?'批量导入货架':'批量导入弱电'); document.getElementById('genericImportFile').value=''; document.getElementById('genericImportPreview').innerHTML=''; document.getElementById('confirmGenericImportBtn').disabled=true; document.getElementById('genericImportModal').classList.add('active'); }
+    document.getElementById('parseGenericBtn').onclick=()=>{ let file=document.getElementById('genericImportFile').files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(e){ let wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'}); let sheet=wb.Sheets[wb.SheetNames[0]]; let rows=XLSX.utils.sheet_to_json(sheet); let previewHtml='<div class="preview-table"><table><thead><tr>'; if(importContext==='equipment') previewHtml+='<th>设备编码/名称</th><th>数量</th><th>备注</th>'; else if(importContext==='shelf') previewHtml+='<th>货架属性</th><th>货架类型</th><th>编号</th><th>名称</th><th>长mm</th><th>宽mm</th><th>高mm</th><th>货框数</th><th>层数</th>'; else previewHtml+='<th>分类</th><th>数量</th><th>备注</th>'; previewHtml+='</tr></thead><tbody>'; let valid=true; let parsed=[]; rows.forEach(r=>{ if(importContext==='equipment'){ let key=r['设备编码/名称']||r['设备编码']||''; let devFind=devices.find(d=>d.productCode===key||d.name===key); if(devFind){ parsed.push({deviceId:devFind.id, deviceName:devFind.name, deviceCode:devFind.productCode, quantity:Number(r['数量'])||1, remark:r['备注']||''}); previewHtml+=`<tr><td>${devFind.name}</td><td>${r['数量']}</td><td>${r['备注']||''}</td></tr>`; } else { valid=false; previewHtml+=`<tr style="background:#ffe6e5"><td colspan="3">❌未找到:${key}</td></tr>`; } } else if(importContext==='shelf'){ let shelf={ shelfAttr:r['货架属性']||'标准货架', shelfType:r['货架类型']||'定量', shelfCode:r['货架编号']||'', shelfName:r['货架名称']||'', lengthMm:Number(r['长mm'])||0, widthMm:Number(r['宽mm'])||0, heightMm:Number(r['高mm'])||0, boxQty:Number(r['货框数量'])||0, levels:Number(r['层数'])||1 }; parsed.push(shelf); previewHtml+=`<tr><td>${shelf.shelfAttr}</td><td>${shelf.shelfType}</td><td>${shelf.shelfCode}</td><td>${shelf.shelfName}</td><td>${shelf.lengthMm}</td><td>${shelf.widthMm}</td><td>${shelf.heightMm}</td><td>${shelf.boxQty}</td><td>${shelf.levels}</td></tr>`; } else if(importContext==='weak'){ let wk={ category:r['分类']||'监控设备', quantity:Number(r['数量'])||1, remark:r['备注']||'' }; parsed.push(wk); previewHtml+=`<tr><td>${wk.category}</td><td>${wk.quantity}</td><td>${wk.remark}</td></tr>`; } }); previewHtml+=`</tbody></table></div>`; document.getElementById('genericImportPreview').innerHTML=previewHtml; document.getElementById('confirmGenericImportBtn').disabled=!valid; pendingImportData=parsed; }; reader.readAsArrayBuffer(file); };
+    document.getElementById('confirmGenericImportBtn').onclick=()=>{ if(pendingImportData.length){ if(importContext==='equipment'){ pendingImportData.forEach(d=>{ storeEquipments.push({ id:'se_imp_'+Date.now()+'_'+Math.random(), ...d }); }); renderStoreEquipment(); } else if(importContext==='shelf'){ pendingImportData.forEach(s=>{ shelves.push({ id:'sh_imp_'+Date.now()+'_'+Math.random(), ...s }); }); renderShelves(); } else { pendingImportData.forEach(w=>{ weakItems.push({ id:'wk_imp_'+Date.now()+'_'+Math.random(), ...w }); }); renderWeak(); } closeAllModals(); alert(`成功导入${pendingImportData.length}条`); pendingImportData=[]; } };
+    function downloadTemplate(type){ let data=[]; if(type==='equipment') data=[{ '设备编码/名称':'DEV-10001','数量':2,'备注':'主通道'}]; else if(type==='shelf') data=[{ '货架属性':'标准货架','货架类型':'定量','货架编号':'SH-01','货架名称':'双面架','长mm':1800,'宽mm':600,'高mm':1800,'货框数量':8,'层数':4}]; else data=[{ '分类':'监控设备','数量':4,'备注':'收银区'}]; let ws=XLSX.utils.json_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'模板'); XLSX.writeFile(wb,`${type}_template.xlsx`); }
+    document.getElementById('downloadDeviceTemplateBtn').onclick=()=>{ let ws=XLSX.utils.json_to_sheet([{ '商品编码':'DEV-10003','商品名称':'卧柜','所属分类':'设备 / 冷链设备 / 冷藏卧柜','单位':'台','外形尺寸':'1800x750x800','功率(W)':850,'总容积(L)':'500L','温度范围':'0~10℃','供应商编码':'SUP02','条形码':'690888','品牌':'海尔','维保月':12 }]); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'设备模板'); XLSX.writeFile(wb,'设备导入模板.xlsx'); };
+    document.getElementById('batchImportDeviceBtn').onclick=()=>{ alert('设备批量导入请参考模板手动扩展，本演示略'); };
+    function closeAllModals(){ document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active')); }
+    document.querySelectorAll('.closeModalBtn').forEach(btn=>btn.addEventListener('click',closeAllModals));
+    window.addEventListener('click',(e)=>{ if(e.target.classList?.contains('modal-overlay')) closeAllModals(); });
+    function switchModule(module){
+        document.getElementById('categoryPanel').style.display='none'; document.getElementById('devicePanel').style.display='none'; document.getElementById('storeDesignPanel').style.display='none';
+        if(module==='category'){ document.getElementById('categoryPanel').style.display='block'; document.getElementById('mainTitle').innerText='设备分类列表'; renderCategoryTree(); }
+        else if(module==='device'){ document.getElementById('devicePanel').style.display='block'; document.getElementById('mainTitle').innerText='设备档案管理'; refreshDeviceSelects(); renderDeviceTable(); }
+        else if(module==='storeDesign'){ document.getElementById('storeDesignPanel').style.display='block'; document.getElementById('mainTitle').innerText='门店设计中心'; renderStoreEquipment(); renderShelves(); renderWeak(); }
+        document.querySelectorAll('.sub-item').forEach(item=>{ let m=item.getAttribute('data-module'); if(m===module) item.classList.add('active'); else item.classList.remove('active'); });
+    }
+    document.querySelectorAll('.sub-item').forEach(item=>{ item.onclick=()=>switchModule(item.getAttribute('data-module')); });
+    document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.onclick=()=>{ let tab=btn.getAttribute('data-design-tab'); document.querySelectorAll('.design-tab-content').forEach(div=>div.style.display='none'); if(tab==='equipment') document.getElementById('equipmentTab').style.display='block'; else if(tab==='shelf') document.getElementById('shelfTab').style.display='block'; else document.getElementById('weakcurrentTab').style.display='block'; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }; });
+    document.getElementById('openAddDeviceBtn').onclick=()=>openDeviceModal();
+    document.getElementById('addStoreEquipBtn').onclick=()=>openStoreEquipModal();
+    document.getElementById('addShelfBtn').onclick=()=>openShelfModal();
+    document.getElementById('addWeakBtn').onclick=()=>openWeakModal();
+    document.getElementById('downloadStoreEquipTemplateBtn').onclick=()=>downloadTemplate('equipment');
+    document.getElementById('downloadShelfTemplateBtn').onclick=()=>downloadTemplate('shelf');
+    document.getElementById('downloadWeakTemplateBtn').onclick=()=>downloadTemplate('weak');
+    document.getElementById('batchImportStoreEquipBtn').onclick=()=>openGenericImport('equipment');
+    document.getElementById('batchImportShelfBtn').onclick=()=>openGenericImport('shelf');
+    document.getElementById('batchImportWeakBtn').onclick=()=>openGenericImport('weak');
+    document.getElementById('addRootCategoryBtn').onclick=()=>openCategoryDialog('add');
+    document.getElementById('deviceSearchInput').addEventListener('input',()=>{ if(document.getElementById('devicePanel').style.display!=='none') renderDeviceTable(); });
+    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g,function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    renderCategoryTree(); refreshDeviceSelects(); renderDeviceTable(); switchModule('category');
+</script>
+</body>
+</html>
