@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办任务看板 · 各节点统计</title>
+    <!-- 使用 Chart.js 轻量可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #f5f7fb;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Roboto, system-ui, sans-serif;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        /* 标题区 */
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header h1 .badge {
+            background: #3b82f6;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 30px;
+            margin-left: 16px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 15px;
+            margin-top: 6px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+        }
+
+        /* KPI 卡片行 */
+        .kpi-row {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.03);
+            flex: 1 1 180px;
+            border: 1px solid #eef2f6;
+            transition: all 0.1s ease;
+        }
+
+        .kpi-label {
+            font-size: 15px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .kpi-note {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        /* 图表双栏布局 */
+        .chart-panel {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 20px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            flex: 1 1 400px;
+        }
+
+        .chart-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .chart-title i {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* 数据表格 */
+        .table-wrapper {
+            background: white;
+            border-radius: 24px;
+            padding: 8px 4px 8px 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            overflow-x: auto;
+            margin-top: 6px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            min-width: 950px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 18px 16px;
+            background: #fafcff;
+            color: #1e293b;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf2f7;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #fafcff;
+        }
+
+        .node-name {
+            font-weight: 650;
+            color: #0f172a;
+        }
+
+        .number-highlight {
+            font-weight: 650;
+            color: #0f172a;
+        }
+
+        .overdue-badge {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .footnote {
+            margin-top: 20px;
+            text-align: right;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .color-accent-blue {
+            color: #2563eb;
+        }
+
+        .color-accent-orange {
+            color: #ea580c;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 18px 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1>
+            🏗️ 工程项目待办 · 全节点效能
+            <span class="badge">截止2026.04.10 · 下午统计汇总</span>
+        </h1>
+        <div class="subtitle">按项目节点阶段统计</div>
+    </div>
+
+    <!-- KPI 概览卡片（从表格总计） -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">📋 待办任务总数</div>
+            <div class="kpi-value" id="totalTasks">7,449</div>
+            <div class="kpi-note">按6个核心节点</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">⏳ 未完成待办</div>
+            <div class="kpi-value" id="totalUnfinished">2,431</div>
+            <div class="kpi-note">占比 32.6%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">⚠️ 超期未完成</div>
+            <div class="kpi-value" id="totalOverdue">452</div>
+            <div class="kpi-note">占未完成 18.6%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">⏱️ 平均处理时长</div>
+            <div class="kpi-value" id="avgDuration">58.8<span style="font-size: 22px;">h</span></div>
+            <div class="kpi-note">已完成任务加权平均</div>
+        </div>
+    </div>
+
+    <!-- 图表区域: 双柱状图 (任务数量对比 + 平均时长) -->
+    <div class="chart-panel">
+        <div class="chart-card">
+            <div class="chart-title">
+                <span style="background: #3b82f6; width: 8px; height: 18px; border-radius: 8px; display: inline-block; margin-right: 10px;"></span>
+                📊 各节点任务数量对比
+            </div>
+            <div class="chart-container">
+                <canvas id="taskVolumeChart"></canvas>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 24px; margin-top: 8px; font-size: 13px; color: #475569;">
+                <span><span style="display:inline-block; width:12px; height:12px; background:#3b82f6; border-radius:4px; margin-right:6px;"></span>待办总数</span>
+                <span><span style="display:inline-block; width:12px; height:12px; background:#f97316; border-radius:4px; margin-right:6px;"></span>未完成</span>
+                <span><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:4px; margin-right:6px;"></span>超期未完成</span>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">
+                <span style="background: #10b981; width: 8px; height: 18px; border-radius: 8px; display: inline-block; margin-right: 10px;"></span>
+                ⏳ 已完成任务平均处理时长 (小时)
+            </div>
+            <div class="chart-container">
+                <canvas id="durationChart"></canvas>
+            </div>
+            <div style="margin-top: 8px; font-size: 13px; color: #475569; padding-left: 6px;">
+                <span>📌 仅统计已完成且有效时间任务 · 数值越小效率越高</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细数据表 —— 核心展示 -->
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>项目节点</th>
+                    <th>待办任务总数</th>
+                    <th>未完成待办任务数</th>
+                    <th><span style="color:#b91c1c;">超期未完成待办</span></th>
+                    <th>已完成任务平均处理时长 (小时)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- 数据通过JS动态渲染，便于维护，但也可以静态；这里直接静态渲染以保证截图准确 -->
+            </tbody>
+        </table>
+    </div>
+    <div class="footnote">
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- 硬编码数据 (与截图完全一致) -----
+        const nodeData = [
+            { node: "项目验收", total: 838, unfinished: 245, overdue: 178, avgHours: 40.68 },
+            { node: "工程施工", total: 1992, unfinished: 1004, overdue: 29, avgHours: 129.44 },
+            { node: "勘场定稿", total: 851, unfinished: 57, overdue: 14, avgHours: 10.43 },
+            { node: "施工巡检", total: 756, unfinished: 322, overdue: 10, avgHours: 81.38 },
+            { node: "项目整改", total: 572, unfinished: 268, overdue: 84, avgHours: 68.23 },
+            { node: "线下勘场", total: 2440, unfinished: 535, overdue: 137, avgHours: 22.77 }
+        ];
+
+        // 节点标签 (用于图表)
+        const labels = nodeData.map(d => d.node);
+        
+        // 提取数据序列
+        const totalData = nodeData.map(d => d.total);
+        const unfinishedData = nodeData.map(d => d.unfinished);
+        const overdueData = nodeData.map(d => d.overdue);
+        const avgHoursData = nodeData.map(d => d.avgHours);
+
+        // ----- 计算总计更新KPI卡片 (动态计算，与数据一致) -----
+        const sumTotal = totalData.reduce((acc, v) => acc + v, 0);
+        const sumUnfinished = unfinishedData.reduce((acc, v) => acc + v, 0);
+        const sumOverdue = overdueData.reduce((acc, v) => acc + v, 0);
+        
+        // 计算已完成任务总数 = 总数 - 未完成 (前提：未完成包含超期吗？根据数据，未完成包含超期，所以已完成 = 总数 - 未完成)
+        // 但平均时长计算只针对已完成且有效时间的任务，这里加权平均用于展示一个参考值
+        let completedCount = 0;
+        let weightedHourSum = 0;
+        nodeData.forEach(item => {
+            const completed = item.total - item.unfinished;  // 已完成数量
+            if (completed > 0) {
+                completedCount += completed;
+                weightedHourSum += (item.avgHours * completed);
+            }
+        });
+        const overallAvgHours = completedCount > 0 ? (weightedHourSum / completedCount) : 0;
+
+        document.getElementById('totalTasks').innerText = sumTotal.toLocaleString();
+        document.getElementById('totalUnfinished').innerText = sumUnfinished.toLocaleString();
+        document.getElementById('totalOverdue').innerText = sumOverdue.toLocaleString();
+        const unfinishedPercent = sumTotal ? ((sumUnfinished / sumTotal)*100).toFixed(1) : '0.0';
+        const overdueOfUnfinished = sumUnfinished ? ((sumOverdue / sumUnfinished)*100).toFixed(1) : '0.0';
+        document.querySelector('#totalUnfinished + .kpi-note').innerHTML = `占比 ${unfinishedPercent}%`;
+        document.querySelector('#totalOverdue + .kpi-note').innerHTML = `占未完成 ${overdueOfUnfinished}%`;
+        document.getElementById('avgDuration').innerHTML = `${overallAvgHours.toFixed(1)}<span style="font-size: 22px;">h</span>`;
+
+        // ----- 渲染表格 body (静态但动态生成，确保统一)-----
+        const tbody = document.getElementById('tableBody');
+        function renderTable() {
+            let html = '';
+            nodeData.forEach(item => {
+                html += `<tr>
+                    <td class="node-name">${item.node}</td>
+                    <td class="number-highlight">${item.total.toLocaleString()}</td>
+                    <td class="number-highlight">${item.unfinished.toLocaleString()}</td>
+                    <td><span class="overdue-badge">${item.overdue.toLocaleString()}</span></td>
+                    <td class="number-highlight">${item.avgHours.toFixed(2)} h</td>
+                </tr>`;
+            });
+            // 加一行总计 (可选)
+            html += `<tr style="background: #f8fafc; border-top: 2px solid #cbd5e1; font-weight: 600;">
+                <td>📌 总计/平均</td>
+                <td>${sumTotal.toLocaleString()}</td>
+                <td>${sumUnfinished.toLocaleString()}</td>
+                <td><span style="color:#b91c1c; font-weight:700;">${sumOverdue.toLocaleString()}</span></td>
+                <td>${overallAvgHours.toFixed(2)} h</td>
+            </tr>`;
+            tbody.innerHTML = html;
+        }
+        renderTable();
+
+        // ----- 柱状图1: 任务数量对比 (分组柱状图) -----
+        const ctx1 = document.getElementById('taskVolumeChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '待办任务总数',
+                        data: totalData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8,
+                    },
+                    {
+                        label: '未完成待办任务数',
+                        data: unfinishedData,
+                        backgroundColor: '#f97316',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8,
+                    },
+                    {
+                        label: '超期未完成待办',
+                        data: overdueData,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },  // 用自定义图例
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#e2e8f0',
+                        callbacks: {
+                            label: (context) => {
+                                let label = context.dataset.label || '';
+                                return `${label}: ${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e9eef4' },
+                        title: {
+                            display: true,
+                            text: '任务数量',
+                            color: '#475569',
+                            font: { weight: '500', size: 12 }
+                        },
+                        ticks: { callback: (val) => val.toLocaleString() }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 12, weight: '500' }, color: '#334155' }
+                    }
+                },
+                layout: { padding: { top: 10, bottom: 5 } }
+            }
+        });
+
+        // ----- 柱状图2: 平均处理时长 (小时) -----
+        const ctx2 = document.getElementById('durationChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '平均处理时长 (小时)',
+                    data: avgHoursData,
+                    backgroundColor: '#10b981',
+                    borderRadius: 8,
+                    barPercentage: 0.65,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `平均时长: ${ctx.raw.toFixed(2)} 小时`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e9eef4' },
+                        title: {
+                            display: true,
+                            text: '处理时长 (小时)',
+                            color: '#475569',
+                            font: { weight: '500' }
+                        },
+                        ticks: { callback: (val) => val + ' h' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 12, weight: '500' } }
+                    }
+                },
+                // 在柱子上方显示数值
+                plugins: {
+                    datalabels: { display: false } // 避免干扰，不用额外插件
+                },
+                // 可加入annotation，但不强制
+            }
+        });
+
+        // 为了更清晰，在durationChart上额外显示数据标签？可以通过内置插件，但为保持简洁，鼠标悬停即可。
+        // 同时为了截图展示数值，可以在图表上用插件，但原生不支持。可接受。
+        
+        // 小优化：手动在canvas上标注数值？不用，悬停可见。保持干净。
+
+        // 添加响应式调整 (无额外动作)
+        window.addEventListener('resize', () => { /* Chart.js 自动重绘 */ });
+    })();
+</script>
+<!-- 确保数字格式化及表格数据已填充 -->
+<noscript>
+    <div style="padding:20px; background: white;">您的浏览器未启用JavaScript，但数据表格如下：<br>
+    项目验收 838 245 178 40.68<br>工程施工 1992 1004 29 129.44 ...</div>
+</noscript>
+</body>
+</html>
