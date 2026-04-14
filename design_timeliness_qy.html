@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>【分区效能】大区·设计交付时效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f1f5f9;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 32px 24px;
+            color: #0f172a;
+        }
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            border: 1px solid #e9eef3;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e2f41, #2c6280);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .badge-version {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e40af;
+        }
+        .desc-text {
+            color: #475569;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+            background: #fafcff;
+            border-radius: 0 12px 12px 0;
+        }
+        .filter-bar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 20px 30px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+        .filter-group {
+            min-width: 200px;
+        }
+        .filter-group.double {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5b6e8c;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .date-input {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 500;
+            width: 140px;
+        }
+        .reset-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+            white-space: nowrap;
+        }
+        .reset-btn:hover {
+            background: #e6edf5;
+        }
+        .design-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            align-items: center;
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(59,130,246,0.2);
+            white-space: nowrap;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        .multi-select {
+            position: relative;
+            width: 260px;
+        }
+        .select-trigger {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            min-height: 44px;
+        }
+        .dropdown-panel {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .dropdown-panel.show {
+            display: block;
+        }
+        .dropdown-option {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .dropdown-option:hover {
+            background: #f1f5f9;
+        }
+        .dropdown-option input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+        .btn-sm {
+            background: #f1f5f9;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .selected-summary {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid #e2edf2;
+        }
+        .stats-badge {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: white;
+            border-radius: 48px;
+            padding: 5px 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid #ecf3f9;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 4px;
+        }
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #ecf3f9;
+            background: white;
+            margin-top: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 1200px;
+        }
+        .data-table th {
+            background: #f8fafd;
+            padding: 14px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e2a44;
+            border-bottom: 1px solid #e2edf2;
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eff3f8;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: #e6f0ff;
+            color: #1e4bd2;
+        }
+        .type-badge.third {
+            background: #f0e9fe;
+            color: #7c3aed;
+        }
+        .type-badge.summary {
+            background: #e6f7e6;
+            color: #2b6e2b;
+        }
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.7rem;
+            color: #5f6c86;
+            text-align: right;
+            padding: 0 8px 8px;
+        }
+        @media (max-width: 680px) {
+            body { padding: 20px 12px; }
+            .card { padding: 16px; }
+            .date-input { width: 130px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="card">
+        <div class="flex-between">
+            <div>
+                <h1>🗺️ 【设计管理】➡️【设计效能】➡️大区·交付时效</h1>
+                <div class="desc-text">
+                </div>
+            </div>
+            <div class="badge-version">📋 分区维度 · 统计</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <!-- 时间范围选择 -->
+        <div class="filter-bar-row">
+            <div class="filter-group double">
+                <div style="display: flex; flex-direction: column;">
+                    <div class="filter-label">📅 指派开始</div>
+                    <input type="date" id="startDatePicker" class="date-input" value="2026-03-01">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <div class="filter-label">📅 指派结束</div>
+                    <input type="date" id="endDatePicker" class="date-input" value="2026-04-20">
+                </div>
+                <button id="resetDateBtn" class="reset-btn" style="margin-left: 8px;">⟲ 重置默认范围</button>
+            </div>
+
+            <!-- 区域多选筛选 (大区/省市) -->
+            <div class="filter-group">
+                <div class="filter-label">🌍 大区/省市筛选 (多选)</div>
+                <div class="multi-select" id="regionMultiSelect">
+                    <div class="select-trigger" id="regionTrigger">
+                        <span id="regionSelectedCount">已选 10 个区域</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="dropdown-panel" id="regionDropdown">
+                        <div style="padding: 8px 12px; border-bottom:1px solid #edf2f7; display:flex; gap:8px;">
+                            <button class="btn-sm" id="selectAllRegionsBtn">全选</button>
+                            <button class="btn-sm" id="clearAllRegionsBtn">清空</button>
+                        </div>
+                        <div id="regionOptionsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-left: auto;">
+                <button id="exportCurrentBtn" class="btn-primary">📎 导出当前分区数据</button>
+            </div>
+        </div>
+
+        <div class="design-info">
+            <!-- <span class="info-label">🎯 考核维度：指派时间范围 · 分区聚合</span> -->
+            <!-- <span style="font-size:0.8rem; color:#2c3e66;">门店数量 = 已完成水电&平面总数 · 加权平均时效算法</span> -->
+        </div>
+
+        <!-- 设计部整体汇总卡片 (始终基于全时间范围+所有区域) -->
+        <div class="selected-summary">
+            <div style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <span></span>
+                <!-- <span class="info-icon" title="全量数据，不受右侧区域筛选影响">?</span> -->
+            </div>
+            <div class="stats-badge" id="deptSummaryArea">
+                <div class="stat-item"><span class="stat-label">⚡ 24h内交付率</span><div class="stat-number" id="dept24hRate">--%</div></div>
+                <div class="stat-item"><span class="stat-label">⏱️ 48h内交付率</span><div class="stat-number" id="dept48hRate">--%</div></div>
+                <div class="stat-item"><span class="stat-label">⏳ >48h率</span><div class="stat-number" id="deptGt48Rate">--%</div></div>
+                <div class="stat-item"><span class="stat-label">⏱️ 平均时效(h)</span><div class="stat-number" id="deptAvgHours">--</div></div>
+                <div class="stat-item"><span class="stat-label">✅ 完成总数</span><div class="stat-number" id="deptCompleted">0</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0 0 4px 0;">
+        <div class="table-wrapper">
+            <table class="data-table" id="regionTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="footer-note">
+            * 门店数量 = 已完成项目总数 · 24h时效比 = 24h内数量/门店数量 · 48h时效比 = (24h+48h)/门店数量 · 平均时效加权 &nbsp;|&nbsp; 表格展示选中区域+汇总行
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 区域定义 (完全参照附件) ----------
+        const REGIONS = [
+            "1区", "2区", "3区", "4区", "浙江", "云南", "西北", "福建", "北区", "四川"
+        ];
+
+        // 第三方个体 / 设计师
+        const THIRD_PARTY_INDIVIDUALS = [
+            "刘思远(三方)", "BIM协同组", "外协·艺境", "筑梦深化", "一维设计", "墨线工作室"
+        ];
+        const DESIGNER_NAMES = [
+            "张罗继", "何思", "冯焯诗", "张华", "周旭", "梁福星", "黄树双", "韩琪"
+        ];
+        const ALL_PERSONNEL = [...DESIGNER_NAMES, ...THIRD_PARTY_INDIVIDUALS];
+
+        // ---------- 模拟任务生成 (带区域、指派时间) ----------
+        function randomDate(start, end) {
+            return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+        }
+
+        function generateMockTasks() {
+            const tasks = [];
+            let taskId = 1;
+            const assignStart = new Date(2026, 2, 1);   // 2026-03-01
+            const assignEnd = new Date(2026, 3, 20);    // 2026-04-20
+
+            for (const person of ALL_PERSONNEL) {
+                const isThird = THIRD_PARTY_INDIVIDUALS.includes(person);
+                const type = isThird ? "第三方" : "设计师";
+                const taskCount = Math.floor(Math.random() * 20) + 15; 
+                for (let i = 0; i < taskCount; i++) {
+                    const assignDate = randomDate(assignStart, assignEnd);
+                    const createDate = new Date(assignDate);
+                    createDate.setDate(assignDate.getDate() - Math.floor(Math.random() * 5));
+                    
+                    let region;
+                    if (Math.random() < 0.4) {
+                        const bigRegions = ["1区", "2区", "4区", "北区", "浙江"];
+                        region = bigRegions[Math.floor(Math.random() * bigRegions.length)];
+                    } else {
+                        region = REGIONS[Math.floor(Math.random() * REGIONS.length)];
+                    }
+
+                    const isCompleted = Math.random() < 0.82;
+                    let completeDate = null;
+                    let hoursSpent = null;
+                    if (isCompleted) {
+                        hoursSpent = Math.floor(Math.random() * 70) + 6;
+                        completeDate = new Date(assignDate);
+                        completeDate.setHours(assignDate.getHours() + hoursSpent);
+                    }
+
+                    tasks.push({
+                        id: taskId++,
+                        designerName: person,
+                        designerType: type,
+                        region: region,
+                        createDate: createDate,
+                        assignDate: assignDate,
+                        completeDate: completeDate,
+                        isCompleted: isCompleted,
+                        hoursSpent: hoursSpent
+                    });
+                }
+            }
+            return tasks;
+        }
+
+        let allTasks = generateMockTasks();
+
+        // ---------- 时间范围过滤 ----------
+        function filterTasksByDateRange(tasks, startDateStr, endDateStr) {
+            if (!startDateStr || !endDateStr) return tasks;
+            const start = new Date(startDateStr);
+            start.setHours(0,0,0,0);
+            const end = new Date(endDateStr);
+            end.setHours(23,59,59,999);
+            return tasks.filter(task => {
+                const assign = task.assignDate;
+                return assign >= start && assign <= end;
+            });
+        }
+
+        // 指标计算
+        function calcMetricsFromCompleted(completedTasks) {
+            const total = completedTasks.length;
+            let cnt24 = 0, cnt48 = 0, cntGT48 = 0;
+            for (let t of completedTasks) {
+                const h = t.hoursSpent;
+                if (h <= 24) cnt24++;
+                else if (h <= 48) cnt48++;
+                else cntGT48++;
+            }
+            const sum = cnt24 + cnt48 + cntGT48;
+            const rate24 = sum === 0 ? 0 : (cnt24 / sum) * 100;
+            const rate48 = sum === 0 ? 0 : ((cnt24 + cnt48) / sum) * 100;
+            const rateGT48 = sum === 0 ? 0 : (cntGT48 / sum) * 100;
+            const avgHours = sum === 0 ? 0 : (cnt24 * 12 + cnt48 * 36 + cntGT48 * 72) / sum;
+            return { totalCompleted: sum, cnt24, cnt48, cntGT48, rate24, rate48, rateGT48, avgHours };
+        }
+
+        function aggregateRegion(regionName, tasks) {
+            const regionTasks = tasks.filter(t => t.region === regionName);
+            const completed = regionTasks.filter(t => t.isCompleted);
+            const metrics = calcMetricsFromCompleted(completed);
+            const thirdSet = new Set();
+            regionTasks.forEach(t => { if (t.designerType === '第三方') thirdSet.add(t.designerName); });
+            return { name: regionName, type: 'region', orderCount: regionTasks.length, thirdPartyCount: thirdSet.size, ...metrics };
+        }
+
+        function aggregateDesignersSummary(tasks) {
+            const designerTasks = tasks.filter(t => t.designerType === '设计师');
+            const completed = designerTasks.filter(t => t.isCompleted);
+            const metrics = calcMetricsFromCompleted(completed);
+            return { name: '设计师', type: 'designerSummary', orderCount: designerTasks.length, thirdPartyCount: null, ...metrics };
+        }
+
+        function aggregateThirdPartySummary(tasks) {
+            const thirdTasks = tasks.filter(t => t.designerType === '第三方');
+            const completed = thirdTasks.filter(t => t.isCompleted);
+            const metrics = calcMetricsFromCompleted(completed);
+            const thirdSet = new Set(thirdTasks.map(t => t.designerName));
+            return { name: '第三方', type: 'thirdSummary', orderCount: thirdTasks.length, thirdPartyCount: thirdSet.size, ...metrics };
+        }
+
+        function aggregateDepartmentSummary(tasks) {
+            const completed = tasks.filter(t => t.isCompleted);
+            const metrics = calcMetricsFromCompleted(completed);
+            return { name: '设计部', type: 'deptSummary', orderCount: tasks.length, thirdPartyCount: null, ...metrics, remark: '含暂停门店' };
+        }
+
+        // ---------- 全局状态 ----------
+        let currentStartDate = "2026-03-01";
+        let currentEndDate = "2026-04-20";
+        let filteredTasks = [];
+        let selectedRegions = [...REGIONS];  // 默认全选
+
+        // DOM 元素
+        const startPicker = document.getElementById('startDatePicker');
+        const endPicker = document.getElementById('endDatePicker');
+        const resetDateBtn = document.getElementById('resetDateBtn');
+        const regionTrigger = document.getElementById('regionTrigger');
+        const regionDropdown = document.getElementById('regionDropdown');
+        const regionSelectedSpan = document.getElementById('regionSelectedCount');
+        const regionOptionsDiv = document.getElementById('regionOptionsList');
+        const selectAllBtn = document.getElementById('selectAllRegionsBtn');
+        const clearAllBtn = document.getElementById('clearAllRegionsBtn');
+        const exportBtn = document.getElementById('exportCurrentBtn');
+
+        // 刷新过滤任务 (基于时间范围，区域筛选不改变filteredTasks)
+        function refreshFilteredTasks() {
+            filteredTasks = filterTasksByDateRange(allTasks, currentStartDate, currentEndDate);
+        }
+
+        // 更新顶部卡片 (基于全量filteredTasks)
+        function updateDeptSummaryCard() {
+            const dept = aggregateDepartmentSummary(filteredTasks);
+            document.getElementById('dept24hRate').innerText = dept.rate24.toFixed(2) + '%';
+            document.getElementById('dept48hRate').innerText = dept.rate48.toFixed(2) + '%';
+            document.getElementById('deptGt48Rate').innerText = dept.rateGT48.toFixed(2) + '%';
+            document.getElementById('deptAvgHours').innerText = dept.avgHours.toFixed(1);
+            document.getElementById('deptCompleted').innerText = dept.totalCompleted;
+        }
+
+        // 获取用于表格的行 (只包含选中的区域 + 三个汇总行)
+        function buildDisplayRows() {
+            const rows = [];
+            for (let region of selectedRegions) {
+                rows.push(aggregateRegion(region, filteredTasks));
+            }
+            rows.push(aggregateDesignersSummary(filteredTasks));
+            rows.push(aggregateThirdPartySummary(filteredTasks));
+            rows.push(aggregateDepartmentSummary(filteredTasks));
+            return rows;
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const rows = buildDisplayRows();
+            const thead = document.getElementById('tableHeader');
+            const tbody = document.getElementById('tableBody');
+
+            thead.innerHTML = `
+                <tr>
+                    <th>区域/分类</th>
+                    <th>第三方 <span class="info-icon" title="该区涉及的第三方人数/个数">?</span></th>
+                    <th>门店数量<br><span style="font-weight:400;">(完成总数)</span></th>
+                    <th>24H数量</th>
+                    <th>24H时效比</th>
+                    <th>48H数量</th>
+                    <th>48H时效比</th>
+                    <th>>48H数量</th>
+                    <th>>48H时效比</th>
+                    <th>平均时效(h)</th>
+                </tr>
+            `;
+
+            let html = '';
+            for (let row of rows) {
+                let thirdCol = '';
+                let nameDisplay = row.name;
+                if (row.type === 'region') {
+                    thirdCol = row.thirdPartyCount ?? 0;
+                } else if (row.type === 'designerSummary') {
+                    thirdCol = '—';
+                } else if (row.type === 'thirdSummary') {
+                    thirdCol = row.thirdPartyCount ?? 0;
+                } else if (row.type === 'deptSummary') {
+                    thirdCol = '—';
+                    nameDisplay = '设计部 <span style="font-size:0.65rem; color:#6b7a8f;">(含暂停门店)</span>';
+                }
+
+                html += `<tr>
+                    <td><strong>${row.name}</strong> ${row.type==='deptSummary' ? '<span style="font-size:0.65rem; color:#6b7a8f;">含暂停门店</span>' : ''}</td>
+                    <td>${thirdCol}</td>
+                    <td>${row.totalCompleted}</td>
+                    <td>${row.cnt24}</td>
+                    <td>${row.rate24.toFixed(2)}%</td>
+                    <td>${row.cnt48}</td>
+                    <td>${row.rate48.toFixed(2)}%</td>
+                    <td>${row.cntGT48}</td>
+                    <td>${row.rateGT48.toFixed(2)}%</td>
+                    <td>${row.avgHours.toFixed(1)} h</td>
+                </tr>`;
+            }
+            tbody.innerHTML = html;
+        }
+
+        // 区域多选下拉渲染
+        function renderRegionOptions() {
+            regionOptionsDiv.innerHTML = REGIONS.map(region => `
+                <div class="dropdown-option" data-region="${region}">
+                    <input type="checkbox" value="${region}" ${selectedRegions.includes(region) ? 'checked' : ''}>
+                    <span>${region}</span>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('#regionOptionsList .dropdown-option').forEach(opt => {
+                const cb = opt.querySelector('input');
+                const region = opt.getAttribute('data-region');
+                opt.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
+                    if (cb.checked) {
+                        if (!selectedRegions.includes(region)) selectedRegions.push(region);
+                    } else {
+                        selectedRegions = selectedRegions.filter(r => r !== region);
+                    }
+                    updateRegionTriggerText();
+                    renderTable();
+                    renderRegionOptions(); // 刷新复选框状态
+                });
+                cb.addEventListener('change', (e) => e.stopPropagation());
+            });
+            updateRegionTriggerText();
+        }
+
+        function updateRegionTriggerText() {
+            regionSelectedSpan.innerText = `已选 ${selectedRegions.length} 个区域`;
+        }
+
+        // 全量刷新
+        function fullRefresh() {
+            refreshFilteredTasks();
+            updateDeptSummaryCard();
+            renderTable();
+        }
+
+        // 事件绑定
+        function bindEvents() {
+            startPicker.addEventListener('change', () => {
+                currentStartDate = startPicker.value;
+                if (new Date(currentStartDate) > new Date(currentEndDate)) {
+                    currentEndDate = currentStartDate;
+                    endPicker.value = currentStartDate;
+                }
+                fullRefresh();
+            });
+            endPicker.addEventListener('change', () => {
+                currentEndDate = endPicker.value;
+                if (new Date(currentStartDate) > new Date(currentEndDate)) {
+                    currentStartDate = currentEndDate;
+                    startPicker.value = currentEndDate;
+                }
+                fullRefresh();
+            });
+            resetDateBtn.addEventListener('click', () => {
+                currentStartDate = "2026-03-01";
+                currentEndDate = "2026-04-20";
+                startPicker.value = currentStartDate;
+                endPicker.value = currentEndDate;
+                fullRefresh();
+            });
+
+            regionTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                regionDropdown.classList.toggle('show');
+            });
+            selectAllBtn.addEventListener('click', () => {
+                selectedRegions = [...REGIONS];
+                renderRegionOptions();
+                renderTable();
+                regionDropdown.classList.remove('show');
+            });
+            clearAllBtn.addEventListener('click', () => {
+                selectedRegions = [];
+                renderRegionOptions();
+                renderTable();
+                regionDropdown.classList.remove('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.multi-select')) regionDropdown.classList.remove('show');
+            });
+
+            exportBtn.addEventListener('click', exportCSV);
+        }
+
+        function exportCSV() {
+            const rows = buildDisplayRows();
+            const headers = ["区域/分类","第三方个数","门店数量","24H数量","24H时效比","48H数量","48H时效比",">48H数量",">48H时效比","平均时效(h)"];
+            const csvRows = rows.map(r => {
+                let thirdVal = (r.type==='region'||r.type==='thirdSummary') ? (r.thirdPartyCount ?? '—') : '—';
+                return [
+                    r.name + (r.type==='deptSummary'?' (含暂停门店)':''),
+                    thirdVal, r.totalCompleted,
+                    r.cnt24, r.rate24.toFixed(2)+'%',
+                    r.cnt48, r.rate48.toFixed(2)+'%',
+                    r.cntGT48, r.rateGT48.toFixed(2)+'%',
+                    r.avgHours.toFixed(1)
+                ];
+            });
+            const csvContent = [headers, ...csvRows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `分区时效_${currentStartDate}_${currentEndDate}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // 初始化
+        function init() {
+            startPicker.value = currentStartDate;
+            endPicker.value = currentEndDate;
+            renderRegionOptions();
+            fullRefresh();
+            bindEvents();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
