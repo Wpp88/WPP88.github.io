@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>鸣鸣很忙·</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>鸣鸣很忙 · 工程主数据</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -79,6 +79,10 @@
         th { text-align: left; padding: 12px 8px; background: #fafdff; color: #2c5f82; border-bottom: 1px solid #e2ebf3; white-space: nowrap; }
         td { padding: 10px 8px; border-bottom: 1px solid #eff4fa; vertical-align: middle; }
         .badge-cat { background: #eef3fc; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; color: #2c6e96; }
+        .badge-brand { background: #e0f0ea; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; color: #1f6c94; }
+        .status-badge { padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 500; }
+        .status-enabled { background: #e3f5ec; color: #0e6a4a; }
+        .status-disabled { background: #ffe6e5; color: #bc2c2c; }
         .action-icons { display: flex; gap: 12px; }
         .action-icons span { cursor: pointer; color: #7b99b5; }
         .action-icons span:hover { color: #1f6c94; }
@@ -135,17 +139,13 @@
         }
         .display-section h4 { font-size: 0.9rem; color: #1f5e83; margin-bottom: 10px; }
         .display-row { display: flex; gap: 30px; flex-wrap: wrap; }
-
-        /* 穿梭框样式 */
         .shuttle-container { display: flex; gap: 20px; margin-top: 16px; }
         .shuttle-left, .shuttle-right {
             flex: 1; border: 1px solid #e2ebf3; border-radius: 20px; padding: 16px;
             background: #fafdff; max-height: 500px; overflow-y: auto;
         }
         .shuttle-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .card-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-        }
+        .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .product-card {
             background: white; border-radius: 16px; padding: 12px; border: 1px solid #e9f0f5;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
@@ -167,8 +167,18 @@
             background: white; cursor: pointer;
         }
         .page-btn.active { background: #1f6c94; color: white; border-color: #1f6c94; }
-        .shuttle-actions { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+        .preview-table { max-height: 300px; overflow: auto; margin: 16px 0; }
+        .hint-text { color: #5f7d9c; font-size: 0.8rem; margin: 8px 0; }
     </style>
+    <datalist id="supplierDatalist">
+        <option value="SUP01-海尔供应商">海尔专供</option>
+        <option value="SUP02-荣事达">荣事达</option>
+        <option value="SUP03-货架王">货架王</option>
+        <option value="SUP04-海康威视">海康威视</option>
+        <option value="SNACK-零食很忙专供">零食很忙专供</option>
+        <option value="ZYM-赵一鸣专供">赵一鸣专供</option>
+        <option value="COMMON-通用供应商">通用供应商</option>
+    </datalist>
 </head>
 <body>
 <div class="app-layout">
@@ -192,128 +202,63 @@
             <div class="user-info"><span>👤</span> 王鹏 · admin</div>
         </div>
 
-        <!-- 分类面板 -->
+        <!-- 商品分类面板 -->
         <div id="categoryPanel" class="panel-card">
             <div class="card-header-actions"><h3>🌳 分类列表</h3><button class="btn-primary" id="addRootCategoryBtn">+ 新建分类</button></div>
             <div class="tree-container" id="categoryTreeContainer"></div>
         </div>
 
-        <!-- 商品档案面板 -->
+        <!-- 商品管理面板 -->
         <div id="devicePanel" class="panel-card" style="display: none;">
             <div class="card-header-actions">
                 <h3>📦 商品档案库</h3>
                 <div style="display:flex; gap:12px;">
-                    <input type="text" id="deviceSearchInput" class="search-input" placeholder="🔍 名称/编码">
+                    <input type="text" id="deviceSearchInput" class="search-input" placeholder="🔍 名称/编码/品牌">
                     <button class="btn-primary" id="openAddDeviceBtn">+ 新增商品</button>
                     <button class="btn-primary" id="batchImportDeviceBtn">📂 批量导入</button>
                 </div>
             </div>
-            <div class="table-wrapper"><table id="deviceTable"><thead><tr><th>商品编码</th><th>商品名称</th><th>所属分类</th><th>酷家乐ID</th><th>操作</th></tr></thead><tbody id="deviceTableBody"></tbody></table></div>
+            <div class="table-wrapper"><table id="deviceTable"><thead><tr><th>商品编码</th><th>商品名称</th><th>所属分类</th><th>所属品牌</th><th>供应商品牌</th><th>酷家乐ID</th><th>状态</th><th>操作</th></tr></thead><tbody id="deviceTableBody"></tbody></table></div>
         </div>
 
-        <!-- 编辑门店面板 -->
+        <!-- 编辑门店面板（门店设备 + 货架数据，已删除弱电） -->
         <div id="storeDesignPanel" class="panel-card" style="display: none;">
             <div class="store-info-panel">
-                <div class="info-group"><h4>📌 功能区域</h4>
-                    <div class="info-row"><span class="info-label">门店版本</span><span class="info-value">3.0品类扩充店</span></div>
-                    <div class="info-row"><span class="info-label">选址提供</span><span class="info-value">3.0品类扩充店</span></div>
-                    <div class="info-row"><span class="info-label">营业面积</span><span class="info-value"><input type="number" value="175.00" style="width:80px"> m²</span></div>
-                    <div class="info-row"><span class="info-label">选址提供</span><span class="info-value">140 m²</span></div>
-                    <div class="info-row"><span class="info-label">门店规模</span><span class="info-value">中型店(150-180m²)</span></div>
-                    <div class="info-row"><span class="info-label">店铺面积</span><span class="info-value"><input type="number" value="220" style="width:80px" readonly disabled> m²</span></div>
-                </div>
-                <div class="info-group"><h4>🏗️ 建筑结构</h4>
-                    <div class="info-row"><span class="info-label">结构层高</span><span class="info-value"><input value="3.60" style="width:80px"> m</span></div>
-                    <div class="info-row"><span class="info-label">开间长度</span><span class="info-value"><input value="20.00" style="width:80px"> m</span></div>
-                    <div class="info-row"><span class="info-label">完成面层高</span><span class="info-value"><input placeholder="请输入" style="width:100px"> m</span></div>
-                </div>
-                <div class="info-group"><h4>📐 设计信息</h4>
-                    <div class="info-row"><span class="info-label">第三方绘图</span><span class="info-value"><label><input type="radio" name="thirdParty"> 是</label> <label><input type="radio" name="thirdParty" checked> 否</label></span></div>
-                    <div class="info-row"><span class="info-label">是否有熟食区</span><span class="info-value"><label><input type="radio" name="cooked"> 是</label> <label><input type="radio" name="cooked" checked> 否</label></span></div>
-                    <div class="info-row"><span class="info-label">3.0收银背景墙</span><span class="info-value"><label><input type="radio" name="bgWall" checked> 是</label> <label><input type="radio" name="bgWall"> 否</label></span></div>
-                </div>
-                <div class="info-group"><h4>📦 仓库信息</h4>
-                    <div class="info-row"><span class="info-label">是否有仓库</span><span class="info-value"><label><input type="radio" name="hasWarehouse" id="hasWarehouseYes" checked> 是</label> <label><input type="radio" name="hasWarehouse" id="hasWarehouseNo"> 否</label></span></div>
-                    <div id="warehouseDetails">
-                        <div class="info-row"><span class="info-label">仓库类型</span><span class="info-value"><select style="width:100px"><option>内仓</option></select></span></div>
-                        <div class="info-row"><span class="info-label">仓库面积</span><span class="info-value"><input type="number" value="45.00" style="width:80px"> m²</span></div>
-                    </div>
-                </div>
+                <div class="info-group"><h4>📌 功能区域</h4><div class="info-row"><span class="info-label">门店版本</span><span class="info-value">3.0品类扩充店</span></div><div class="info-row"><span class="info-label">选址提供</span><span class="info-value">3.0品类扩充店</span></div><div class="info-row"><span class="info-label">营业面积</span><span class="info-value"><input type="number" value="175.00" style="width:80px"> m²</span></div><div class="info-row"><span class="info-label">选址提供</span><span class="info-value">140 m²</span></div><div class="info-row"><span class="info-label">门店规模</span><span class="info-value">中型店(150-180m²)</span></div><div class="info-row"><span class="info-label">店铺面积</span><span class="info-value"><input type="number" value="220.00" style="width:80px"> m²</span></div></div>
+                <div class="info-group"><h4>🏗️ 建筑结构</h4><div class="info-row"><span class="info-label">结构层高</span><span class="info-value"><input value="3.60" style="width:80px"> m</span></div><div class="info-row"><span class="info-label">开间长度</span><span class="info-value"><input value="20.00" style="width:80px"> m</span></div><div class="info-row"><span class="info-label">完成层高</span><span class="info-value"><input value="50.00" style="width:80px"> m</span></div></div>
+                <div class="info-group"><h4>📐 设计信息</h4><div class="info-row"><span class="info-label">第三方绘图</span><span class="info-value"><label><input type="radio" name="thirdParty"> 是</label> <label><input type="radio" name="thirdParty" checked> 否</label></span></div><div class="info-row"><span class="info-label">是否有熟食区</span><span class="info-value"><label><input type="radio" name="cooked"> 是</label> <label><input type="radio" name="cooked" checked> 否</label></span></div><div class="info-row"><span class="info-label">3.0收银背景墙</span><span class="info-value"><label><input type="radio" name="cooked"> 是</label> <label><input type="radio" name="cooked" checked> 否</label></span></div></div>
+                <div class="info-group"><h4>📦 仓库信息</h4><div class="info-row"><span class="info-label">是否有仓库</span><span class="info-value"><label><input type="radio" name="hasWarehouse" checked> 是</label> <label><input type="radio" name="hasWarehouse"> 否</label></span></div><div class="info-row"><span class="info-label">仓库类型</span><span class="info-value"><select style="width:100px"><option>内仓</option></select></span></div><div class="info-row"><span class="info-label">仓库面积</span><span class="info-value"><input type="number" value="45.00" style="width:80px"> m²</span></div></div>
             </div>
-            <div class="display-section">
-                <h4>📊 陈列数据</h4>
-                <div class="display-row">
-                    <span><strong>零食盒总数</strong> <input type="number" value="0" style="width:70px"> 个</span>
-                    <span><strong>地堆米数</strong> <input type="number" value="0.00" style="width:70px"> m</span>
-                    <span><strong>包装米数</strong> <input type="number" value="0.00" style="width:70px"> m</span>
-                    <span><strong>端头数量</strong> <input type="number" value="0" style="width:70px"> 个</span>
-                    <span><strong>门店吊旗</strong> <input placeholder="数量" style="width:80px"> 个</span>
-                </div>
-            </div>
+            <div class="display-section"><h4>📊 陈列数据</h4><div class="display-row"><span><strong>零食盒总数</strong> <input type="number" value="0" style="width:70px"> 个</span><span><strong>地堆米数</strong> <input type="number" value="0.00" style="width:70px"> m</span><span><strong>包装米数</strong> <input type="number" value="0.00" style="width:70px"> m</span><span><strong>端头数量</strong> <input type="number" value="0" style="width:70px"> 个</span><span><strong>门店吊旗</strong> <input type="number" value="0" style="width:70px"> 个</span></div></div>
             <div class="tabs">
                 <button class="tab-btn active" data-design-tab="equipment">📟 门店设备</button>
                 <button class="tab-btn" data-design-tab="shelf">📚 货架数据</button>
-                <button class="tab-btn" data-design-tab="weakcurrent">⚡ 弱电数据</button>
             </div>
             <div id="equipmentTab" class="design-tab-content">
                 <div style="padding:16px 20px 0; display:flex; justify-content:flex-end; gap:12px;">
                     <button class="btn-primary" id="addStoreEquipBtn">+ 新增设备</button>
-                    <button class="btn-primary" id="batchImportStoreEquipBtn">📂 批量导入</button>
+                    <button class="btn-primary" id="fetchKujialeEquipBtn">📡 获取酷家乐建模数据</button>
                 </div>
                 <div class="table-wrapper" id="storeEquipTableWrapper"></div>
             </div>
             <div id="shelfTab" class="design-tab-content" style="display:none;">
                 <div style="padding:16px 20px 0; display:flex; justify-content:flex-end; gap:12px;">
                     <button class="btn-primary" id="addShelfBtn">+ 新增货架</button>
-                    <button class="btn-primary" id="batchImportShelfBtn">📂 批量导入</button>
+                    <button class="btn-primary" id="fetchKujialeShelfBtn">📡 获取酷家乐建模数据</button>
                 </div>
                 <div class="table-wrapper" id="shelfTableWrapper"></div>
             </div>
-            <div id="weakcurrentTab" class="design-tab-content" style="display:none;">
-                <div style="padding:16px 20px 0; display:flex; justify-content:flex-end; gap:12px;">
-                    <button class="btn-primary" id="addWeakBtn">+ 新增弱电</button>
-                    <button class="btn-primary" id="batchImportWeakBtn">📂 批量导入</button>
-                </div>
-                <div class="table-wrapper" id="weakTableWrapper"></div>
-            </div>
-            <div class="footer-actions">
-                <button class="btn-outline" id="cancelStoreBtn">取消</button>
-                <button class="btn-primary" id="saveStoreBtn">保存门店工程信息</button>
-            </div>
+            <div class="footer-actions"><button class="btn-outline" id="cancelStoreBtn">取消</button><button class="btn-primary" id="saveStoreBtn">保存门店工程信息</button></div>
         </div>
     </div>
 </div>
 
-<!-- 模态框区域 ================================= -->
-<!-- 穿梭框选择器 -->
-<div id="shuttleModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="shuttleTitle">选择商品</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body">
-    <div class="shuttle-container">
-        <div class="shuttle-left">
-            <div class="shuttle-header"><input type="text" id="shuttleSearchInput" placeholder="🔍 编码/名称" style="width:70%"><span id="selectAllLeftBtn" class="btn-outline" style="padding:4px 12px;">全选</span></div>
-            <div id="leftCardGrid" class="card-grid"></div>
-            <div id="leftPagination" class="pagination"></div>
-            <button class="btn-primary" id="addSelectedToRightBtn" style="margin-top:12px; width:100%;">添加所选 →</button>
-        </div>
-        <div class="shuttle-right">
-            <div class="shuttle-header"><strong>已选商品 (<span id="selectedCount">0</span>)</strong><span id="clearAllRightBtn" class="btn-outline" style="padding:4px 12px;">清空</span></div>
-            <ul id="selectedListContainer" class="selected-list"></ul>
-            <button class="btn-primary" id="confirmShuttleBtn" style="margin-top:16px; width:100%;">确认添加</button>
-        </div>
-    </div>
-</div></div></div>
-
-<!-- 其他模态框 (分类、商品编辑等保持不变，此处省略部分重复代码，完整版已包含) -->
+<!-- 模态框 -->
+<div id="shuttleModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="shuttleTitle">选择商品</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="shuttle-container"><div class="shuttle-left"><div class="shuttle-header"><input type="text" id="shuttleSearchInput" placeholder="🔍 编码/名称" style="width:70%"><span id="selectAllLeftBtn" class="btn-outline" style="padding:4px 12px;">全选</span><span id="clearAllLeftBtn" class="btn-outline" style="padding:4px 12px; margin-left:8px;">取消全选</span></div><div id="leftCardGrid" class="card-grid"></div><div id="leftPagination" class="pagination"></div><button class="btn-primary" id="addSelectedToRightBtn" style="margin-top:12px; width:100%;">添加所选 →</button></div><div class="shuttle-right"><div class="shuttle-header"><strong>已选商品 (<span id="selectedCount">0</span>)</strong><span id="clearAllRightBtn" class="btn-outline" style="padding:4px 12px;">清空</span></div><ul id="selectedListContainer" class="selected-list"></ul><button class="btn-primary" id="confirmShuttleBtn" style="margin-top:16px; width:100%;">确认添加</button></div></div></div></div></div>
 <div id="categoryModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>编辑分类</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-field"><label>名称</label><input id="catName"></div><div class="form-field"><label>上级</label><select id="catParentId"></select></div><div class="form-row"><div class="form-field"><label>排序</label><input type="number" id="catSort"></div><div class="form-field"><div class="toggle-wrapper"><input type="checkbox" id="catEnabled" checked> 启用</div></div></div><div style="display:flex; justify-content:flex-end;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="confirmCategoryBtn">保存</button></div></div></div></div>
-<div id="deviceModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>商品</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body">
-    <div class="form-row"><div class="form-field"><label>所属分类</label><select id="devCategorySelect"></select></div></div>
-    <div class="form-row"><div class="form-field"><label>编码</label><input id="devProductCode"></div><div class="form-field"><label>名称</label><input id="devName"></div></div>
-    <div class="form-row"><div class="form-field"><label>酷家乐ID</label><input id="devKujialeId"></div><div class="form-field"><label>品牌</label><input id="devBrand"></div></div>
-    <div id="deviceSpecificFields" style="display:none;"><div class="form-row"><div class="form-field"><label>单位</label><select id="devUnit"><option>台</option></select></div><div class="form-field"><label>规格/型号</label><input id="devSpecModel"></div></div><div class="form-row"><div class="form-field"><label>条形码</label><input id="devBarcode"></div><div class="form-field"><label>供应商</label><input id="devSupplierCode"></div></div></div>
-    <div id="commonFields"><div class="form-row"><div class="form-field"><label>材质</label><input id="devMaterial"></div><div class="form-field"><label>维保(月)</label><input type="number" id="devWarranty"></div></div><div class="form-row"><div class="form-field"><label>供应商</label><input id="devSupplierCommon"></div></div></div>
-    <div style="display:flex; justify-content:flex-end;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveDeviceBtn">保存</button></div>
-</div></div></div>
+<div id="deviceModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="deviceModalTitle">商品</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-row"><div class="form-field"><label>所属分类 <span style="color:#c00;">*</span></label><select id="devCategorySelect"></select></div></div><div id="deviceCommonFields"><div class="form-row"><div class="form-field"><label>商品编码</label><input id="devProductCode" placeholder="自动/手动"></div><div class="form-field"><label>商品名称</label><input id="devName" placeholder="商品名称"></div></div><div class="form-row"><div class="form-field"><label>所属品牌 <span style="color:#c00;">*</span></label><select id="devOwnerBrand"><option value="通用">通用</option><option value="零食很忙">零食很忙</option><option value="赵一鸣">赵一鸣</option></select></div><div class="form-field"><label>供应商品牌</label><input id="devSupplierBrand" placeholder="供应商品牌"></div></div><div class="form-row"><div class="form-field"><label>供应商 (模糊搜索)</label><input list="supplierDatalist" id="devSupplier" placeholder="输入或选择供应商"></div><div class="form-field"><label>酷家乐商品ID</label><input id="devKujialeId"></div></div><div class="form-row"><div class="form-field"><label>材质</label><input id="devMaterial" placeholder="材质"></div><div class="form-field"><label>维保期限(月)</label><input type="number" id="devWarranty"></div></div><div class="form-row"><div class="form-field"><div class="toggle-wrapper"><input type="checkbox" id="devEnabled" checked> 启用商品</div></div></div></div><div id="deviceSpecificFields" style="display:none;"><div class="form-row"><div class="form-field"><label>单位</label><select id="devUnit"><option>台</option><option>个</option><option>套</option><option>米</option></select></div><div class="form-field"><label>规格/型号</label><input id="devSpecModel" placeholder="例: FMG-8"></div></div><div class="form-row"><div class="form-field"><label>条形码</label><input id="devBarcode" placeholder="条形码"></div><div class="form-field"><label>材质 (设备)</label><input id="devMaterialSpecific" placeholder="不锈钢/铁+塑料"></div></div></div><div style="display:flex; justify-content:flex-end;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="saveDeviceBtn">保存</button></div></div></div></div>
 <div id="deviceDetailModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>详情</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body" id="deviceDetailContent"></div></div></div>
-<div id="importWizardModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>批量导入</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><input type="file" id="wizardFileInput"><button class="btn-primary" id="previewWizardBtn">解析</button><div id="wizardPreviewContainer"></div><button class="btn-primary" id="confirmWizardImportBtn" disabled>确认导入</button></div></div></div>
+<div id="importWizardModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>📂 批量导入商品</h3><span class="close-modal-x closeModalBtn">&times;</span></div><div class="modal-body"><div class="form-row"><input type="file" id="wizardFileInput" accept=".xlsx, .xls, .csv"><button class="btn-primary" id="previewWizardBtn">解析预览</button></div><div id="wizardPreviewContainer" class="preview-table"></div><div style="display:flex; gap:12px; justify-content:flex-end;"><button class="btn-outline closeModalBtn">取消</button><button class="btn-primary" id="confirmWizardImportBtn" disabled>确认导入</button></div></div></div></div>
 
 <script>
     (function(){
@@ -321,7 +266,7 @@
         let categoryTree = []; let nextNodeId = 200;
         function genId() { return 'cat_' + (nextNodeId++); }
         function buildTree() {
-            const raw = [{ l1:"货架", l2:"标准", l3:"定量货架" },{ l1:"货架", l2:"标准", l3:"散称货架" },{ l1:"设备", l2:"冷链", l3:"风幕柜" },{ l1:"设备", l2:"热食", l3:"烤肠机" },{ l1:"广告", l2:"灯箱", l3:"门头灯箱" },{ l1:"弱电", l2:"弱电设备", l3:"插座" }];
+            const raw = [{ l1:"货架", l2:"标准", l3:"定量货架" },{ l1:"货架", l2:"标准", l3:"散称货架" },{ l1:"设备", l2:"冷链", l3:"风幕柜" },{ l1:"设备", l2:"热食", l3:"烤肠机" },{ l1:"广告", l2:"灯箱", l3:"门头灯箱" }];
             const map = new Map();
             raw.forEach(item => {
                 let l1 = map.get(item.l1); if(!l1){ l1 = { id:genId(), name:item.l1, level:1, sort:0, enabled:true, children:[] }; map.set(item.l1,l1); categoryTree.push(l1); }
@@ -331,31 +276,33 @@
         }
         buildTree();
         function findNodeById(id, nodes=categoryTree) { for(let n of nodes){ if(n.id===id) return n; if(n.children){ let f=findNodeById(id,n.children); if(f) return f; } } return null; }
-        function getFullPath(node) { function find(cur,id,arr){ if(cur.id===id) return [...arr, cur.name]; if(cur.children) for(let c of cur.children){ let r=find(c,id,[...arr,cur.name]); if(r) return r; } return null; } for(let r of categoryTree){ let p=find(r,node.id,[]); if(p) return p.join(' / '); } return node.name; }
-        function getRootName(catId) { let n=findNodeById(catId); if(!n) return ''; while(n){ let p=findParentInTree(n.id); if(!p) return n.name; n=p; } return ''; }
+        function getFullPath(node) { if(!node) return ''; let path=[]; function find(cur,id,arr){ if(cur.id===id) return [...arr, cur.name]; if(cur.children) for(let c of cur.children){ let r=find(c,id,[...arr,cur.name]); if(r) return r; } return null; } for(let r of categoryTree){ let p=find(r,node.id,[]); if(p) return p.join(' / '); } return node.name; }
+        function getRootName(catId) { let n=findNodeById(catId); if(!n) return ''; function findParent(node, target, parent=null){ if(node.id===target) return parent; if(node.children) for(let c of node.children){ let p=findParent(c,target,node); if(p!==undefined) return p; } return null; } for(let r of categoryTree){ let p=findParent(r,catId); if(p) return p.name; } return n.name; }
         function findParentInTree(nodeId, nodes=categoryTree, parent=null){ for(let n of nodes){ if(n.id===nodeId) return parent; if(n.children){ let r=findParentInTree(nodeId,n.children,n); if(r) return r; } } return null; }
-
+        
         let devices = [];
         function initDevices() {
             const thirds = []; function trav(n){ n.forEach(no=>{ if(no.level===3) thirds.push({id:no.id}); if(no.children) trav(no.children); }); } trav(categoryTree);
             devices = [
-                { id:'d1', productCode:'DEV-10001', name:'8尺风幕柜', categoryId:thirds[2]?.id, kujialeId:'KJL-FMG', brand:'海尔', material:'不锈钢', warrantyMonths:12, supplierCode:'SUP01', unit:'台', specModel:'FMG-8', barcode:'690123' },
-                { id:'d2', productCode:'DEV-10002', name:'烤肠机', categoryId:thirds[3]?.id, kujialeId:'KJL-KC', brand:'荣事达', material:'铁+塑料', warrantyMonths:6, supplierCode:'SUP02', unit:'台', specModel:'KC-6', barcode:'690456' },
-                { id:'d3', productCode:'SH-001', name:'定量货架', categoryId:thirds[0]?.id, kujialeId:'KJL-DL', brand:'货架王', material:'冷轧钢', warrantyMonths:24, supplierCode:'SUP03' },
-                { id:'d4', productCode:'WEAK-01', name:'监控摄像头', categoryId:thirds[5]?.id, kujialeId:'KJL-WK', brand:'海康', material:'ABS', warrantyMonths:12, supplierCode:'SUP04' },
+                { id:'d1', productCode:'DEV-10001', name:'8尺风幕柜', categoryId:thirds[2]?.id, kujialeId:'KJL-FMG', supplierBrand:'海尔', ownerBrand:'通用', material:'不锈钢', warrantyMonths:12, supplier:'SUP01-海尔供应商', unit:'台', specModel:'FMG-8', barcode:'690123', enabled:true },
+                { id:'d2', productCode:'DEV-10002', name:'烤肠机', categoryId:thirds[3]?.id, kujialeId:'KJL-KC', supplierBrand:'荣事达', ownerBrand:'零食很忙', material:'铁+塑料', warrantyMonths:6, supplier:'SUP02-荣事达', unit:'台', specModel:'KC-6', barcode:'690456', enabled:true },
+                { id:'d3', productCode:'SH-001', name:'定量货架', categoryId:thirds[0]?.id, kujialeId:'KJL-DL', supplierBrand:'货架王', ownerBrand:'赵一鸣', material:'冷轧钢', warrantyMonths:24, supplier:'SUP03-货架王', enabled:true },
+                { id:'d4', productCode:'SH-002', name:'散称货架', categoryId:thirds[1]?.id, kujialeId:'KJL-SC', supplierBrand:'货架王', ownerBrand:'通用', material:'冷轧钢', warrantyMonths:24, supplier:'SUP03-货架王', enabled:true }
             ];
         }
         initDevices();
 
-        let storeEquipments = [], shelves = [], weakItems = [];
+        let storeEquipments = [], shelves = [];
         function initDesign() {
-            storeEquipments = [{ id:'se1', deviceId:'d1', name:'8尺风幕柜', code:'DEV-10001', category:'设备/冷链', kujialeId:'KJL-FMG', unit:'台', spec:'FMG-8', barcode:'690123', brand:'海尔', supplier:'SUP01', warranty:12, material:'不锈钢', qty:2, remark:'' }];
-            shelves = [{ id:'sh1', deviceId:'d3', name:'定量货架', code:'SH-001', category:'货架/标准', kujialeId:'KJL-DL', brand:'货架王', material:'冷轧钢', warranty:24, supplier:'SUP03', length:1800, width:600, height:1800 }];
-            weakItems = [{ id:'wk1', deviceId:'d4', name:'监控摄像头', code:'WEAK-01', category:'弱电', kujialeId:'KJL-WK', brand:'海康', material:'ABS', warranty:12, supplier:'SUP04', qty:4 }];
+            storeEquipments = [{ id:'se1', deviceId:'d1', name:'8尺风幕柜', code:'DEV-10001', category:'设备/冷链', kujialeId:'KJL-FMG', unit:'台', spec:'FMG-8', qty:2, remark:'' }];
+            shelves = [{ id:'sh1', deviceId:'d3', name:'定量货架', code:'SH-001', category:'货架/标准', kujialeId:'KJL-DL', material:'冷轧钢', length:1800, width:600, height:1800, quantity:2 }];
         }
         initDesign();
 
-        // 渲染分类树
+        function escapeHtml(s){ return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+        function closeModals(){ document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active')); }
+        
+        // ========== 分类树渲染 ==========
         function renderCategoryTree() {
             const container = document.getElementById('categoryTreeContainer');
             function sortChildren(node){ if(node.children) { node.children.sort((a,b)=>(a.sort||0)-(b.sort||0)); node.children.forEach(ch=>sortChildren(ch)); } }
@@ -372,158 +319,227 @@
             document.querySelectorAll('.node-expand').forEach(el=>{ el.onclick=(e)=>{ e.stopPropagation(); let pid=el.dataset.id; let wrap=el.closest('.tree-node').querySelector('.children-wrapper'); if(wrap){ let vis=wrap.style.display!=='none'; wrap.style.display=vis?'none':'block'; el.innerHTML=vis?'📁':'📂'; localStorage.setItem(`exp-${pid}`,!vis); } }; });
             document.querySelectorAll('.add-child').forEach(btn=>{ btn.onclick=(e)=>{ let pid=btn.closest('.tree-node').dataset.nodeId; let p=findNodeById(pid); if(p&&p.level<3) openCategoryDialog('add',p); else alert('已达三级'); }; });
             document.querySelectorAll('.edit-node').forEach(btn=>{ btn.onclick=()=>{ let n=findNodeById(btn.closest('.tree-node').dataset.nodeId); if(n) openCategoryDialog('edit',null,n); }; });
-            document.querySelectorAll('.delete-node').forEach(btn=>{ btn.onclick=()=>{ let id=btn.closest('.tree-node').dataset.nodeId; if(devices.some(d=>d.categoryId===id)){ alert('有关联商品'); return; } if(confirm('删除？')){ function remove(arr,id){ for(let i=0;i<arr.length;i++){ if(arr[i].id===id){ arr.splice(i,1); return true; } if(arr[i].children&&remove(arr[i].children,id)) return true; } return false; } remove(categoryTree,id); renderCategoryTree(); refreshCategorySelect(); } }; });
+            document.querySelectorAll('.delete-node').forEach(btn=>{ btn.onclick=()=>{ let id=btn.closest('.tree-node').dataset.nodeId; if(devices.some(d=>d.categoryId===id)){ alert('有关联商品，无法删除'); return; } if(confirm('删除分类？')){ function remove(arr,id){ for(let i=0;i<arr.length;i++){ if(arr[i].id===id){ arr.splice(i,1); return true; } if(arr[i].children&&remove(arr[i].children,id)) return true; } return false; } remove(categoryTree,id); renderCategoryTree(); refreshCategorySelect(); } }; });
         }
-
-        function openCategoryDialog(mode, parent=null, edit=null){
-            let sel=document.getElementById('catParentId'); sel.innerHTML='<option value="">无</option>';
-            getAllCats().forEach(c=>{ if(c.level<3 && (mode!=='edit'||c.id!==edit?.id)) sel.appendChild(new Option(c.name,c.id)); });
-            if(edit){ document.getElementById('catName').value=edit.name; sel.value=findParentInTree(edit.id)?.id||''; document.getElementById('catSort').value=edit.sort; document.getElementById('catEnabled').checked=edit.enabled; window.currCatEdit=edit; }
-            else { document.getElementById('catName').value=''; if(parent) sel.value=parent.id; document.getElementById('catSort').value=0; document.getElementById('catEnabled').checked=true; window.currCatEdit=null; }
-            document.getElementById('categoryModal').classList.add('active');
-        }
-        function getAllCats(){ let list=[]; function trav(nodes,pre=''){ nodes.forEach(n=>{ list.push({id:n.id,name:pre+n.name,level:n.level}); if(n.children) trav(n.children,pre+n.name+' / '); }); } trav(categoryTree); return list; }
-        document.getElementById('confirmCategoryBtn').onclick=()=>{
-            let name=document.getElementById('catName').value.trim(); if(!name) return alert('输入名称');
-            let pid=document.getElementById('catParentId').value; let sort=+document.getElementById('catSort').value; let enabled=document.getElementById('catEnabled').checked;
-            if(window.currCatEdit){ window.currCatEdit.name=name; window.currCatEdit.sort=sort; window.currCatEdit.enabled=enabled; }
-            else { let level=1, parent=null; if(pid){ parent=findNodeById(pid); level=parent.level+1; } if(level>3) return alert('最多三级'); let newNode={ id:genId(), name, level, sort, enabled, children:[] }; if(parent) parent.children.push(newNode); else categoryTree.push(newNode); }
-            renderCategoryTree(); refreshCategorySelect(); closeModals();
-        };
-
         function refreshCategorySelect(){
             let sel = document.getElementById('devCategorySelect'); if(!sel) return;
             let thirds = []; function trav(nodes, path=''){ nodes.forEach(n=>{ let curPath = path?path+' / '+n.name:n.name; if(n.level===3) thirds.push({id:n.id, path:curPath}); if(n.children) trav(n.children, curPath); }); }
             trav(categoryTree); sel.innerHTML = '<option value="">请选择末级分类</option>';
             thirds.forEach(t=> sel.appendChild(new Option(t.path, t.id)));
         }
+        function getAllCats(){ let list=[]; function trav(nodes,pre=''){ nodes.forEach(n=>{ list.push({id:n.id,name:pre+n.name,level:n.level}); if(n.children) trav(n.children,pre+n.name+' / '); }); } trav(categoryTree); return list; }
+        let currentEditCat = null;
+        function openCategoryDialog(mode, parent=null, edit=null){
+            let sel=document.getElementById('catParentId'); sel.innerHTML='<option value="">无</option>';
+            getAllCats().forEach(c=>{ if(c.level<3 && (mode!=='edit'||c.id!==edit?.id)) sel.appendChild(new Option(c.name,c.id)); });
+            if(edit){ document.getElementById('catName').value=edit.name; sel.value=findParentInTree(edit.id)?.id||''; document.getElementById('catSort').value=edit.sort; document.getElementById('catEnabled').checked=edit.enabled; currentEditCat=edit; }
+            else { document.getElementById('catName').value=''; if(parent) sel.value=parent.id; document.getElementById('catSort').value=0; document.getElementById('catEnabled').checked=true; currentEditCat=null; }
+            document.getElementById('categoryModal').classList.add('active');
+        }
+        document.getElementById('confirmCategoryBtn').onclick=()=>{
+            let name=document.getElementById('catName').value.trim(); if(!name) return alert('请输入名称');
+            let pid=document.getElementById('catParentId').value; let sort=+document.getElementById('catSort').value; let enabled=document.getElementById('catEnabled').checked;
+            if(currentEditCat){ currentEditCat.name=name; currentEditCat.sort=sort; currentEditCat.enabled=enabled; }
+            else { let level=1, parent=null; if(pid){ parent=findNodeById(pid); level=parent.level+1; } if(level>3) return alert('最多三级'); let newNode={ id:genId(), name, level, sort, enabled, children:[] }; if(parent) parent.children.push(newNode); else categoryTree.push(newNode); }
+            renderCategoryTree(); refreshCategorySelect(); closeModals();
+        };
 
+        // ========== 商品管理 ==========
         function renderDeviceTable(){
             let kw=document.getElementById('deviceSearchInput')?.value.toLowerCase()||'';
-            let filtered=devices.filter(d=>d.name.toLowerCase().includes(kw)||(d.productCode||'').toLowerCase().includes(kw));
+            let filtered=devices.filter(d=>d.name.toLowerCase().includes(kw)||(d.productCode||'').toLowerCase().includes(kw)||(d.supplierBrand||'').toLowerCase().includes(kw));
             let tbody=document.getElementById('deviceTableBody'); tbody.innerHTML='';
-            filtered.forEach(d=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=d.productCode; row.insertCell(1).innerHTML=`<strong>${escapeHtml(d.name)}</strong>`; row.insertCell(2).innerHTML=`<span class="badge-cat">${escapeHtml(getFullPath(findNodeById(d.categoryId))||'未分类')}</span>`; row.insertCell(3).innerText=d.kujialeId||'-'; row.insertCell(4).innerHTML=`<div class="action-icons"><span class="view-detail" data-id="${d.id}">🔍</span><span class="edit-device" data-id="${d.id}">✏️</span><span class="del-device" data-id="${d.id}">🗑️</span></div>`; });
+            filtered.forEach(d=>{ 
+                let row=tbody.insertRow(); 
+                row.insertCell(0).innerText=d.productCode; 
+                row.insertCell(1).innerHTML=`<strong>${escapeHtml(d.name)}</strong>`; 
+                let catNode=findNodeById(d.categoryId);
+                row.insertCell(2).innerHTML=`<span class="badge-cat">${escapeHtml(catNode?getFullPath(catNode):'未分类')}</span>`; 
+                row.insertCell(3).innerHTML=`<span class="badge-brand">${escapeHtml(d.ownerBrand||'通用')}</span>`;
+                row.insertCell(4).innerText=d.supplierBrand||'-';
+                row.insertCell(5).innerText=d.kujialeId||'-'; 
+                let statusCell = row.insertCell(6);
+                statusCell.innerHTML = d.enabled ? '<span class="status-badge status-enabled">启用</span>' : '<span class="status-badge status-disabled">停用</span>';
+                statusCell.style.cursor = 'pointer';
+                statusCell.onclick = (e) => { e.stopPropagation(); d.enabled = !d.enabled; renderDeviceTable(); };
+                row.insertCell(7).innerHTML=`<div class="action-icons"><span class="view-detail" data-id="${d.id}">🔍</span><span class="edit-device" data-id="${d.id}">✏️</span><span class="del-device" data-id="${d.id}">🗑️</span></div>`;
+            });
             document.querySelectorAll('.view-detail').forEach(el=>{ el.onclick=()=>showDetail(devices.find(d=>d.id===el.dataset.id)); });
             document.querySelectorAll('.edit-device').forEach(el=>{ el.onclick=()=>openDeviceModal(devices.find(d=>d.id===el.dataset.id)); });
-            document.querySelectorAll('.del-device').forEach(el=>{ el.onclick=()=>{ devices=devices.filter(d=>d.id!==el.dataset.id); renderDeviceTable(); refreshCategorySelect(); }; });
+            document.querySelectorAll('.del-device').forEach(el=>{ el.onclick=()=>{ devices=devices.filter(d=>d.id!==el.dataset.id); renderDeviceTable(); }; });
         }
         function showDetail(dev){
             let html=`<div class="detail-grid">`;
-            let fields=[['商品编码',dev.productCode],['名称',dev.name],['酷家乐ID',dev.kujialeId],['品牌',dev.brand],['材质',dev.material],['维保(月)',dev.warrantyMonths],['供应商',dev.supplierCode]];
+            let fields=[['商品编码',dev.productCode],['名称',dev.name],['所属品牌',dev.ownerBrand||'通用'],['供应商品牌',dev.supplierBrand],['供应商',dev.supplier],['酷家乐ID',dev.kujialeId],['材质',dev.material],['维保(月)',dev.warrantyMonths],['状态',dev.enabled?'启用':'停用']];
             if(getRootName(dev.categoryId)==='设备') fields.push(['单位',dev.unit],['规格型号',dev.specModel],['条形码',dev.barcode]);
             fields.forEach(f=>{ html+=`<div class="detail-item"><span class="label">${f[0]}</span><span class="value">${escapeHtml(f[1]||'-')}</span></div>`; });
             document.getElementById('deviceDetailContent').innerHTML=html+'</div>';
             document.getElementById('deviceDetailModal').classList.add('active');
         }
-
+        function applyFieldVisibilityByCategory(categoryId) {
+            const root = getRootName(categoryId);
+            const isDevice = root === '设备';
+            document.getElementById('deviceSpecificFields').style.display = isDevice ? 'block' : 'none';
+        }
         let editingDevId=null;
-        function openDeviceModal(dev=null){ editingDevId=dev?.id; refreshCategorySelect(); /* 省略字段填充 */ document.getElementById('deviceModal').classList.add('active'); }
-        document.getElementById('saveDeviceBtn').onclick=()=>{ /* 省略保存逻辑 */ closeModals(); };
+        function openDeviceModal(dev=null){ 
+            editingDevId=dev?.id; refreshCategorySelect();
+            if(dev){
+                document.getElementById('devCategorySelect').value=dev.categoryId||'';
+                document.getElementById('devProductCode').value=dev.productCode||'';
+                document.getElementById('devName').value=dev.name||'';
+                document.getElementById('devOwnerBrand').value=dev.ownerBrand||'通用';
+                document.getElementById('devSupplierBrand').value=dev.supplierBrand||'';
+                document.getElementById('devSupplier').value=dev.supplier||'';
+                document.getElementById('devKujialeId').value=dev.kujialeId||'';
+                document.getElementById('devMaterial').value=dev.material||'';
+                document.getElementById('devWarranty').value=dev.warrantyMonths||'';
+                document.getElementById('devEnabled').checked = dev.enabled!==false;
+                if(getRootName(dev.categoryId)==='设备'){
+                    document.getElementById('devUnit').value=dev.unit||'台';
+                    document.getElementById('devSpecModel').value=dev.specModel||'';
+                    document.getElementById('devBarcode').value=dev.barcode||'';
+                    document.getElementById('devMaterialSpecific').value=dev.material||'';
+                }
+                applyFieldVisibilityByCategory(dev.categoryId);
+            } else {
+                document.getElementById('devCategorySelect').value=''; applyFieldVisibilityByCategory('');
+                document.getElementById('devProductCode').value=''; document.getElementById('devName').value='';
+                document.getElementById('devOwnerBrand').value='通用';
+                document.getElementById('devSupplierBrand').value=''; document.getElementById('devSupplier').value='';
+                document.getElementById('devKujialeId').value=''; document.getElementById('devMaterial').value='';
+                document.getElementById('devWarranty').value=''; document.getElementById('devEnabled').checked=true;
+                document.getElementById('devUnit').value='台'; document.getElementById('devSpecModel').value='';
+                document.getElementById('devBarcode').value=''; document.getElementById('devMaterialSpecific').value='';
+            }
+            document.getElementById('deviceModal').classList.add('active');
+        }
+        document.getElementById('saveDeviceBtn').onclick=()=>{
+            let catId = document.getElementById('devCategorySelect').value; if(!catId) return alert('请选择分类');
+            let isDevice = getRootName(catId)==='设备';
+            let base = {
+                categoryId: catId, productCode: document.getElementById('devProductCode').value.trim() || 'CODE_'+Date.now(),
+                name: document.getElementById('devName').value.trim(), 
+                ownerBrand: document.getElementById('devOwnerBrand').value,
+                supplierBrand: document.getElementById('devSupplierBrand').value,
+                supplier: document.getElementById('devSupplier').value,
+                kujialeId: document.getElementById('devKujialeId').value,
+                material: isDevice ? document.getElementById('devMaterialSpecific').value : document.getElementById('devMaterial').value,
+                warrantyMonths: +document.getElementById('devWarranty').value||0,
+                enabled: document.getElementById('devEnabled').checked
+            };
+            if(isDevice){
+                base.unit = document.getElementById('devUnit').value; base.specModel = document.getElementById('devSpecModel').value;
+                base.barcode = document.getElementById('devBarcode').value;
+            }
+            if(editingDevId){ let idx = devices.findIndex(d=>d.id===editingDevId); if(idx>-1) devices[idx] = {...devices[idx], ...base, id:editingDevId}; }
+            else { devices.push({ id:'dev_'+Date.now()+Math.random(), ...base }); }
+            closeModals(); renderDeviceTable();
+        };
+        document.getElementById('devCategorySelect').addEventListener('change', e => applyFieldVisibilityByCategory(e.target.value));
 
-        // 穿梭框核心
-        let currentShuttleType = ''; let shuttleCallback = null;
-        let leftItems = []; let rightItems = []; let leftFiltered = [];
-        let currentPage = 1; const pageSize = 6;
-        function openShuttle(type, callback) {
-            currentShuttleType = type; shuttleCallback = callback;
-            const rootFilter = type==='equipment'?'设备':(type==='shelf'?'货架':'弱电');
-            leftItems = devices.filter(d => getRootName(d.categoryId) === rootFilter);
-            rightItems = [];
-            leftFiltered = [...leftItems];
-            currentPage = 1;
-            renderShuttle();
-            document.getElementById('shuttleTitle').innerText = `选择${rootFilter}商品`;
-            document.getElementById('shuttleModal').classList.add('active');
-        }
-        function renderShuttle() {
-            renderLeftCards(); renderRightList(); updateSelectedCount();
-        }
-        function renderLeftCards() {
-            const grid = document.getElementById('leftCardGrid');
-            const start = (currentPage-1)*pageSize, end = start+pageSize;
+        // ========== 穿梭框（支持全选/取消全选） ==========
+        let leftItems = [], rightItems = [], leftFiltered = [], currentPage = 1, pageSize = 6, shuttleCallback = null;
+        function renderShuttleLeft(){
+            const grid = document.getElementById('leftCardGrid'); const start = (currentPage-1)*pageSize, end = start+pageSize;
             const pageItems = leftFiltered.slice(start, end);
-            grid.innerHTML = pageItems.map(item => `
-                <div class="product-card">
-                    <input type="checkbox" class="card-check left-item-check" value="${item.id}">
-                    <div class="card-title">${escapeHtml(item.name)}</div>
-                    <div class="card-sub">${item.productCode} | ${item.kujialeId||'—'}</div>
-                    <div class="card-sub">${item.brand||''}</div>
-                    <div class="card-actions"><button class="btn-outline single-add-btn" data-id="${item.id}" style="padding:2px 8px;">选择</button></div>
-                </div>
-            `).join('');
-            grid.querySelectorAll('.single-add-btn').forEach(btn => btn.onclick = () => { addToRight(btn.dataset.id); });
-            renderPagination();
-        }
-        function renderPagination() {
-            const total = Math.ceil(leftFiltered.length / pageSize);
+            grid.innerHTML = pageItems.map(item => `<div class="product-card"><input type="checkbox" class="card-check left-item-check" value="${item.id}"><div class="card-title">${escapeHtml(item.name)}</div><div class="card-sub">${item.productCode} | ${item.ownerBrand||''}</div><div class="card-sub">${item.supplierBrand||''}</div></div>`).join('');
+            const totalPages = Math.ceil(leftFiltered.length / pageSize);
             const pag = document.getElementById('leftPagination');
-            let html = ''; for(let i=1; i<=total; i++) html += `<button class="page-btn ${i===currentPage?'active':''}" data-page="${i}">${i}</button>`;
+            let html = ''; for(let i=1;i<=totalPages;i++) html += `<button class="page-btn ${i===currentPage?'active':''}" data-page="${i}">${i}</button>`;
             pag.innerHTML = html;
-            pag.querySelectorAll('.page-btn').forEach(b => b.onclick = () => { currentPage = +b.dataset.page; renderLeftCards(); });
+            pag.querySelectorAll('.page-btn').forEach(b => b.onclick = () => { currentPage = +b.dataset.page; renderShuttleLeft(); });
         }
-        function addToRight(id) {
-            const item = leftItems.find(i => i.id === id); if(!item) return;
-            if(!rightItems.some(i => i.id === id)) rightItems.push(item);
-            renderShuttle();
+        function addSelectedToRight(){
+            const checkedBoxes = document.querySelectorAll('.left-item-check:checked');
+            checkedBoxes.forEach(cb => { const id = cb.value; if(!rightItems.some(i => i.id === id)){ const item = leftItems.find(i => i.id === id); if(item) rightItems.push(item); } });
+            renderShuttleRight(); updateSelectedCount();
+            // 清空当前页的选中状态
+            document.querySelectorAll('.left-item-check').forEach(cb => cb.checked = false);
         }
-        function removeFromRight(id) { rightItems = rightItems.filter(i => i.id !== id); renderShuttle(); }
-        function renderRightList() {
+        function removeFromRight(id) { rightItems = rightItems.filter(i => i.id !== id); renderShuttleRight(); updateSelectedCount(); }
+        function renderShuttleRight(){
             const container = document.getElementById('selectedListContainer');
-            container.innerHTML = rightItems.map(item => `
-                <li class="selected-item"><span><strong>${escapeHtml(item.name)}</strong><br><small>${item.productCode}</small></span>
-                <span class="action-icons"><span class="remove-right" data-id="${item.id}">🗑️</span></span></li>
-            `).join('');
+            container.innerHTML = rightItems.map(item => `<li class="selected-item"><span><strong>${escapeHtml(item.name)}</strong><br><small>${item.productCode}</small></span><span class="action-icons"><span class="remove-right" data-id="${item.id}">🗑️</span></span></li>`).join('');
             container.querySelectorAll('.remove-right').forEach(el => el.onclick = () => removeFromRight(el.dataset.id));
         }
         function updateSelectedCount() { document.getElementById('selectedCount').innerText = rightItems.length; }
-        document.getElementById('shuttleSearchInput').addEventListener('input', e => {
-            const kw = e.target.value.toLowerCase();
-            leftFiltered = leftItems.filter(d => d.name.toLowerCase().includes(kw) || (d.productCode||'').toLowerCase().includes(kw));
-            currentPage = 1; renderLeftCards();
-        });
+        function openShuttle(type, callback){
+            shuttleCallback = callback;
+            const rootFilter = type==='equipment'?'设备':(type==='shelf'?'货架':null);
+            if(!rootFilter) return;
+            leftItems = devices.filter(d => getRootName(d.categoryId) === rootFilter && d.enabled);
+            rightItems = []; leftFiltered = [...leftItems]; currentPage = 1;
+            renderShuttleLeft(); renderShuttleRight(); updateSelectedCount();
+            document.getElementById('shuttleTitle').innerText = `选择${rootFilter}商品`;
+            document.getElementById('shuttleModal').classList.add('active');
+        }
+        document.getElementById('shuttleSearchInput').addEventListener('input', e => { leftFiltered = leftItems.filter(d => d.name.toLowerCase().includes(e.target.value.toLowerCase())||(d.productCode||'').toLowerCase().includes(e.target.value.toLowerCase())); currentPage=1; renderShuttleLeft(); });
         document.getElementById('selectAllLeftBtn').onclick = () => { document.querySelectorAll('.left-item-check').forEach(cb => cb.checked = true); };
-        document.getElementById('addSelectedToRightBtn').onclick = () => {
-            document.querySelectorAll('.left-item-check:checked').forEach(cb => addToRight(cb.value));
+        document.getElementById('clearAllLeftBtn').onclick = () => { document.querySelectorAll('.left-item-check').forEach(cb => cb.checked = false); };
+        document.getElementById('addSelectedToRightBtn').onclick = addSelectedToRight;
+        document.getElementById('clearAllRightBtn').onclick = () => { rightItems = []; renderShuttleRight(); updateSelectedCount(); };
+        document.getElementById('confirmShuttleBtn').onclick = () => { if(shuttleCallback) shuttleCallback(rightItems); closeModals(); };
+
+        // ========== 门店设备 & 货架渲染 ==========
+        function renderStoreEquip(){
+            let wrap=document.getElementById('storeEquipTableWrapper');
+            wrap.innerHTML=`<table><thead><tr><th>分类</th><th>编码</th><th>名称</th><th>数量</th><th>酷家乐ID</th><th>单位</th><th>规格</th><th>备注</th><th>操作</th></tr></thead><tbody id="storeEquipBody"></tbody></table>`;
+            let tbody=document.getElementById('storeEquipBody');
+            storeEquipments.forEach(eq=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=eq.category||''; row.insertCell(1).innerText=eq.code||''; row.insertCell(2).innerText=eq.name||''; let qtyCell=row.insertCell(3); qtyCell.innerHTML=`<input class="inline-input" type="number" value="${eq.qty||1}" data-id="${eq.id}" data-field="qty">`; row.insertCell(4).innerText=eq.kujialeId||''; row.insertCell(5).innerText=eq.unit||''; row.insertCell(6).innerText=eq.spec||''; let remarkCell=row.insertCell(7); remarkCell.innerHTML=`<input value="${eq.remark||''}" data-id="${eq.id}" data-field="remark">`; row.insertCell(8).innerHTML=`<span class="del-store" data-id="${eq.id}">🗑️</span>`; });
+            tbody.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('change',e=>{ let id=e.target.dataset.id, f=e.target.dataset.field; let item=storeEquipments.find(s=>s.id===id); if(item) item[f]=f==='qty'?+e.target.value:e.target.value; }); });
+            document.querySelectorAll('.del-store').forEach(el=>{ el.onclick=()=>{ storeEquipments=storeEquipments.filter(s=>s.id!==el.dataset.id); renderStoreEquip(); }; });
+        }
+        function renderShelf(){
+            shelves.forEach(s=>{ if(s.quantity===undefined) s.quantity=1; });
+            let wrap=document.getElementById('shelfTableWrapper');
+            wrap.innerHTML=`<table><thead><tr><th>分类</th><th>编码</th><th>名称</th><th>货架数量</th><th>长(m)</th><th>宽(m)</th><th>高(m)</th><th>酷家乐ID</th><th>材质</th><th>操作</th></tr></thead><tbody id="shelfBody"></tbody></table>`;
+            let tbody=document.getElementById('shelfBody');
+            shelves.forEach(s=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=s.category||''; row.insertCell(1).innerText=s.code||''; row.insertCell(2).innerText=s.name||''; let qtyCell=row.insertCell(3); qtyCell.innerHTML=`<input class="inline-input" type="number" value="${s.quantity}" data-id="${s.id}" data-field="quantity">`; let lenCell=row.insertCell(4); lenCell.innerHTML=`<input class="inline-input" value="${s.length||0}" data-id="${s.id}" data-field="length">`; let widCell=row.insertCell(5); widCell.innerHTML=`<input class="inline-input" value="${s.width||0}" data-id="${s.id}" data-field="width">`; let heiCell=row.insertCell(6); heiCell.innerHTML=`<input class="inline-input" value="${s.height||0}" data-id="${s.id}" data-field="height">`; row.insertCell(7).innerText=s.kujialeId||''; row.insertCell(8).innerText=s.material||''; row.insertCell(9).innerHTML=`<span class="del-shelf" data-id="${s.id}">🗑️</span>`; });
+            tbody.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('change',e=>{ let id=e.target.dataset.id, f=e.target.dataset.field; let item=shelves.find(sh=>sh.id===id); if(item) item[f]=f==='quantity'?Math.floor(+e.target.value) : +e.target.value; }); });
+            document.querySelectorAll('.del-shelf').forEach(el=>{ el.onclick=()=>{ shelves=shelves.filter(sh=>sh.id!==el.dataset.id); renderShelf(); }; });
+        }
+        document.getElementById('addStoreEquipBtn').onclick = () => openShuttle('equipment', (selected) => { selected.forEach(d => { storeEquipments.push({ id:'se_'+Date.now()+Math.random(), deviceId:d.id, name:d.name, code:d.productCode, category:getFullPath(findNodeById(d.categoryId)), kujialeId:d.kujialeId, unit:d.unit, spec:d.specModel, qty:1, remark:'' }); }); renderStoreEquip(); });
+        document.getElementById('addShelfBtn').onclick = () => openShuttle('shelf', (selected) => { selected.forEach(d => { shelves.push({ id:'sh_'+Date.now()+Math.random(), deviceId:d.id, name:d.name, code:d.productCode, category:getFullPath(findNodeById(d.categoryId)), kujialeId:d.kujialeId, material:d.material, length:1000, width:500, height:1500, quantity:1 }); }); renderShelf(); });
+        document.getElementById('fetchKujialeEquipBtn').onclick = ()=> alert('模拟：已从酷家乐同步设备数据');
+        document.getElementById('fetchKujialeShelfBtn').onclick = ()=> alert('模拟：已从酷家乐同步货架数据');
+        
+        // ========== 批量导入 ==========
+        let wizardParsedData = [];
+        document.getElementById('batchImportDeviceBtn').onclick = ()=> { document.getElementById('importWizardModal').classList.add('active'); wizardParsedData = []; document.getElementById('wizardPreviewContainer').innerHTML = ''; document.getElementById('confirmWizardImportBtn').disabled = true; };
+        document.getElementById('previewWizardBtn').onclick = ()=> {
+            const file = document.getElementById('wizardFileInput').files[0]; if(!file) return alert('请选择文件');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, {header:1});
+                if(rows.length<2) return alert('无数据');
+                const headers = rows[0]; wizardParsedData = rows.slice(1).map(row => { let obj = {}; headers.forEach((h,i)=> obj[h] = row[i]); return obj; }).filter(r => Object.values(r).some(v=>v));
+                let html = `<table><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+                wizardParsedData.slice(0,10).forEach(r => { html += `<tr>${headers.map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`; });
+                html += `</table><p class="hint-text">共 ${wizardParsedData.length} 条记录，预览前10行</p>`;
+                document.getElementById('wizardPreviewContainer').innerHTML = html;
+                document.getElementById('confirmWizardImportBtn').disabled = wizardParsedData.length===0;
+            };
+            reader.readAsArrayBuffer(file);
         };
-        document.getElementById('clearAllRightBtn').onclick = () => { rightItems = []; renderShuttle(); };
-        document.getElementById('confirmShuttleBtn').onclick = () => {
-            if(shuttleCallback) shuttleCallback(rightItems);
-            closeModals();
+        document.getElementById('confirmWizardImportBtn').onclick = ()=> {
+            wizardParsedData.forEach(row => {
+                let catPath = row['所属分类'] || row['分类']; let catNode = null;
+                if(catPath) { let parts = catPath.split(/[\/\\]/); let nodes = categoryTree; for(let p of parts) { let found = nodes.find(n=>n.name.trim()===p.trim()); if(found) nodes = found.children||[]; else break; } }
+                devices.push({ id:'imp_'+Date.now()+Math.random(), productCode:row['商品编码']||'IMP', name:row['商品名称']||'未命名', categoryId:catNode?.id||'', ownerBrand:row['所属品牌']||'通用', supplierBrand:row['供应商品牌']||'', supplier:row['供应商']||'', kujialeId:row['酷家乐ID']||'', material:row['材质']||'', warrantyMonths:parseInt(row['维保期限(月)'])||0, enabled: true });
+            });
+            renderDeviceTable(); closeModals(); alert(`成功导入 ${wizardParsedData.length} 条`);
         };
 
-        // 门店渲染
-        function renderStoreEquip(){ let wrap=document.getElementById('storeEquipTableWrapper'); wrap.innerHTML=`<table><thead><tr><th>分类</th><th>编码</th><th>名称</th><th>数量</th><th>酷家乐ID</th><th>单位</th><th>规格</th><th>条形码</th><th>品牌</th><th>供应商</th><th>维保</th><th>材质</th><th>备注</th><th>操作</th></tr></thead><tbody id="storeEquipBody"></tbody></table>`; let tbody=document.getElementById('storeEquipBody');
-        storeEquipments.forEach(eq=>{ let row=tbody.insertRow(); row.innerHTML=`<td>${eq.category}</td><td>${eq.code}</td><td>${eq.name}</td><td><input class="inline-input" type="number" value="${eq.qty}" data-id="${eq.id}" data-field="qty"></td><td>${eq.kujialeId}</td><td>${eq.unit}</td><td>${eq.spec}</td><td>${eq.barcode}</td><td>${eq.brand}</td><td>${eq.supplier}</td><td>${eq.warranty}</td><td>${eq.material}</td><td><input value="${eq.remark}" data-id="${eq.id}" data-field="remark"></td><td><span class="del-store" data-id="${eq.id}">🗑️</span></td>`; });
-        tbody.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('change',e=>{ let id=e.target.dataset.id, f=e.target.dataset.field; let item=storeEquipments.find(s=>s.id===id); if(item) item[f]=f==='qty'?+e.target.value:e.target.value; }); });
-        document.querySelectorAll('.del-store').forEach(el=>{ el.onclick=()=>{ storeEquipments=storeEquipments.filter(s=>s.id!==el.dataset.id); renderStoreEquip(); }; }); }
-        function renderShelf(){ let wrap=document.getElementById('shelfTableWrapper'); wrap.innerHTML=`<table><thead><tr><th>分类</th><th>编码</th><th>名称</th><th>长</th><th>宽</th><th>高</th><th>酷家乐ID</th><th>品牌</th><th>材质</th><th>维保</th><th>供应商</th><th>操作</th></tr></thead><tbody id="shelfBody"></tbody></table>`; let tbody=document.getElementById('shelfBody');
-        shelves.forEach(s=>{ let row=tbody.insertRow(); row.innerHTML=`<td>${s.category}</td><td>${s.code}</td><td>${s.name}</td><td><input value="${s.length}" data-id="${s.id}" data-field="length"></td><td><input value="${s.width}" data-id="${s.id}" data-field="width"></td><td><input value="${s.height}" data-id="${s.id}" data-field="height"></td><td>${s.kujialeId}</td><td>${s.brand}</td><td>${s.material}</td><td>${s.warranty}</td><td>${s.supplier}</td><td><span class="del-shelf" data-id="${s.id}">🗑️</span></td>`; });
-        tbody.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('change',e=>{ let id=e.target.dataset.id, f=e.target.dataset.field; let item=shelves.find(sh=>sh.id===id); if(item) item[f]=+e.target.value; }); });
-        document.querySelectorAll('.del-shelf').forEach(el=>{ el.onclick=()=>{ shelves=shelves.filter(sh=>sh.id!==el.dataset.id); renderShelf(); }; }); }
-        function renderWeak(){ let wrap=document.getElementById('weakTableWrapper'); wrap.innerHTML=`<table><thead><tr><th>分类</th><th>编码</th><th>名称</th><th>数量</th><th>酷家乐ID</th><th>品牌</th><th>材质</th><th>维保</th><th>供应商</th><th>操作</th></tr></thead><tbody id="weakBody"></tbody></table>`; let tbody=document.getElementById('weakBody');
-        weakItems.forEach(w=>{ let row=tbody.insertRow(); row.innerHTML=`<td>${w.category}</td><td>${w.code}</td><td>${w.name}</td><td><input value="${w.qty}" data-id="${w.id}" data-field="qty"></td><td>${w.kujialeId}</td><td>${w.brand}</td><td>${w.material}</td><td>${w.warranty}</td><td>${w.supplier}</td><td><span class="del-weak" data-id="${w.id}">🗑️</span></td>`; });
-        tbody.querySelectorAll('input').forEach(inp=>{ inp.addEventListener('change',e=>{ let id=e.target.dataset.id; let item=weakItems.find(wk=>wk.id===id); if(item) item.qty=+e.target.value; }); });
-        document.querySelectorAll('.del-weak').forEach(el=>{ el.onclick=()=>{ weakItems=weakItems.filter(w=>w.id!==el.dataset.id); renderWeak(); }; }); }
-
-        document.getElementById('addStoreEquipBtn').onclick = () => openShuttle('equipment', (selected) => {
-            selected.forEach(d => { storeEquipments.push({ id:'se_'+Date.now()+Math.random(), deviceId:d.id, name:d.name, code:d.productCode, category:getFullPath(findNodeById(d.categoryId)), kujialeId:d.kujialeId, unit:d.unit, spec:d.specModel, barcode:d.barcode, brand:d.brand, supplier:d.supplierCode, warranty:d.warrantyMonths, material:d.material, qty:1, remark:'' }); });
-            renderStoreEquip();
-        });
-        document.getElementById('addShelfBtn').onclick = () => openShuttle('shelf', (selected) => {
-            selected.forEach(d => { shelves.push({ id:'sh_'+Date.now(), deviceId:d.id, name:d.name, code:d.productCode, category:getFullPath(findNodeById(d.categoryId)), kujialeId:d.kujialeId, brand:d.brand, material:d.material, warranty:d.warrantyMonths, supplier:d.supplierCode, length:1000, width:500, height:1500 }); });
-            renderShelf();
-        });
-        document.getElementById('addWeakBtn').onclick = () => openShuttle('weak', (selected) => {
-            selected.forEach(d => { weakItems.push({ id:'wk_'+Date.now(), deviceId:d.id, name:d.name, code:d.productCode, category:getFullPath(findNodeById(d.categoryId)), kujialeId:d.kujialeId, brand:d.brand, material:d.material, warranty:d.warrantyMonths, supplier:d.supplierCode, qty:1 }); });
-            renderWeak();
-        });
-
-        function closeModals(){ document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active')); }
+        // ========== 模块切换 ==========
         function switchModule(m){
             document.getElementById('categoryPanel').style.display='none'; document.getElementById('devicePanel').style.display='none'; document.getElementById('storeDesignPanel').style.display='none';
             if(m==='category'){ document.getElementById('categoryPanel').style.display='block'; renderCategoryTree(); }
             else if(m==='device'){ document.getElementById('devicePanel').style.display='block'; renderDeviceTable(); }
-            else { document.getElementById('storeDesignPanel').style.display='block'; renderStoreEquip(); renderShelf(); renderWeak(); }
+            else { document.getElementById('storeDesignPanel').style.display='block'; renderStoreEquip(); renderShelf(); }
             document.querySelectorAll('.sub-item').forEach(el=>el.classList.toggle('active', el.dataset.module===m));
         }
         document.querySelectorAll('.sub-item').forEach(el=>el.onclick=()=>switchModule(el.dataset.module));
@@ -532,7 +548,6 @@
         document.getElementById('openAddDeviceBtn').onclick=()=>openDeviceModal();
         document.querySelectorAll('.closeModalBtn').forEach(b=>b.addEventListener('click',closeModals));
         window.addEventListener('click',e=>{ if(e.target.classList.contains('modal-overlay')) closeModals(); });
-        function escapeHtml(s){ return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
         renderCategoryTree(); switchModule('category');
     })();
 </script>
