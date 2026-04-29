@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>鸣鸣很忙集团 - 工程设计效能 - 分区时效统计</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1f2329;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d0d5dd;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0b5bd;
+        }
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+        /* 顶部框架 */
+        .topbar {
+            height: 52px;
+            background: #fff;
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            padding: 0 20px 0 14px;
+            flex-shrink: 0;
+            z-index: 30;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            width: 240px;
+            flex-shrink: 0;
+            gap: 6px;
+        }
+        .logo-mark {
+            display: flex;
+            align-items: flex-end;
+            gap: 1px;
+        }
+        .logo-m {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px 10px 3px 3px;
+            position: relative;
+        }
+        .logo-m.yellow {
+            background: #ffd21e;
+        }
+        .logo-m.red {
+            background: #f13b2f;
+        }
+        .logo-m::after {
+            content: "";
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            bottom: 5px;
+            left: 8px;
+        }
+        .logo-text {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #1a1a1a;
+            white-space: nowrap;
+        }
+        .top-nav {
+            display: flex;
+            height: 52px;
+            align-items: center;
+            gap: 32px;
+            margin-left: 16px;
+        }
+        .top-nav-item {
+            height: 52px;
+            line-height: 52px;
+            cursor: pointer;
+            color: #4e5969;
+            position: relative;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+        .top-nav-item:hover {
+            color: #ff6a00;
+        }
+        .top-nav-item.active {
+            color: #ff6a00;
+            font-weight: 600;
+        }
+        .top-nav-item.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: #ff6a00;
+            border-radius: 3px 3px 0 0;
+        }
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: #4e5969;
+            font-size: 14px;
+        }
+        .top-icon {
+            font-size: 18px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .top-icon:hover {
+            background: #f5f5f5;
+        }
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #1f2329;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .user:hover {
+            background: #f5f5f5;
+        }
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffb36a, #ff7a1a);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        /* 主体框架 */
+        .layout {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 236px;
+            background: #fff;
+            border-right: 1px solid #e8eaed;
+            padding: 6px 8px 12px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .module-badge {
+            height: 34px;
+            background: #f8f9fb;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #1f2329;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+        .menu-group {
+            margin-bottom: 1px;
+        }
+        .menu-title {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: #4e5969;
+            transition: all 0.15s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .menu-title:hover {
+            background: #f5f6f8;
+            color: #1f2329;
+        }
+        .menu-title.active-parent {
+            color: #ff6a00;
+            font-weight: 600;
+            background: #fff7f0;
+        }
+        .menu-icon {
+            width: 20px;
+            margin-right: 7px;
+            text-align: center;
+            color: inherit;
+            font-size: 15px;
+        }
+        .menu-arrow {
+            margin-left: auto;
+            color: #aeb5c0;
+            font-size: 11px;
+            transition: transform 0.2s;
+        }
+        .menu-group.open .menu-arrow {
+            transform: rotate(180deg);
+        }
+        .submenu {
+            padding-left: 34px;
+            display: none;
+            margin: 2px 0;
+        }
+        .menu-group.open .submenu {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .submenu-item {
+            height: 35px;
+            line-height: 35px;
+            padding-left: 12px;
+            padding-right: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: #4e5969;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s;
+            font-weight: 400;
+        }
+        .submenu-item:hover {
+            background: #fff7f0;
+            color: #ff6a00;
+        }
+        .submenu-item.active {
+            background: #fff3e8;
+            color: #ff6a00;
+            font-weight: 600;
+        }
+        .submenu-item .badge {
+            font-size: 11px;
+            color: #fff;
+            background: #ff6a00;
+            border-radius: 10px;
+            padding: 2px 7px;
+            height: 18px;
+            line-height: 18px;
+            font-weight: 600;
+        }
+        .main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+        .breadcrumb {
+            height: 40px;
+            background: #fff;
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            color: #86909c;
+            font-size: 12px;
+            flex-shrink: 0;
+            gap: 4px;
+        }
+        .breadcrumb span {
+            color: #1f2329;
+            font-weight: 500;
+        }
+        .breadcrumb .sep {
+            color: #c9cdd4;
+            margin: 0 3px;
+        }
+        .content {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 12px 14px;
+            position: relative;
+        }
+        .content-inner {
+            min-width: 1440px;
+            max-width: 100%;
+        }
+        /* 卡片与通用组件 */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e8eaed;
+            overflow: hidden;
+        }
+        .card-header {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid #f0f1f3;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1f2329;
+        }
+        .card-extra {
+            color: #86909c;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn {
+            height: 32px;
+            padding: 0 14px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            border-radius: 6px;
+            color: #1f2329;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: 500;
+            white-space: nowrap;
+            outline: none;
+        }
+        .btn:hover {
+            color: #ff6a00;
+            border-color: #ffb980;
+            background: #fffaf5;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn.primary {
+            background: #ff7a1a;
+            border-color: #ff7a1a;
+            color: #fff;
+            font-weight: 600;
+        }
+        .btn.primary:hover {
+            background: #ff6a00;
+            border-color: #ff6a00;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(255, 106, 0, 0.25);
+        }
+        .btn.text {
+            border: none;
+            background: transparent;
+            color: #ff6a00;
+            padding: 0 6px;
+            font-weight: 500;
+        }
+        .btn.text:hover {
+            background: #fff7f0;
+            color: #e55d00;
+        }
+        .btn.sm {
+            height: 28px;
+            padding: 0 10px;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+        input,
+        select {
+            height: 32px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            padding: 0 10px;
+            outline: none;
+            background: #fff;
+            color: #1f2329;
+            font-size: 13px;
+            transition: border-color 0.15s;
+        }
+        input:focus,
+        select:focus {
+            border-color: #ff7a1a;
+            box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.08);
+        }
+        select[multiple] {
+            height: auto;
+            min-height: 60px;
+            padding: 4px 6px;
+            font-size: 12px;
+        }
+        select[multiple] option {
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin: 1px 0;
+            cursor: pointer;
+        }
+        select[multiple] option:checked {
+            background: linear-gradient(135deg, #ff7a1a, #ff6a00);
+            color: #fff;
+        }
+        .region-multi-wrap {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .region-multi-wrap select {
+            width: 200px;
+            height: auto;
+            min-height: 32px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+            padding: 2px 4px;
+        }
+        .region-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            max-width: 280px;
+            align-items: center;
+        }
+        .region-tag-inline {
+            display: inline-flex;
+            align-items: center;
+            background: #fff7f0;
+            color: #ff6a00;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .region-tag-inline .remove-tag {
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            opacity: 0.6;
+            margin-left: 2px;
+        }
+        .region-tag-inline .remove-tag:hover {
+            opacity: 1;
+            color: #e04040;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 11px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #f2f3f5;
+            color: #4e5969;
+            white-space: nowrap;
+        }
+        .tag.green {
+            color: #00a870;
+            background: #e8fff5;
+        }
+        .tag.orange {
+            color: #e87a00;
+            background: #fff7ed;
+        }
+        .tag.red {
+            color: #e04040;
+            background: #fff1f0;
+        }
+        .tag.blue {
+            color: #165dff;
+            background: #e8f3ff;
+        }
+        .divider {
+            width: 1px;
+            height: 16px;
+            background: #e5e6eb;
+            flex-shrink: 0;
+        }
+        /* 页面切换 */
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        /* 设计效能首页概览 */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 0;
+            padding: 16px 14px 20px;
+        }
+        .overview-item {
+            padding: 0 12px;
+            border-right: 1px solid #f0f1f3;
+        }
+        .overview-item:last-child {
+            border-right: none;
+        }
+        .overview-label {
+            color: #86909c;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        .overview-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1.2;
+        }
+        .overview-value small {
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 1px;
+            color: #4e5969;
+        }
+        .overview-value .orange {
+            color: #ff6a00;
+        }
+        .board-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mock-chart {
+            height: 250px;
+            padding: 10px 16px;
+            position: relative;
+        }
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 210px;
+            gap: 28px;
+        }
+        .donut {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(#35c982 0 52%, #1f7af0 52% 72%, #ff4d4f 72% 84%, #00b8a9 84% 92%, #7a5cff 92% 97%, #ff8a34 97% 100%);
+            position: relative;
+        }
+        .donut::after {
+            content: "";
+            width: 64px;
+            height: 64px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 38px;
+            left: 38px;
+        }
+        .legend {
+            display: grid;
+            gap: 6px;
+            font-size: 12px;
+            color: #4e5969;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .ranking-table th,
+        .ranking-table td {
+            border-bottom: 1px solid #ebeef5;
+            padding: 9px 8px;
+            text-align: left;
+        }
+        .ranking-table th {
+            background: #f8f9fb;
+            color: #4e5969;
+            font-weight: 500;
+            font-size: 12px;
+        }
+        .rank-no {
+            font-weight: 700;
+            color: #86909c;
+        }
+        .rank-no.top1 {
+            color: #f5a623;
+        }
+        .rank-no.top2 {
+            color: #9aa6b2;
+        }
+        .rank-no.top3 {
+            color: #c88655;
+        }
+        .bar-chart-area {
+            height: 215px;
+            display: flex;
+            align-items: flex-end;
+            gap: 100px;
+            padding: 20px 70px 18px;
+            border-left: 1px solid #e5e6eb;
+            border-bottom: 1px solid #e5e6eb;
+            margin: 8px 18px;
+            position: relative;
+        }
+        .bar {
+            width: 160px;
+            border-radius: 3px 3px 0 0;
+            position: relative;
+            transition: height 0.4s;
+        }
+        .bar.orange {
+            background: linear-gradient(180deg, #ff8a34, #ffb36a);
+            height: 140px;
+        }
+        .bar.blue {
+            background: linear-gradient(180deg, #3888f6, #6aacf8);
+            height: 70px;
+        }
+        .bar span {
+            position: absolute;
+            bottom: -26px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #4e5969;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        /* 分区时效看板 */
+        .dashboard-title-card {
+            background: linear-gradient(135deg, #fff9f3, #ffffff 60%);
+            border: 1px solid #ffe2c2;
+            padding: 16px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .dashboard-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1f2329;
+            margin-bottom: 4px;
+        }
+        .dashboard-subtitle {
+            color: #86909c;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .metric-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px 16px;
+            border: 1px solid #e8eaed;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .metric-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            right: -22px;
+            top: -22px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255, 122, 26, 0.05);
+            pointer-events: none;
+        }
+        .metric-name {
+            color: #86909c;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        .metric-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1f2329;
+            position: relative;
+            z-index: 1;
+        }
+        .metric-desc {
+            margin-top: 4px;
+            color: #aeb5c0;
+            font-size: 11px;
+            position: relative;
+            z-index: 1;
+        }
+        .filter-bar {
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            color: #4e5969;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .filter-sep {
+            color: #aeb5c0;
+            margin: 0 2px;
+        }
+        .table-toolbar {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f1f3;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .table-wrap {
+            overflow: auto;
+            max-height: 58vh;
+        }
+        .data-table {
+            width: 100%;
+            min-width: 1600px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th,
+        .data-table td {
+            border-bottom: 1px solid #ebeef5;
+            border-right: 1px solid #f5f5f5;
+            padding: 9px 7px;
+            text-align: center;
+            white-space: nowrap;
+            background: #fff;
+        }
+        .data-table th {
+            background: #f8f9fb;
+            color: #4e5969;
+            font-weight: 600;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            letter-spacing: -0.2px;
+        }
+        .data-table td.fixed-left,
+        .data-table th.fixed-left {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #fff;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.04);
+        }
+        .data-table th.fixed-left {
+            background: #f8f9fb;
+            z-index: 4;
+        }
+        .data-table td.fixed-right,
+        .data-table th.fixed-right {
+            position: sticky;
+            right: 0;
+            z-index: 3;
+            background: #fff;
+            box-shadow: -2px 0 4px rgba(0, 0, 0, 0.04);
+        }
+        .data-table th.fixed-right {
+            background: #f8f9fb;
+            z-index: 4;
+        }
+        .clickable {
+            cursor: pointer;
+            color: #165dff;
+            font-weight: 600;
+            transition: all 0.12s;
+            border-radius: 3px;
+        }
+        .clickable:hover {
+            background: #fff7f0 !important;
+            color: #ff6a00 !important;
+            text-decoration: underline;
+        }
+        .total-row td {
+            background: #fafbfc !important;
+            font-weight: 700;
+            color: #1f2329;
+            border-top: 2px solid #e0e3e8;
+        }
+        .total-row td.fixed-left {
+            background: #fafbfc !important;
+        }
+        .total-row td.fixed-right {
+            background: #fafbfc !important;
+        }
+        .hint {
+            color: #aeb5c0;
+            font-size: 12px;
+        }
+        .empty {
+            color: #aeb5c0;
+            padding: 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .col-group-header {
+            background: #f3f4f6 !important;
+            font-weight: 700;
+            color: #1f2329;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+        /* 抽屉 */
+        .drawer-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            display: none;
+            transition: opacity 0.2s;
+        }
+        .drawer-mask.show {
+            display: block;
+        }
+        .drawer {
+            position: fixed;
+            right: -75%;
+            top: 0;
+            width: 75%;
+            max-width: 1200px;
+            height: 100vh;
+            background: #fff;
+            z-index: 101;
+            transition: right 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -6px 0 24px rgba(0, 0, 0, 0.12);
+        }
+        .drawer.show {
+            right: 0;
+        }
+        .drawer-header {
+            height: 54px;
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            flex-shrink: 0;
+            background: #fafbfc;
+        }
+        .drawer-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1f2329;
+        }
+        .drawer-body {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .drawer-footer {
+            height: 52px;
+            border-top: 1px solid #e8eaed;
+            padding: 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+            background: #fafbfc;
+        }
+        .drawer-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .drawer-tabs {
+            display: inline-flex;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .drawer-tab {
+            height: 30px;
+            padding: 0 14px;
+            border: none;
+            background: #fff;
+            cursor: pointer;
+            border-right: 1px solid #dcdfe6;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+            color: #4e5969;
+        }
+        .drawer-tab:last-child {
+            border-right: none;
+        }
+        .drawer-tab.active {
+            background: #ff7a1a;
+            color: #fff;
+            font-weight: 600;
+        }
+        .drawer-tab:hover:not(.active) {
+            background: #fff7f0;
+            color: #ff6a00;
+        }
+        .drawer-table-wrap {
+            flex: 1;
+            overflow: auto;
+            max-height: 50vh;
+            min-height: 200px;
+        }
+        .drawer-table {
+            width: 100%;
+            min-width: 1500px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .drawer-table th,
+        .drawer-table td {
+            border-bottom: 1px solid #ebeef5;
+            padding: 9px 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .drawer-table th {
+            background: #f8f9fb;
+            color: #4e5969;
+            font-weight: 600;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        /* 分页栏 - 在抽屉底部 */
+        .drawer-pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 4px;
+            flex-shrink: 0;
+            border-top: 1px solid #f0f1f3;
+            margin-top: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .drawer-pagination-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4e5969;
+            font-size: 13px;
+        }
+        .drawer-pagination-left select {
+            height: 30px;
+            width: 80px;
+            font-size: 12px;
+        }
+        .drawer-pagination-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-btn {
+            height: 30px;
+            min-width: 30px;
+            padding: 0 10px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #4e5969;
+            transition: all 0.15s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-btn:hover {
+            color: #ff6a00;
+            border-color: #ffb980;
+            background: #fffaf5;
+        }
+        .page-btn.active {
+            background: #ff7a1a;
+            border-color: #ff7a1a;
+            color: #fff;
+            font-weight: 700;
+        }
+        .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .page-info-text {
+            color: #86909c;
+            font-size: 12px;
+            margin: 0 4px;
+        }
+        /* PRD文档样式 */
+        .prd {
+            background: #fff;
+            border-radius: 8px;
+            padding: 28px 36px;
+            line-height: 1.8;
+            color: #1f2329;
+            border: 1px solid #e8eaed;
+        }
+        .prd h1 {
+            margin-top: 0;
+            font-size: 26px;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+        .prd h2 {
+            margin-top: 32px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ffd8b8;
+            font-size: 20px;
+            color: #1f2329;
+        }
+        .prd h3 {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        .prd table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        .prd th,
+        .prd td {
+            border: 1px solid #e5e6eb;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .prd th {
+            background: #f8f9fb;
+            font-weight: 600;
+            color: #1f2329;
+        }
+        .prd-code {
+            background: #f8f9fb;
+            border-left: 4px solid #ff7a1a;
+            padding: 10px 14px;
+            color: #4e5969;
+            margin: 10px 0;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.7;
+        }
+        .prd ul,
+        .prd ol {
+            padding-left: 22px;
+            margin: 8px 0;
+        }
+        .prd li {
+            margin: 4px 0;
+        }
+        .prd .highlight-box {
+            background: #fff9f3;
+            border: 1px solid #ffe2c2;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-weight: 500;
+        }
+        .prd .version-table {
+            font-size: 12px;
+            color: #86909c;
+        }
+        /* Toast / Loading */
+        .toast {
+            position: fixed;
+            top: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.85);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 200;
+            display: none;
+            font-size: 13px;
+            font-weight: 500;
+            pointer-events: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        }
+        .toast.show {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(8px);
+            }
+            10% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-8px);
+            }
+        }
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.5);
+            z-index: 199;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #ff7a1a;
+            font-weight: 600;
+            font-size: 15px;
+            gap: 10px;
+        }
+        .loading.show {
+            display: flex;
+        }
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ffd8b8;
+            border-top-color: #ff7a1a;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .disabled-hint {
+            color: #aeb5c0;
+            font-size: 11px;
+            font-style: italic;
+        }
+
+        @media (max-width: 1440px) {
+            .metric-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .overview-grid {
+                grid-template-columns: repeat(3, 1fr);
+                row-gap: 14px;
+            }
+            .board-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-table {
+                min-width: 1400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部框架 -->
+        <header class="topbar">
+            <div class="logo">
+                <div class="logo-mark">
+                    <div class="logo-m yellow"></div>
+                    <div class="logo-m yellow"></div>
+                    <div class="logo-m red"></div>
+                    <div class="logo-m red"></div>
+                </div>
+                <div class="logo-text">鸣鸣很忙集团</div>
+            </div>
+            <nav class="top-nav">
+                <div class="top-nav-item">工作台</div>
+                <div class="top-nav-item active">工程</div>
+            </nav>
+            <div class="topbar-right">
+                <span class="top-icon" title="消息">🔔</span>
+                <span class="top-icon" title="帮助">❓</span>
+                <span class="divider"></span>
+                <div class="user">
+                    <span class="avatar">王</span>
+                    <span>王鹏</span>
+                    <span style="font-size:11px;color:#aeb5c0;">▼</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="layout">
+            <!-- 左侧菜单 -->
+            <aside class="sidebar">
+                <div class="module-badge">◆ 设计效能</div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">▣</span> 工程大盘<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">▤</span> 项目管理<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">☁</span> 线下勘场<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group open">
+                    <div class="menu-title active-parent"><span class="menu-icon">✤</span> 设计中心<span class="menu-arrow">▴</span></div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="switchPage('designList')">设计列表</div>
+                        <div class="submenu-item" onclick="switchPage('designEvaluation')">设计评价</div>
+                        <div class="submenu-item active" onclick="switchPage('regionDashboard')"><span>设计效能</span><span class="badge">新</span></div>
+                        <div class="submenu-item active" onclick="switchPage('regionDashboard')" style="padding-left:20px;font-weight:600;">分区时效统计</div>
+                    </div>
+                </div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">🏠</span> 工程造价<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">⛑</span> 施工巡检<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">☑</span> 项目验收<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">◎</span> 工程督查<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">▧</span> 物资预报<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">☏</span> 工程回访<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">♙</span> 合作商管理<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">♙</span> 审核中心<span class="menu-arrow">▾</span></div></div>
+                <div class="menu-group"><div class="menu-title"><span class="menu-icon">⚙</span> 系统设置<span class="menu-arrow">▾</span></div></div>
+            </aside>
+
+            <!-- 主内容 -->
+            <main class="main">
+                <div class="breadcrumb" id="breadcrumb">工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> 设计效能 <span class="sep">/</span> <span>分区时效统计</span></div>
+                <div class="content">
+                    <div class="content-inner">
+                        <!-- 设计效能首页 -->
+                        <section id="homeOverview" class="page-section">
+                            <div class="card">
+                                <div class="card-header"><div class="card-title">工程设计时效</div><div class="card-extra">更多 ›</div></div>
+                                <div class="overview-grid">
+                                    <div class="overview-item"><div class="overview-label">设计派单时效</div><div class="overview-value">1<small>天</small><span class="orange">1</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">平面图时效</div><div class="overview-value">1<small>天</small><span class="orange">18</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">水电图时效</div><div class="overview-value">0<small>天</small><span class="orange">4</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">全套图时效</div><div class="overview-value">2<small>天</small><span class="orange">19</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">全套图审核时效</div><div class="overview-value">0<small>天</small><span class="orange">9</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">下单图时效</div><div class="overview-value">5<small>天</small><span class="orange">18</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">填写门店信息时效</div><div class="overview-value">8<small>天</small><span class="orange">5</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">最短用时</div><div class="overview-value">2<small>天</small><span class="orange">3</span><small>小时</small></div></div>
+                                    <div class="overview-item"><div class="overview-label">最长用时</div><div class="overview-value">26<small>天</small><span class="orange">8</span><small>小时</small></div></div>
+                                </div>
+                            </div>
+                            <div class="board-grid">
+                                <div class="card"><div class="card-header"><div class="card-title">状态统计 <span class="hint">□ 仅看进行中</span></div><div class="card-extra">更多 ›</div></div><div class="mock-chart"><div class="donut-wrap"><div class="donut"></div><div class="legend"><div class="legend-item"><span class="legend-color" style="background:#ff8a34;"></span>待分配 17</div><div class="legend-item"><span class="legend-color" style="background:#7a5cff;"></span>待传平面图 69</div><div class="legend-item"><span class="legend-color" style="background:#00b8a9;"></span>待传水电图 4</div><div class="legend-item"><span class="legend-color" style="background:#008b83;"></span>待传全套图 146</div><div class="legend-item"><span class="legend-color" style="background:#ff4d4f;"></span>待全套图审核 24</div><div class="legend-item"><span class="legend-color" style="background:#1f7af0;"></span>待传下单图 235</div><div class="legend-item"><span class="legend-color" style="background:#35c982;"></span>已完成 624</div></div></div></div></div>
+                                <div class="card"><div class="card-header"><div class="card-title">工期极值分析</div><div class="card-extra"><button class="btn primary sm">最长用时</button><button class="btn sm">最短用时</button></div></div><div style="padding:0 14px 14px;"><table class="ranking-table"><thead><tr><th>排行</th><th>项目信息</th><th>工时</th><th>负责人</th></tr></thead><tbody><tr><td class="rank-no top1">🏆</td><td>【重装升级】福建福州平潭泰香御景店</td><td style="color:#ff6a00;">26天8小时</td><td>侯翠兰</td></tr><tr><td class="rank-no top2">🥈</td><td>【新店】湖北武汉桥口汉西一路店</td><td style="color:#ff6a00;">26天1小时</td><td>尹哲睿</td></tr><tr><td class="rank-no top3">🥉</td><td>【新店】上海市浦东高东商业广场店</td><td style="color:#ff6a00;">25天23小时</td><td>张华</td></tr><tr><td class="rank-no">4</td><td>【新店】湖北黄冈蕲春漕河蕲春府店</td><td style="color:#ff6a00;">25天22小时</td><td>郭超</td></tr><tr><td class="rank-no">5</td><td>【品类扩店】长沙县湘绣城店</td><td style="color:#ff6a00;">24天8小时</td><td>肖洁</td></tr></tbody></table></div></div>
+                            </div>
+                            <div class="board-grid">
+                                <div class="card"><div class="card-header"><div class="card-title">延期设计 <span class="hint">ⓘ</span></div><div class="card-extra">更多 ›</div></div><div class="bar-chart-area"><div class="bar orange"><span>江西省</span></div></div></div>
+                                <div class="card"><div class="card-header"><div class="card-title">新增设计任务</div><div class="card-extra"><button class="btn primary sm">按品牌</button><button class="btn sm">按类型</button><button class="btn sm">按大区</button><button class="btn sm">按版本</button></div></div><div style="padding:0 16px;"><div style="font-size:26px;font-weight:800;margin:8px 0;">1190</div></div><div class="bar-chart-area"><div class="bar orange"><span>赵一鸣</span></div><div class="bar blue"><span>零食很忙</span></div></div></div>
+                            </div>
+                        </section>
+
+                        <!-- 分区时效统计看板（核心） -->
+                        <section id="regionDashboard" class="page-section active">
+                            <div class="dashboard-title-card">
+                                <div>
+                                    <div class="dashboard-title">📊 设计分区时效统计</div>
+                                    <div class="dashboard-subtitle">按大区统计设计师与第三方项目的24h/48h时效达成、平均时效与项目明细。<br><strong>时效比分母统一为「总项目数」，与PRD口径一致。大区支持多选筛选。</strong></div>
+                                <!-- </div>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                    <button class="btn" onclick="switchPage('homeOverview')">← 返回设计效能首页</button>
+                                    <button class="btn primary" onclick="switchPage('prdPage')">📋 查看 PRD</button> -->
+                                </div>
+                            </div>
+
+                            <!-- KPI卡片 -->
+                            <div class="metric-cards">
+                                <div class="metric-card"><div class="metric-name">📌 覆盖大区</div><div class="metric-value" id="kpiRegion">15</div><div class="metric-desc">当前筛选范围</div></div>
+                                <div class="metric-card"><div class="metric-name">🏪 总项目数</div><div class="metric-value" id="kpiTotalProjects">1404</div><div class="metric-desc">= 设计师项目 + 第三方项目</div></div>
+                                <div class="metric-card"><div class="metric-name">👨‍💼 设计师项目数</div><div class="metric-value" id="kpiDesigner">1043</div><div class="metric-desc">isThirdDrawing = 0</div></div>
+                                <div class="metric-card"><div class="metric-name">🤝 第三方项目数</div><div class="metric-value" id="kpiThird">361</div><div class="metric-desc">isThirdDrawing = 1</div></div>
+                                <div class="metric-card"><div class="metric-name">⚡ 综合48h时效比</div><div class="metric-value" id="kpiRate">88.11%</div><div class="metric-desc">48h内完成 / 总项目数</div></div>
+                                <div class="metric-card"><div class="metric-name">⏱ 综合平均时效</div><div class="metric-value" id="kpiAvg">28.1h</div><div class="metric-desc">剔除异常值(&lt;0.5h或&gt;120h)</div></div>
+                            </div>
+
+                            <!-- 筛选区（双日期范围 + 大区多选） -->
+                            <div class="card">
+                                <div class="card-header"><div class="card-title">🔍 筛选条件</div><div class="card-extra">默认最近30天 · 大区支持多选（Ctrl+点击）</div></div>
+                                <div class="filter-bar">
+                                    <div class="filter-item">
+                                        <span class="filter-label">设计任务创建时间</span>
+                                        <input type="date" id="createStartDate" />
+                                        <span class="filter-sep">至</span>
+                                        <input type="date" id="createEndDate" />
+                                    </div>
+                                    <div class="filter-item">
+                                        <span class="filter-label">快捷</span>
+                                        <button class="btn sm" onclick="setQuickRange(7)">最近7天</button>
+                                        <button class="btn sm" onclick="setQuickRange(30)">最近30天</button>
+                                        <button class="btn sm" onclick="setQuickRange(90)">最近90天</button>
+                                    </div>
+                                    <span class="divider"></span>
+                                    <div class="filter-item">
+                                        <span class="filter-label">指派设计师时间</span>
+                                        <input type="date" id="assignStartDate" placeholder="可选" />
+                                        <span class="filter-sep">至</span>
+                                        <input type="date" id="assignEndDate" placeholder="可选" />
+                                    </div>
+                                    <span class="divider"></span>
+                                    <div class="filter-item">
+                                        <span class="filter-label">大区（多选）</span>
+                                        <div class="region-multi-wrap">
+                                            <select id="regionSelect" multiple size="3" onchange="onRegionSelectChange()">
+                                                <option value="全部" selected>全部大区</option>
+                                                <option value="西北大区">西北大区</option>
+                                                <option value="东北华北大区">东北华北大区</option>
+                                                <option value="黑龙江大区">黑龙江大区</option>
+                                                <option value="项目3区(贵渝青)">项目3区(贵渝青)</option>
+                                                <option value="项目2区(湘赣)">项目2区(湘赣)</option>
+                                                <option value="项目1区(桂琼)">项目1区(桂琼)</option>
+                                                <option value="广东大区">广东大区</option>
+                                                <option value="安徽大区">安徽大区</option>
+                                                <option value="苏沪大区">苏沪大区</option>
+                                                <option value="湖北大区">湖北大区</option>
+                                                <option value="四川大区">四川大区</option>
+                                                <option value="河南大区">河南大区</option>
+                                                <option value="云南大区">云南大区</option>
+                                                <option value="福建大区">福建大区</option>
+                                                <option value="浙江大区">浙江大区</option>
+                                            </select>
+                                            <div class="region-tags" id="regionTags"></div>
+                                        </div>
+                                    </div>
+                                    <span class="divider"></span>
+                                    <div class="filter-item">
+                                        <span class="filter-label">是否第三方绘图</span>
+                                        <select id="thirdPartySelect">
+                                            <option value="全部">全部</option>
+                                            <option value="否">否（设计师）</option>
+                                            <option value="是">是（第三方）</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn primary" onclick="queryData()">🔍 查询</button>
+                                    <button class="btn" onclick="resetFilter()">↻ 重置</button>
+                                </div>
+                            </div>
+
+                            <!-- 主表 -->
+                            <div class="card">
+                                <div class="table-toolbar">
+                                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                        <button class="btn primary" onclick="exportSummary()">📥 导出汇总 Excel</button>
+                                        <button class="btn" onclick="openProjectDrawer('全部','全部项目明细','全部','全部')">📋 查看全部明细</button>
+                                    </div>
+                                    <div class="hint">💡 点击非合计行的蓝色指标单元格可下钻查看明细；合计行不可点击。大区支持多选。</div>
+                                </div>
+                                <div class="table-wrap">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="fixed-left" rowspan="2" style="min-width:90px;">大区</th>
+                                                <th rowspan="2" style="min-width:80px;">总项目数</th>
+                                                <th class="col-group-header" colspan="6">👨‍💼 设计师</th>
+                                                <th class="col-group-header" colspan="6">🤝 第三方</th>
+                                                <th rowspan="2" style="min-width:88px;">综合平均时效<br><small>(小时)</small></th>
+                                                <th class="fixed-right" rowspan="2" style="min-width:70px;">操作</th>
+                                            </tr>
+                                            <tr>
+                                                <th>设计师<br>项目数</th>
+                                                <th>24h<br>数量</th>
+                                                <th>24h<br>时效比</th>
+                                                <th>48h<br>数量</th>
+                                                <th>48h<br>时效比</th>
+                                                <th>设计师<br>平均时效</th>
+                                                <th>第三方<br>项目数</th>
+                                                <th>24h<br>数量</th>
+                                                <th>24h<br>时效比</th>
+                                                <th>48h<br>数量</th>
+                                                <th>48h<br>时效比</th>
+                                                <th>第三方<br>平均时效</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="summaryBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 占位页面 -->
+                        <section id="designList" class="page-section"><div class="card" style="padding:40px;"><h2>设计列表</h2><p class="hint">此处为原系统设计列表页面占位。</p></div></section>
+                        <section id="designEvaluation" class="page-section"><div class="card" style="padding:40px;"><h2>设计评价</h2><p class="hint">此处为原系统设计评价页面占位。</p></div></section>
+
+                        <!-- PRD文档页面 -->
+                        <section id="prdPage" class="page-section">
+                            <div class="dashboard-title-card">
+                                <div><div class="dashboard-title">📋 设计分区时效统计 PRD</div><div class="dashboard-subtitle">产品需求文档 / 指标口径 / 交互规则 / 验收标准 · V2.0 高级产品专家优化版</div></div>
+                                <button class="btn primary" onclick="switchPage('regionDashboard')">← 返回看板</button>
+                            </div>
+                            <article class="prd">
+                                <h1>设计分区时效统计 PRD 产品需求文档</h1>
+                                <p style="color:#86909c;">版本 V2.0 · 适用对象：设计管理、工程中心设计部、区域负责人、数据分析、产品、研发、测试</p>
+                                <table class="version-table">
+                                    <tr><th>版本</th><th>日期</th><th>修改人</th><th>修改内容</th></tr>
+                                    <tr><td>V1.0</td><td>2026-03-15</td><td>产品团队</td><td>初始版本</td></tr>
+                                    <tr><td>V1.1</td><td>2026-03-28</td><td>产品团队</td><td>增加双日期筛选、优化时效比分母口径</td></tr>
+                                    <tr><td>V1.2</td><td>2026-04-10</td><td>产品团队</td><td>增加第三方绘图维度、下钻规则完善</td></tr>
+                                    <tr><td>V2.0</td><td>2026-04-28</td><td>高级产品专家</td><td>大区列表更新为15个业务大区、支持多选筛选、新增第三方明细Tab、分页控件优化至底部、PRD全面完善</td></tr>
+                                </table>
+
+                                <h2>一、需求背景</h2>
+                                <p>当前工程设计中心需要在设计效能模块中，对不同大区的设计项目完成时效进行横向分析。原有页面无法快速区分大区、设计师、第三方在24h/48h内的交付表现，故新增「分区时效统计」看板。本版本(V2.0)根据业务反馈，将大区维度细化为15个业务运营大区，并支持多选交叉分析。</p>
+
+                                <h2>二、产品目标</h2>
+                                <table>
+                                    <tr><th>目标</th><th>说明</th><th>验收方式</th></tr>
+                                    <tr><td>统一指标口径</td><td>明确净耗时、24h/48h时效比（分母为总项目数）、平均时效、异常剔除等计算方式。</td><td>与数据团队核对SQL输出</td></tr>
+                                    <tr><td>提升区域对比效率</td><td>以15个业务大区为主维度展示设计师与第三方时效达成情况，支持多选。</td><td>UAT测试验证</td></tr>
+                                    <tr><td>支持问题追踪</td><td>指标单元格支持下钻至设计师明细、项目明细和第三方明细。</td><td>交互验收</td></tr>
+                                    <tr><td>支持灵活筛选</td><td>支持按设计任务创建时间、指派设计师时间、大区（多选）、是否第三方绘图等多维度筛选。</td><td>功能测试</td></tr>
+                                    <tr><td>第三方独立分析</td><td>新增第三方明细Tab，支持独立查看第三方项目的完整时效链路。</td><td>UAT测试验证</td></tr>
+                                </table>
+
+                                <h2>三、菜单位置</h2>
+                                <div class="prd-code">工程 → 设计中心 → 设计效能 → 分区时效统计</div>
+
+                                <h2>四、大区维度定义（V2.0更新）</h2>
+                                <p>本版本将大区维度细化为以下<strong>15个业务运营大区</strong>，与当前业务组织架构保持一致：</p>
+                                <table>
+                                    <tr><th>序号</th><th>大区名称</th><th>覆盖范围说明</th></tr>
+                                    <tr><td>1</td><td>西北大区</td><td>陕西、甘肃、宁夏、青海、新疆</td></tr>
+                                    <tr><td>2</td><td>东北华北大区</td><td>辽宁、吉林、北京、天津、河北、山西、内蒙古</td></tr>
+                                    <tr><td>3</td><td>黑龙江大区</td><td>黑龙江全境</td></tr>
+                                    <tr><td>4</td><td>项目3区(贵渝青)</td><td>贵州、重庆、青海业务区</td></tr>
+                                    <tr><td>5</td><td>项目2区(湘赣)</td><td>湖南、江西</td></tr>
+                                    <tr><td>6</td><td>项目1区(桂琼)</td><td>广西、海南</td></tr>
+                                    <tr><td>7</td><td>广东大区</td><td>广东全境</td></tr>
+                                    <tr><td>8</td><td>安徽大区</td><td>安徽全境</td></tr>
+                                    <tr><td>9</td><td>苏沪大区</td><td>江苏、上海</td></tr>
+                                    <tr><td>10</td><td>湖北大区</td><td>湖北全境</td></tr>
+                                    <tr><td>11</td><td>四川大区</td><td>四川、西藏</td></tr>
+                                    <tr><td>12</td><td>河南大区</td><td>河南全境</td></tr>
+                                    <tr><td>13</td><td>云南大区</td><td>云南全境</td></tr>
+                                    <tr><td>14</td><td>福建大区</td><td>福建全境</td></tr>
+                                    <tr><td>15</td><td>浙江大区</td><td>浙江全境</td></tr>
+                                </table>
+                                <div class="highlight-box">⚠️ 大区筛选支持<strong>多选</strong>（Ctrl+点击），默认选中"全部大区"。选择"全部大区"时将忽略其他选项；取消"全部大区"后可自由组合多个大区进行交叉分析。</div>
+
+                                <h2>五、核心业务口径</h2>
+                                <h3>5.1 完成时间</h3>
+                                <div class="prd-code">完成时间 = MAX(水电图上传完成时间, 平面图审核通过时间)</div>
+                                <h3>5.2 开始时间</h3>
+                                <div class="prd-code">开始时间 = 最近一次分配设计师时间（即指派设计师时间）</div>
+                                <h3>5.3 暂停时长</h3>
+                                <p>仅统计发生在<strong>开始时间至完成时间</strong>范围内的暂停记录交集。暂停记录需有明确的暂停开始和恢复时间戳。</p>
+                                <h3>5.4 净设计耗时</h3>
+                                <div class="prd-code">净设计耗时(小时) = (完成时间 - 开始时间 - 总暂停时长) / 3600000</div>
+                                <h3>5.5 异常剔除（仅用于平均时效）</h3>
+                                <div class="prd-code">有效项目：0.5h ≤ 净设计耗时 ≤ 120h</div>
+                                <p>超出此范围的项目在计算平均时效时剔除，但仍计入项目总数和时效比统计。</p>
+
+                                <h2>六、指标体系</h2>
+                                <table>
+                                    <tr><th>指标</th><th>定义</th><th>格式</th><th>下钻支持</th></tr>
+                                    <tr><td>总项目数</td><td>已完成水电图&平面图的项目总数</td><td>整数</td><td>项目明细</td></tr>
+                                    <tr><td>设计师数量</td><td>is_third_drawing = 0 的项目数</td><td>整数</td><td>设计师明细</td></tr>
+                                    <tr><td>24h时效比（设计师）</td><td>24h数量(设计师) / 总项目数 × 100%</td><td>百分比，两位小数</td><td>项目明细</td></tr>
+                                    <tr><td>48h时效比（设计师）</td><td>48h数量(设计师) / 总项目数 × 100%</td><td>百分比，两位小数</td><td>项目明细</td></tr>
+                                    <tr><td>第三方数量</td><td>is_third_drawing = 1 的项目数</td><td>整数</td><td>第三方明细</td></tr>
+                                    <tr><td>24h时效比（第三方）</td><td>24h数量(第三方) / 总项目数 × 100%</td><td>百分比，两位小数</td><td>第三方明细</td></tr>
+                                    <tr><td>48h时效比（第三方）</td><td>48h数量(第三方) / 总项目数 × 100%</td><td>百分比，两位小数</td><td>第三方明细</td></tr>
+                                    <tr><td>平均时效/h</td><td>有效项目净耗时平均值</td><td>小时，两位小数</td><td>项目明细</td></tr>
+                                </table>
+                                <div class="highlight-box">⚠️ 时效比分母统一为<strong>总项目数</strong>，而非各自的项目数。这意味着设计师24h时效比 = 设计师24h数量 / 总项目数 × 100%。</div>
+
+                                <h2>七、筛选条件</h2>
+                                <ul>
+                                    <li><strong>设计任务创建时间</strong>：日期范围，必选，默认最近30天。最大跨度不超过365天。</li>
+                                    <li><strong>指派设计师时间</strong>：日期范围，可选。若填写则需完整填写起止日期。</li>
+                                    <li><strong>大区</strong>：多选下拉，支持15个业务大区，默认全部。支持Ctrl+点击多选，选择"全部大区"时忽略其他选项。</li>
+                                    <li><strong>是否第三方绘图</strong>：全部/是/否。选择"是"时设计师列数据归零，选择"否"时第三方列数据归零。</li>
+                                </ul>
+
+                                <h2>八、明细字段</h2>
+                                <p><strong>项目明细</strong>包含：项目编号、门店名称、项目类型、设计师姓名、类型（设计师/第三方）、所属大区、设计任务创建时间、指派设计师时间、平面图上传时间、平面图审核时间、水电图上传时间、暂停时长(h)、净耗时(h)、状态（24h内/48h内/超时）、是否计入平均。</p>
+                                <p><strong>设计师明细</strong>包含：设计师姓名、所属大区、项目总数、24h完成数、24h时效比、48h完成数、48h时效比、平均耗时(h)。</p>
+                                <p><strong>第三方明细</strong>包含：项目编号、门店名称、项目类型、第三方公司名称、所属大区、设计任务创建时间、指派时间、平面图上传时间、平面图审核时间、水电图上传时间、暂停时长(h)、净耗时(h)、状态、是否计入平均。</p>
+
+                                <h2>九、下钻规则</h2>
+                                <table>
+                                    <tr><th>点击指标</th><th>带入条件</th><th>目标Tab</th></tr>
+                                    <tr><td>总项目数</td><td>全部完成项目</td><td>项目明细</td></tr>
+                                    <tr><td>设计师数量</td><td>is_third_drawing=0</td><td>设计师明细</td></tr>
+                                    <tr><td>24h/48h数量或时效比（设计师）</td><td>设计师 + 对应净耗时条件</td><td>项目明细</td></tr>
+                                    <tr><td>第三方数量</td><td>is_third_drawing=1</td><td>第三方明细</td></tr>
+                                    <tr><td>24h/48h数量或时效比（第三方）</td><td>第三方 + 对应净耗时条件</td><td>第三方明细</td></tr>
+                                    <tr><td>平均时效</td><td>有效项目（0.5~120h）</td><td>项目明细</td></tr>
+                                    <tr><td>综合平均时效</td><td>全部有效项目</td><td>项目明细</td></tr>
+                                </table>
+
+                                <h2>十、明细弹窗设计（V2.0更新）</h2>
+                                <h3>10.1 Tab结构</h3>
+                                <p>明细弹窗包含<strong>三个Tab</strong>：</p>
+                                <ul>
+                                    <li><strong>📋 项目明细</strong>：展示所有符合筛选条件的项目级数据。</li>
+                                    <li><strong>👨‍💼 设计师明细</strong>：展示设计师维度的聚合数据。</li>
+                                    <li><strong>🤝 第三方明细</strong>：展示第三方项目的完整明细数据。</li>
+                                </ul>
+                                <h3>10.2 分页控件</h3>
+                                <p>分页控件统一放置在<strong>列表底部</strong>（表格下方），包含：每页条数选择（20/50/100条）、总条数显示、上一页/下一页按钮、当前页码显示。顶部筛选区不再包含分页条数选择。</p>
+                                <h3>10.3 状态下拉</h3>
+                                <p>状态下拉在<strong>所有Tab下均可用</strong>。设计师明细中，状态基于设计师的平均时效判定：平均时效≤24h为"24h内"，≤48h为"48h内"，>48h为"超时"。</p>
+
+                                <h2>十一、数据权限</h2>
+                                <table>
+                                    <tr><th>角色</th><th>可见大区</th><th>可见明细</th></tr>
+                                    <tr><td>集团设计总监</td><td>全部15个大区</td><td>全部明细</td></tr>
+                                    <tr><td>大区设计负责人</td><td>所属大区及关联项目区</td><td>所属大区明细</td></tr>
+                                    <tr><td>设计师</td><td>仅个人相关项目</td><td>仅个人项目明细</td></tr>
+                                    <tr><td>第三方管理员</td><td>全部第三方项目</td><td>第三方明细</td></tr>
+                                </table>
+
+                                <h2>十二、异常处理</h2>
+                                <table>
+                                    <tr><th>场景</th><th>处理方式</th><th>用户提示</th></tr>
+                                    <tr><td>开始时间为空</td><td>不纳入时效指标统计</td><td>表中标注"开始时间缺失"</td></tr>
+                                    <tr><td>净耗时为负</td><td>不参与统计，标记异常</td><td>表中标注"数据异常"</td></tr>
+                                    <tr><td>日期范围超过1年</td><td>拦截查询请求</td><td>Toast提示"创建时间范围不能超过1年"</td></tr>
+                                    <tr><td>未来日期</td><td>拦截查询请求</td><td>Toast提示"不能选择未来日期"</td></tr>
+                                    <tr><td>无数据匹配</td><td>显示空状态</td><td>"暂无数据"</td></tr>
+                                    <tr><td>净耗时<0.5h或>120h</td><td>计入总量但不计入平均时效</td><td>"是否计入平均"列显示"否"</td></tr>
+                                </table>
+
+                                <h2>十三、非功能需求</h2>
+                                <table>
+                                    <tr><th>需求项</th><th>指标</th><th>说明</th></tr>
+                                    <tr><td>页面加载时间</td><td>≤2秒</td><td>首屏KPI卡片+汇总表渲染完成</td></tr>
+                                    <tr><td>明细查询响应</td><td>≤3秒</td><td>数据量≤10000条时</td></tr>
+                                    <tr><td>导出性能</td><td>≤10秒</td><td>导出≤50000条数据</td></tr>
+                                    <tr><td>并发支持</td><td>≥200用户</td><td>同时在线查询</td></tr>
+                                    <tr><td>浏览器兼容</td><td>Chrome 90+, Edge 90+, Safari 15+</td><td>优先支持Chrome</td></tr>
+                                </table>
+
+                                <h2>十四、验收标准</h2>
+                                <ol>
+                                    <li>总项目数 = 设计师数量 + 第三方数量，数值精确匹配。</li>
+                                    <li>时效比分母统一为总项目数，与数据团队SQL口径一致。</li>
+                                    <li>48h数量 ≥ 24h数量（48h包含24h内完成的项目）。</li>
+                                    <li>平均时效剔除异常值（&lt;0.5h或&gt;120h），剔除后不影响总量统计。</li>
+                                    <li>明细弹窗包含三个Tab：项目明细、设计师明细、第三方明细。</li>
+                                    <li>大区筛选支持多选，15个业务大区完整展示。</li>
+                                    <li>分页控件位于列表底部，含每页条数选择。</li>
+                                    <li>设计师明细状态下拉在所有Tab下均正常可用。</li>
+                                    <li>合计行不可下钻，点击无响应。</li>
+                                    <li>导出Excel包含所有当前筛选条件下的数据列。</li>
+                                    <li>日期范围超过365天时拦截并提示。</li>
+                                    <li>未来日期不可选择或拦截提示。</li>
+                                </ol>
+
+                                <h2>十五、附录：数据字典</h2>
+                                <table>
+                                    <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例</th></tr>
+                                    <tr><td>project_no</td><td>VARCHAR(32)</td><td>项目编号</td><td>PRJ-GD-0001</td></tr>
+                                    <tr><td>store_name</td><td>VARCHAR(128)</td><td>门店名称</td><td>广东大区示例门店1</td></tr>
+                                    <tr><td>project_type</td><td>VARCHAR(16)</td><td>项目类型（水电/平面）</td><td>水电</td></tr>
+                                    <tr><td>designer_name</td><td>VARCHAR(32)</td><td>设计师姓名</td><td>张晨</td></tr>
+                                    <tr><td>is_third_drawing</td><td>TINYINT</td><td>是否第三方绘图 0=否 1=是</td><td>0</td></tr>
+                                    <tr><td>region</td><td>VARCHAR(32)</td><td>所属大区</td><td>广东大区</td></tr>
+                                    <tr><td>create_time</td><td>DATETIME</td><td>设计任务创建时间</td><td>2026-04-15 09:00</td></tr>
+                                    <tr><td>assign_time</td><td>DATETIME</td><td>指派设计师时间</td><td>2026-04-15 14:00</td></tr>
+                                    <tr><td>plan_upload_time</td><td>DATETIME</td><td>平面图上传时间</td><td>2026-04-16 10:00</td></tr>
+                                    <tr><td>plan_approve_time</td><td>DATETIME</td><td>平面图审核通过时间</td><td>2026-04-16 15:00</td></tr>
+                                    <tr><td>water_upload_time</td><td>DATETIME</td><td>水电图上传完成时间</td><td>2026-04-17 11:00</td></tr>
+                                    <tr><td>pause_duration</td><td>DECIMAL(5,1)</td><td>暂停总时长（小时）</td><td>2.5</td></tr>
+                                    <tr><td>net_duration</td><td>DECIMAL(6,1)</td><td>净设计耗时（小时）</td><td>28.1</td></tr>
+                                </table>
+                            </article>
+                        </section>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 明细抽屉 -->
+    <div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+    <aside class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-title" id="drawerTitle">明细</div>
+            <button class="btn" onclick="closeDrawer()">✕ 关闭</button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-filter">
+                <div class="drawer-tabs">
+                    <button class="drawer-tab active" id="tabProject" onclick="changeDrawerType('project')">📋 项目明细</button>
+                    <button class="drawer-tab" id="tabDesigner" onclick="changeDrawerType('designer')">👨‍💼 设计师明细</button>
+                    <button class="drawer-tab" id="tabThirdParty" onclick="changeDrawerType('thirdParty')">🤝 第三方明细</button>
+                </div>
+                <input id="drawerSearch" placeholder="搜索项目编号 / 设计师姓名 / 门店名称" oninput="onDrawerSearch()" style="width:250px;" />
+                <select id="drawerStatus" onchange="onDrawerStatusChange()">
+                    <option value="全部">全部状态</option>
+                    <option value="24h内">24h内完成</option>
+                    <option value="48h内">48h内完成</option>
+                    <option value="超时">超48h</option>
+                </select>
+            </div>
+            <div class="drawer-table-wrap">
+                <table class="drawer-table">
+                    <thead id="drawerHead"></thead>
+                    <tbody id="drawerBody"></tbody>
+                </table>
+            </div>
+            <!-- 分页栏 - 移至底部 -->
+            <div class="drawer-pagination-bar">
+                <div class="drawer-pagination-left">
+                    <span>每页</span>
+                    <select id="drawerPageSize" onchange="changePageSize()">
+                        <option value="20">20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                    <span id="drawerTotalInfo">共 0 条</span>
+                </div>
+                <div class="drawer-pagination-right">
+                    <button class="page-btn" onclick="prevPage()" id="btnPrev">← 上一页</button>
+                    <span class="page-info-text" id="pageInfo">第 1 页</span>
+                    <button class="page-btn" onclick="nextPage()" id="btnNext">下一页 →</button>
+                </div>
+            </div>
+        </div>
+        <div class="drawer-footer">
+            <button class="btn" onclick="closeDrawer()">关闭</button>
+            <button class="btn primary" onclick="exportDetail()">📥 导出明细 Excel</button>
+        </div>
+    </aside>
+
+    <div class="toast" id="toast"></div>
+    <div class="loading" id="loading"><div class="spinner"></div>加载中...</div>
+
+    <script>
+        // ==================== 基础数据（15个业务大区） ====================
+        const baseSummary = [
+            { region: "西北大区", designerTotal: 62, designer24: 42, designer48: 55, designerAvg: 34.1,
+                thirdTotal: 28, third24: 15, third48: 22, thirdAvg: 39.4 },
+            { region: "东北华北大区", designerTotal: 95, designer24: 68, designer48: 84, designerAvg: 26.8,
+                thirdTotal: 40, third24: 24, third48: 33, thirdAvg: 33.5 },
+            { region: "黑龙江大区", designerTotal: 48, designer24: 30, designer48: 41, designerAvg: 31.2,
+                thirdTotal: 18, third24: 9, third48: 14, thirdAvg: 37.8 },
+            { region: "项目3区(贵渝青)", designerTotal: 55, designer24: 37, designer48: 48, designerAvg: 29.5,
+                thirdTotal: 22, third24: 13, third48: 18, thirdAvg: 34.6 },
+            { region: "项目2区(湘赣)", designerTotal: 78, designer24: 55, designer48: 69, designerAvg: 25.3,
+                thirdTotal: 32, third24: 19, third48: 26, thirdAvg: 30.2 },
+            { region: "项目1区(桂琼)", designerTotal: 52, designer24: 34, designer48: 45, designerAvg: 30.8,
+                thirdTotal: 20, third24: 11, third48: 16, thirdAvg: 35.1 },
+            { region: "广东大区", designerTotal: 112, designer24: 88, designer48: 102, designerAvg: 21.6,
+                thirdTotal: 46, third24: 32, third48: 40, thirdAvg: 28.9 },
+            { region: "安徽大区", designerTotal: 68, designer24: 48, designer48: 59, designerAvg: 27.4,
+                thirdTotal: 26, third24: 15, third48: 21, thirdAvg: 31.8 },
+            { region: "苏沪大区", designerTotal: 98, designer24: 78, designer48: 90, designerAvg: 22.8,
+                thirdTotal: 38, third24: 26, third48: 33, thirdAvg: 27.5 },
+            { region: "湖北大区", designerTotal: 72, designer24: 50, designer48: 63, designerAvg: 28.4,
+                thirdTotal: 28, third24: 16, third48: 23, thirdAvg: 33.2 },
+            { region: "四川大区", designerTotal: 85, designer24: 60, designer48: 75, designerAvg: 26.1,
+                thirdTotal: 34, third24: 20, third48: 28, thirdAvg: 30.5 },
+            { region: "河南大区", designerTotal: 76, designer24: 54, designer48: 67, designerAvg: 27.9,
+                thirdTotal: 30, third24: 17, third48: 24, thirdAvg: 32.0 },
+            { region: "云南大区", designerTotal: 44, designer24: 28, designer48: 37, designerAvg: 33.5,
+                thirdTotal: 16, third24: 8, third48: 12, thirdAvg: 38.2 },
+            { region: "福建大区", designerTotal: 66, designer24: 47, designer48: 58, designerAvg: 25.7,
+                thirdTotal: 25, third24: 14, third48: 20, thirdAvg: 29.8 },
+            { region: "浙江大区", designerTotal: 82, designer24: 63, designer48: 74, designerAvg: 23.9,
+                thirdTotal: 33, third24: 21, third48: 28, thirdAvg: 27.1 }
+        ];
+
+        const allRegions = baseSummary.map(r => r.region);
+
+        let currentSummary = [];
+        let drawerType = "project";
+        let drawerRegion = "";
+        let drawerMetric = "";
+        let drawerRows = [];
+        let currentPage = 1;
+        let drawerOwnerFilter = "全部";
+        let drawerStatusFilter = "全部";
+        let drawerSearchTimeout = null;
+
+        // ==================== 页面切换 ====================
+        function switchPage(id) {
+            document.querySelectorAll(".page-section").forEach(el => el.classList.remove("active"));
+            const target = document.getElementById(id);
+            if (target) target.classList.add("active");
+            const map = {
+                "regionDashboard": '工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> 设计效能 <span class="sep">/</span> <span>分区时效统计</span>',
+                "prdPage": '工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> 设计效能 <span class="sep">/</span> <span>PRD需求文档</span>',
+                "homeOverview": '工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> <span>设计效能首页</span>',
+                "designList": '工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> <span>设计列表</span>',
+                "designEvaluation": '工程 <span class="sep">/</span> 设计中心 <span class="sep">/</span> <span>设计评价</span>'
+            };
+            document.getElementById("breadcrumb").innerHTML = map[id] || '';
+        }
+
+        function pad(n) { return n < 10 ? "0" + n : n; }
+
+        function formatDate(date) { return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()); }
+
+        function setQuickRange(days) {
+            const end = new Date();
+            const start = new Date();
+            start.setDate(end.getDate() - days + 1);
+            document.getElementById("createStartDate").value = formatDate(start);
+            document.getElementById("createEndDate").value = formatDate(end);
+        }
+
+        function showLoading() { document.getElementById("loading").classList.add("show"); }
+
+        function hideLoading() { document.getElementById("loading").classList.remove("show"); }
+
+        function toast(msg) {
+            const el = document.getElementById("toast");
+            el.innerText = msg;
+            el.classList.remove("show");
+            void el.offsetWidth;
+            el.classList.add("show");
+            setTimeout(() => el.classList.remove("show"), 2000);
+        }
+
+        // ==================== 大区多选逻辑 ====================
+        function onRegionSelectChange() {
+            const sel = document.getElementById("regionSelect");
+            const selectedOptions = Array.from(sel.selectedOptions);
+            const hasAll = selectedOptions.some(o => o.value === "全部");
+
+            if (hasAll && selectedOptions.length > 1) {
+                // 如果选了"全部"又选了其他，保留"全部"并取消其他
+                const allOption = sel.querySelector('option[value="全部"]');
+                sel.querySelectorAll('option').forEach(o => {
+                    if (o.value !== "全部") o.selected = false;
+                });
+                allOption.selected = true;
+            } else if (!hasAll && selectedOptions.length === 0) {
+                // 如果什么都没选，默认选"全部"
+                sel.querySelector('option[value="全部"]').selected = true;
+            } else if (selectedOptions.some(o => o.value !== "全部") && selectedOptions.some(o => o.value === "全部")) {
+                // 确保状态一致
+                sel.querySelector('option[value="全部"]').selected = false;
+            }
+            updateRegionTags();
+        }
+
+        function updateRegionTags() {
+            const sel = document.getElementById("regionSelect");
+            const selectedOptions = Array.from(sel.selectedOptions);
+            const tagsContainer = document.getElementById("regionTags");
+            const hasAll = selectedOptions.some(o => o.value === "全部");
+
+            if (hasAll && selectedOptions.length === 1) {
+                tagsContainer.innerHTML = '<span class="region-tag-inline">全部大区</span>';
+            } else if (selectedOptions.length === allRegions.length) {
+                tagsContainer.innerHTML = '<span class="region-tag-inline">全部大区</span>';
+            } else if (selectedOptions.length === 0) {
+                tagsContainer.innerHTML = '<span class="region-tag-inline" style="color:#aeb5c0;">未选择</span>';
+            } else {
+                tagsContainer.innerHTML = selectedOptions.map(o =>
+                    '<span class="region-tag-inline">' + o.value +
+                    '<span class="remove-tag" onclick="removeRegionTag(\'' + o.value.replace(/'/g, "\\'") +
+                    '\')">×</span></span>'
+                ).join("");
+                if (selectedOptions.length > 3) {
+                    tagsContainer.innerHTML +=
+                        '<span class="region-tag-inline" style="background:#f0f2f5;color:#86909c;">+' + (selectedOptions
+                            .length - 3) + '个</span>';
+                    // 只显示前3个标签
+                    const allTags = tagsContainer.querySelectorAll('.region-tag-inline:not(:last-child)');
+                    allTags.forEach((tag, i) => {
+                        if (i >= 3) tag.style.display = 'none';
+                    });
+                }
+            }
+        }
+
+        function removeRegionTag(regionValue) {
+            const sel = document.getElementById("regionSelect");
+            const option = sel.querySelector('option[value="' + regionValue.replace(/'/g, "\\'") + '"]');
+            if (option) {
+                option.selected = false;
+                onRegionSelectChange();
+            }
+        }
+
+        function getSelectedRegions() {
+            const sel = document.getElementById("regionSelect");
+            const selectedOptions = Array.from(sel.selectedOptions);
+            const hasAll = selectedOptions.some(o => o.value === "全部");
+            if (hasAll || selectedOptions.length === 0) return allRegions;
+            return selectedOptions.map(o => o.value);
+        }
+
+        function validateDate() {
+            const cs = document.getElementById("createStartDate").value;
+            const ce = document.getElementById("createEndDate").value;
+            if (!cs || !ce) { toast("请选择设计任务创建时间范围");
+                return false; }
+            const cStart = new Date(cs);
+            const cEnd = new Date(ce);
+            const today = new Date(formatDate(new Date()));
+            if (cStart > cEnd) { toast("创建时间：开始日期不能晚于结束日期");
+                return false; }
+            if (cStart > today || cEnd > today) { toast("创建时间不能选择未来日期");
+                return false; }
+            if ((cEnd - cStart) / 86400000 + 1 > 365) { toast("创建时间范围不能超过1年");
+                return false; }
+
+            const as = document.getElementById("assignStartDate").value;
+            const ae = document.getElementById("assignEndDate").value;
+            if (as || ae) {
+                if (!as || !ae) { toast("请完整填写指派设计师时间范围");
+                    return false; }
+                const aStart = new Date(as);
+                const aEnd = new Date(ae);
+                if (aStart > aEnd) { toast("指派时间：开始日期不能晚于结束日期");
+                    return false; }
+                if (aStart > today || aEnd > today) { toast("指派时间不能选择未来日期");
+                    return false; }
+                if ((aEnd - aStart) / 86400000 + 1 > 365) { toast("指派时间范围不能超过1年");
+                    return false; }
+            }
+            return true;
+        }
+
+        function resetFilter() {
+            setQuickRange(30);
+            document.getElementById("assignStartDate").value = "";
+            document.getElementById("assignEndDate").value = "";
+            const sel = document.getElementById("regionSelect");
+            sel.querySelectorAll('option').forEach(o => o.selected = false);
+            sel.querySelector('option[value="全部"]').selected = true;
+            document.getElementById("thirdPartySelect").value = "全部";
+            updateRegionTags();
+            queryData();
+        }
+
+        function queryData() {
+            if (!validateDate()) return;
+            showLoading();
+            setTimeout(() => {
+                const selectedRegions = getSelectedRegions();
+                const thirdParty = document.getElementById("thirdPartySelect").value;
+                let filtered = baseSummary.filter(row => selectedRegions.includes(row.region));
+                if (thirdParty === "是") {
+                    filtered = filtered.map(row => ({ ...row, designerTotal: 0, designer24: 0, designer48: 0,
+                        designerAvg: 0 }));
+                } else if (thirdParty === "否") {
+                    filtered = filtered.map(row => ({ ...row, thirdTotal: 0, third24: 0, third48: 0, thirdAvg: 0 }));
+                }
+                currentSummary = filtered.map(row => ({ ...row }));
+                renderSummary();
+                renderKpi();
+                hideLoading();
+                toast("查询成功（演示数据 · " + selectedRegions.length + "个大区）");
+            }, 350);
+        }
+
+        function percentOfTotal(a, total) { return total ? ((a / total) * 100).toFixed(2) + "%" : "--"; }
+
+        function percentInternal(a, b) { return b ? ((a / b) * 100).toFixed(2) + "%" : "--"; }
+
+        function ratioTagClass(r) { if (r === "--") return "";
+            const n = parseFloat(r); return n >= 85 ? "green" : n >= 65 ? "orange" : "red"; }
+
+        function renderKpi() {
+            const t = calcTotal();
+            const all = t.designerTotal + t.thirdTotal;
+            document.getElementById("kpiRegion").innerText = currentSummary.filter(r => (r.designerTotal + r.thirdTotal) >
+                0).length;
+            document.getElementById("kpiTotalProjects").innerText = all;
+            document.getElementById("kpiDesigner").innerText = t.designerTotal;
+            document.getElementById("kpiThird").innerText = t.thirdTotal;
+            document.getElementById("kpiRate").innerText = percentOfTotal(t.designer48 + t.third48, all);
+            const avg = t.validCount ? (t.validSum / t.validCount).toFixed(1) + "h" : "--";
+            document.getElementById("kpiAvg").innerText = avg;
+        }
+
+        function calcTotal() {
+            return currentSummary.reduce((acc, row) => {
+                acc.designerTotal += row.designerTotal;
+                acc.designer24 += row.designer24;
+                acc.designer48 += row.designer48;
+                acc.thirdTotal += row.thirdTotal;
+                acc.third24 += row.third24;
+                acc.third48 += row.third48;
+                acc.validSum += row.designerAvg * row.designerTotal + row.thirdAvg * row.thirdTotal;
+                acc.validCount += row.designerTotal + row.thirdTotal;
+                return acc;
+            }, { designerTotal: 0, designer24: 0, designer48: 0, thirdTotal: 0, third24: 0, third48: 0, validSum: 0,
+                validCount: 0 });
+        }
+
+        function renderSummary() {
+            const tbody = document.getElementById("summaryBody");
+            tbody.innerHTML = "";
+            if (!currentSummary.length) { tbody.innerHTML = '<tr><td colspan="17" class="empty">暂无数据</td></tr>'; return; }
+            currentSummary.forEach(row => {
+                const total = row.designerTotal + row.thirdTotal;
+                const d24r = percentOfTotal(row.designer24, total);
+                const d48r = percentOfTotal(row.designer48, total);
+                const t24r = percentOfTotal(row.third24, total);
+                const t48r = percentOfTotal(row.third48, total);
+                const combined = total ? ((row.designerAvg * row.designerTotal + row.thirdAvg * row.thirdTotal) / total)
+                    .toFixed(1) + "h" : "--";
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                <td class="fixed-left"><strong>${row.region}</strong></td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','总项目数','全部','全部')">${total}</td>
+                <td class="clickable" onclick="openDesignerDrawer('${row.region}','设计师数量')">${row.designerTotal}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','设计师24h数量','设计师','24h内')">${row.designer24}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','设计师24h时效比','设计师','24h内')"><span class="tag ${ratioTagClass(d24r)}">${d24r}</span></td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','设计师48h数量','设计师','48h内')">${row.designer48}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','设计师48h时效比','设计师','48h内')"><span class="tag ${ratioTagClass(d48r)}">${d48r}</span></td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','设计师平均时效','设计师','全部')">${row.designerAvg.toFixed(1)}h</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方数量','第三方','全部')">${row.thirdTotal}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方24h数量','第三方','24h内')">${row.third24}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方24h时效比','第三方','24h内')"><span class="tag ${ratioTagClass(t24r)}">${t24r}</span></td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方48h数量','第三方','48h内')">${row.third48}</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方48h时效比','第三方','48h内')"><span class="tag ${ratioTagClass(t48r)}">${t48r}</span></td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','第三方平均时效','第三方','全部')">${row.thirdAvg.toFixed(1)}h</td>
+                <td class="clickable" onclick="openProjectDrawer('${row.region}','综合平均时效','全部','全部')">${combined}</td>
+                <td class="fixed-right"><button class="btn text sm" onclick="openProjectDrawer('${row.region}','所有项目明细','全部','全部')">查看明细</button></td>`;
+                tbody.appendChild(tr);
+            });
+            renderTotalRow(tbody);
+        }
+
+        function renderTotalRow(tbody) {
+            const t = calcTotal();
+            const all = t.designerTotal + t.thirdTotal;
+            const combined = t.validCount ? (t.validSum / t.validCount).toFixed(1) + "h" : "--";
+            const tr = document.createElement("tr");
+            tr.className = "total-row";
+            tr.innerHTML = `
+            <td class="fixed-left">筛选合计</td><td>${all}</td>
+            <td>${t.designerTotal}</td><td>${t.designer24}</td><td>${percentOfTotal(t.designer24,all)}</td><td>${t.designer48}</td><td>${percentOfTotal(t.designer48,all)}</td><td>--</td>
+            <td>${t.thirdTotal}</td><td>${t.third24}</td><td>${percentOfTotal(t.third24,all)}</td><td>${t.third48}</td><td>${percentOfTotal(t.third48,all)}</td><td>--</td>
+            <td>${combined}</td><td class="fixed-right">--</td>`;
+            tbody.appendChild(tr);
+        }
+
+        // ==================== 抽屉 ====================
+        function openDrawerBase(title) {
+            document.getElementById("drawerTitle").innerText = title;
+            document.getElementById("drawerMask").classList.add("show");
+            document.getElementById("drawer").classList.add("show");
+            document.getElementById("drawerSearch").value = "";
+            document.getElementById("drawerStatus").value = "全部";
+            document.getElementById("drawerStatus").disabled = false;
+            currentPage = 1;
+        }
+
+        function closeDrawer() {
+            document.getElementById("drawerMask").classList.remove("show");
+            document.getElementById("drawer").classList.remove("show");
+        }
+
+        function openDesignerDrawer(region, metric) {
+            drawerType = "designer";
+            drawerRegion = region;
+            drawerMetric = metric;
+            drawerOwnerFilter = "全部";
+            drawerStatusFilter = "全部";
+            openDrawerBase(region + " - " + metric + " 明细");
+            document.getElementById("drawerStatus").value = "全部";
+            document.getElementById("drawerStatus").disabled = false;
+            setDrawerTab();
+            generateDesignerRows(region);
+            renderDrawerTable();
+        }
+
+        function openProjectDrawer(region, metric, ownerType, status) {
+            drawerType = "project";
+            drawerRegion = region;
+            drawerMetric = metric;
+            drawerOwnerFilter = ownerType;
+            drawerStatusFilter = status;
+            openDrawerBase(region + " - " + metric + " 明细");
+            document.getElementById("drawerStatus").value = status;
+            document.getElementById("drawerStatus").disabled = false;
+            setDrawerTab();
+            generateProjectRows(region, ownerType);
+            renderDrawerTable();
+        }
+
+        function openThirdPartyDrawer(region, metric, status) {
+            drawerType = "thirdParty";
+            drawerRegion = region;
+            drawerMetric = metric;
+            drawerOwnerFilter = "第三方";
+            drawerStatusFilter = status || "全部";
+            openDrawerBase(region + " - " + metric + " 明细");
+            document.getElementById("drawerStatus").value = drawerStatusFilter;
+            document.getElementById("drawerStatus").disabled = false;
+            setDrawerTab();
+            generateThirdPartyRows(region);
+            renderDrawerTable();
+        }
+
+        function changeDrawerType(type) {
+            drawerType = type;
+            setDrawerTab();
+            document.getElementById("drawerStatus").disabled = false;
+            document.getElementById("drawerStatus").value = "全部";
+            drawerStatusFilter = "全部";
+            document.getElementById("drawerSearch").value = "";
+            currentPage = 1;
+            if (type === "designer") {
+                generateDesignerRows(drawerRegion || "全部");
+            } else if (type === "thirdParty") {
+                generateThirdPartyRows(drawerRegion || "全部");
+            } else {
+                generateProjectRows(drawerRegion || "全部", drawerOwnerFilter || "全部");
+            }
+            renderDrawerTable();
+        }
+
+        function setDrawerTab() {
+            document.getElementById("tabProject").classList.toggle("active", drawerType === "project");
+            document.getElementById("tabDesigner").classList.toggle("active", drawerType === "designer");
+            document.getElementById("tabThirdParty").classList.toggle("active", drawerType === "thirdParty");
+        }
+
+        function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function generateDesignerRows(region) {
+            const names = ["张晨", "李默", "王晴", "赵子昂", "陈一凡", "刘可", "孙悦", "周航", "吴迪", "郑楠", "侯翠兰", "尹哲睿", "郭超", "肖洁",
+            "张华"];
+            const regions = region === "全部" ? allRegions : [region];
+            drawerRows = names.map(name => ({
+                name,
+                region: randomFrom(regions),
+                total: 10 + Math.floor(Math.random() * 38),
+                h24: 0,
+                h48: 0,
+                avg: 0,
+                status: ""
+            })).map(row => {
+                row.h24 = Math.floor(row.total * (0.55 + Math.random() * 0.35));
+                row.h48 = Math.min(row.total, row.h24 + Math.floor(Math.random() * (row.total - row.h24 +
+                1)));
+                row.avg = parseFloat((16 + Math.random() * 26).toFixed(1));
+                row.h24Rate = percentInternal(row.h24, row.total);
+                row.h48Rate = percentInternal(row.h48, row.total);
+                row.status = row.avg <= 24 ? "24h内" : (row.avg <= 48 ? "48h内" : "超时");
+                return row;
+            });
+        }
+
+        function generateProjectRows(region, ownerType) {
+            const types = ["水电", "平面"];
+            const names = ["张晨", "李默", "王晴", "赵子昂", "陈一凡", "刘可", "孙悦", "周航", "吴迪", "郑楠"];
+            const ownerTypes = ownerType === "全部" ? ["设计师", "第三方"] : [ownerType];
+            const regions = region === "全部" ? allRegions : [region];
+            drawerRows = Array.from({ length: 90 }).map((_, i) => {
+                const r = randomFrom(regions);
+                const ot = randomFrom(ownerTypes);
+                const createDay = 1 + Math.floor(Math.random() * 18);
+                const createHour = 8 + Math.floor(Math.random() * 10);
+                const createTime = `2026-04-${pad(createDay)} ${pad(createHour)}:00`;
+                const assignDay = createDay + Math.floor(Math.random() * 2);
+                const assignHour = 8 + Math.floor(Math.random() * 10);
+                const assignTime = `2026-04-${pad(assignDay)} ${pad(assignHour%24)}:00`;
+                const planUpDay = assignDay + Math.floor(Math.random() * 1);
+                const planUpHour = assignHour + 1 + Math.floor(Math.random() * 4);
+                const planUpTime = `2026-04-${pad(planUpDay)} ${pad(planUpHour%24)}:00`;
+                const planApproveTime = `2026-04-${pad(planUpDay)} ${pad((planUpHour+1)%24)}:00`;
+                const waterUpTime = `2026-04-${pad(planUpDay)} ${pad((planUpHour+2)%24)}:00`;
+                const completeTime = waterUpTime;
+                const pause = Number((Math.random() * 5).toFixed(1));
+                const net = Number((Math.max(0, (new Date(completeTime) - new Date(assignTime)) / 3600000 -
+                    pause)).toFixed(1));
+                let status = net <= 24 ? "24h内" : (net <= 48 ? "48h内" : "超时");
+                const includeAvg = (net >= 0.5 && net <= 120) ? "是" : "否";
+                return {
+                    projectNo: "PRJ-" + r.substring(0, 2) + "-" + String(i + 1).padStart(4, "0"),
+                    projectType: randomFrom(types),
+                    designerName: ot === "第三方" ? "-" : randomFrom(names),
+                    ownerType: ot,
+                    region: r,
+                    storeName: r + "示例门店" + (i + 1),
+                    createTime,
+                    assignTime,
+                    planUpTime,
+                    planApproveTime,
+                    waterUpTime,
+                    pause,
+                    net,
+                    status,
+                    includeAvg
+                };
+            });
+        }
+
+        function generateThirdPartyRows(region) {
+            const types = ["水电", "平面"];
+            const thirdCompanies = ["第三方公司A", "第三方公司B", "第三方公司C", "第三方公司D"];
+            const regions = region === "全部" ? allRegions : [region];
+            drawerRows = Array.from({ length: 60 }).map((_, i) => {
+                const r = randomFrom(regions);
+                const createDay = 1 + Math.floor(Math.random() * 18);
+                const createHour = 8 + Math.floor(Math.random() * 10);
+                const createTime = `2026-04-${pad(createDay)} ${pad(createHour)}:00`;
+                const assignDay = createDay + Math.floor(Math.random() * 2);
+                const assignHour = 8 + Math.floor(Math.random() * 10);
+                const assignTime = `2026-04-${pad(assignDay)} ${pad(assignHour%24)}:00`;
+                const planUpDay = assignDay + Math.floor(Math.random() * 1);
+                const planUpHour = assignHour + 1 + Math.floor(Math.random() * 4);
+                const planUpTime = `2026-04-${pad(planUpDay)} ${pad(planUpHour%24)}:00`;
+                const planApproveTime = `2026-04-${pad(planUpDay)} ${pad((planUpHour+1)%24)}:00`;
+                const waterUpTime = `2026-04-${pad(planUpDay)} ${pad((planUpHour+2)%24)}:00`;
+                const completeTime = waterUpTime;
+                const pause = Number((Math.random() * 5).toFixed(1));
+                const net = Number((Math.max(0, (new Date(completeTime) - new Date(assignTime)) / 3600000 -
+                    pause)).toFixed(1));
+                let status = net <= 24 ? "24h内" : (net <= 48 ? "48h内" : "超时");
+                const includeAvg = (net >= 0.5 && net <= 120) ? "是" : "否";
+                return {
+                    projectNo: "PRJ-3RD-" + r.substring(0, 2) + "-" + String(i + 1).padStart(4, "0"),
+                    projectType: randomFrom(types),
+                    thirdCompany: randomFrom(thirdCompanies),
+                    ownerType: "第三方",
+                    region: r,
+                    storeName: r + "第三方门店" + (i + 1),
+                    createTime,
+                    assignTime,
+                    planUpTime,
+                    planApproveTime,
+                    waterUpTime,
+                    pause,
+                    net,
+                    status,
+                    includeAvg
+                };
+            });
+        }
+
+        function getFilteredDrawerRows() {
+            const keyword = document.getElementById("drawerSearch").value.trim();
+            const status = document.getElementById("drawerStatus").value;
+            return drawerRows.filter(row => {
+                let kw = true;
+                if (keyword) {
+                    if (drawerType === "designer") kw = row.name.includes(keyword) || row.region.includes(
+                        keyword);
+                    else if (drawerType === "thirdParty") kw = row.projectNo.includes(keyword) || row.storeName
+                        .includes(keyword) || (row.thirdCompany && row.thirdCompany.includes(keyword)) || row
+                        .region.includes(keyword);
+                    else kw = row.projectNo.includes(keyword) || row.designerName.includes(keyword) || row.storeName
+                        .includes(keyword);
+                }
+                let st = true;
+                if (status !== "全部") st = row.status === status;
+                return kw && st;
+            });
+        }
+
+        function renderDrawerTable() {
+            const thead = document.getElementById("drawerHead");
+            const tbody = document.getElementById("drawerBody");
+            const rows = getFilteredDrawerRows();
+            const pageSize = Number(document.getElementById("drawerPageSize").value);
+            const maxPage = Math.max(1, Math.ceil(rows.length / pageSize));
+            if (currentPage > maxPage) currentPage = maxPage;
+            const pageRows = rows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+            if (drawerType === "designer") {
+                thead.innerHTML =
+                    `<tr><th>设计师</th><th>大区</th><th>项目数</th><th>24h数</th><th>24h比</th><th>48h数</th><th>48h比</th><th>平均耗时</th><th>状态</th></tr>`;
+                tbody.innerHTML = pageRows.map(r =>
+                    `<tr><td><strong>${r.name}</strong></td><td>${r.region}</td><td>${r.total}</td><td>${r.h24}</td><td>${r.h24Rate}</td><td>${r.h48}</td><td>${r.h48Rate}</td><td>${r.avg}h</td><td><span class="tag ${r.status==='24h内'?'green':r.status==='48h内'?'orange':'red'}">${r.status}</span></td></tr>`
+                    ).join("");
+                if (!pageRows.length) tbody.innerHTML = '<tr><td colspan="9" class="empty">无数据</td></tr>';
+            } else if (drawerType === "thirdParty") {
+                thead.innerHTML = `<tr>
+                <th>项目编号</th><th>门店名称</th><th>项目类型</th><th>第三方公司</th><th>类型</th><th>大区</th>
+                <th>设计任务创建时间</th><th>指派时间</th><th>平面图上传时间</th><th>平面图审核时间</th><th>水电图上传时间</th>
+                <th>暂停(h)</th><th>净耗时(h)</th><th>状态</th><th>计入平均</th></tr>`;
+                tbody.innerHTML = pageRows.map(r => `<tr>
+                <td>${r.projectNo}</td><td>${r.storeName}</td><td>${r.projectType}</td><td>${r.thirdCompany||'-'}</td><td>${r.ownerType}</td><td>${r.region}</td>
+                <td>${r.createTime}</td><td>${r.assignTime}</td><td>${r.planUpTime}</td><td>${r.planApproveTime}</td><td>${r.waterUpTime}</td>
+                <td>${r.pause}</td><td>${r.net}</td>
+                <td><span class="tag ${r.status==='24h内'?'green':r.status==='48h内'?'orange':'red'}">${r.status}</span></td>
+                <td>${r.includeAvg}</td></tr>`).join("");
+                if (!pageRows.length) tbody.innerHTML = '<tr><td colspan="15" class="empty">无数据</td></tr>';
+            } else {
+                thead.innerHTML = `<tr>
+                <th>项目编号</th><th>门店名称</th><th>项目类型</th><th>设计师</th><th>类型</th><th>大区</th>
+                <th>设计任务创建时间</th><th>指派设计师时间</th><th>平面图上传时间</th><th>平面图审核时间</th><th>水电图上传时间</th>
+                <th>暂停(h)</th><th>净耗时(h)</th><th>状态</th><th>计入平均</th></tr>`;
+                tbody.innerHTML = pageRows.map(r => `<tr>
+                <td>${r.projectNo}</td><td>${r.storeName}</td><td>${r.projectType}</td><td>${r.designerName}</td><td>${r.ownerType}</td><td>${r.region}</td>
+                <td>${r.createTime}</td><td>${r.assignTime}</td><td>${r.planUpTime}</td><td>${r.planApproveTime}</td><td>${r.waterUpTime}</td>
+                <td>${r.pause}</td><td>${r.net}</td>
+                <td><span class="tag ${r.status==='24h内'?'green':r.status==='48h内'?'orange':'red'}">${r.status}</span></td>
+                <td>${r.includeAvg}</td></tr>`).join("");
+                if (!pageRows.length) tbody.innerHTML = '<tr><td colspan="15" class="empty">无数据</td></tr>';
+            }
+            document.getElementById("pageInfo").innerText = `第 ${currentPage}/${maxPage} 页`;
+            document.getElementById("drawerTotalInfo").innerText = `共 ${rows.length} 条`;
+            document.getElementById("btnPrev").disabled = currentPage <= 1;
+            document.getElementById("btnNext").disabled = currentPage >= maxPage;
+        }
+
+        function onDrawerSearch() {
+            if (drawerSearchTimeout) clearTimeout(drawerSearchTimeout);
+            drawerSearchTimeout = setTimeout(() => {
+                currentPage = 1;
+                renderDrawerTable();
+            }, 300);
+        }
+
+        function onDrawerStatusChange() {
+            drawerStatusFilter = document.getElementById("drawerStatus").value;
+            currentPage = 1;
+            renderDrawerTable();
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--;
+                renderDrawerTable(); } }
+
+        function nextPage() {
+            const rows = getFilteredDrawerRows();
+            const ps = Number(document.getElementById("drawerPageSize").value);
+            if (currentPage < Math.ceil(rows.length / ps)) { currentPage++;
+                renderDrawerTable(); }
+        }
+
+        function changePageSize() { currentPage = 1;
+            renderDrawerTable(); }
+
+        function exportSummary() {
+            if (!validateDate()) return;
+            showLoading();
+            setTimeout(() => { hideLoading();
+                toast("导出成功：设计分区时效统计.xlsx"); }, 600);
+        }
+
+        function exportDetail() {
+            showLoading();
+            setTimeout(() => { hideLoading();
+                toast("导出成功：" + drawerRegion + "_明细.xlsx"); }, 600);
+        }
+
+        document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+        // ==================== 初始化 ====================
+        setQuickRange(30);
+        updateRegionTags();
+        queryData();
+    </script>
+</body>
+</html>
