@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程系统 - 用户使用调查问卷收集报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+    </script>
+    <style>
+        :root {
+            --bg: #f5f6f8;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-secondary: #5a5a7a;
+            --border: #e8ecf1;
+            --accent: #4f6ef7;
+            --accent-light: #eef1fe;
+            --green: #10b981;
+            --green-light: #ecfdf5;
+            --orange: #f59e0b;
+            --orange-light: #fffbeb;
+            --red: #ef4444;
+            --red-light: #fef2f2;
+            --purple: #8b5cf6;
+            --purple-light: #f5f3ff;
+            --teal: #14b8a6;
+            --teal-light: #f0fdfa;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        .report-header {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+        }
+        .report-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.3px;
+        }
+        .report-header .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .report-header .subtitle span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f8f9fb;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #5a5a7a;
+        }
+        .report-header .subtitle .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-green {
+            background: var(--green);
+        }
+        .dot-blue {
+            background: var(--accent);
+        }
+        .dot-orange {
+            background: var(--orange);
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 500px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition);
+        }
+        .kpi-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .kpi-icon.blue {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+        .kpi-icon.green {
+            background: var(--green-light);
+            color: var(--green);
+        }
+        .kpi-icon.orange {
+            background: var(--orange-light);
+            color: var(--orange);
+        }
+        .kpi-icon.purple {
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1000px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .chart-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1a1a2e;
+            letter-spacing: -0.2px;
+        }
+        .chart-card .chart-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 300px;
+        }
+        .chart-wrapper.tall {
+            min-height: 380px;
+        }
+        .chart-wrapper.short {
+            min-height: 240px;
+        }
+        canvas {
+            width: 100% !important;
+            max-height: 420px;
+        }
+        .insight-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1000px) {
+            .insight-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        .insight-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .insight-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .insight-card .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.2px;
+        }
+        .badge-red {
+            background: var(--red-light);
+            color: #b91c1c;
+        }
+        .badge-orange {
+            background: var(--orange-light);
+            color: #92400e;
+        }
+        .badge-green {
+            background: var(--green-light);
+            color: #065f46;
+        }
+        .badge-blue {
+            background: var(--accent-light);
+            color: #3730a3;
+        }
+        .insight-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .insight-card ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13.5px;
+            color: #4a4a6a;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.5;
+        }
+        .insight-card ul li:last-child {
+            border-bottom: none;
+        }
+        .insight-card ul li .li-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .li-dot.red {
+            background: #ef4444;
+        }
+        .li-dot.orange {
+            background: #f59e0b;
+        }
+        .li-dot.blue {
+            background: #4f6ef7;
+        }
+        .li-dot.green {
+            background: #10b981;
+        }
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        .tag {
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            cursor: default;
+            transition: var(--transition);
+        }
+        .tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tag.lg {
+            font-size: 14px;
+            padding: 8px 18px;
+            font-weight: 600;
+        }
+        .tag.md {
+            font-size: 13px;
+            padding: 7px 15px;
+            font-weight: 500;
+        }
+        .tag.sm {
+            font-size: 11px;
+            padding: 5px 12px;
+        }
+        .tag-red {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .tag-orange {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .tag-blue {
+            background: #eef1fe;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+        .tag-green {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .tag-purple {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }
+        .tag-teal {
+            background: #f0fdfa;
+            color: #115e59;
+            border: 1px solid #99f6e4;
+        }
+        .quote-block {
+            background: #fafbfc;
+            border-left: 3px solid #d1d5db;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            color: #5a5a7a;
+            font-style: italic;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .quote-block strong {
+            color: #1a1a2e;
+            font-style: normal;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 12px;
+            letter-spacing: 0.2px;
+        }
+        .highlight-num {
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        @media print {
+            body {
+                background: #fff;
+            }
+            .chart-card,
+            .kpi-card,
+            .insight-card,
+            .report-header {
+                box-shadow: none;
+                border: 1px solid #e5e7eb;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ========== 报告头部 ========== -->
+        <div class="report-header">
+            <h1>📊 工程系统 - 用户使用调查问卷收集报告</h1>
+            <div class="subtitle">
+                <span><span class="dot dot-green"></span> 81份有效问卷</span>
+                <span><span class="dot dot-blue"></span> 4类用户角色</span>
+                <span><span class="dot dot-orange"></span> 数据采集：2026年4月23日 - 4月28日</span>
+                <span>📋 覆盖25个问题维度</span>
+            </div>
+        </div>
+
+        <!-- ========== KPI卡片 ========== -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon blue">👥</div>
+                <div>
+                    <div class="kpi-value">81</div>
+                    <div class="kpi-label">总受访人数</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon green">📈</div>
+                <div>
+                    <div class="kpi-value">3.7<span style="font-size:16px;font-weight:400;">/5</span></div>
+                    <div class="kpi-label">系统整体满意度均值</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon orange">⚠️</div>
+                <div>
+                    <div class="kpi-value">62<span style="font-size:14px;font-weight:400;">%</span></div>
+                    <div class="kpi-label">反映上传/卡顿问题占比</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon purple">💡</div>
+                <div>
+                    <div class="kpi-value">4</div>
+                    <div class="kpi-label">核心优化方向聚类</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 第一行图表：角色分布 + Q3满意度 ========== -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📌 调研角色分布</h3>
+                <p class="chart-desc">81名调研覆盖4类核心岗位，工程监理占比最高（53.1%）</p>
+                <div class="chart-wrapper short">
+                    <canvas id="chartRoleDist"></canvas>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:#5a5a7a;">
+                    <span>🔵 工程监理 43人</span><span>🟠 设计师 19人</span><span>🟢 成控专员 10人</span><span>🟣 工程督查 9人</span>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>⭐ Q3 系统满意度各维度评分（按角色）</h3>
+                <p class="chart-desc">1-5分制， </p>
+                <div class="chart-wrapper">
+                    <canvas id="chartQ3Satisfaction"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 第二行图表：Q5不便类型 + Q19系统价值 ========== -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📱 Q5 使用APP时遇到的不便类型</h3>
+                <p class="chart-desc">多选题统计（工程监理+设计师共62人作答）| 多项选择累计</p>
+                <div class="chart-wrapper">
+                    <canvas id="chartQ5Inconvenience"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🏗️ Q19 系统对"帮助监理把控项目现场"的价值评估</h3>
+                <p class="chart-desc">仅工程监理作答（43人）| 反映系统在施工现场的实际赋能程度</p>
+                <div class="chart-wrapper short">
+                    <canvas id="chartQ19Value"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 第三行图表：Q11设计卡点 + Q22/Q23价值对比 ========== -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>🎨 Q11 设计模块业务流程卡点</h3>
+                <p class="chart-desc">仅设计师作答（19人）| 多选题，反映设计端核心痛点</p>
+                <div class="chart-wrapper">
+                    <canvas id="chartQ11PainPoints"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🔍 Q22 & Q23 系统价值评估对比（设计 vs 督查）</h3>
+                <p class="chart-desc">设计师19人 + 工程督查9人 | 两极分化明显</p>
+                <div class="chart-wrapper short">
+                    <canvas id="chartQ22Q23Compare"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 第四行：待办提醒满意度 + 工期偏差 ========== -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>🔔 Q13 待办任务提醒方式满意度</h3>
+                <p class="chart-desc">仅工程监理作答（43人）| 企微通知 & App内待办的体验评价</p>
+                <div class="chart-wrapper short">
+                    <canvas id="chartQ13Reminder"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>📏 Q17 系统工期 vs 实际感知工期偏差</h3>
+                <p class="chart-desc">仅工程监理作答（43人）| 数据准确性的核心指标</p>
+                <div class="chart-wrapper short">
+                    <canvas id="chartQ17Deviation"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 洞察卡片 ========== -->
+        <div class="insight-section">
+            <div class="insight-card">
+                <h3>🔴 <span class="badge badge-red">核心痛点</span> 高频提及问题</h3>
+                <ul>
+                    <li><span class="li-dot red"></span><strong>系统卡顿/崩溃：</strong>多位监理反馈"系统卡顿严重""经常闪退""上传卡顿直接退出填写界面"，影响现场工作效率。</li>
+                    <li><span class="li-dot red"></span><strong>定位偏差：</strong>"定位老是要清后台重进才能更新""定位不准确"被反复提及，涉及勘场、巡检等核心场景。</li>
+                    <li><span class="li-dot red"></span><strong>上传体验差：</strong>照片方向异常、清晰度不足、大文件上传慢，62%的监理/设计师反映此问题。</li>
+                    <li><span class="li-dot orange"></span><strong>设计端字段冗余：</strong>设计师普遍认为"信息录入步骤繁琐""图纸截图无意义""需要重复上传"，增加大量额外工作量。</li>
+                    <li><span class="li-dot orange"></span><strong>时限不合理：</strong>节假日不计入时效、凌晨节点无法提前提醒、停工后仍计算工期等逻辑缺陷。</li>
+                </ul>
+            </div>
+            <div class="insight-card">
+                <h3>🟢 <span class="badge badge-green">正向反馈</span> 系统价值亮点</h3>
+                <ul>
+                    <li><span class="li-dot green"></span><strong>数据留底与可追溯：</strong>"数据留底更方便了""系统跟踪门店施工各环节，避免遗漏"，规范化管理获认可。</li>
+                    <li><span class="li-dot green"></span><strong>看板实用：</strong>"新增管理看板和待办看板特别实用""可以看得到各个节点动态"，可视化能力受好评。</li>
+                    <li><span class="li-dot green"></span><strong>成控岗位满意度高：</strong>成控专员整体满意度达4.2/5，认为"显著提升了预算与结算的管理规范性和可追溯性"。</li>
+                    <li><span class="li-dot green"></span><strong>督查模块体验良好：</strong>工程督查对系统评价较高，"工作更加便利了，效率很高""操作便捷、界面清晰"。</li>
+                    <li><span class="li-dot blue"></span><strong>节点提醒有价值：</strong>多数监理认可提醒机制，"能及时提醒节点通知"降低了遗漏风险。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ========== 优化建议聚类 ========== -->
+        <div class="chart-card full-width" style="margin-bottom:24px;">
+            <h3>💬 Q24 & Q25 优化建议关键词聚类</h3>
+            <p class="chart-desc">基于81份问卷的开放题回答，提取高频主题并按提及频次排列</p>
+            <div class="tag-cloud" style="margin-top:12px;">
+                <span class="tag lg tag-red">🔧 系统性能优化（卡顿/闪退）</span>
+                <span class="tag lg tag-orange">📋 简化上传流程/减少冗余字段</span>
+                <span class="tag lg tag-blue">🤖 智能识别数据（图纸/门店信息）</span>
+                <span class="tag lg tag-purple">🤝 第三方施工方协同端口</span>
+                <span class="tag md tag-red">📍 定位精度修复</span>
+                <span class="tag md tag-orange">⏰ 更智能的预警提醒</span>
+                <span class="tag md tag-blue">📊 更直观的数据看板</span>
+                <span class="tag md tag-green">📐 自动化工期计算</span>
+                <span class="tag sm tag-red">🖼️ 取消不必要截图上传</span>
+                <span class="tag sm tag-orange">📅 节假日时效自动扣除</span>
+                <span class="tag sm tag-blue">🔍 图纸跨门店查询权限</span>
+                <span class="tag sm tag-purple">📝 批量操作/批量选择</span>
+                <span class="tag sm tag-teal">🔄 监理暂停项目权限</span>
+                <span class="tag sm tag-green">📲 企微内直接处理通知</span>
+                <span class="tag sm tag-red">🗺️ 自动规划最优巡检路线</span>
+                <span class="tag sm tag-orange">📈 自动生成周报月报</span>
+                <span class="tag sm tag-blue">🕐 48h传图自动提醒</span>
+                <span class="tag sm tag-purple">🏷️ 门店状态外显优化</span>
+            </div>
+        </div>
+
+        <!-- ========== 典型用户声音 ========== -->
+        <div class="chart-card full-width" style="margin-bottom:24px;">
+            <h3>🗣️ 典型用户声音摘录</h3>
+            <p class="chart-desc">从开放题中选取具有代表性的真实反馈，反映不同角色的核心诉求</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:12px;">
+                <div class="quote-block">
+                    <strong>🔴 设计师·文明岳：</strong>"这个系统数据的填写占用了我比较多的时间，增加了工作负担……传了太多图纸，负担太重。所谓的数字化都是底层员工用最蠢的方法堆出来的，没有提升任何效率，反而增加了无尽的工作量。"
+                </div>
+                <div class="quote-block">
+                    <strong>🟡 工程监理·宋扬：</strong>"打开软件不能一眼看到我在施工的门店和即将完工的门店。门店勘场信息不明确，要知道是否已预约需要点进去才能看到，外部状态都是'勘场中'难以区分。"
+                </div>
+                <div class="quote-block">
+                    <strong>🟢 工程督查·姜慧雯：</strong>"数据留底更方便了，操作也更便捷了，提出想要的功能后各位大佬都有用心在听在开发，爱你们❤️ —— 投诉系统的协作工单！每个人都给我重视起来啊！"
+                </div>
+                <div class="quote-block">
+                    <strong>🔵 工程监理·林豪：</strong>"系统重复项太多，不够简洁明了，环节流转复杂，不能明确到个人系统任务和关联系统。现场监理做什么工作，流程节点就上传什么工作内容，优化工作标准和系统同步。"
+                </div>
+                <div class="quote-block">
+                    <strong>🟣 设计师·韩琪：</strong>"针对公休日系统项目依旧计时，希望能结合个人考勤排班减去公休日计算时间。希望系统能开发电脑版APP，直接点开就能上传文件，避免不同浏览器带来的BUG。"
+                </div>
+                <div class="quote-block">
+                    <strong>🟠 工程监理·贾凯超：</strong>"希望系统根据门店位置与时间节点，自动规划最优路线生成每日任务栏，人员按任务栏到店验收、巡查或看场。"
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 结论与建议 ========== -->
+        <div class="chart-card full-width" style="margin-bottom:24px;border-left:4px solid var(--accent);">
+            <h3>📋 核心结论与产品优化建议</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:12px;">
+                <div style="background:#fef2f2;border-radius:8px;padding:16px;">
+                    <strong style="color:#b91c1c;">🔴 紧急优化（P0）</strong>
+                    <ul style="font-size:13px;color:#4a4a6a;padding-left:18px;margin-top:8px;line-height:1.8;">
+                        <li>修复系统卡顿/闪退/上传失败等稳定性问题</li>
+                        <li>修复定位偏差，支持调用原生相机+实时定位</li>
+                        <li>优化照片上传体验（方向、清晰度、速度）</li>
+                        <li>设计端大幅简化信息录入字段，减少截图要求</li>
+                    </ul>
+                </div>
+                <div style="background:#fffbeb;border-radius:8px;padding:16px;">
+                    <strong style="color:#92400e;">🟡 重点改进（P1）</strong>
+                    <ul style="font-size:13px;color:#4a4a6a;padding-left:18px;margin-top:8px;line-height:1.8;">
+                        <li>待办提醒增强：48h传图自动提醒、超期弹窗预警</li>
+                        <li>时限逻辑优化：接入考勤系统，节假日/公休日自动扣除</li>
+                        <li>门店状态外显优化：区分"未交铺""已预约""勘场中"等</li>
+                        <li>图纸查询权限放开，支持跨门店检索与下载</li>
+                    </ul>
+                </div>
+                <div style="background:#eef1fe;border-radius:8px;padding:16px;">
+                    <strong style="color:#3730a3;">🔵 战略方向（P2）</strong>
+                    <ul style="font-size:13px;color:#4a4a6a;padding-left:18px;margin-top:8px;line-height:1.8;">
+                        <li>第三方施工方协同端口上线（最高呼声新功能）</li>
+                        <li>智能识别：图纸信息自动提取、门店数据自动填充</li>
+                        <li>自动化工期计算与智能预警</li>
+                        <li>数据看板增强：自动生成周报/月报、按日期排序</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            📊 数据采集周期：2026年4月23日-28日
+        </footer>
+    </div>
+
+    <!-- ==================== Chart.js 图表脚本 ==================== -->
+    <script>
+        // 通用颜色
+        const colors = {
+            blue: '#4f6ef7',
+            blueAlpha: 'rgba(79,110,247,0.7)',
+            blueLight: 'rgba(79,110,247,0.15)',
+            green: '#10b981',
+            greenAlpha: 'rgba(16,185,129,0.7)',
+            greenLight: 'rgba(16,185,129,0.15)',
+            orange: '#f59e0b',
+            orangeAlpha: 'rgba(245,158,11,0.7)',
+            orangeLight: 'rgba(245,158,11,0.15)',
+            red: '#ef4444',
+            redAlpha: 'rgba(239,68,68,0.7)',
+            redLight: 'rgba(239,68,68,0.15)',
+            purple: '#8b5cf6',
+            purpleAlpha: 'rgba(139,92,246,0.7)',
+            purpleLight: 'rgba(139,92,246,0.15)',
+            teal: '#14b8a6',
+            tealAlpha: 'rgba(20,184,166,0.7)',
+            gray: '#6b7280',
+            grayLight: 'rgba(107,114,128,0.15)',
+        };
+
+        // 通用options
+        const defaultOptions = (isHorizontal = false) => ({
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyleWidth: 8,
+                        font: { size: 12, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                        color: '#5a5a7a',
+                    },
+                },
+            },
+            scales: isHorizontal ? {} : {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 11 }, color: '#6b7280' },
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#6b7280' },
+                },
+            },
+        });
+
+        // ========== 1. 角色分布饼图 ==========
+        new Chart(document.getElementById('chartRoleDist'), {
+            type: 'doughnut',
+            data: {
+                labels: ['工程监理', '设计师', '成控专员', '工程督查'],
+                datasets: [{
+                    data: [43, 19, 10, 9],
+                    backgroundColor: [colors.blue, colors.orange, colors.green, colors.purple],
+                    borderColor: '#fff',
+                    borderWidth: 3,
+                    hoverBorderWidth: 4,
+                    hoverBorderColor: '#fff',
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 18,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 13, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: `${label}  (${data.datasets[0].data[i]}人, ${Math.round(data.datasets[0].data[i]/81*100)}%)`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    strokeStyle: '#fff',
+                                    lineWidth: 2,
+                                    hidden: false,
+                                    index: i,
+                                    pointStyle: 'circle',
+                                    pointStyleWidth: 10,
+                                }));
+                            },
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = Math.round(ctx.raw / total * 100);
+                                return ` ${ctx.label}: ${ctx.raw}人 (${pct}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // ========== 2. Q3 满意度分组柱状图 ==========
+        new Chart(document.getElementById('chartQ3Satisfaction'), {
+            type: 'bar',
+            data: {
+                labels: ['操作便捷性', '界面易用性', '响应速度/稳定性', '功能完整性', '数据查询与统计'],
+                datasets: [{
+                    label: '工程监理 (43人)',
+                    data: [3.9, 3.9, 3.5, 3.8, 3.8],
+                    backgroundColor: colors.blueLight,
+                    borderColor: colors.blue,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, {
+                    label: '设计师 (19人)',
+                    data: [3.0, 3.1, 2.7, 2.8, 2.7],
+                    backgroundColor: colors.orangeLight,
+                    borderColor: colors.orange,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, {
+                    label: '成控专员 (10人)',
+                    data: [4.2, 4.3, 3.8, 4.2, 4.1],
+                    backgroundColor: colors.greenLight,
+                    borderColor: colors.green,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, {
+                    label: '工程督查 (9人)',
+                    data: [4.1, 4.1, 3.9, 4.3, 4.0],
+                    backgroundColor: colors.purpleLight,
+                    borderColor: colors.purple,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyleWidth: 8,
+                            font: { size: 11, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                        },
+                    },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}分` } },
+                },
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        ticks: { stepSize: 0.5, font: { size: 11 }, color: '#6b7280', callback: v => v + '分' },
+                        grid: { color: '#f3f4f6' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10.5 }, color: '#6b7280', maxRotation: 30 },
+                    },
+                },
+            },
+        });
+
+        // ========== 3. Q5 不便类型柱状图 ==========
+        new Chart(document.getElementById('chartQ5Inconvenience'), {
+            type: 'bar',
+            data: {
+                labels: ['拍照上传体验差\n(方向异常/清晰度不足)', '照片/视频上传\n速度慢', '未遇到明显不便\n/未使用App', '问题记录字段\n冗余重复录入'],
+                datasets: [{
+                    label: '提及人次',
+                    data: [28, 25, 18, 10],
+                    backgroundColor: [colors.redAlpha, colors.orangeAlpha, colors.greenAlpha, colors
+                        .purpleAlpha
+                    ],
+                    borderColor: [colors.red, colors.orange, colors.green, colors.purple],
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'x',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.raw}人次提及` } },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 35,
+                        ticks: { stepSize: 5, font: { size: 11 }, color: '#6b7280' },
+                        grid: { color: '#f3f4f6' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, color: '#6b7280', maxRotation: 20 },
+                    },
+                },
+            },
+        });
+
+        // ========== 4. Q19 系统价值饼图 ==========
+        new Chart(document.getElementById('chartQ19Value'), {
+            type: 'pie',
+            data: {
+                labels: ['有一定价值，部分环节需线下沟通', '价值很高，显著提升效率', '价值有限，多依赖传统方式', '几乎没有价值，增加工作量'],
+                datasets: [{
+                    data: [18, 12, 10, 3],
+                    backgroundColor: [colors.blueAlpha, colors.greenAlpha, colors.orangeAlpha,
+                        colors.redAlpha
+                    ],
+                    borderColor: [colors.blue, colors.green, colors.orange, colors.red],
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 14,
+                            usePointStyle: true,
+                            pointStyleWidth: 8,
+                            font: { size: 10.5, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                        },
+                    },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}人` } },
+                },
+            },
+        });
+
+        // ========== 5. Q11 设计卡点柱状图 ==========
+        new Chart(document.getElementById('chartQ11PainPoints'), {
+            type: 'bar',
+            data: {
+                labels: ['设计信息录入\n步骤繁琐字段冗余', '没有待办提醒\n易遗漏48h上传', '协同查看图纸\n困难', '设计任务创建\n/分配不及时', '没有任何\n流程卡点'],
+                datasets: [{
+                    label: '提及人次',
+                    data: [15, 11, 8, 3, 2],
+                    backgroundColor: [colors.redAlpha, colors.orangeAlpha, colors.purpleAlpha,
+                        colors.blueLight, colors.greenLight
+                    ],
+                    borderColor: [colors.red, colors.orange, colors.purple, colors.blue, colors.green],
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.raw}人次提及 (共19名设计师)` } },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 18,
+                        ticks: { stepSize: 3, font: { size: 11 }, color: '#6b7280' },
+                        grid: { color: '#f3f4f6' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, color: '#6b7280', maxRotation: 20 },
+                    },
+                },
+            },
+        });
+
+        // ========== 6. Q22/Q23 价值对比 ==========
+        new Chart(document.getElementById('chartQ22Q23Compare'), {
+            type: 'bar',
+            data: {
+                labels: ['价值很高\n显著提升效率', '有一定价值\n部分需线下核对', '价值有限\n多依赖传统方式', '几乎没有价值\n增加工作量'],
+                datasets: [{
+                    label: '工程设计价值 (Q22·设计师19人)',
+                    data: [1, 6, 9, 3],
+                    backgroundColor: colors.orangeLight,
+                    borderColor: colors.orange,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, {
+                    label: '工程督查价值 (Q23·督查9人)',
+                    data: [3, 5, 1, 0],
+                    backgroundColor: colors.purpleLight,
+                    borderColor: colors.purple,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }, ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 14,
+                            usePointStyle: true,
+                            pointStyleWidth: 8,
+                            font: { size: 11, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                        },
+                    },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}人` } },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 12,
+                        ticks: { stepSize: 2, font: { size: 11 }, color: '#6b7280' },
+                        grid: { color: '#f3f4f6' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, color: '#6b7280', maxRotation: 15 },
+                    },
+                },
+            },
+        });
+
+        // ========== 7. Q13 待办提醒满意度 ==========
+        new Chart(document.getElementById('chartQ13Reminder'), {
+            type: 'doughnut',
+            data: {
+                labels: ['比较满意基本能收到', '非常满意提醒及时不打扰', '一般有时收不到或过多', '不满意经常错过', '非常不满意几乎无效'],
+                datasets: [{
+                    data: [17, 12, 9, 4, 1],
+                    backgroundColor: [colors.blueAlpha, colors.greenAlpha, colors.orangeAlpha,
+                        colors.redAlpha, '#9ca3af'
+                    ],
+                    borderColor: [colors.blue, colors.green, colors.orange, colors.red, '#6b7280'],
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '55%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 12,
+                            usePointStyle: true,
+                            pointStyleWidth: 7,
+                            font: { size: 10, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                        },
+                    },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}人` } },
+                },
+            },
+        });
+
+        // ========== 8. Q17 工期偏差 ==========
+        new Chart(document.getElementById('chartQ17Deviation'), {
+            type: 'doughnut',
+            data: {
+                labels: ['基本一致无偏差', '有轻微偏差不影响工作', '偏差较大需人工解释调整'],
+                datasets: [{
+                    data: [18, 16, 9],
+                    backgroundColor: [colors.greenAlpha, colors.blueAlpha, colors.redAlpha],
+                    borderColor: [colors.green, colors.blue, colors.red],
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '55%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 14,
+                            usePointStyle: true,
+                            pointStyleWidth: 8,
+                            font: { size: 11, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                            color: '#5a5a7a',
+                        },
+                    },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}人` } },
+                },
+            },
+        });
+    </script>
+</body>
+</html>
