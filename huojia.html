@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>门店货架tab - 尺寸自定义编辑 </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef2f5;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 32px 24px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            padding: 24px 28px 32px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #1f5068;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 small {
+            font-size: 13px;
+            font-weight: normal;
+            background: #e9f0f5;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #2c7da0;
+        }
+
+        .desc-note {
+            background: #fef7e0;
+            border-left: 4px solid #f4b942;
+            padding: 12px 18px;
+            border-radius: 14px;
+            margin: 16px 0 24px;
+            font-size: 13px;
+            color: #7a5c1a;
+        }
+
+        .shelf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .shelf-table th,
+        .shelf-table td {
+            border: 1px solid #d9e2e9;
+            padding: 12px 10px;
+            text-align: left;
+            vertical-align: middle;
+            background-color: white;
+        }
+
+        .shelf-table th {
+            background-color: #eef4f8;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .shelf-table td {
+            white-space: nowrap;
+        }
+
+        input, select {
+            border: 1px solid #cbdae3;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            font-family: inherit;
+            width: 100%;
+            transition: 0.2s;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 2px rgba(44,125,160,0.2);
+        }
+
+        .dimension-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+        .dimension-group input {
+            width: 70px;
+            text-align: center;
+        }
+        .dimension-group span {
+            font-size: 12px;
+            color: #4a6a7f;
+        }
+        .preset-select {
+            width: 130px;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .custom-badge {
+            font-size: 11px;
+            background: #f0f2f5;
+            padding: 2px 6px;
+            border-radius: 20px;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        button {
+            background: #f0f4f7;
+            border: 1px solid #cbdae3;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.primary {
+            background: #2c7da0;
+            border-color: #2c7da0;
+            color: white;
+        }
+        button.primary:hover {
+            background: #1f5e7a;
+        }
+        button:hover {
+            background: #e2e9ef;
+        }
+        .footer-bar {
+            margin-top: 28px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #e2eaf0;
+            padding-top: 24px;
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2e3a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .replace-link {
+            color: #2c7da0;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-left: 8px;
+        }
+        .inline-tip {
+            font-size: 11px;
+            color: #6f8faa;
+            margin-top: 4px;
+        }
+        td[data-field="dimension"] {
+            min-width: 280px;
+        }
+        .qty-input {
+            width: 70px;
+        }
+        .crate-check {
+            width: 90px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🏪 门店货架 <small></small></h2>
+    <div class="desc-note">
+        ✅ 尺寸支持从商品档案预设下拉选择，也可直接修改长/宽/高数值。<br>
+        🔁 手动修改任一尺寸后，下拉框自动变为“自定义尺寸”，<strong>配货框/货框个数/层数</strong> 保留原值（可继续手动调整）。<br>
+        💾 点击“保存”仅更新当前门店货架实例，<strong class="highlight">不写回商品档案尺寸子表</strong>。
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="shelf-table" id="shelfTable">
+            <thead>
+                <tr><th>序号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>尺寸（mm）<br><span style="font-weight:normal;">长 × 宽 × 高</span></th><th>是否配货框</th><th>货框(个)</th><th>层数</th><th>单位</th><th>商品分类</th><th>操作</th></tr>
+            </thead>
+            <tbody id="shelfTbody">
+                <!-- 动态渲染门店货架实例数据 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-bar">
+        <button id="addShelfBtn">+ 添加货架</button>
+        <button id="saveBtn" class="primary">💾 保存</button>
+    </div>
+</div>
+<div id="toastMsg" class="toast-msg"></div>
+
+<script>
+    // ---------- 模拟商品档案尺寸子表（预设数据）----------
+    // 每个商品编码对应的尺寸列表（从档案尺寸子表获取）
+    const productPresetDimensions = {
+        "HJ0001": {
+            productName: "日式背板货架",
+            category: "货架/标准货架/定量",
+            unit: "组",
+            dimensions: [
+                { id: "dim1", length: 1200, width: 450, height: 1800, hasCrate: 1, crateQty: 2, layers: 5 },
+                { id: "dim2", length: 1500, width: 500, height: 2000, hasCrate: 1, crateQty: 3, layers: 5 },
+                { id: "dim3", length: 1800, width: 600, height: 2200, hasCrate: 0, crateQty: 0, layers: 4 }
+            ]
+        },
+        "HJ0002": {
+            productName: "挂钩货架（散称）",
+            category: "货架/标准货架/散称",
+            unit: "组",
+            dimensions: [
+                { id: "dim1", length: 1000, width: 400, height: 1600, hasCrate: 0, crateQty: 0, layers: 4 },
+                { id: "dim2", length: 1200, width: 450, height: 1800, hasCrate: 1, crateQty: 2, layers: 5 }
+            ]
+        },
+        "HJ0003": {
+            productName: "挂钩货架（散称）",
+            category: "货架/标准货架/散称",
+            unit: "组",
+            dimensions: [
+                { id: "dim1", length: 900, width: 400, height: 1500, hasCrate: 0, crateQty: 0, layers: 3 },
+                { id: "dim2", length: 1200, width: 450, height: 1800, hasCrate: 1, crateQty: 2, layers: 5 }
+            ]
+        }
+    };
+
+    // 通用默认尺寸（用于新增手动添加的模拟）
+    const defaultDimension = { length: 1000, width: 500, height: 1800, hasCrate: 1, crateQty: 2, layers: 4 };
+
+    // ---------- 门店实例数据（只存储实际值，不关联档案修改）----------
+    // 每个实例包含: productCode, productName, category, unit, quantity,
+    // lengthActual, widthActual, heightActual, isCustomDim (是否自定义尺寸),
+    // selectedPresetId (当前选中的预设id，若非自定义则有值), hasCrateActual, crateQtyActual, layersActual
+    let shelfInstances = [
+        {
+            id: "inst1",
+            productCode: "HJ0001",
+            productName: "日式背板货架",
+            category: "货架/标准货架/定量",
+            unit: "组",
+            quantity: 2,
+            lengthActual: 1200,
+            widthActual: 450,
+            heightActual: 1800,
+            isCustomDim: false,
+            selectedPresetId: "dim1",    // 对应预设id
+            hasCrateActual: 1,
+            crateQtyActual: 2,
+            layersActual: 5
+        },
+        {
+            id: "inst2",
+            productCode: "HJ0002",
+            productName: "挂钩货架（散称）",
+            category: "货架/标准货架/散称",
+            unit: "组",
+            quantity: 1,
+            lengthActual: 1000,
+            widthActual: 400,
+            heightActual: 1600,
+            isCustomDim: false,
+            selectedPresetId: "dim1",
+            hasCrateActual: 0,
+            crateQtyActual: 0,
+            layersActual: 4
+        }
+    ];
+
+    // 辅助函数：获取商品档案尺寸列表
+    function getPresetDimensions(productCode) {
+        return productPresetDimensions[productCode]?.dimensions || [];
+    }
+
+    // 根据预设id获取尺寸详情
+    function getPresetById(productCode, presetId) {
+        const dims = getPresetDimensions(productCode);
+        return dims.find(d => d.id === presetId) || null;
+    }
+
+    // 查找当前长宽高是否匹配某个预设（忽略预设id，比较数值）
+    function findMatchingPreset(productCode, lengthVal, widthVal, heightVal) {
+        const dims = getPresetDimensions(productCode);
+        return dims.find(d => d.length === lengthVal && d.width === widthVal && d.height === heightVal) || null;
+    }
+
+    // 刷新整个表格（基于shelfInstances渲染）
+    function renderTable() {
+        const tbody = document.getElementById('shelfTbody');
+        tbody.innerHTML = '';
+        shelfInstances.forEach((inst, idx) => {
+            const row = tbody.insertRow();
+            // 序号
+            const cellSeq = row.insertCell(0);
+            cellSeq.innerText = idx + 1;
+            // 商品编码
+            const cellCode = row.insertCell(1);
+            cellCode.innerText = inst.productCode;
+            // 商品名称 + 更换按钮（模拟更换商品功能简单弹窗）
+            const cellName = row.insertCell(2);
+            cellName.innerHTML = `<span>${inst.productName}</span><span class="replace-link" data-code="${inst.productCode}" data-idx="${idx}">更换</span>`;
+            // 数量
+            const cellQty = row.insertCell(3);
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'number';
+            qtyInput.min = 1;
+            qtyInput.step = 1;
+            qtyInput.value = inst.quantity;
+            qtyInput.classList.add('qty-input');
+            qtyInput.addEventListener('change', (e) => {
+                let newQty = parseInt(e.target.value, 10);
+                if (isNaN(newQty) || newQty < 1) newQty = 1;
+                inst.quantity = newQty;
+                e.target.value = newQty;
+                showToast(`数量已修改为 ${newQty}，未保存至档案`);
+            });
+            cellQty.appendChild(qtyInput);
+
+            // 尺寸列：预设下拉 + 长宽高独立输入框
+            const cellDim = row.insertCell(4);
+            cellDim.className = 'dimension-cell';
+            const dimWrapper = document.createElement('div');
+            dimWrapper.className = 'dimension-group';
+            
+            // 预设下拉
+            const presetSelect = document.createElement('select');
+            presetSelect.classList.add('preset-select');
+            const dims = getPresetDimensions(inst.productCode);
+            // 添加选项
+            let hasCurrentMatch = false;
+            dims.forEach(dim => {
+                const option = document.createElement('option');
+                option.value = dim.id;
+                option.textContent = `${dim.length}×${dim.width}×${dim.height}`;
+                if (!inst.isCustomDim && inst.selectedPresetId === dim.id) {
+                    option.selected = true;
+                    hasCurrentMatch = true;
+                }
+                presetSelect.appendChild(option);
+            });
+            // 自定义选项 (如果当前是自定义尺寸 或者 长宽高与所有预设都不匹配，展示自定义)
+            const customOption = document.createElement('option');
+            customOption.value = 'custom';
+            customOption.textContent = '✨ 自定义尺寸';
+            if (inst.isCustomDim || (!hasCurrentMatch && !inst.isCustomDim && !findMatchingPreset(inst.productCode, inst.lengthActual, inst.widthActual, inst.heightActual))) {
+                customOption.selected = true;
+                inst.isCustomDim = true;
+                inst.selectedPresetId = null;
+            }
+            presetSelect.appendChild(customOption);
+            
+            // 长宽高输入框
+            const lenInput = document.createElement('input');
+            lenInput.type = 'number';
+            lenInput.placeholder = '长';
+            lenInput.value = inst.lengthActual;
+            lenInput.style.width = '72px';
+            const wideInput = document.createElement('input');
+            wideInput.type = 'number';
+            wideInput.placeholder = '宽';
+            wideInput.value = inst.widthActual;
+            wideInput.style.width = '72px';
+            const highInput = document.createElement('input');
+            highInput.type = 'number';
+            highInput.placeholder = '高';
+            highInput.value = inst.heightActual;
+            highInput.style.width = '72px';
+            
+            // 更新尺寸数值的公共方法（同步实例，并且检测是否匹配预设）
+            function syncDimensionFromInputs() {
+                let newLen = parseInt(lenInput.value, 10);
+                let newWid = parseInt(wideInput.value, 10);
+                let newHei = parseInt(highInput.value, 10);
+                if (isNaN(newLen)) newLen = 0;
+                if (isNaN(newWid)) newWid = 0;
+                if (isNaN(newHei)) newHei = 0;
+                inst.lengthActual = newLen;
+                inst.widthActual = newWid;
+                inst.heightActual = newHei;
+                // 检测是否与某个预设匹配
+                const matched = findMatchingPreset(inst.productCode, newLen, newWid, newHei);
+                if (matched) {
+                    // 完全匹配预设，则自动切换为非自定义，选中预设id，并且将配货框/货框/层数设置为预设默认值（可根据业务需求选择是否覆盖，此处按PRD切换尺寸时重置）
+                    inst.isCustomDim = false;
+                    inst.selectedPresetId = matched.id;
+                    inst.hasCrateActual = matched.hasCrate;
+                    inst.crateQtyActual = matched.crateQty;
+                    inst.layersActual = matched.layers;
+                    // 需要重新渲染整行，因为配货框等会改变，为避免复杂，重新渲染表格保留当前编辑焦点不好，这里强制刷新表格
+                    renderTable();
+                    showToast(`尺寸匹配预设 "${matched.length}×${matched.width}×${matched.height}"，已自动应用配货框/层数标准值`);
+                } else {
+                    // 不匹配任何预设，设为自定义
+                    inst.isCustomDim = true;
+                    inst.selectedPresetId = null;
+                    // 注意: 不覆盖配货框/层数字段，保留用户之前手动设置的值
+                    // 这里只更改尺寸
+                }
+                // 重新渲染表格以同步下拉显示
+                renderTable();
+            }
+            
+            lenInput.addEventListener('change', syncDimensionFromInputs);
+            wideInput.addEventListener('change', syncDimensionFromInputs);
+            highInput.addEventListener('change', syncDimensionFromInputs);
+            
+            // 预设下拉变化逻辑
+            presetSelect.addEventListener('change', (e) => {
+                const selectedVal = e.target.value;
+                if (selectedVal === 'custom') {
+                    // 切换到自定义：保持当前长宽高数值不变，标记自定义
+                    inst.isCustomDim = true;
+                    inst.selectedPresetId = null;
+                    renderTable();
+                    showToast('已切换至自定义尺寸模式，可自由编辑长宽高');
+                    return;
+                }
+                // 选择预设尺寸
+                const presetDim = getPresetById(inst.productCode, selectedVal);
+                if (presetDim) {
+                    // 应用预设尺寸和默认的配货框/层数等
+                    inst.lengthActual = presetDim.length;
+                    inst.widthActual = presetDim.width;
+                    inst.heightActual = presetDim.height;
+                    inst.isCustomDim = false;
+                    inst.selectedPresetId = presetDim.id;
+                    inst.hasCrateActual = presetDim.hasCrate;
+                    inst.crateQtyActual = presetDim.crateQty;
+                    inst.layersActual = presetDim.layers;
+                    renderTable();
+                    showToast(`已应用尺寸 ${presetDim.length}×${presetDim.width}×${presetDim.height}，配货框/层数同步为档案默认值`);
+                } else {
+                    renderTable();
+                }
+            });
+            
+            dimWrapper.appendChild(presetSelect);
+            dimWrapper.appendChild(lenInput);
+            dimWrapper.appendChild(document.createElement('span')).innerText = '×';
+            dimWrapper.appendChild(wideInput);
+            dimWrapper.appendChild(document.createElement('span')).innerText = '×';
+            dimWrapper.appendChild(highInput);
+            cellDim.appendChild(dimWrapper);
+            
+            // 是否配货框下拉
+            const cellHasCrate = row.insertCell(5);
+            const hasCrateSelect = document.createElement('select');
+            hasCrateSelect.innerHTML = `<option value="1" ${inst.hasCrateActual === 1 ? 'selected' : ''}>是</option><option value="0" ${inst.hasCrateActual === 0 ? 'selected' : ''}>否</option>`;
+            hasCrateSelect.addEventListener('change', (e) => {
+                const newVal = parseInt(e.target.value, 10);
+                inst.hasCrateActual = newVal;
+                if (newVal === 0) {
+                    inst.crateQtyActual = 0;
+                }
+                renderTable(); // 重新刷新让货框输入框联动
+                showToast(`是否配货框已修改，不会更新商品档案`);
+            });
+            cellHasCrate.appendChild(hasCrateSelect);
+            
+            // 货框(个)
+            const cellCrateQty = row.insertCell(6);
+            const crateQtyInput = document.createElement('input');
+            crateQtyInput.type = 'number';
+            crateQtyInput.min = 0;
+            crateQtyInput.max = 999;
+            crateQtyInput.value = inst.crateQtyActual;
+            crateQtyInput.disabled = (inst.hasCrateActual === 0);
+            crateQtyInput.style.width = '80px';
+            crateQtyInput.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = 0;
+                if (val < 0) val = 0;
+                inst.crateQtyActual = val;
+                showToast(`货框个数改为 ${val} (仅门店实例)`);
+            });
+            cellCrateQty.appendChild(crateQtyInput);
+            
+            // 层数
+            const cellLayers = row.insertCell(7);
+            const layersInput = document.createElement('input');
+            layersInput.type = 'number';
+            layersInput.min = 0;
+            layersInput.max = 99;
+            layersInput.value = inst.layersActual;
+            layersInput.style.width = '70px';
+            layersInput.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = 0;
+                inst.layersActual = val;
+                showToast(`层数改为 ${val} (实例独立)`);
+            });
+            cellLayers.appendChild(layersInput);
+            
+            // 单位
+            const cellUnit = row.insertCell(8);
+            cellUnit.innerText = inst.unit;
+            // 商品分类
+            const cellCat = row.insertCell(9);
+            cellCat.innerText = inst.category;
+            // 操作（删除行）
+            const cellAction = row.insertCell(10);
+            const delBtn = document.createElement('button');
+            delBtn.innerText = '删除';
+            delBtn.style.background = '#fff0f0';
+            delBtn.style.borderColor = '#e0b4b4';
+            delBtn.addEventListener('click', () => {
+                if (confirm('确认删除该货架实例吗？仅影响当前门店配置')) {
+                    const idxToDel = shelfInstances.findIndex(i => i.id === inst.id);
+                    if (idxToDel !== -1) shelfInstances.splice(idxToDel, 1);
+                    renderTable();
+                    showToast('已删除货架实例');
+                }
+            });
+            cellAction.appendChild(delBtn);
+            
+            // 监听配货框状态改变后重新刷新禁用货框的交互（重新渲染可让事件重新绑定）
+            // 但为了避免事件重复，简单监听选中后重新渲染即可
+            hasCrateSelect.addEventListener('change', () => {
+                // 重新渲染表格让货框的disabled状态更新
+                renderTable();
+            });
+        });
+        
+        // 重新绑定“更换”商品的事件（因为重新渲染后dom重新生成）
+        document.querySelectorAll('.replace-link').forEach(elem => {
+            elem.addEventListener('click', (e) => {
+                const code = elem.getAttribute('data-code');
+                const idx = parseInt(elem.getAttribute('data-idx'), 10);
+                if (!isNaN(idx) && shelfInstances[idx]) {
+                    // 模拟更换商品弹窗：简单替换为同商品编码的不同预设产品（实际可展示选品穿梭框）
+                    const newProductCode = prompt("请输入新商品编码 (模拟更换商品，仅限 HJ0001/HJ0002/HJ0003)", code);
+                    if (newProductCode && productPresetDimensions[newProductCode]) {
+                        const newProd = productPresetDimensions[newProductCode];
+                        const firstDim = newProd.dimensions[0];
+                        shelfInstances[idx].productCode = newProductCode;
+                        shelfInstances[idx].productName = newProd.productName;
+                        shelfInstances[idx].category = newProd.category;
+                        shelfInstances[idx].unit = newProd.unit;
+                        shelfInstances[idx].lengthActual = firstDim.length;
+                        shelfInstances[idx].widthActual = firstDim.width;
+                        shelfInstances[idx].heightActual = firstDim.height;
+                        shelfInstances[idx].isCustomDim = false;
+                        shelfInstances[idx].selectedPresetId = firstDim.id;
+                        shelfInstances[idx].hasCrateActual = firstDim.hasCrate;
+                        shelfInstances[idx].crateQtyActual = firstDim.crateQty;
+                        shelfInstances[idx].layersActual = firstDim.layers;
+                        renderTable();
+                        showToast(`商品更换为 ${newProd.productName}，尺寸已按档案默认值填充`);
+                    } else {
+                        alert("商品编码不存在，仅演示，未修改");
+                    }
+                }
+            });
+        });
+    }
+    
+    // 提示浮层
+    let toastTimer;
+    function showToast(msg) {
+        const toast = document.getElementById('toastMsg');
+        toast.innerText = msg;
+        toast.style.opacity = '1';
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 2000);
+    }
+    
+    // 手动添加货架：从商品档案库选品（仅商品属性=货架）
+    function handleAddShelf() {
+        // 模拟简单的选择列表：展示可选商品
+        const productOptions = Object.keys(productPresetDimensions).map(code => ({
+            code: code,
+            name: productPresetDimensions[code].productName,
+            category: productPresetDimensions[code].category,
+            unit: productPresetDimensions[code].unit,
+            dims: productPresetDimensions[code].dimensions
+        }));
+        let choiceList = productOptions.map(p => `${p.code} - ${p.name}`).join('\n');
+        const selectedCode = prompt(`手动添加货架 - 输入商品编码\n可选商品：\n${choiceList}\n请输入编码(HJ0001/HJ0002/HJ0003):`, "HJ0001");
+        if (selectedCode && productPresetDimensions[selectedCode]) {
+            const prod = productPresetDimensions[selectedCode];
+            const defaultDim = prod.dimensions[0];
+            const newId = 'inst_' + Date.now() + '_' + Math.random();
+            const newInstance = {
+                id: newId,
+                productCode: selectedCode,
+                productName: prod.productName,
+                category: prod.category,
+                unit: prod.unit,
+                quantity: 1,
+                lengthActual: defaultDim.length,
+                widthActual: defaultDim.width,
+                heightActual: defaultDim.height,
+                isCustomDim: false,
+                selectedPresetId: defaultDim.id,
+                hasCrateActual: defaultDim.hasCrate,
+                crateQtyActual: defaultDim.crateQty,
+                layersActual: defaultDim.layers
+            };
+            shelfInstances.push(newInstance);
+            renderTable();
+            showToast(`已添加 ${prod.productName}，默认尺寸${defaultDim.length}×${defaultDim.width}×${defaultDim.height}`);
+        } else {
+            alert("商品编码无效或档案未维护");
+        }
+    }
+    
+    // 保存门店工程信息（模拟保存，仅打印/提示实例数据不写回商品档案）
+    function saveStoreData() {
+        // 收集实例数据（深拷贝）
+        const snapshot = shelfInstances.map(inst => ({
+            商品编码: inst.productCode,
+            商品名称: inst.productName,
+            数量: inst.quantity,
+            尺寸: `${inst.lengthActual}×${inst.widthActual}×${inst.heightActual}${inst.isCustomDim ? '(自定义)' : '(预设)'}`,
+            是否配货框: inst.hasCrateActual === 1 ? '是' : '否',
+            货框个数: inst.crateQtyActual,
+            层数: inst.layersActual,
+            单位: inst.unit
+        }));
+        console.log('门店货架实例最终数据（仅更新实例表）', snapshot);
+        showToast(`✅ 保存成功！门店货架数据已更新 (共${snapshot.length}项) ，未写回商品档案尺寸子表。`);
+        // 实际业务中应调用接口仅提交实例表，此处模拟
+    }
+    
+    // 初始化渲染和事件绑定
+    document.addEventListener('DOMContentLoaded', () => {
+        renderTable();
+        document.getElementById('addShelfBtn').addEventListener('click', handleAddShelf);
+        document.getElementById('saveBtn').addEventListener('click', saveStoreData);
+    });
+</script>
+</body>
+</html>
