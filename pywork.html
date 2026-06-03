@@ -1967,16 +1967,16 @@
             function getInitialTasks() {
                 const store = getCurrentStore();
                 return [
-                    { id: 'deliveryTime', title: '交铺时间确认', desc: '项目立项后确认门店交铺时间（选址阶段填写或为空）',
+                    { id: 'deliveryTime', title: '交铺时间确认', desc: '交铺日期影响整体的工程完成时间，请及时确认拆除/交铺时间',
                         status: store.deliveryTime ? 'done' : 'pending', type: 'deliveryTime' },
-                    { id: 'drawing', title: '确认设计图纸', desc: '平面效果图 / 水电图（线下确认后推送）', status: 'unread',
+                    { id: 'drawing', title: '查看设计图纸', desc: '图纸类型：平面效果图、水电图，请点击查看设计图纸详情', status: 'unread',
                         type: 'view' },
-                    { id: 'budget', title: '确认工程预算', desc: '预算报价单（线下确认后推送）', status: 'unread', type: 'view' },
+                    { id: 'budget', title: '查看工程预算', desc: '装修/门窗/广告/货架/监控/冷链预算报价', status: 'unread', type: 'view' },
                     { id: 'acceptance', title: '验收评分', desc: '工程验收评分及签字确认', status: store.acceptanceData ? 'done' :
                             'pending', type: 'sign' },
                     { id: 'review', title: '开业回访', desc: '建店满意度问卷调研', status: store.surveyData ? 'done' : 'waiting',
                         type: 'survey' },
-                    { id: 'settlement', title: '确认工程结算', desc: '结算单（线下确认后推送）', status: 'unread', type: 'view' }
+                    { id: 'settlement', title: '查看工程结算', desc: '结算报表：装修/门窗/广告/货架/监控/冷链', status: 'unread', type: 'view' }
                 ];
             }
             let tasks = getInitialTasks();
@@ -3094,7 +3094,7 @@
                         `<tr><td>${c.biz}</td><td>${c.type}</td><td style="font-size:10px;">${c.name}</td><td class="num-cell">${c.budget.toLocaleString()}</td><td class="num-cell">${c.settle.toLocaleString()}</td></tr>`;
                 });
                 content.innerHTML = `
-                <div style="background:#f8fafc;padding:14px 16px;border-bottom:1px solid #f1f5f9;"><div style="font-size:13px;color:#475569;"><i class="fas fa-info-circle" style="color:#2563eb;"></i>已通过线下确认，请查看以下结算单文件。</div></div>
+                <div style="background:#f8fafc;padding:14px 16px;border-bottom:1px solid #f1f5f9;"><div style="font-size:13px;color:#475569;"><i class="fas fa-info-circle" style="color:#2563eb;"></i>请查看以下结算单文件。</div></div>
                 <div class="budget-summary"><div class="budget-summary-row"><span>总预算金额</span><strong>¥${totalBudget.toLocaleString()}.00</strong></div><div class="budget-summary-row total"><span>总结算金额</span><span>¥${totalSettle.toLocaleString()}.00</span></div></div>
                 <div class="settle-tab-bar"><div class="settle-tab ${activeSettleTab==='report'?'active':''}" data-st="report">结算报表</div><div class="settle-tab ${activeSettleTab==='company'?'active':''}" data-st="company">公司及费用</div></div>
                 ${activeSettleTab==='report'?`<div class="table-wrap"><table class="data-table"><thead><tr><th>结算文件</th><th>预算文件</th><th>预算(元)</th><th>结算(元)</th><th>操作</th></tr></thead><tbody>${reportRowsHtml}<tr class="total-row"><td colspan="2">合计</td><td class="num-cell">${totalBudget.toLocaleString()}</td><td class="num-cell">${totalSettle.toLocaleString()}</td><td>—</td></tr></tbody></table></div>`:`<div class="table-wrap"><table class="data-table"><thead><tr><th>业务范围</th><th>合作方式</th><th>公司名称</th><th>预算(元)</th><th>结算(元)</th></tr></thead><tbody>${companyRowsHtml}</tbody></table></div>`}`;
