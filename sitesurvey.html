@@ -242,6 +242,11 @@
             margin-bottom: 12px;
             line-height: 1.5;
         }
+        .auto-judge-hint {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
 
         /* Radio */
         .radio-group {
@@ -811,13 +816,6 @@
 
                 <div class="section-title">品牌形象信息</div>
                 <div class="card">
-                    <!-- <div class="form-row">
-                        <div class="label">招牌底高地高度＞3米</div>
-                        <div class="radio-group">
-                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
-                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
-                        </div>
-                    </div> -->
                     <div class="form-row">
                         <div class="label">门店品牌名称</div>
                         <input type="text" value="零食很忙" placeholder="请输入">
@@ -907,13 +905,20 @@
 
                 <div class="sub-section">品牌部分</div>
                 <div class="card">
-                    <div class="form-row">
-                        <div class="label">招牌离地＞3米</div>
-                        <div class="radio-group">
-                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
-                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
-                        </div>
+                    <!-- 招牌离地高度自动判断 -->
+                    <div class="form-row col">
+                        <div class="label"><span class="req">*</span>招牌离地高度(m)</div>
+                        <input type="number" id="signHeightInput" value="3.2" step="0.01" style="text-align:left;width:100%;font-size:15px;border:none;outline:none;" oninput="updateSignHeightCheck()" placeholder="请输入招牌离地高度">
                     </div>
+                    <div class="form-row col" id="signHeightJudgeRow">
+                        <div class="label">是否＞3米</div>
+                        <div class="radio-group" id="signHeightRadioGroup">
+                            <div class="radio readonly" onclick="return false;"><span class="radio-dot"></span>是</div>
+                            <div class="radio readonly" onclick="return false;"><span class="radio-dot"></span>否</div>
+                        </div>
+                        <span class="auto-judge-hint">根据招牌离地高度自动判断</span>
+                    </div>
+
                     <div class="form-row">
                         <div class="label">安装侧招</div>
                         <div class="radio-group">
@@ -921,10 +926,6 @@
                             <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
                         </div>
                     </div>
-                    <!-- <div class="form-row">
-                        <div class="label">侧招离地高度(cm)</div>
-                        <input type="number" placeholder="请输入" value="280">
-                    </div> -->
                     <div class="form-row">
                         <div class="label">标准招牌结构</div>
                         <div class="radio-group">
@@ -939,14 +940,26 @@
                             <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="label">门楣高度≥35cm</div>
-                        <div class="radio-group">
-                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
-                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
-                        </div>
+
+                    <!-- 门楣长度/高度录入及自动判断 -->
+                    <div class="form-row col">
+                        <div class="label"><span class="req">*</span>门楣长度(cm)</div>
+                        <input type="number" id="lintelLengthInput" value="280" style="text-align:left;width:100%;font-size:15px;border:none;outline:none;" placeholder="请输入门楣长度">
                     </div>
-                                        <div class="form-row">
+                    <div class="form-row col">
+                        <div class="label"><span class="req">*</span>门楣高度(cm)</div>
+                        <input type="number" id="lintelHeightInput" value="30" step="0.1" style="text-align:left;width:100%;font-size:15px;border:none;outline:none;" oninput="updateLintelHeightCheck()" placeholder="请输入门楣高度">
+                    </div>
+                    <div class="form-row col" id="lintelHeightJudgeRow">
+                        <div class="label">门楣高度是否≥35cm</div>
+                        <div class="radio-group" id="lintelHeightRadioGroup">
+                            <div class="radio readonly" onclick="return false;"><span class="radio-dot"></span>是</div>
+                            <div class="radio readonly" onclick="return false;"><span class="radio-dot"></span>否</div>
+                        </div>
+                        <span class="auto-judge-hint">根据门楣高度自动判断</span>
+                    </div>
+
+                    <div class="form-row">
                         <div class="label">安装门楣软膜灯箱</div>
                         <div class="radio-group">
                             <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
@@ -1099,7 +1112,7 @@
                     </div>
                 </div>
 
-                <!-- ====== 新增：加盟商意愿相关事项 ====== -->
+                <!-- 加盟商意愿相关事项 -->
                 <div class="section-title">加盟商意愿相关事项</div>
                 <div class="card">
                     <div class="form-row col" style="border-bottom:1px solid #f5f5f5;">
@@ -1166,12 +1179,7 @@
             if (n < 1 || n > totalSteps) return;
             currentStep = n;
             updateStep();
-            if (n === 2) {
-                setTimeout(updateHeightCheck, 100);
-            }
-            if (n === 4) {
-                setTimeout(checkCopperWire, 100);
-            }
+            applyAllAutoChecks();
         }
 
         function nextStep() {
@@ -1193,12 +1201,7 @@
             if (currentStep < totalSteps) {
                 currentStep++;
                 updateStep();
-                if (currentStep === 2) {
-                    setTimeout(updateHeightCheck, 100);
-                }
-                if (currentStep === 4) {
-                    setTimeout(checkCopperWire, 100);
-                }
+                applyAllAutoChecks();
             } else {
                 showToast('✓ 勘场信息提交成功');
             }
@@ -1208,12 +1211,18 @@
             if (currentStep > 1) {
                 currentStep--;
                 updateStep();
-                if (currentStep === 2) {
-                    setTimeout(updateHeightCheck, 100);
-                }
-                if (currentStep === 4) {
-                    setTimeout(checkCopperWire, 100);
-                }
+                applyAllAutoChecks();
+            }
+        }
+
+        function applyAllAutoChecks() {
+            if (currentStep === 2) {
+                setTimeout(updateHeightCheck, 100);
+            }
+            if (currentStep === 4) {
+                setTimeout(checkCopperWire, 50);
+                setTimeout(updateSignHeightCheck, 50);
+                setTimeout(updateLintelHeightCheck, 50);
             }
         }
 
@@ -1251,7 +1260,6 @@
             el.classList.toggle('selected');
         }
 
-        // 加盟商意愿 - checkbox勾选切换
         function toggleCheckbox(row) {
             const box = row.querySelector('.checkbox-box');
             if (!box) return;
@@ -1286,12 +1294,9 @@
             const layerHeightInput = document.getElementById('layerHeightInput');
             const heightNotMetReason = document.getElementById('heightNotMetReason');
             const heightRadioGroup = document.getElementById('heightRadioGroup');
-
             if (!layerHeightInput || !heightRadioGroup) return;
-
             const val = parseFloat(layerHeightInput.value);
             const radios = heightRadioGroup.querySelectorAll('.radio');
-
             if (!isNaN(val) && val > 0) {
                 if (val >= 2.2) {
                     if (radios[0]) radios[0].classList.add('checked');
@@ -1306,6 +1311,49 @@
                 if (radios[0]) radios[0].classList.add('checked');
                 if (radios[1]) radios[1].classList.remove('checked');
                 if (heightNotMetReason) heightNotMetReason.style.display = 'none';
+            }
+        }
+
+        // 招牌离地高度自动判断是否＞3米
+        function updateSignHeightCheck() {
+            const signInput = document.getElementById('signHeightInput');
+            const radioGroup = document.getElementById('signHeightRadioGroup');
+            if (!signInput || !radioGroup) return;
+            const val = parseFloat(signInput.value);
+            const radios = radioGroup.querySelectorAll('.radio');
+            if (!isNaN(val)) {
+                if (val > 3) {
+                    if (radios[0]) radios[0].classList.add('checked');
+                    if (radios[1]) radios[1].classList.remove('checked');
+                } else {
+                    if (radios[0]) radios[0].classList.remove('checked');
+                    if (radios[1]) radios[1].classList.add('checked');
+                }
+            } else {
+                // 无效值时默认否
+                if (radios[0]) radios[0].classList.remove('checked');
+                if (radios[1]) radios[1].classList.add('checked');
+            }
+        }
+
+        // 门楣高度自动判断是否≥35cm
+        function updateLintelHeightCheck() {
+            const lintelHeightInput = document.getElementById('lintelHeightInput');
+            const radioGroup = document.getElementById('lintelHeightRadioGroup');
+            if (!lintelHeightInput || !radioGroup) return;
+            const val = parseFloat(lintelHeightInput.value);
+            const radios = radioGroup.querySelectorAll('.radio');
+            if (!isNaN(val)) {
+                if (val >= 35) {
+                    if (radios[0]) radios[0].classList.add('checked');
+                    if (radios[1]) radios[1].classList.remove('checked');
+                } else {
+                    if (radios[0]) radios[0].classList.remove('checked');
+                    if (radios[1]) radios[1].classList.add('checked');
+                }
+            } else {
+                if (radios[0]) radios[0].classList.remove('checked');
+                if (radios[1]) radios[1].classList.add('checked');
             }
         }
 
@@ -1386,8 +1434,12 @@
 
         // 初始化
         updateStep();
-        setTimeout(updateHeightCheck, 200);
-        setTimeout(checkCopperWire, 300);
+        setTimeout(() => {
+            updateHeightCheck();
+            checkCopperWire();
+            updateSignHeightCheck();
+            updateLintelHeightCheck();
+        }, 200);
     </script>
 
 </body>
