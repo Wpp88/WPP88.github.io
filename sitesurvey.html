@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勘场录入 - 高保真原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: #f5f5f7;
+            border-radius: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            border: 10px solid #1a1a1a;
+        }
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            background: #fff;
+        }
+        .status-bar .right {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            font-size: 13px;
+        }
+        .nav-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .nav-bar .back {
+            font-size: 22px;
+            color: #333;
+            cursor: pointer;
+            width: 30px;
+        }
+        .nav-bar .title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+        }
+        .nav-bar .right-action {
+            font-size: 14px;
+            color: #ff7a26;
+            width: 40px;
+            text-align: right;
+            cursor: pointer;
+        }
+
+        /* 步骤条 */
+        .stepper {
+            background: #fff;
+            padding: 16px 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+        }
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #e5e5e5;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            transition: all 0.3s;
+        }
+        .step.active .step-circle {
+            background: #ff7a26;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(255, 122, 38, 0.4);
+        }
+        .step.done .step-circle {
+            background: #ff7a26;
+            color: #fff;
+        }
+        .step.done .step-circle::before {
+            content: "✓";
+        }
+        .step.done .step-circle .num {
+            display: none;
+        }
+        .step-label {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .step.active .step-label {
+            color: #ff7a26;
+            font-weight: 600;
+        }
+        .step.done .step-label {
+            color: #333;
+        }
+        .step-line {
+            position: absolute;
+            top: 29px;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            background: #e5e5e5;
+            z-index: 1;
+        }
+        .step-line-active {
+            position: absolute;
+            top: 29px;
+            left: 12%;
+            height: 2px;
+            background: #ff7a26;
+            z-index: 1;
+            transition: width 0.3s;
+        }
+
+        /* 内容区 */
+        .content {
+            height: calc(844px - 44px - 44px - 70px - 80px);
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+        .section-title {
+            font-size: 13px;
+            color: #999;
+            padding: 16px 16px 8px;
+        }
+        .card {
+            background: #fff;
+            margin: 0 12px 12px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            min-height: 50px;
+        }
+        .form-row:last-child {
+            border-bottom: none;
+        }
+        .form-row .label {
+            font-size: 15px;
+            color: #333;
+            flex: 1;
+            font-weight: 500;
+        }
+        .form-row .label .req {
+            color: #ff3b30;
+            margin-right: 2px;
+        }
+        .form-row .value {
+            font-size: 15px;
+            color: #333;
+            text-align: right;
+        }
+        .form-row .placeholder {
+            color: #c0c0c0;
+        }
+        .form-row .arrow {
+            color: #c8c8c8;
+            margin-left: 6px;
+            font-size: 14px;
+        }
+        .form-row input[type="text"],
+        .form-row input[type="number"] {
+            border: none;
+            outline: none;
+            text-align: right;
+            font-size: 15px;
+            width: 60%;
+            background: transparent;
+        }
+        .form-row .hint {
+            font-size: 11px;
+            color: #ff7a26;
+            margin-top: 4px;
+            display: block;
+        }
+        .form-row.col {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .form-row.col .label {
+            margin-bottom: 8px;
+        }
+        .form-row .sub-desc {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .field-desc {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        /* Radio */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+        .radio {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #333;
+        }
+        .radio-dot {
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid #ccc;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .radio.checked .radio-dot {
+            border-color: #ff7a26;
+        }
+        .radio.checked .radio-dot::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff7a26;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .radio.readonly {
+            cursor: default;
+            pointer-events: none;
+        }
+        .radio.readonly .radio-dot {
+            background: #f9f9f9;
+        }
+
+        /* Checkbox (用于加盟商意愿勾选) */
+        .checkbox-box {
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .checkbox-box.checked {
+            background: #ff7a26;
+            border-color: #ff7a26;
+            color: #fff;
+        }
+
+        /* 提示条 */
+        .alert-tip {
+            background: #fff7ed;
+            color: #ff7a26;
+            font-size: 12px;
+            padding: 8px 12px;
+            margin: 0 16px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 卡片选择 (拐角店) */
+        .card-select {
+            display: flex;
+            gap: 10px;
+            padding: 0 16px 16px;
+        }
+        .card-option {
+            flex: 1;
+            border: 1.5px solid #eee;
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+        .card-option.selected {
+            border-color: #ff7a26;
+            background: #fff7ed;
+        }
+        .card-option .icon {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+        .card-option .name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        .card-option.selected .name {
+            color: #ff7a26;
+        }
+        .card-option .check {
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-option.selected .check {
+            background: #ff7a26;
+        }
+
+        /* 上传组件 */
+        .uploader {
+            padding: 14px 16px;
+        }
+        .uploader-title {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .uploader-title .req {
+            color: #ff3b30;
+            margin-right: 2px;
+        }
+        .upload-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .upload-item,
+        .upload-add {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 28px;
+            color: #c8c8c8;
+            cursor: pointer;
+        }
+        .upload-item {
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+        }
+        .upload-item .del {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* 标签选择 */
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+        .tag {
+            padding: 6px 14px;
+            background: #f5f5f7;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #555;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .tag.selected {
+            background: #fff7ed;
+            color: #ff7a26;
+            border-color: #ff7a26;
+        }
+
+        /* 底部按钮 */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: #fff;
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .btn {
+            flex: 1;
+            height: 46px;
+            border-radius: 23px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-outline {
+            background: #fff;
+            border: 1.5px solid #ff7a26;
+            color: #ff7a26;
+            flex: 0.6;
+        }
+        .btn-primary {
+            background: #ff7a26;
+            color: #fff;
+            flex: 1.4;
+        }
+        .btn-primary:active {
+            background: #e6691a;
+        }
+        .btn-secondary {
+            background: #fff;
+            border: 1.5px solid #ddd;
+            color: #666;
+            flex: 0.8;
+        }
+
+        /* Toast */
+        .toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Picker弹层 */
+        .picker-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 50;
+            display: none;
+            align-items: flex-end;
+        }
+        .picker-mask.show {
+            display: flex;
+        }
+        .picker {
+            width: 100%;
+            background: #fff;
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 60%;
+            overflow-y: auto;
+        }
+        .picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+        }
+        .picker-cancel {
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .picker-confirm {
+            color: #ff7a26;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .picker-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .picker-item {
+            padding: 14px 8px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+        .picker-item.active {
+            color: #ff7a26;
+        }
+
+        /* 步骤页切换 */
+        .step-page {
+            display: none;
+        }
+        .step-page.active {
+            display: block;
+        }
+
+        .input-textarea {
+            width: 100%;
+            min-height: 70px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            font-family: inherit;
+        }
+        .input-textarea:focus {
+            border-color: #ff7a26;
+        }
+
+        .sub-section {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            padding: 10px 16px 4px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .highlight-val {
+            font-weight: 600;
+            color: #ff7a26;
+        }
+        .highlight-val.green {
+            color: #34c759;
+        }
+        .price-tag {
+            color: #ff7a26;
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span>14:01</span>
+            <span class="right">···· 📶 🔋</span>
+        </div>
+
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="back" onclick="prevStep()">‹</div>
+            <div class="title">立即勘场</div>
+            <div class="right-action" onclick="showToast('已保存草稿')">草稿</div>
+        </div>
+
+        <!-- 步骤条 -->
+        <div class="stepper">
+            <div class="step-line"></div>
+            <div class="step-line-active" id="stepLine" style="width: 0%"></div>
+            <div class="step active" data-step="1" onclick="goStep(1)">
+                <div class="step-circle"><span class="num">1</span></div>
+                <div class="step-label">基础信息</div>
+            </div>
+            <div class="step" data-step="2" onclick="goStep(2)">
+                <div class="step-circle"><span class="num">2</span></div>
+                <div class="step-label">空间结构</div>
+            </div>
+            <div class="step" data-step="3" onclick="goStep(3)">
+                <div class="step-circle"><span class="num">3</span></div>
+                <div class="step-label">品牌形象</div>
+            </div>
+            <div class="step" data-step="4" onclick="goStep(4)">
+                <div class="step-circle"><span class="num">4</span></div>
+                <div class="step-label">施工信息</div>
+            </div>
+            <div class="step" data-step="5" onclick="goStep(5)">
+                <div class="step-circle"><span class="num">5</span></div>
+                <div class="step-label">现场&结论</div>
+            </div>
+        </div>
+
+        <!-- 内容 -->
+        <div class="content" id="content">
+
+            <!-- ====== 步骤1：基础信息 ====== -->
+            <div class="step-page active" data-page="1">
+                <div class="section-title">勘场时间</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">预约勘场时间</div>
+                        <div class="value">2026-06-30 11:33</div>
+                    </div>
+                    <div class="form-row" onclick="pickTime(this)">
+                        <div class="label"><span class="req">*</span>实际勘场时间</div>
+                        <div class="value placeholder">请选择</div>
+                        <div class="arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="section-title">加盟商办理信息</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">招牌报审</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">空调采买</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">消防工程</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">门店宽带申请</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">门店土建结构状态</div>
+                        <div class="value placeholder" onclick="openPicker('struct')">请选择 ›</div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">结构说明（如需要预制板砖墙加固焊接）</div>
+                        <textarea class="input-textarea" placeholder="如门店毛坯结构跨度＞5米，或线条与墙面非可靠承接处需提供说明..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 步骤2：空间结构 ====== -->
+            <div class="step-page" data-page="2">
+                <div class="section-title">空间信息</div>
+                <div class="card">
+                    <div class="form-row col">
+                        <div class="label"><span class="req">*</span>层高(m)</div>
+                        <input type="number" id="layerHeightInput" value="3.5" style="text-align:left;width:100%;font-size:15px;border:none;outline:none;" oninput="updateHeightCheck()" placeholder="请输入层高">
+                        <span class="hint">初始值为选址提供，请核实（与完成面层高一致）</span>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label"><span class="req">*</span>门店加盟签约营业面积(㎡)</div>
+                        <input type="number" value="85" style="text-align:left;width:100%;font-size:15px;border:none;outline:none;" placeholder="请输入">
+                    </div>
+                    <div class="form-row">
+                        <div class="label"><span class="req">*</span>门店版本</div>
+                        <div class="value placeholder" onclick="openPicker('storeVersion')" id="storeVersionVal">请选择 ›</div>
+                    </div>
+                    <div class="form-row col" id="heightCheckRow">
+                        <div class="label">是否满足高度≥2.2米</div>
+                        <div class="radio-group" id="heightRadioGroup">
+                            <div class="radio checked readonly" onclick="return false;"><span class="radio-dot"></span>满足</div>
+                            <div class="radio readonly" onclick="return false;"><span class="radio-dot"></span>不满足</div>
+                        </div>
+                        <span style="font-size:10px;color:#999;margin-top:2px;">系统根据层高自动判断</span>
+                    </div>
+                    <div class="form-row col" id="heightNotMetReason" style="display:none;">
+                        <div class="label"><span class="req" style="color:#ff3b30;">*</span>不满足原因说明</div>
+                        <textarea class="input-textarea" id="heightNotMetTextarea" placeholder="请说明不满足高度≥2.2米的原因..."></textarea>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="padding:14px 16px 6px;">
+                        <div class="label" style="font-size:15px;font-weight:500;"><span class="req" style="color:#ff3b30;">*</span>是否为拐角店</div>
+                    </div>
+                    <div class="alert-tip">⚠ 店铺结构(拐角/非拐角)关联政策补贴,请谨慎选择</div>
+                    <div class="card-select">
+                        <div class="card-option" onclick="selectCard(this,'corner')">
+                            <div class="icon">🏪</div>
+                            <div class="name">是·拐角店</div>
+                            <div class="check">✓</div>
+                        </div>
+                        <div class="card-option selected" onclick="selectCard(this,'corner')">
+                            <div class="icon">🏬</div>
+                            <div class="name">否·非拐角店</div>
+                            <div class="check">✓</div>
+                        </div>
+                    </div>
+                    <div style="padding:0 16px 14px;font-size:12px;color:#999;">通常位于普通沿街店铺(内街或单侧墙体)、无拐角展示区域</div>
+                </div>
+
+                <div class="section-title">原始平面图 / 街区图</div>
+                <div class="card">
+                    <div class="uploader">
+                        <div class="uploader-title"><span class="req">*</span>原始平面图</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">上传现场实测图，标注入口位置/营业区/仓库位置及所有尺寸</div>
+                    </div>
+                    <div class="uploader" style="border-top:1px solid #f5f5f5;">
+                        <div class="uploader-title">街区图</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">标注门店位置、竞品门店位置(学校/小区等)</div>
+                    </div>
+                    <div class="uploader" style="border-top:1px solid #f5f5f5;">
+                        <div class="uploader-title">招牌立面图</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">标注招牌高度/离地高度/长度/深度</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 步骤3：品牌形象 ====== -->
+            <div class="step-page" data-page="3">
+                <div class="section-title">视觉形象</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label"><span class="req">*</span>电动眼睛</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">品牌形象信息</div>
+                <div class="card">
+                    <!-- <div class="form-row">
+                        <div class="label">招牌底高地高度＞3米</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div> -->
+                    <div class="form-row">
+                        <div class="label">门店品牌名称</div>
+                        <input type="text" value="零食很忙" placeholder="请输入">
+                    </div>
+                    <div class="form-row">
+                        <div class="label">ip版本</div>
+                        <div class="value">新 ›</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">门店vi品牌</div>
+                        <input type="text" value="赵一鸣" placeholder="请输入">
+                    </div>
+                    <div class="form-row">
+                        <div class="label">确定vi版本</div>
+                        <div class="value placeholder" onclick="openPicker('vi')">请选择 ›</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">确定招牌结构</div>
+                        <div class="value placeholder" onclick="openPicker('struct2')">请选择 ›</div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">招牌特殊要求</div>
+                        <textarea class="input-textarea" placeholder="当地物业/消防是否有特殊要求..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 步骤4：施工信息 ====== -->
+            <div class="step-page" data-page="4">
+                <div class="sub-section">地面部分</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">地面高低差60mm以内</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-section">仓库部分</div>
+                <div class="card">
+                    <div class="form-row col">
+                        <div class="label">仓库改造内容</div>
+                        <div class="tag-group" style="padding:0;">
+                            <div class="tag selected" onclick="toggleTag(this)">仓库墙面贴砖</div>
+                            <div class="tag" onclick="toggleTag(this)">墙面粉刷</div>
+                            <div class="tag selected" onclick="toggleTag(this)">隔断改造/新建</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-section">水电工程</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">给排水接驳</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row" id="copperWireRow">
+                        <div class="label">入户25㎡铜芯线</div>
+                        <div class="radio-group" id="copperWireRadioGroup">
+                            <div class="radio checked" onclick="toggleRadio(this);checkCopperWire();"><span class="radio-dot"></span>满足</div>
+                            <div class="radio" onclick="toggleRadio(this);checkCopperWire();"><span class="radio-dot"></span>不满足</div>
+                        </div>
+                    </div>
+                    <div class="form-row col" id="circuitExplainRow" style="display:none;">
+                        <div class="label">电路说明</div>
+                        <textarea class="input-textarea" placeholder="如不满足请联系物业，启动电三相电户或改造（建议使用25㎡或35㎡4+1电缆,总功率55-60KW，需160A总开关）"></textarea>
+                    </div>
+                </div>
+
+                <div class="sub-section">利旧情况</div>
+                <div class="card">
+                    <div class="form-row col">
+                        <div class="label">可利旧项目</div>
+                        <div class="tag-group" style="padding:0;">
+                            <div class="tag" onclick="toggleTag(this)">货架设备</div>
+                            <div class="tag selected" onclick="toggleTag(this)">冷链设备</div>
+                            <div class="tag selected" onclick="toggleTag(this)">监控设备</div>
+                            <div class="tag" onclick="toggleTag(this)">吊顶/地面利旧</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-section">品牌部分</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">招牌离地＞3米</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">安装侧招</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <!-- <div class="form-row">
+                        <div class="label">侧招离地高度(cm)</div>
+                        <input type="number" placeholder="请输入" value="280">
+                    </div> -->
+                    <div class="form-row">
+                        <div class="label">标准招牌结构</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">安装探照灯</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">门楣高度≥35cm</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                                        <div class="form-row">
+                        <div class="label">安装门楣软膜灯箱</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-section">施工情况</div>
+                <div class="card">
+                    <div class="form-row col">
+                        <div class="label">加盟商提供脚手架/云车使用</div>
+                        <div class="sub-desc">用于招牌施工</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">户外铝合金防撞条</div>
+                        <div class="sub-desc">台阶周长</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">围挡/横幅的基层建造</div>
+                        <div class="sub-desc">包含广告打印的刀刮布，围挡的基层所使用的龙骨与板材</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">非营业区域</div>
+                        <div class="sub-desc">墙面孔洞封堵</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-section">南北差异/特殊施工情况</div>
+                <div class="card">
+                    <div class="form-row col">
+                        <div class="label">室外是否存在冻土影响</div>
+                        <div class="sub-desc">存在影响，外立面需做干挂铝塑板施工，增加90元/平</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">北方门窗需变更为双层玻璃</div>
+                        <div class="sub-desc">（8+8mm），增加90元/平方</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col">
+                        <div class="label">招牌是否需做加固施工</div>
+                        <div class="sub-desc">主要针对沿海大风地区，原有钢架延伸费用上增加20-30元/平方</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row col" style="border-top:1px dashed #e0e0e0;margin-top:4px;padding-top:16px;">
+                        <div class="label">是否存在消防要求</div>
+                        <div class="sub-desc">营业面积＞200平门店，是否需要做两扇大门，仓库门材质是否需变更</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 步骤5：现场情况 & 结论 ====== -->
+            <div class="step-page" data-page="5">
+                <div class="section-title">安全与保障</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label"><span class="req">*</span>门店是否有升降机</div>
+                        <div class="radio-group">
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label"><span class="req">*</span>是否有消防资质</div>
+                        <div class="radio-group">
+                            <div class="radio checked" onclick="toggleRadio(this)"><span class="radio-dot"></span>是</div>
+                            <div class="radio" onclick="toggleRadio(this)"><span class="radio-dot"></span>否</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">门店现场情况</div>
+                <div class="card">
+                    <div class="uploader">
+                        <div class="uploader-title">室内/室外视频</div>
+                        <div class="upload-list">
+                            <div class="upload-item" style="background:#888;">
+                                <span style="font-size:24px;">📷</span>
+                                <div class="del" onclick="event.stopPropagation();this.parentElement.remove()">×</div>
+                            </div>
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">至少传2个，室内/室外视频</div>
+                    </div>
+                    <div class="uploader" style="border-top:1px solid #f5f5f5;">
+                        <div class="uploader-title"><span class="req">*</span>门头照片</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">至少传3张，门头照片</div>
+                    </div>
+                    <div class="uploader" style="border-top:1px solid #f5f5f5;">
+                        <div class="uploader-title"><span class="req">*</span>室内照片</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                        <div class="upload-hint">至少传3张，室内照片</div>
+                    </div>
+                    <div class="uploader" style="border-top:1px solid #f5f5f5;">
+                        <div class="uploader-title">勘场报告</div>
+                        <div class="upload-list">
+                            <div class="upload-add" onclick="addUpload(this)">+</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">签字确认</div>
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label">监理签字</div>
+                        <div class="value placeholder" onclick="showToast('打开签字板')">去签字 ›</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">加盟商签字</div>
+                        <div class="value placeholder" onclick="showToast('打开签字板')">去签字 ›</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label">施工单位项目经理签字</div>
+                        <div class="value placeholder" onclick="showToast('打开签字板')">去签字 ›</div>
+                    </div>
+                </div>
+
+                <!-- ====== 新增：加盟商意愿相关事项 ====== -->
+                <div class="section-title">加盟商意愿相关事项</div>
+                <div class="card">
+                    <div class="form-row col" style="border-bottom:1px solid #f5f5f5;">
+                        <div class="label">广告物料是否有周杰伦画面</div>
+                        <div class="field-desc">室内货架上方灯箱、广告位等广告物料上方内容是否采用代言人形象宣传，代言到期后所更换灯箱软膜费用需加盟商提前支付</div>
+                    </div>
+                    <div class="form-row" onclick="toggleCheckbox(this)" style="cursor:pointer;">
+                        <div class="checkbox-box"></div>
+                        <div class="label" style="flex:1;font-weight:400;">货架灯箱换膜（不含人工安装）</div>
+                        <span class="price-tag">￥26.00/㎡</span>
+                    </div>
+                    <div class="form-row" onclick="toggleCheckbox(this)" style="cursor:pointer;">
+                        <div class="checkbox-box"></div>
+                        <div class="label" style="flex:1;font-weight:400;">广告位换膜（不含人工安装）</div>
+                        <span class="price-tag">￥76.00/㎡</span>
+                    </div>
+                </div>
+
+                <div class="section-title">备注</div>
+                <div class="card">
+                    <div style="padding:12px;">
+                        <textarea class="input-textarea" placeholder="备注信息..."></textarea>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-row">
+                        <div class="label"><span class="req">*</span>是否符合施工条件</div>
+                        <div class="value" onclick="openPicker('result')" style="color:#ff7a26;font-weight:600;">是 ›</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="footer">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display:none;">上一步</button>
+            <button class="btn btn-outline" id="saveBtn" onclick="showToast('已暂存')">暂存</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">下一步</button>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast">操作成功</div>
+
+        <!-- Picker -->
+        <div class="picker-mask" id="picker" onclick="closePickerMask(event)">
+            <div class="picker" onclick="event.stopPropagation()">
+                <div class="picker-header">
+                    <span class="picker-cancel" onclick="closePicker()">取消</span>
+                    <span class="picker-title" id="pickerTitle">请选择</span>
+                    <span class="picker-confirm" onclick="closePicker()">确定</span>
+                </div>
+                <div id="pickerList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function goStep(n) {
+            if (n < 1 || n > totalSteps) return;
+            currentStep = n;
+            updateStep();
+            if (n === 2) {
+                setTimeout(updateHeightCheck, 100);
+            }
+            if (n === 4) {
+                setTimeout(checkCopperWire, 100);
+            }
+        }
+
+        function nextStep() {
+            if (currentStep === 2) {
+                const heightNotMet = document.getElementById('heightNotMetReason');
+                if (heightNotMet && heightNotMet.style.display !== 'none') {
+                    const textarea = document.getElementById('heightNotMetTextarea');
+                    if (!textarea || !textarea.value.trim()) {
+                        showToast('请填写不满足高度≥2.2米的原因');
+                        return;
+                    }
+                }
+                const storeVersionEl = document.getElementById('storeVersionVal');
+                if (storeVersionEl && storeVersionEl.classList.contains('placeholder')) {
+                    showToast('请选择门店版本');
+                    return;
+                }
+            }
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateStep();
+                if (currentStep === 2) {
+                    setTimeout(updateHeightCheck, 100);
+                }
+                if (currentStep === 4) {
+                    setTimeout(checkCopperWire, 100);
+                }
+            } else {
+                showToast('✓ 勘场信息提交成功');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStep();
+                if (currentStep === 2) {
+                    setTimeout(updateHeightCheck, 100);
+                }
+                if (currentStep === 4) {
+                    setTimeout(checkCopperWire, 100);
+                }
+            }
+        }
+
+        function updateStep() {
+            document.querySelectorAll('.step').forEach((s, i) => {
+                s.classList.remove('active', 'done');
+                if (i + 1 < currentStep) s.classList.add('done');
+                if (i + 1 === currentStep) s.classList.add('active');
+            });
+            document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+            const activePage = document.querySelector('.step-page[data-page="' + currentStep + '"]');
+            if (activePage) activePage.classList.add('active');
+            document.getElementById('content').scrollTop = 0;
+            const pct = ((currentStep - 1) / (totalSteps - 1)) * 76;
+            document.getElementById('stepLine').style.width = pct + '%';
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? '提交' : '下一步';
+        }
+
+        function toggleRadio(el) {
+            const group = el.parentElement;
+            if (!group) return;
+            group.querySelectorAll('.radio').forEach(r => r.classList.remove('checked'));
+            el.classList.add('checked');
+        }
+
+        function selectCard(el, group) {
+            const parent = el.parentElement;
+            if (!parent) return;
+            parent.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function toggleTag(el) {
+            el.classList.toggle('selected');
+        }
+
+        // 加盟商意愿 - checkbox勾选切换
+        function toggleCheckbox(row) {
+            const box = row.querySelector('.checkbox-box');
+            if (!box) return;
+            box.classList.toggle('checked');
+            if (box.classList.contains('checked')) {
+                box.textContent = '✓';
+            } else {
+                box.textContent = '';
+            }
+        }
+
+        function addUpload(el) {
+            const colors = ['#ffb88c', '#88c0ff', '#a0e8a0', '#ffd166', '#ef9aa9'];
+            const c = colors[Math.floor(Math.random() * colors.length)];
+            const item = document.createElement('div');
+            item.className = 'upload-item';
+            item.style.background = c;
+            item.innerHTML =
+                '<span style="font-size:24px;">🖼</span><div class="del" onclick="event.stopPropagation();this.parentElement.remove()">×</div>';
+            el.parentElement.insertBefore(item, el);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1800);
+        }
+
+        // 层高自动判断高度≥2.2米
+        function updateHeightCheck() {
+            const layerHeightInput = document.getElementById('layerHeightInput');
+            const heightNotMetReason = document.getElementById('heightNotMetReason');
+            const heightRadioGroup = document.getElementById('heightRadioGroup');
+
+            if (!layerHeightInput || !heightRadioGroup) return;
+
+            const val = parseFloat(layerHeightInput.value);
+            const radios = heightRadioGroup.querySelectorAll('.radio');
+
+            if (!isNaN(val) && val > 0) {
+                if (val >= 2.2) {
+                    if (radios[0]) radios[0].classList.add('checked');
+                    if (radios[1]) radios[1].classList.remove('checked');
+                    if (heightNotMetReason) heightNotMetReason.style.display = 'none';
+                } else {
+                    if (radios[0]) radios[0].classList.remove('checked');
+                    if (radios[1]) radios[1].classList.add('checked');
+                    if (heightNotMetReason) heightNotMetReason.style.display = 'block';
+                }
+            } else {
+                if (radios[0]) radios[0].classList.add('checked');
+                if (radios[1]) radios[1].classList.remove('checked');
+                if (heightNotMetReason) heightNotMetReason.style.display = 'none';
+            }
+        }
+
+        // 入户25㎡铜芯线 - 不满足才显示电路说明
+        function checkCopperWire() {
+            const copperGroup = document.getElementById('copperWireRadioGroup');
+            const circuitRow = document.getElementById('circuitExplainRow');
+            if (!copperGroup || !circuitRow) return;
+            const radios = copperGroup.querySelectorAll('.radio');
+            let isNotSatisfied = false;
+            radios.forEach((r, i) => {
+                if (r.classList.contains('checked') && i === 1) {
+                    isNotSatisfied = true;
+                }
+            });
+            circuitRow.style.display = isNotSatisfied ? 'block' : 'none';
+        }
+
+        const pickerOptions = {
+            struct: ['砖混结构', '框架结构', '钢结构', '板房结构'],
+            storeVersion: ['3.0常规新店', '3.0品类扩充店', '2.0版本', '新版3.0常规店', '新版3.0品类扩充店', '3.5常规店',
+                '3.5品类扩充店'
+            ],
+            vi: ['2.0', '3.0', '3.5', '4.0', '5.0', '6.0', '6.5'],
+            struct2: ['标准矩形', '异形结构', '圆弧形', '拼接型'],
+            result: ['是 - 符合施工条件', '否 - 不符合施工条件', '待整改后施工'],
+        };
+        let currentPicker = '';
+
+        function openPicker(key) {
+            currentPicker = key;
+            const list = document.getElementById('pickerList');
+            list.innerHTML = '';
+            const options = pickerOptions[key];
+            if (!options) return;
+            document.getElementById('pickerTitle').textContent =
+                key === 'storeVersion' ? '选择门店版本' :
+                key === 'struct' ? '选择土建结构状态' :
+                key === 'vi' ? '选择VI版本' :
+                key === 'struct2' ? '选择招牌结构' :
+                key === 'result' ? '选择施工条件' : '请选择';
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'picker-item';
+                div.textContent = opt;
+                div.onclick = function() {
+                    list.querySelectorAll('.picker-item').forEach(i => i.classList.remove('active'));
+                    div.classList.add('active');
+                    if (key === 'storeVersion') {
+                        const el = document.getElementById('storeVersionVal');
+                        if (el) { el.textContent = opt;
+                            el.classList.remove('placeholder'); }
+                    }
+                    setTimeout(() => { closePicker(); }, 200);
+                };
+                list.appendChild(div);
+            });
+            document.getElementById('picker').classList.add('show');
+        }
+
+        function closePicker() {
+            document.getElementById('picker').classList.remove('show');
+        }
+
+        function closePickerMask(e) {
+            if (e.target.id === 'picker') closePicker();
+        }
+
+        function pickTime(el) {
+            const now = new Date();
+            const str = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate())
+                .padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2,
+                    '0');
+            const v = el.querySelector('.value');
+            v.textContent = str;
+            v.classList.remove('placeholder');
+        }
+
+        // 初始化
+        updateStep();
+        setTimeout(updateHeightCheck, 200);
+        setTimeout(checkCopperWire, 300);
+    </script>
+
+</body>
+</html>
