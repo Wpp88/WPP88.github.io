@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工程监理APP - 勘场预约（交铺日期未确认场景）</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e5e7eb;display:flex;justify-content:center;padding:20px 0;min-height:100vh;}
+  .phone{width:390px;background:#fff;border-radius:36px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.18);position:relative;height:844px;display:flex;flex-direction:column;}
+  
+  /* 状态栏 */
+  .status-bar{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:15px;font-weight:600;color:#0f172a;flex-shrink:0;}
+  .status-icons{display:flex;gap:5px;font-size:13px;}
+  
+  /* 导航栏 */
+  .nav-bar{height:48px;display:flex;align-items:center;padding:0 16px;background:#fff;flex-shrink:0;position:relative;}
+  .nav-back{font-size:24px;color:#0f172a;cursor:pointer;width:30px;}
+  .nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:600;color:#0f172a;}
+  
+  /* 顶部提醒 */
+  .top-warn{margin:12px;padding:12px 14px;background:#fff7ed;border-radius:10px;display:flex;gap:8px;align-items:flex-start;}
+  .top-warn .icon{width:18px;height:18px;background:#fb923c;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:1px;}
+  .top-warn .text{font-size:13px;color:#c2410c;line-height:1.6;}
+  
+  /* 🆕 交铺日期未确认提示 */
+  .unconfirm-banner{margin:0 12px 12px;padding:12px 14px;background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:10px;display:flex;gap:10px;align-items:center;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.2);}50%{box-shadow:0 0 0 6px rgba(239,68,68,0);}}
+  .unconfirm-banner .badge{padding:3px 8px;background:#dc2626;color:#fff;font-size:11px;border-radius:4px;font-weight:600;flex-shrink:0;}
+  .unconfirm-banner .text{font-size:12.5px;color:#991b1b;line-height:1.5;}
+  
+  /* 内容滚动区 */
+  .content{flex:1;overflow-y:auto;background:#fff;padding-bottom:90px;}
+  
+  /* 表单 */
+  .form-card{margin:0 12px 12px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);overflow:hidden;}
+  .form-row{display:flex;align-items:center;padding:16px 14px;border-bottom:1px solid #f1f5f9;font-size:15px;cursor:pointer;}
+  .form-row:last-child{border-bottom:none;}
+  .form-label{flex:1;color:#0f172a;}
+  .req{color:#ef4444;margin-right:3px;}
+  .form-value{color:#0f172a;display:flex;align-items:center;gap:4px;}
+  .form-value.placeholder{color:#cbd5e1;}
+  .arrow{color:#cbd5e1;font-size:14px;}
+  
+  /* 🆕 交铺日期未确认特殊样式 */
+  .form-value.unconfirmed{color:#dc2626;font-weight:600;}
+  .form-value.unconfirmed::before{content:"⚠ ";font-size:13px;}
+  .form-tip{padding:6px 14px;background:#fef3c7;font-size:11.5px;color:#b45309;line-height:1.5;}
+  
+  /* 单选 */
+  .radio-group{display:flex;gap:18px;}
+  .radio-item{display:flex;align-items:center;gap:4px;font-size:15px;}
+  .radio{width:18px;height:18px;border:1.5px solid #cbd5e1;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .radio.checked{background:#fb923c;border-color:#fb923c;color:#fff;font-size:11px;}
+  
+  /* 上传 */
+  .upload-block{padding:14px;}
+  .upload-label{font-size:14px;color:#0f172a;margin-bottom:10px;font-weight:500;}
+  .upload-box{width:80px;height:80px;border:1.5px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:28px;cursor:pointer;}
+  
+  /* 底部 */
+  .footer{position:absolute;bottom:0;left:0;right:0;padding:14px 16px 24px;background:#fff;border-top:1px solid #f1f5f9;}
+  .btn-submit{width:100%;height:48px;border:none;border-radius:24px;background:#fdba74;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
+  .btn-submit.active{background:#f97316;}
+  
+  /* 弹窗遮罩 */
+  .modal-mask{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:100;padding:0 24px;}
+  .modal-mask.show{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;width:100%;padding:22px 18px;animation:popIn 0.25s ease;}
+  @keyframes popIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+  
+  /* 🆕 强校验弹窗 */
+  .modal-warn-icon{width:54px;height:54px;background:#fff7ed;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:30px;}
+  .modal-title{font-size:17px;font-weight:600;color:#0f172a;text-align:center;margin-bottom:8px;}
+  .modal-desc{font-size:13.5px;color:#475569;text-align:center;line-height:1.7;margin-bottom:18px;}
+  .modal-highlight{background:#fef3c7;color:#b45309;padding:8px 12px;border-radius:8px;font-size:12.5px;margin:10px 0;text-align:center;}
+  .modal-actions{display:flex;gap:10px;}
+  .modal-btn{flex:1;height:44px;border:none;border-radius:10px;font-size:14.5px;font-weight:500;cursor:pointer;}
+  .btn-cancel{background:#f1f5f9;color:#475569;}
+  .btn-confirm{background:#f97316;color:#fff;}
+  .btn-secondary{background:#eff6ff;color:#2563eb;}
+  
+  /* 🆕 日期编辑弹窗 */
+  .edit-box{padding:18px;}
+  .edit-title{font-size:16px;font-weight:600;text-align:center;margin-bottom:14px;}
+  .edit-field{padding:14px 0;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;}
+  .edit-label{width:90px;font-size:14px;color:#64748b;}
+  .edit-input{flex:1;padding:8px 12px;background:#f8fafc;border-radius:6px;font-size:14px;color:#0f172a;border:1px solid #e2e8f0;cursor:pointer;}
+  
+  /* Toast */
+  .toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 20px;border-radius:8px;font-size:13.5px;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none;max-width:280px;text-align:center;line-height:1.5;}
+  .toast.show{opacity:1;}
+  
+  /* 企微悬浮通知 */
+  .wework-notify{position:absolute;top:14px;left:14px;right:14px;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.25);display:none;animation:slideDown 0.3s;z-index:150;}
+  .wework-notify.show{display:block;}
+  @keyframes slideDown{from{transform:translateY(-110%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .wework-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .wework-logo{width:20px;height:20px;background:#07c160;border-radius:4px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;}
+  .wework-title{font-size:12px;color:#64748b;}
+  .wework-content{font-size:12.5px;color:#0f172a;line-height:1.5;}
+  
+  /* 状态切换器 */
+  .demo-switch{position:fixed;top:20px;right:20px;background:#fff;padding:12px 14px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;font-size:12px;width:180px;}
+  .demo-switch h4{font-size:12px;color:#64748b;margin-bottom:8px;font-weight:600;}
+  .demo-switch button{display:block;width:100%;margin-bottom:5px;padding:7px 10px;border:1px solid #e2e8f0;background:#fff;border-radius:6px;font-size:12px;cursor:pointer;text-align:left;}
+  .demo-switch button.active{background:#fb923c;color:#fff;border-color:#fb923c;}
+  .demo-switch .group{margin-bottom:10px;}
+  .demo-switch .label{font-size:11px;color:#94a3b8;margin-bottom:4px;}
+</style>
+</head>
+<body>
+
+<div class="demo-switch">
+  <h4>📌 演示场景切换</h4>
+  <div class="group">
+    <div class="label">加盟商交铺日期任务：</div>
+    <button id="btnUnconfirm" class="active" onclick="switchScene('unconfirm')">⚠ 未确认（待处理）</button>
+    <button id="btnConfirmed" onclick="switchScene('confirmed')">✓ 已确认</button>
+  </div>
+  <div class="group">
+    <div class="label">演示路径：</div>
+    <button onclick="demoFlowA()">情况A · 监理直接修改</button>
+    <button onclick="demoFlowB()">情况B · 监理未改直接提交</button>
+  </div>
+</div>
+
+<div class="phone">
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <span>20:14</span>
+    <div class="status-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+  </div>
+  
+  <!-- 导航 -->
+  <div class="nav-bar">
+    <div class="nav-back">‹</div>
+    <div class="nav-title">勘场预约</div>
+  </div>
+  
+  <div class="content">
+    
+    <!-- 默认提示 -->
+    <div class="top-warn">
+      <div class="icon">!</div>
+      <div class="text">交铺日期影响整体的工程完成时间，如有偏差，请与加盟商确认后更新</div>
+    </div>
+    
+    <!-- 🆕 加盟商未确认警示Banner（仅未确认场景显示） -->
+    <div class="unconfirm-banner" id="unconfirmBanner">
+      <div class="badge">未确认</div>
+      <div class="text">
+        加盟商尚未确认交铺日期任务，请<b>确认后填写</b>，否则系统将拦截提交。
+      </div>
+    </div>
+    
+    <!-- 表单 -->
+    <div class="form-card">
+      <!-- 🆕 交铺日期 - 动态显示 -->
+      <div class="form-row" onclick="openEditDateModal()">
+        <div class="form-label"><span class="req">*</span>交铺日期</div>
+        <div class="form-value unconfirmed" id="deliveryDateValue">
+          2026-06-01 未确认
+        </div>
+        <span class="arrow">›</span>
+      </div>
+      <!-- 未确认时显示提示行 -->
+      <div class="form-tip" id="dateTipRow">⚠ 加盟商尚未提交交铺日期任务，监理可在此直接填写或修改</div>
+      
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>是否预约成功</div>
+        <div class="radio-group">
+          <div class="radio-item" onclick="event.stopPropagation();selectRadio('yes')">
+            <div class="radio checked" id="rdYes">✓</div><span>是</span>
+          </div>
+          <div class="radio-item" onclick="event.stopPropagation();selectRadio('no')">
+            <div class="radio" id="rdNo"></div><span>否</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row" onclick="showToast('选择预约勘场时间')">
+        <div class="form-label"><span class="req">*</span>预约勘场时间</div>
+        <div class="form-value placeholder">请选择</div>
+        <span class="arrow">›</span>
+      </div>
+      
+      <div class="upload-block">
+        <div class="upload-label">拆除完成照片</div>
+        <div class="upload-box">+</div>
+      </div>
+      <div class="upload-block" style="border-top:1px solid #f1f5f9;">
+        <div class="upload-label">加盟商预约证明</div>
+        <div class="upload-box">+</div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- 底部提交 -->
+  <div class="footer">
+    <button class="btn-submit active" onclick="onSubmit()">提交</button>
+  </div>
+  
+  <!-- 🆕 强校验拦截弹窗（情况B） -->
+  <div class="modal-mask" id="modalCheck">
+    <div class="modal-box">
+      <div class="modal-warn-icon">⚠️</div>
+      <div class="modal-title">请确认交铺日期</div>
+      <div class="modal-desc">
+        加盟商尚未确认交铺日期，<b>无法提交预约勘场</b>。<br>
+        请确认交铺日期是否正确，<br>如有偏差，请与加盟商确认后更新。
+      </div>
+      <div class="modal-highlight">
+        💡 交铺日期会同步至门店系统，影响整体工程排期
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-secondary" onclick="contactFranchisee()">联系加盟商</button>
+        <button class="modal-btn btn-confirm" onclick="hideModal('modalCheck');openEditDateModal();">填写/修改交铺日期</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 🆕 交铺日期编辑弹窗（情况A） -->
+  <div class="modal-mask" id="modalEdit">
+    <div class="modal-box">
+      <div class="edit-title">📅 填写/修改交铺日期</div>
+      <div class="modal-desc" style="margin-bottom:8px;">
+        加盟商<b style="color:#dc2626;">未确认交铺日期</b>，请与加盟商确认实际交铺日期<br>
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">交铺日期</div>
+        <div class="edit-input" id="dateInput" onclick="pickDate()">请选择日期</div>
+      </div>
+      <div class="edit-field" style="border:none;">
+        <div class="edit-label">备注（选填）</div>
+        <div class="edit-input" style="cursor:text;color:#94a3b8;">已与加盟商电话确认</div>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;">
+        <button class="modal-btn btn-cancel" onclick="hideModal('modalEdit')">取消</button>
+        <button class="modal-btn btn-confirm" onclick="confirmDate()">确认提交</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 🆕 联系加盟商弹窗 -->
+  <div class="modal-mask" id="modalContact">
+    <div class="modal-box">
+      <div class="edit-title" style="margin-bottom:14px;">📞 联系加盟商</div>
+      <div style="padding:12px 14px;background:#f8fafc;border-radius:10px;display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer;" onclick="callFranchisee()">
+        <div style="width:36px;height:36px;background:#07c160;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;">📞</div>
+        <div><div style="font-size:14px;font-weight:500;">电话联系</div><div style="font-size:11px;color:#94a3b8;">138****8888</div></div>
+      </div>
+      <div style="padding:12px 14px;background:#f8fafc;border-radius:10px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="sendWework()">
+        <div style="width:36px;height:36px;background:#2563eb;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;">💬</div>
+        <div><div style="font-size:14px;font-weight:500;">企业微信催办</div><div style="font-size:11px;color:#94a3b8;">推送催办消息</div></div>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;">
+        <button class="modal-btn btn-cancel" onclick="hideModal('modalContact')">取消</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 企微悬浮通知 -->
+  <div class="wework-notify" id="weworkNotify">
+    <div class="wework-header">
+      <div class="wework-logo">微</div>
+      <div class="wework-title">企业微信消息</div>
+    </div>
+    <div class="wework-content" id="weworkContent"></div>
+  </div>
+  
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  let scene = 'unconfirm'; // unconfirm | confirmed
+  let deliveryDate = null;
+  
+  function switchScene(s) {
+    scene = s;
+    document.getElementById('btnUnconfirm').classList.toggle('active', s==='unconfirm');
+    document.getElementById('btnConfirmed').classList.toggle('active', s==='confirmed');
+    
+    const banner = document.getElementById('unconfirmBanner');
+    const dateVal = document.getElementById('deliveryDateValue');
+    const tipRow = document.getElementById('dateTipRow');
+    
+    if(s === 'unconfirm') {
+      banner.style.display = 'flex';
+      dateVal.className = 'form-value unconfirmed';
+      dateVal.textContent = '未确认';
+      tipRow.style.display = 'block';
+      deliveryDate = null;
+    } else {
+      banner.style.display = 'none';
+      dateVal.className = 'form-value';
+      dateVal.textContent = '2026-06-01☑️已确认';
+      tipRow.style.display = 'none';
+      deliveryDate = '2026-06-01☑️已确认';
+    }
+  }
+  
+  function showToast(msg, dur=2000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), dur);
+  }
+  
+  function showWework(html, dur=3500) {
+    const n = document.getElementById('weworkNotify');
+    document.getElementById('weworkContent').innerHTML = html;
+    n.classList.add('show');
+    setTimeout(()=>n.classList.remove('show'), dur);
+  }
+  
+  function showModal(id){document.getElementById(id).classList.add('show');}
+  function hideModal(id){document.getElementById(id).classList.remove('show');}
+  
+  function selectRadio(v) {
+    document.getElementById('rdYes').classList.toggle('checked', v==='yes');
+    document.getElementById('rdYes').textContent = v==='yes'?'✓':'';
+    document.getElementById('rdNo').classList.toggle('checked', v==='no');
+    document.getElementById('rdNo').textContent = v==='no'?'✓':'';
+  }
+  
+  // 情况B：监理未改直接提交 → 拦截弹窗
+  function onSubmit() {
+    if(scene === 'unconfirm' && !deliveryDate) {
+      showModal('modalCheck');
+      return;
+    }
+    showToast('✅ 预约勘场提交成功');
+    setTimeout(()=>{
+      showWework('<b>📤 已同步至门店系统</b><br>交铺日期：'+deliveryDate+'<br>同时通知加盟商：交铺日期已由监理确认更新');
+    }, 500);
+  }
+  
+  // 打开编辑弹窗
+  function openEditDateModal() {
+    if(scene === 'confirmed') {
+      showToast('已确认日期，点击可修改');
+    }
+    showModal('modalEdit');
+  }
+  
+  function pickDate() {
+    const d = '2026-06-15';
+    document.getElementById('dateInput').textContent = d;
+    document.getElementById('dateInput').style.color = '#0f172a';
+    deliveryDate = d;
+  }
+  
+  // 情况A：监理直接修改/填写交铺日期
+  function confirmDate() {
+    if(!deliveryDate) { showToast('请先选择交铺日期'); return; }
+    hideModal('modalEdit');
+    
+    // 更新页面显示
+    const dateVal = document.getElementById('deliveryDateValue');
+    dateVal.className = 'form-value';
+    dateVal.textContent = deliveryDate;
+    document.getElementById('unconfirmBanner').style.display = 'none';
+    document.getElementById('dateTipRow').style.display = 'none';
+    
+    showToast('✅ 交铺日期已更新');
+    
+    // 模拟系统通知链路
+    setTimeout(()=>{
+      showWework(`<b>✅ 任务状态变更</b><br>《交铺时间确认》任务已完成<br>已同步至门店系统 · 已通知加盟商`);
+    }, 600);
+    
+    setTimeout(()=>{
+      showWework(`<b>💡 加盟商提醒</b><br>勘场完成前您仍可修改交铺日期<br>请前往筹建事项查看`);
+    }, 4500);
+  }
+  
+  function contactFranchisee() {
+    hideModal('modalCheck');
+    showModal('modalContact');
+  }
+  
+  function callFranchisee() {
+    hideModal('modalContact');
+    showToast('📞 正在拨打：138****8888');
+  }
+  
+  function sendWework() {
+    hideModal('modalContact');
+    setTimeout(()=>{
+      showWework('<b>📣 催办消息已发送</b><br>已通过企业微信通知加盟商<br>尽快确认交铺日期');
+      setTimeout(()=>showToast('✅ 催办成功'), 300);
+    }, 200);
+  }
+  
+  // 演示流程
+  function demoFlowA() {
+    switchScene('unconfirm');
+    setTimeout(()=>openEditDateModal(), 500);
+    setTimeout(()=>pickDate(), 1500);
+    setTimeout(()=>confirmDate(), 2500);
+  }
+  
+  function demoFlowB() {
+    switchScene('unconfirm');
+    setTimeout(()=>onSubmit(), 500);
+  }
+</script>
+
+</body>
+</html>
