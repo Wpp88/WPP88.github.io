@@ -41,7 +41,7 @@
         .btn-submit.active{background:#f97316;box-shadow:0 4px 12px rgba(249,115,22,0.3);}
         .modal-mask{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100;}
         .modal-mask.show{display:flex;}
-        .modal-sheet{background:#fff;border-radius:16px 16px 0 0;width:100%;padding:16px;animation:slideUp 0.3s;max-height:80%;overflow-y:auto;}
+        .modal-sheet{background:#fff;border-radius:16px 16px 0 0;width:100%;padding:16px;animation:slideUp 0.3s;max-height:85%;overflow-y:auto;}
         @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
         .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
         .sheet-title{font-size:16px;font-weight:600;color:#0f172a;}
@@ -51,15 +51,6 @@
         .rl-radio{width:20px;height:20px;border:1.5px solid #cbd5e1;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;}
         .rl-radio.checked{background:#f97316;border-color:#f97316;color:#fff;font-size:12px;}
         .sheet-btn{width:100%;height:44px;border:none;border-radius:8px;background:#f97316;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;}
-        .date-picker{padding:8px 4px;}
-        .date-hint{font-size:12px;color:#64748b;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:10px;line-height:1.5;}
-        .date-hint b{color:#f97316;}
-        .date-input{padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;color:#0f172a;cursor:pointer;text-align:center;position:relative;transition:all 0.2s;}
-        .date-input:hover:not(.disabled){background:#fff7ed;border-color:#fb923c;}
-        .date-input.disabled{background:#f1f5f9;color:#cbd5e1;cursor:not-allowed;}
-        .date-input.disabled::after{content:"不可选";position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;background:#e2e8f0;padding:2px 6px;border-radius:4px;}
-        .date-input.today-mark::before{content:"今日";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:10px;color:#fff;background:#10b981;padding:2px 5px;border-radius:3px;}
-        .date-input.delivery-mark::before{content:"交铺日";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:10px;color:#fff;background:#0ea5e9;padding:2px 5px;border-radius:3px;}
         .toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 20px;border-radius:8px;font-size:13.5px;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none;max-width:300px;text-align:center;line-height:1.5;}
         .toast.show{opacity:1;}
         .toast.error{background:rgba(220,38,38,0.92);}
@@ -74,30 +65,34 @@
         .demo-switch .group{margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed #e2e8f0;}
         .demo-switch .group:last-child{border-bottom:none;}
         .demo-switch .label{font-size:11px;color:#94a3b8;margin-bottom:4px;font-weight:600;}
+        .source-tag{padding:4px 10px;background:#f0f9ff;color:#0369a1;border-radius:4px;font-size:11px;margin-left:8px;font-weight:500;}
+        .source-tag.warn{background:#fef3c7;color:#92400e;}
+        .sub-label{font-size:11px;color:#64748b;padding-left:14px;margin-bottom:6px;}
+
+        /* 滚轮日期选择器 */
+        .wheel-wrapper{display:flex;gap:0;justify-content:center;padding:0 10px;position:relative;margin-bottom:16px;}
+        .wheel-col{flex:1;max-width:110px;position:relative;}
+        .wheel-col-header{text-align:center;font-size:11px;color:#94a3b8;padding:6px 0;font-weight:500;letter-spacing:1px;}
+        .wheel-scroll-container{position:relative;height:200px;overflow:hidden;border-radius:8px;}
+        .wheel-highlight{position:absolute;top:50%;left:8px;right:8px;height:42px;transform:translateY(-50%);background:rgba(249,115,22,0.08);border-top:1.5px solid #f97316;border-bottom:1.5px solid #f97316;border-radius:4px;pointer-events:none;z-index:2;}
+        .wheel-scroll{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;padding:80px 0;scrollbar-width:none;}
+        .wheel-scroll::-webkit-scrollbar{display:none;}
+        .wheel-item{height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#cbd5e1;scroll-snap-align:center;cursor:pointer;user-select:none;transition:color 0.15s,font-weight 0.15s;white-space:nowrap;}
+        .wheel-item.active{color:#0f172a;font-weight:700;font-size:17px;}
+        .wheel-btn-row{display:flex;gap:12px;margin-top:8px;padding:0 4px;}
+        .wheel-btn{flex:1;height:40px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;}
+        .wheel-btn.cancel{background:#f1f5f9;color:#64748b;}
+        .wheel-btn.confirm{background:#f97316;color:#fff;}
+        .date-hint{font-size:12px;color:#64748b;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:10px;line-height:1.5;}
+        .date-hint b{color:#f97316;}
     </style>
 </head>
 <body>
 <div class="demo-switch" id="demoSwitch">
     <h4>📌 场景切换控制台</h4>
-    <div class="group">
-        <div class="label">页面场景：</div>
-        <button class="active" id="btnPageA" onclick="switchPage('A')">A · 首次勘场预约</button>
-        <button id="btnPageB" onclick="switchPage('B')">B · 勘场重新预约</button>
-    </div>
-    <div class="group">
-        <div class="label">A页初始状态：</div>
-        <button class="active" id="btnASubmitted" onclick="setInitScene('submitted')">✓ 加盟商已提交交铺时间</button>
-        <button id="btnANotSubmitted" onclick="setInitScene('notSubmitted')">✗ 加盟商未提交</button>
-    </div>
-    <div class="group">
-        <div class="label">演示流程：</div>
-        <button onclick="demoA1()">A · 已提交 → 已交铺+预约成功</button>
-        <button onclick="demoA2()">A · 已提交 → 已交铺+预约失败</button>
-        <button onclick="demoA3()">A · 未提交 → 已交铺流程</button>
-        <button onclick="demoA4()">A · 未交铺流程（选原因）</button>
-        <button onclick="demoB1()">B · 默认已交铺+预约成功</button>
-        <button onclick="demoB2()">B · 切换到未交铺</button>
-    </div>
+    <div class="group"><div class="label">页面场景：</div><button class="active" id="btnPageA" onclick="switchPage('A')">A · 首次勘场预约</button><button id="btnPageB" onclick="switchPage('B')">B · 勘场重新预约</button></div>
+    <div class="group"><div class="label">A页交铺时间来源：</div><button class="active" id="btnASubmitted" onclick="setSourceA('submitted')">✓ 加盟商已提交</button><button id="btnANotSubmitted" onclick="setSourceA('notSubmitted')">✗ 选址开发带入</button></div>
+    <div class="group"><div class="label">演示流程：</div><button onclick="demoA1()">A · 正常预约（无延期）</button><button onclick="demoA2()">A · 延期预约（显示字段）</button><button onclick="demoA3()">A · 预约失败</button><button onclick="demoB1()">B · 重新预约（无延期）</button><button onclick="demoB2()">B · 重新预约（延期）</button></div>
 </div>
 
 <!-- ============ 页面A：首次勘场预约 ============ -->
@@ -106,58 +101,33 @@
     <div class="nav-bar"><div class="nav-back">‹</div><div class="nav-title">勘场预约</div></div>
     <div class="content">
         <div class="top-warn"><div class="icon">!</div><div class="text">交铺日期影响整体的工程完成时间，如有偏差，请与加盟商确认后更新</div></div>
-        <div class="group-label">交铺状态确认</div>
+        <div class="group-label">交铺时间</div>
         <div class="form-card">
-            <div class="form-row" id="A_expectedRow" style="display:none;">
-                <div class="form-label">预计交铺时间</div>
-                <div class="form-value readonly" id="A_expectedDate">--</div>
-            </div>
-            <div class="form-row" id="A_deliverySwitchRow">
-                <div class="form-label"><span class="req">*</span>门店是否已交铺</div>
-                <div class="switch-group">
-                    <div class="switch-btn" id="A_btnNo" onclick="setDeliveryA('no')">否·未交铺</div>
-                    <div class="switch-btn" id="A_btnYes" onclick="setDeliveryA('yes')">是·已交铺</div>
-                </div>
-            </div>
-            <div id="A_actualDeliveryRow" style="display:none;">
-                <div class="form-row" onclick="openDatePickerA('actual')">
-                    <div class="form-label"><span class="req">*</span>实际交铺时间</div>
-                    <div class="form-value placeholder" id="A_actualDeliveryDate">请选择</div>
-                    <span class="arrow">›</span>
-                </div>
-            </div>
-            <div class="reason-block" id="A_noReasonBlock" style="display:none;">
-                <div class="form-row" onclick="openNoDeliveryReasonModalA()">
-                    <div class="form-label"><span class="req">*</span>未交铺原因</div>
-                    <div class="form-value placeholder" id="A_noDeliveryReasonVal">请选择</div>
-                    <span class="arrow">›</span>
-                </div>
-                <div class="form-row" onclick="openDatePickerA('revise')">
-                    <div class="form-label"><span class="req">*</span>重新填写预计交铺时间</div>
-                    <div class="form-value placeholder" id="A_reviseDeliveryVal">请选择更新后的日期</div>
-                    <span class="arrow">›</span>
-                </div>
-            </div>
+            <div class="form-row" style="cursor:default;"><div class="form-label">交铺时间<span class="source-tag" id="A_sourceTag">加盟商提交</span></div><div class="form-value readonly" id="A_readonlyDate">2026-06-25</div></div>
+            <div class="sub-label" id="A_sourceDesc">加盟商已提交了交铺时间，请核实后填写预计交铺时间。</div>
+            <div class="form-row" onclick="openDatePickerA('expected')"><div class="form-label"><span class="req">*</span>预计交铺时间</div><div class="form-value placeholder" id="A_expectedInput">请电话核实后更新</div><span class="arrow">›</span></div>
         </div>
-        <div id="A_bookingSection" style="display:none;">
-            <div class="group-label">预约信息</div>
-            <div class="form-card">
-                <div class="form-row"><div class="form-label"><span class="req">*</span>是否预约成功</div>
-                    <div class="radio-group">
-                        <div class="radio-item" onclick="setBookingA('yes')"><div class="radio checked" id="A_bkYes">✓</div><span>是</span></div>
-                        <div class="radio-item" onclick="setBookingA('no')"><div class="radio" id="A_bkNo"></div><span>否</span></div>
-                    </div>
+        <div id="A_bookingSection"><div class="group-label">预约信息</div><div class="form-card">
+            <div class="form-row"><div class="form-label"><span class="req">*</span>是否预约成功</div><div class="radio-group"><div class="radio-item" onclick="setBookingA('yes')"><div class="radio checked" id="A_bkYes">✓</div><span>是</span></div><div class="radio-item" onclick="setBookingA('no')"><div class="radio" id="A_bkNo"></div><span>否</span></div></div></div>
+            <div id="A_bookOK">
+                <div class="form-row" onclick="openDatePickerA('book')"><div class="form-label"><span class="req">*</span>预约勘场时间</div><div class="form-value placeholder" id="A_bookTime">请选择</div><span class="arrow">›</span></div>
+                <!-- 延期原因字段 -->
+                <div id="A_delayReasonRow" style="display:none;" class="form-row" onclick="openDelayModalA()">
+                    <div class="form-label"><span class="req">*</span>预约勘场延期原因</div>
+                    <div class="form-value placeholder" id="A_delayReasonVal">请选择</div>
+                    <span class="arrow">›</span>
                 </div>
-                <div id="A_bookOK"><div class="form-row" onclick="openDatePickerA('book')"><div class="form-label"><span class="req">*</span>预约勘场时间</div><div class="form-value placeholder" id="A_bookTime">请选择</div><span class="arrow">›</span></div></div>
-                <div id="A_bookFail" style="display:none;"><div class="form-row" onclick="openReasonModal('A_failReason','A')"><div class="form-label"><span class="req">*</span>预约不成功原因</div><div class="form-value placeholder" id="A_failReason">请选择</div><span class="arrow">›</span></div></div>
             </div>
-            <div id="A_uploadSection"><div class="group-label">现场证明材料</div><div class="form-card"><div class="upload-block"><div class="upload-label"><span class="req">*</span>拆除完成照片</div><div class="upload-box">+</div></div><div class="upload-block" style="border-top:1px solid #f1f5f9;"><div class="upload-label"><span class="req">*</span>加盟商预约证明</div><div class="upload-box">+</div></div></div></div>
-        </div>
+            <div id="A_bookFail" style="display:none;"><div class="form-row" onclick="openReasonModal('A_failReason','A')"><div class="form-label"><span class="req">*</span>预约不成功原因</div><div class="form-value placeholder" id="A_failReason">请选择</div><span class="arrow">›</span></div></div>
+        </div><div id="A_uploadSection"><div class="group-label">现场证明材料</div><div class="form-card"><div class="upload-block"><div class="upload-label"><span class="req">*</span>拆除完成照片</div><div class="upload-box">+</div></div><div class="upload-block" style="border-top:1px solid #f1f5f9;"><div class="upload-label"><span class="req">*</span>加盟商预约证明</div><div class="upload-box">+</div></div></div></div></div>
     </div>
     <div class="footer"><button class="btn-submit active" onclick="submitA()">提交</button></div>
-    <div class="modal-mask" id="A_datePicker"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">📅 选择日期</div><div class="sheet-close" onclick="hideModal('A_datePicker')">✕</div></div><div class="date-picker"><div class="date-hint" id="A_dateHint"></div><div id="A_dateList"></div></div></div></div>
+
+    <!-- 日期滚轮弹窗A -->
+    <div class="modal-mask" id="A_datePicker"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">📅 选择日期</div><div class="sheet-close" onclick="hideModal('A_datePicker')">✕</div></div><div class="date-hint" id="A_dateHint"></div><div class="wheel-wrapper" id="A_wheelWrapper"></div><div class="wheel-btn-row"><button class="wheel-btn cancel" onclick="hideModal('A_datePicker')">取消</button><button class="wheel-btn confirm" onclick="confirmWheelA()">确定</button></div></div></div>
+
     <div class="modal-mask" id="A_reasonModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择预约不成功原因</div><div class="sheet-close" onclick="hideModal('A_reasonModal')">✕</div></div><div class="reason-list" id="A_reasonList"><div class="rl-item" onclick="pickReason('A',this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('A',this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmReason('A')">提交</button></div></div>
-    <div class="modal-mask" id="A_noDeliveryModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择未交铺原因</div><div class="sheet-close" onclick="hideModal('A_noDeliveryModal')">✕</div></div><div class="reason-list" id="A_noDeliveryList"><div class="rl-item" onclick="pickNoDeliveryA(this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryA(this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmNoDeliveryA()">提交</button></div></div>
+    <div class="modal-mask" id="A_delayModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择预约勘场延期原因</div><div class="sheet-close" onclick="cancelDelayA()">✕</div></div><div class="reason-list" id="A_delayList"><div class="rl-item" onclick="pickDelayA(this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayA(this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmDelayA()">提交</button></div></div>
     <div class="toast" id="A_toast"></div>
 </div>
 
@@ -167,45 +137,34 @@
     <div class="nav-bar"><div class="nav-back">‹</div><div class="nav-title">勘场预约</div></div>
     <div class="content">
         <div class="top-warn"><div class="icon">!</div><div class="text">交铺日期影响整体的工程完成时间，如有偏差，请与加盟商确认后更新</div></div>
-        <div class="group-label">门店状态</div>
+        <div class="group-label">交铺信息</div>
         <div class="form-card">
-            <div class="form-row"><div class="form-label"><span class="req">*</span>门店是否已交铺</div>
-                <div class="switch-group">
-                    <div class="switch-btn" id="B_btnNo" onclick="setDeliveryB('no')">否·未交铺</div>
-                    <div class="switch-btn active-yes" id="B_btnYes" onclick="setDeliveryB('yes')">是·已交铺</div>
+            <div class="form-row" style="cursor:default;"><div class="form-label">预计交铺日期<span class="source-tag">首次核实</span></div><div class="form-value readonly" id="B_readonlyDate">2026-04-10</div></div>
+            <div class="sub-label">首次预约核实更新的预计交铺时间（不可修改）</div>
+            <div class="form-row" onclick="openDatePickerB('verify')"><div class="form-label"><span class="req">*</span>本次核实预计交铺时间</div><div class="form-value placeholder" id="B_verifyInput">请选择</div><span class="arrow">›</span></div>
+        </div>
+        <div id="B_bookingSection"><div class="group-label">重新预约</div><div class="form-card">
+            <div class="form-row"><div class="form-label">原预约时间</div><div class="form-value readonly">2026-04-30 12:41:00</div></div>
+            <div class="form-row"><div class="form-label"><span class="req">*</span>是否预约成功</div><div class="radio-group"><div class="radio-item" onclick="setBookingB('yes')"><div class="radio checked" id="B_bkYes">✓</div><span>是</span></div><div class="radio-item" onclick="setBookingB('no')"><div class="radio" id="B_bkNo"></div><span>否</span></div></div></div>
+            <div id="B_modifyTime">
+                <div class="form-row" onclick="openDatePickerB('book')"><div class="form-label"><span class="req">*</span>修改勘场时间</div><div class="form-value placeholder" id="B_newTime">请选择</div><span class="arrow">›</span></div>
+                <!-- 延期原因字段 -->
+                <div id="B_delayReasonRow" style="display:none;" class="form-row" onclick="openDelayModalB()">
+                    <div class="form-label"><span class="req">*</span>预约勘场延期原因</div>
+                    <div class="form-value placeholder" id="B_delayReasonVal">请选择</div>
+                    <span class="arrow">›</span>
                 </div>
             </div>
-            <div id="B_deliveryDateRow" class="form-row" onclick="openDatePickerB('delivery')">
-                <div class="form-label">预计交铺日期</div><div class="form-value" id="B_deliveryDate">2026-04-10</div><span class="arrow">›</span>
-            </div>
-            <div id="B_actualDeliveryRow" class="form-row" onclick="openDatePickerB('actual')">
-                <div class="form-label"><span class="req">*</span>实际交铺时间</div><div class="form-value" id="B_actualDeliveryDate">2026-04-10</div><span class="arrow">›</span>
-            </div>
-            <div class="reason-block" id="B_noReasonBlock" style="display:none;">
-                <div class="form-row" onclick="openNoDeliveryReasonModalB()"><div class="form-label"><span class="req">*</span>未交铺原因</div><div class="form-value placeholder" id="B_noDeliveryReasonVal">请选择</div><span class="arrow">›</span></div>
-                <div class="form-row" onclick="openDatePickerB('revise')"><div class="form-label"><span class="req">*</span>重新填写预计交铺时间</div><div class="form-value placeholder" id="B_reviseDeliveryVal">请选择更新后的日期</div><span class="arrow">›</span></div>
-            </div>
-        </div>
-        <div id="B_bookingSection">
-            <div class="group-label">重新预约</div>
-            <div class="form-card">
-                <div class="form-row"><div class="form-label">原预约时间</div><div class="form-value readonly">2026-04-30 12:41:00</div></div>
-                <div class="form-row"><div class="form-label"><span class="req">*</span>是否预约成功</div>
-                    <div class="radio-group">
-                        <div class="radio-item" onclick="setBookingB('yes')"><div class="radio checked" id="B_bkYes">✓</div><span>是</span></div>
-                        <div class="radio-item" onclick="setBookingB('no')"><div class="radio" id="B_bkNo"></div><span>否</span></div>
-                    </div>
-                </div>
-                <div id="B_modifyTime"><div class="form-row" onclick="openDatePickerB('book')"><div class="form-label"><span class="req">*</span>修改勘场时间</div><div class="form-value placeholder" id="B_newTime">请选择</div><span class="arrow">›</span></div></div>
-                <div id="B_bookFail" style="display:none;"><div class="form-row" onclick="openReasonModal('B_failReason','B')"><div class="form-label"><span class="req">*</span>预约不成功原因</div><div class="form-value placeholder" id="B_failReason">请选择</div><span class="arrow">›</span></div></div>
-            </div>
-            <div id="B_uploadSection"><div class="group-label">现场证明材料</div><div class="form-card"><div class="upload-block"><div class="upload-label"><span class="req">*</span>拆除完成照片</div><div class="upload-box">+</div></div><div class="upload-block" style="border-top:1px solid #f1f5f9;"><div class="upload-label"><span class="req">*</span>加盟商预约证明</div><div class="upload-box">+</div></div></div></div>
-        </div>
+            <div id="B_bookFail" style="display:none;"><div class="form-row" onclick="openReasonModal('B_failReason','B')"><div class="form-label"><span class="req">*</span>预约不成功原因</div><div class="form-value placeholder" id="B_failReason">请选择</div><span class="arrow">›</span></div></div>
+        </div><div id="B_uploadSection"><div class="group-label">现场证明材料</div><div class="form-card"><div class="upload-block"><div class="upload-label"><span class="req">*</span>拆除完成照片</div><div class="upload-box">+</div></div><div class="upload-block" style="border-top:1px solid #f1f5f9;"><div class="upload-label"><span class="req">*</span>加盟商预约证明</div><div class="upload-box">+</div></div></div></div></div>
     </div>
     <div class="footer"><button class="btn-submit active" onclick="submitB()">提交</button></div>
-    <div class="modal-mask" id="B_datePicker"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">📅 选择日期</div><div class="sheet-close" onclick="hideModal('B_datePicker')">✕</div></div><div class="date-picker"><div class="date-hint" id="B_dateHint"></div><div id="B_dateList"></div></div></div></div>
+
+    <!-- 日期滚轮弹窗B -->
+    <div class="modal-mask" id="B_datePicker"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">📅 选择日期</div><div class="sheet-close" onclick="hideModal('B_datePicker')">✕</div></div><div class="date-hint" id="B_dateHint"></div><div class="wheel-wrapper" id="B_wheelWrapper"></div><div class="wheel-btn-row"><button class="wheel-btn cancel" onclick="hideModal('B_datePicker')">取消</button><button class="wheel-btn confirm" onclick="confirmWheelB()">确定</button></div></div></div>
+
     <div class="modal-mask" id="B_reasonModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择预约不成功原因</div><div class="sheet-close" onclick="hideModal('B_reasonModal')">✕</div></div><div class="reason-list" id="B_reasonList"><div class="rl-item" onclick="pickReason('B',this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickReason('B',this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmReason('B')">提交</button></div></div>
-    <div class="modal-mask" id="B_noDeliveryModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择未交铺原因</div><div class="sheet-close" onclick="hideModal('B_noDeliveryModal')">✕</div></div><div class="reason-list" id="B_noDeliveryList"><div class="rl-item" onclick="pickNoDeliveryB(this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickNoDeliveryB(this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmNoDeliveryB()">提交</button></div></div>
+    <div class="modal-mask" id="B_delayModal"><div class="modal-sheet"><div class="sheet-head"><div class="sheet-title">请选择预约勘场延期原因</div><div class="sheet-close" onclick="cancelDelayB()">✕</div></div><div class="reason-list" id="B_delayList"><div class="rl-item" onclick="pickDelayB(this,'未交铺')"><span>未交铺</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'拆除工作未完成')"><span>拆除工作未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'结构施工未完成')"><span>结构施工未完成</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'加盟商改期')"><span>加盟商改期</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'联系不上加盟商')"><span>联系不上加盟商</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'行程冲突')"><span>行程冲突</span><div class="rl-radio"></div></div><div class="rl-item" onclick="pickDelayB(this,'其他')"><span>其他</span><div class="rl-radio"></div></div></div><button class="sheet-btn" onclick="confirmDelayB()">提交</button></div></div>
     <div class="toast" id="B_toast"></div>
 </div>
 
@@ -215,10 +174,12 @@
     function showModal(id){document.getElementById(id).classList.add('show');}
     function hideModal(id){document.getElementById(id).classList.remove('show');}
     function cmpDate(a,b){return new Date(a).getTime()-new Date(b).getTime();}
+    function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
+    function daysInMonth(y,m){return new Date(y,m,0).getDate();}
 
     const state = {
-        A: { scene:'submitted', delivery:null, actualDeliveryDate:null, booking:'yes', dateTarget:null, reasonPicked:null, reasonTarget:null, noDeliveryReason:null, reviseDeliveryDate:null, bookTime:null, failReason:null, expectedDate:'2026-06-25' },
-        B: { delivery:'yes', deliveryDate:'2026-04-10', actualDeliveryDate:'2026-04-10', booking:'yes', dateTarget:null, reasonPicked:null, reasonTarget:null, noDeliveryReason:null, reviseDeliveryDate:null, newTime:null, failReason:null }
+        A: { source:'submitted', readonlyDate:'2026-06-25', expectedDate:null, booking:'yes', dateTarget:null, reasonPicked:null, reasonTarget:null, bookTime:null, failReason:null, delayReason:null, wheelYear:2026, wheelMonth:6, wheelDay:25 },
+        B: { readonlyDate:'2026-04-10', verifyDate:null, booking:'yes', dateTarget:null, reasonPicked:null, reasonTarget:null, newTime:null, failReason:null, delayReason:null, wheelYear:2026, wheelMonth:5, wheelDay:20 }
     };
 
     function switchPage(p){
@@ -228,42 +189,126 @@
         document.getElementById('pageB').style.display=p==='B'?'flex':'none';
     }
 
-    function getCheckDateA(){ return state.A.actualDeliveryDate || null; }
-    function getCheckDateB(){ return state.B.actualDeliveryDate || state.B.deliveryDate; }
+    // ========== 滚轮构建 ==========
+    function buildWheel(page){
+        const s=state[page];
+        const wrapper=document.getElementById(page+'_wheelWrapper');
+        const years=[],months=[],days=[];
+        for(let y=2024;y<=2027;y++) years.push(y);
+        for(let m=1;m<=12;m++) months.push(m);
+        const maxDay=daysInMonth(s.wheelYear,s.wheelMonth);
+        for(let d=1;d<=maxDay;d++) days.push(d);
+
+        let html='';
+        ['年','月','日'].forEach((label,i)=>{
+            const vals=i===0?years:(i===1?months:days);
+            const activeVal=i===0?s.wheelYear:(i===1?s.wheelMonth:s.wheelDay);
+            html+=`<div class="wheel-col"><div class="wheel-col-header">${label}</div><div class="wheel-scroll-container"><div class="wheel-highlight"></div><div class="wheel-scroll" id="${page}_wheel${i}" data-type="${i}">`;
+            vals.forEach(v=>{
+                const isActive=v===activeVal;
+                html+=`<div class="wheel-item${isActive?' active':''}" data-val="${v}">${v}${label}</div>`;
+            });
+            html+=`</div></div></div>`;
+        });
+        wrapper.innerHTML=html;
+
+        setTimeout(()=>{
+            for(let i=0;i<3;i++){
+                const scrollEl=document.getElementById(page+'_wheel'+i);
+                if(scrollEl){
+                    const activeItem=scrollEl.querySelector('.wheel-item.active');
+                    if(activeItem){
+                        const idx=Array.from(scrollEl.children).indexOf(activeItem);
+                        scrollEl.scrollTop=idx*40;
+                    }
+                }
+            }
+        },150);
+
+        for(let i=0;i<3;i++){
+            const scrollEl=document.getElementById(page+'_wheel'+i);
+            if(scrollEl){
+                scrollEl.addEventListener('scroll',()=>{
+                    const idx=Math.round(scrollEl.scrollTop/40);
+                    const items=scrollEl.querySelectorAll('.wheel-item');
+                    items.forEach((item,ii)=>{
+                        item.classList.toggle('active',ii===idx);
+                        if(ii===idx){
+                            const val=parseInt(item.dataset.val);
+                            if(i===0) s.wheelYear=val;
+                            else if(i===1){ s.wheelMonth=val; updateDayWheel(page); }
+                            else s.wheelDay=val;
+                        }
+                    });
+                },{passive:true});
+            }
+        }
+    }
+
+    function updateDayWheel(page){
+        const s=state[page];
+        const dayScroll=document.getElementById(page+'_wheel2');
+        if(!dayScroll) return;
+        const maxDay=daysInMonth(s.wheelYear,s.wheelMonth);
+        const currentDay=Math.min(s.wheelDay,maxDay);
+        s.wheelDay=currentDay;
+        let html='';
+        for(let d=1;d<=maxDay;d++){
+            html+=`<div class="wheel-item${d===currentDay?' active':''}" data-val="${d}">${d}日</div>`;
+        }
+        dayScroll.innerHTML=html;
+        dayScroll.scrollTop=(currentDay-1)*40;
+    }
+
+    function getWheelDate(page){
+        const s=state[page];
+        const m=String(s.wheelMonth).padStart(2,'0');
+        const d=String(s.wheelDay).padStart(2,'0');
+        return `${s.wheelYear}-${m}-${d}`;
+    }
+
+    function setWheelDefault(page,dateStr){
+        const s=state[page];
+        if(dateStr){
+            const parts=dateStr.split('-');
+            s.wheelYear=parseInt(parts[0]);
+            s.wheelMonth=parseInt(parts[1]);
+            s.wheelDay=parseInt(parts[2]);
+        }
+    }
 
     // ========== A页逻辑 ==========
-    function setInitScene(s){
-        state.A.scene=s; document.getElementById('btnASubmitted').classList.toggle('active',s==='submitted'); document.getElementById('btnANotSubmitted').classList.toggle('active',s==='notSubmitted');
-        if(s==='submitted'){
-            state.A.expectedDate='2026-06-25'; document.getElementById('A_expectedRow').style.display='flex'; document.getElementById('A_expectedDate').textContent='2026-06-25';
+    function setSourceA(src){
+        state.A.source=src;
+        document.getElementById('btnASubmitted').classList.toggle('active',src==='submitted');
+        document.getElementById('btnANotSubmitted').classList.toggle('active',src==='notSubmitted');
+        if(src==='submitted'){
+            state.A.readonlyDate='2026-06-25';
+            document.getElementById('A_readonlyDate').textContent='2026-06-25';
+            document.getElementById('A_sourceTag').textContent='加盟商提交';
+            document.getElementById('A_sourceTag').className='source-tag';
+            document.getElementById('A_sourceDesc').textContent='加盟商已提交了交铺时间，请核实后填写预计交铺时间。';
         }else{
-            state.A.expectedDate=null; document.getElementById('A_expectedRow').style.display='none';
+            state.A.readonlyDate='2026-05-10';
+            document.getElementById('A_readonlyDate').textContent='2026-05-10';
+            document.getElementById('A_sourceTag').textContent='选址开发带入';
+            document.getElementById('A_sourceTag').className='source-tag warn';
+            document.getElementById('A_sourceDesc').textContent='该交铺日期是选址开发填写的日期，请与加盟商确认后更新。';
         }
         resetA();
     }
 
     function resetA(){
-        state.A.delivery=null; state.A.actualDeliveryDate=null; state.A.booking='yes'; state.A.reasonPicked=null; state.A.noDeliveryReason=null; state.A.reviseDeliveryDate=null; state.A.bookTime=null; state.A.failReason=null;
-        document.getElementById('A_btnNo').className='switch-btn'; document.getElementById('A_btnYes').className='switch-btn';
-        document.getElementById('A_actualDeliveryRow').style.display='none'; document.getElementById('A_noReasonBlock').style.display='none'; document.getElementById('A_bookingSection').style.display='none';
-        document.getElementById('A_bookOK').style.display='block'; document.getElementById('A_bookFail').style.display='none'; document.getElementById('A_uploadSection').style.display='block';
-        document.getElementById('A_actualDeliveryDate').textContent='请选择'; document.getElementById('A_actualDeliveryDate').className='form-value placeholder';
+        state.A.expectedDate=null; state.A.booking='yes'; state.A.reasonPicked=null; state.A.bookTime=null; state.A.failReason=null; state.A.delayReason=null;
+        document.getElementById('A_expectedInput').textContent='请电话核实后更新'; document.getElementById('A_expectedInput').className='form-value placeholder';
         document.getElementById('A_bookTime').textContent='请选择'; document.getElementById('A_bookTime').className='form-value placeholder';
         document.getElementById('A_failReason').textContent='请选择'; document.getElementById('A_failReason').className='form-value placeholder';
-        document.getElementById('A_noDeliveryReasonVal').textContent='请选择'; document.getElementById('A_noDeliveryReasonVal').className='form-value placeholder';
-        document.getElementById('A_reviseDeliveryVal').textContent='请选择更新后的日期'; document.getElementById('A_reviseDeliveryVal').className='form-value placeholder';
         document.getElementById('A_bkYes').classList.add('checked'); document.getElementById('A_bkYes').textContent='✓';
         document.getElementById('A_bkNo').classList.remove('checked'); document.getElementById('A_bkNo').textContent='';
-    }
-
-    function setDeliveryA(v){
-        state.A.delivery=v;
-        document.getElementById('A_btnNo').className=v==='no'?'switch-btn active-no':'switch-btn';
-        document.getElementById('A_btnYes').className=v==='yes'?'switch-btn active-yes':'switch-btn';
-        document.getElementById('A_actualDeliveryRow').style.display=v==='yes'?'block':'none';
-        document.getElementById('A_noReasonBlock').style.display=v==='no'?'block':'none';
-        document.getElementById('A_bookingSection').style.display=v==='yes'?'block':'none';
-        if(v==='yes'){ setBookingA('yes'); } else { state.A.booking='yes'; }
+        document.getElementById('A_bookOK').style.display='block'; document.getElementById('A_bookFail').style.display='none';
+        document.getElementById('A_uploadSection').style.display='block';
+        document.getElementById('A_delayReasonRow').style.display='none';
+        document.getElementById('A_delayReasonVal').textContent='请选择'; document.getElementById('A_delayReasonVal').className='form-value placeholder';
     }
 
     function setBookingA(v){
@@ -273,47 +318,72 @@
         document.getElementById('A_bookOK').style.display=v==='yes'?'block':'none';
         document.getElementById('A_bookFail').style.display=v==='no'?'block':'none';
         document.getElementById('A_uploadSection').style.display=v==='yes'?'block':'none';
+        if(v==='no') document.getElementById('A_delayReasonRow').style.display='none';
     }
-
-    function openNoDeliveryReasonModalA(){ state.A.noDeliveryReason=null; document.querySelectorAll('#A_noDeliveryList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); showModal('A_noDeliveryModal'); }
-    function pickNoDeliveryA(item,text){ document.querySelectorAll('#A_noDeliveryList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); item.querySelector('.rl-radio').classList.add('checked'); item.querySelector('.rl-radio').textContent='✓'; state.A.noDeliveryReason=text; }
-    function confirmNoDeliveryA(){ if(!state.A.noDeliveryReason){showToast('A','请选择未交铺原因',2500,'error');return;} document.getElementById('A_noDeliveryReasonVal').textContent=state.A.noDeliveryReason; document.getElementById('A_noDeliveryReasonVal').className='form-value'; hideModal('A_noDeliveryModal'); }
 
     function openDatePickerA(target){
         state.A.dateTarget=target;
-        let hint=''; const list=document.getElementById('A_dateList'); list.innerHTML='';
-        const pool=['2024-05-01','2024-12-15','2026-04-10','2026-05-15','2026-05-20','2026-06-01','2026-06-25','2026-07-10','2026-08-01','2026-09-15'];
-        if(target==='actual'){ hint='💡 请选择实际交铺日期'; }
-        else if(target==='revise'){ hint='💡 重新填写预计交铺时间'; }
-        else if(target==='book'){
-            const check=getCheckDateA();
-            if(check){
-                const past=cmpDate(check,TODAY)<0;
-                hint=past?`⚠ 实际交铺日期 <b>${check}</b> 已过<br>➤ 预约勘场时间只能选择今日及未来`:`⚠ 实际交铺日期 <b>${check}</b> 未到<br>➤ 只能选择交铺日当天及往后`;
-            }else{ hint='⚠ 请先填写实际交铺时间'; }
+        let defaultDate=TODAY;
+        let hint='';
+        if(target==='expected'){
+            hint='请电话核实后更新预计交铺时间';
+            if(state.A.expectedDate) defaultDate=state.A.expectedDate;
+        }else if(target==='book'){
+            const exp=state.A.expectedDate;
+            if(exp){
+                hint=`标准工期：预计交铺时间+24h。若晚于<b>${addDays(exp,2)}</b>则需填写延期原因。`;
+                defaultDate=addDays(exp,1);
+            }else{ hint='请先填写预计交铺时间'; defaultDate=TODAY; }
         }
         document.getElementById('A_dateHint').innerHTML=hint;
-        pool.forEach(d=>{
-            const div=document.createElement('div'); div.className='date-input'; div.style.marginBottom='8px';
-            if(d===TODAY) div.classList.add('today-mark');
-            let dis=false;
-            if(target==='book' && getCheckDateA()){
-                const check=getCheckDateA(); const past=cmpDate(check,TODAY)<0;
-                if(past){ if(cmpDate(d,TODAY)<0) dis=true; } else { if(cmpDate(d,check)<0) dis=true; }
-            }
-            div.textContent=d; if(dis){ div.classList.add('disabled'); } else { div.onclick=()=>pickDateA(d); }
-            list.appendChild(div);
-        });
+        setWheelDefault('A',defaultDate);
+        buildWheel('A');
         showModal('A_datePicker');
     }
 
-    function pickDateA(d){
-        const t=state.A.dateTarget; const el=document.getElementById(t==='actual'?'A_actualDeliveryDate':(t==='revise'?'A_reviseDeliveryVal':'A_bookTime'));
-        el.textContent=t==='book'?d+' 10:00':d; el.className='form-value'; hideModal('A_datePicker');
-        if(t==='actual'){ state.A.actualDeliveryDate=d; document.getElementById('A_bookTime').textContent='请选择'; document.getElementById('A_bookTime').className='form-value placeholder'; }
-        else if(t==='revise'){ state.A.reviseDeliveryDate=d; state.A.actualDeliveryDate=d; document.getElementById('A_reviseDeliveryVal').textContent=d; document.getElementById('A_reviseDeliveryVal').className='form-value'; }
-        else if(t==='book'){ state.A.bookTime=d+' 10:00'; }
+    function confirmWheelA(){
+        const d=getWheelDate('A');
+        hideModal('A_datePicker');
+        pickDateA(d);
     }
+
+    function pickDateA(d){
+        const t=state.A.dateTarget;
+        if(t==='expected'){
+            state.A.expectedDate=d;
+            document.getElementById('A_expectedInput').textContent=d;
+            document.getElementById('A_expectedInput').className='form-value';
+            document.getElementById('A_bookTime').textContent='请选择'; document.getElementById('A_bookTime').className='form-value placeholder';
+            document.getElementById('A_delayReasonRow').style.display='none';
+            state.A.delayReason=null;
+            document.getElementById('A_delayReasonVal').textContent='请选择'; document.getElementById('A_delayReasonVal').className='form-value placeholder';
+        }else if(t==='book'){
+            const exp=state.A.expectedDate;
+            if(!exp){ showToast('A','请先填写预计交铺时间',2500,'error'); return; }
+            const limitDay=addDays(exp,2);
+            if(cmpDate(d, limitDay) >= 0){
+                state.A.bookTime=d+' 10:00';
+                document.getElementById('A_bookTime').textContent=state.A.bookTime; document.getElementById('A_bookTime').className='form-value';
+                document.getElementById('A_delayReasonRow').style.display='block';
+                state.A.delayReason=null;
+                document.getElementById('A_delayReasonVal').textContent='请选择'; document.getElementById('A_delayReasonVal').className='form-value placeholder';
+            }else{
+                state.A.bookTime=d+' 10:00'; state.A.delayReason=null;
+                document.getElementById('A_bookTime').textContent=d+' 10:00'; document.getElementById('A_bookTime').className='form-value';
+                document.getElementById('A_delayReasonRow').style.display='none';
+            }
+        }
+    }
+
+    function openDelayModalA(){ state.A.delayReason=null; document.querySelectorAll('#A_delayList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); showModal('A_delayModal'); }
+    function pickDelayA(item,text){ document.querySelectorAll('#A_delayList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); item.querySelector('.rl-radio').classList.add('checked'); item.querySelector('.rl-radio').textContent='✓'; state.A.delayReason=text; }
+    function confirmDelayA(){
+        if(!state.A.delayReason){ showToast('A','请选择延期原因',2500,'error'); return; }
+        hideModal('A_delayModal');
+        document.getElementById('A_delayReasonVal').textContent=state.A.delayReason; document.getElementById('A_delayReasonVal').className='form-value';
+        showToast('A','已记录延期原因：'+state.A.delayReason);
+    }
+    function cancelDelayA(){ hideModal('A_delayModal'); }
 
     function openReasonModal(targetId,page){
         state[page].reasonTarget=targetId; state[page].reasonPicked=null;
@@ -324,36 +394,31 @@
     function confirmReason(page){ if(!state[page].reasonPicked){showToast(page,'请选择原因',2500,'error');return;} document.getElementById(state[page].reasonTarget).textContent=state[page].reasonPicked; document.getElementById(state[page].reasonTarget).className='form-value'; hideModal(page+'_reasonModal'); }
 
     function submitA(){
-        if(!state.A.delivery){showToast('A','请选择门店是否已交铺',2500,'error');return;}
-        if(state.A.delivery==='no'){
-            if(!state.A.noDeliveryReason){showToast('A','请选择未交铺原因',2500,'error');return;}
-            if(!state.A.reviseDeliveryDate){showToast('A','请重新填写预计交铺时间',2500,'error');return;}
-            showToast('A','✅ 未交铺状态已提交');
+        if(!state.A.expectedDate){ showToast('A','请填写预计交铺时间',2500,'error'); return; }
+        if(state.A.booking==='yes'){
+            if(document.getElementById('A_bookTime').classList.contains('placeholder')){ showToast('A','请选择预约勘场时间',2500,'error'); return; }
+            if(document.getElementById('A_delayReasonRow').style.display==='block' && document.getElementById('A_delayReasonVal').classList.contains('placeholder')){ showToast('A','请选择预约勘场延期原因',2500,'error'); return; }
+            showToast('A','✅ 勘场预约成功已提交');
         }else{
-            if(!state.A.actualDeliveryDate){showToast('A','请填写实际交铺时间',2500,'error');return;}
-            if(state.A.booking==='yes'){
-                if(document.getElementById('A_bookTime').classList.contains('placeholder')){showToast('A','请选择预约勘场时间',2500,'error');return;}
-                const check=getCheckDateA(); const past=cmpDate(check,TODAY)<0;
-                if(past && cmpDate(state.A.bookTime.replace(' 10:00',''), TODAY)<0){showToast('A','预约勘场时间需≥今日',2500,'error');return;}
-                if(!past && cmpDate(state.A.bookTime.replace(' 10:00',''), check)<0){showToast('A','预约勘场时间需≥实际交铺日期',2500,'error');return;}
-                showToast('A','✅ 勘场预约成功已提交');
-            }else{
-                if(document.getElementById('A_failReason').classList.contains('placeholder')){showToast('A','请选择预约不成功原因',2500,'error');return;}
-                showToast('A','✅ 预约失败原因已记录');
-            }
+            if(document.getElementById('A_failReason').classList.contains('placeholder')){ showToast('A','请选择预约不成功原因',2500,'error'); return; }
+            showToast('A','✅ 预约失败原因已记录');
         }
     }
 
     // ========== B页逻辑 ==========
-    function setDeliveryB(v){
-        state.B.delivery=v;
-        document.getElementById('B_btnNo').className=v==='no'?'switch-btn active-no':'switch-btn';
-        document.getElementById('B_btnYes').className=v==='yes'?'switch-btn active-yes':'switch-btn';
-        document.getElementById('B_actualDeliveryRow').style.display=v==='yes'?'flex':'none';
-        document.getElementById('B_noReasonBlock').style.display=v==='no'?'block':'none';
-        document.getElementById('B_bookingSection').style.display=v==='yes'?'block':'none';
-        if(v==='yes'){ setBookingB('yes'); } else { state.B.booking='yes'; }
+    function resetB(){
+        state.B.verifyDate=null; state.B.booking='yes'; state.B.reasonPicked=null; state.B.newTime=null; state.B.failReason=null; state.B.delayReason=null;
+        document.getElementById('B_verifyInput').textContent='请选择'; document.getElementById('B_verifyInput').className='form-value placeholder';
+        document.getElementById('B_newTime').textContent='请选择'; document.getElementById('B_newTime').className='form-value placeholder';
+        document.getElementById('B_failReason').textContent='请选择'; document.getElementById('B_failReason').className='form-value placeholder';
+        document.getElementById('B_bkYes').classList.add('checked'); document.getElementById('B_bkYes').textContent='✓';
+        document.getElementById('B_bkNo').classList.remove('checked'); document.getElementById('B_bkNo').textContent='';
+        document.getElementById('B_modifyTime').style.display='block'; document.getElementById('B_bookFail').style.display='none';
+        document.getElementById('B_uploadSection').style.display='block';
+        document.getElementById('B_delayReasonRow').style.display='none';
+        document.getElementById('B_delayReasonVal').textContent='请选择'; document.getElementById('B_delayReasonVal').className='form-value placeholder';
     }
+
     function setBookingB(v){
         state.B.booking=v;
         document.getElementById('B_bkYes').classList.toggle('checked',v==='yes'); document.getElementById('B_bkYes').textContent=v==='yes'?'✓':'';
@@ -361,80 +426,94 @@
         document.getElementById('B_modifyTime').style.display=v==='yes'?'block':'none';
         document.getElementById('B_bookFail').style.display=v==='no'?'block':'none';
         document.getElementById('B_uploadSection').style.display=v==='yes'?'block':'none';
+        if(v==='no') document.getElementById('B_delayReasonRow').style.display='none';
     }
-
-    function openNoDeliveryReasonModalB(){ state.B.noDeliveryReason=null; document.querySelectorAll('#B_noDeliveryList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); showModal('B_noDeliveryModal'); }
-    function pickNoDeliveryB(item,text){ document.querySelectorAll('#B_noDeliveryList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); item.querySelector('.rl-radio').classList.add('checked'); item.querySelector('.rl-radio').textContent='✓'; state.B.noDeliveryReason=text; }
-    function confirmNoDeliveryB(){ if(!state.B.noDeliveryReason){showToast('B','请选择未交铺原因',2500,'error');return;} document.getElementById('B_noDeliveryReasonVal').textContent=state.B.noDeliveryReason; document.getElementById('B_noDeliveryReasonVal').className='form-value'; hideModal('B_noDeliveryModal'); }
 
     function openDatePickerB(target){
         state.B.dateTarget=target;
-        const list=document.getElementById('B_dateList'); list.innerHTML='';
-        const pool=['2024-05-01','2026-04-10','2026-05-15','2026-05-20','2026-06-01','2026-06-25','2026-07-10'];
+        let defaultDate=TODAY;
         let hint='';
-        if(target==='delivery'){ hint='💡 修改交铺日期'; }
-        else if(target==='actual'){ hint='💡 填写实际交铺时间'; }
-        else if(target==='revise'){ hint='💡 重新填写预计交铺时间'; }
-        else if(target==='book'){
-            const check=getCheckDateB(); const past=cmpDate(check,TODAY)<0;
-            hint=past?`⚠ 实际交铺日期 <b>${check}</b> 已过<br>➤ 修改勘场时间只能选今日及未来`:`⚠ 实际交铺日期 <b>${check}</b> 未到<br>➤ 只能选交铺日当天及往后`;
+        if(target==='verify'){
+            hint='请核实并填写本次预计交铺时间';
+            if(state.B.verifyDate) defaultDate=state.B.verifyDate;
+        }else if(target==='book'){
+            const v=state.B.verifyDate;
+            if(v){
+                hint=`标准工期：核实时间+24h。若晚于<b>${addDays(v,2)}</b>则需填写延期原因。`;
+                defaultDate=addDays(v,1);
+            }else{ hint='请先填写本次核实预计交铺时间'; defaultDate=TODAY; }
         }
         document.getElementById('B_dateHint').innerHTML=hint;
-        pool.forEach(d=>{
-            const div=document.createElement('div'); div.className='date-input'; div.style.marginBottom='8px';
-            if(d===TODAY) div.classList.add('today-mark');
-            let dis=false;
-            if(target==='book' && getCheckDateB()){
-                const check=getCheckDateB(); const past=cmpDate(check,TODAY)<0;
-                if(past){ if(cmpDate(d,TODAY)<0) dis=true; } else { if(cmpDate(d,check)<0) dis=true; }
-            }
-            div.textContent=d; if(dis){ div.classList.add('disabled'); } else { div.onclick=()=>pickDateB(d); }
-            list.appendChild(div);
-        });
+        setWheelDefault('B',defaultDate);
+        buildWheel('B');
         showModal('B_datePicker');
     }
 
-    function pickDateB(d){
-        const t=state.B.dateTarget; const el=document.getElementById(t==='delivery'?'B_deliveryDate':(t==='actual'?'B_actualDeliveryDate':(t==='revise'?'B_reviseDeliveryVal':'B_newTime')));
-        el.textContent=t==='book'?d+' 10:00':d; el.className='form-value'; hideModal('B_datePicker');
-        if(t==='delivery'){ state.B.deliveryDate=d; }
-        else if(t==='actual'){ state.B.actualDeliveryDate=d; document.getElementById('B_newTime').textContent='请选择'; document.getElementById('B_newTime').className='form-value placeholder'; }
-        else if(t==='revise'){ state.B.reviseDeliveryDate=d; }
-        else if(t==='book'){ state.B.newTime=d+' 10:00'; }
+    function confirmWheelB(){
+        const d=getWheelDate('B');
+        hideModal('B_datePicker');
+        pickDateB(d);
     }
 
-    function submitB(){
-        if(state.B.delivery==='no'){
-            if(!state.B.noDeliveryReason){showToast('B','请选择未交铺原因',2500,'error');return;}
-            if(!state.B.reviseDeliveryDate){showToast('B','请重新填写预计交铺时间',2500,'error');return;}
-            showToast('B','✅ 未交铺状态已提交');
-        }else{
-            if(!state.B.actualDeliveryDate){showToast('B','请填写实际交铺时间',2500,'error');return;}
-            if(state.B.booking==='yes'){
-                if(document.getElementById('B_newTime').classList.contains('placeholder')){showToast('B','请选择修改勘场时间',2500,'error');return;}
-                const check=getCheckDateB(); const past=cmpDate(check,TODAY)<0;
-                const t=state.B.newTime.replace(' 10:00','');
-                if(past && cmpDate(t,TODAY)<0){showToast('B','修改勘场时间需≥今日',2500,'error');return;}
-                if(!past && cmpDate(t,check)<0){showToast('B','修改勘场时间需≥实际交铺日期',2500,'error');return;}
-                showToast('B','✅ 重新预约信息已提交');
+    function pickDateB(d){
+        const t=state.B.dateTarget;
+        if(t==='verify'){
+            state.B.verifyDate=d;
+            document.getElementById('B_verifyInput').textContent=d; document.getElementById('B_verifyInput').className='form-value';
+            document.getElementById('B_newTime').textContent='请选择'; document.getElementById('B_newTime').className='form-value placeholder';
+            document.getElementById('B_delayReasonRow').style.display='none';
+            state.B.delayReason=null;
+            document.getElementById('B_delayReasonVal').textContent='请选择'; document.getElementById('B_delayReasonVal').className='form-value placeholder';
+        }else if(t==='book'){
+            const v=state.B.verifyDate;
+            if(!v){ showToast('B','请先填写本次核实预计交铺时间',2500,'error'); return; }
+            const limitDay=addDays(v,2);
+            if(cmpDate(d, limitDay) >= 0){
+                state.B.newTime=d+' 10:00';
+                document.getElementById('B_newTime').textContent=state.B.newTime; document.getElementById('B_newTime').className='form-value';
+                document.getElementById('B_delayReasonRow').style.display='block';
+                state.B.delayReason=null;
+                document.getElementById('B_delayReasonVal').textContent='请选择'; document.getElementById('B_delayReasonVal').className='form-value placeholder';
             }else{
-                if(document.getElementById('B_failReason').classList.contains('placeholder')){showToast('B','请选择预约不成功原因',2500,'error');return;}
-                showToast('B','✅ 预约失败原因已记录');
+                state.B.newTime=d+' 10:00'; state.B.delayReason=null;
+                document.getElementById('B_newTime').textContent=d+' 10:00'; document.getElementById('B_newTime').className='form-value';
+                document.getElementById('B_delayReasonRow').style.display='none';
             }
+        }
+    }
+
+    function openDelayModalB(){ state.B.delayReason=null; document.querySelectorAll('#B_delayList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); showModal('B_delayModal'); }
+    function pickDelayB(item,text){ document.querySelectorAll('#B_delayList .rl-radio').forEach(r=>{r.classList.remove('checked');r.textContent='';}); item.querySelector('.rl-radio').classList.add('checked'); item.querySelector('.rl-radio').textContent='✓'; state.B.delayReason=text; }
+    function confirmDelayB(){
+        if(!state.B.delayReason){ showToast('B','请选择延期原因',2500,'error'); return; }
+        hideModal('B_delayModal');
+        document.getElementById('B_delayReasonVal').textContent=state.B.delayReason; document.getElementById('B_delayReasonVal').className='form-value';
+        showToast('B','已记录延期原因：'+state.B.delayReason);
+    }
+    function cancelDelayB(){ hideModal('B_delayModal'); }
+
+    function submitB(){
+        if(!state.B.verifyDate){ showToast('B','请填写本次核实预计交铺时间',2500,'error'); return; }
+        if(state.B.booking==='yes'){
+            if(document.getElementById('B_newTime').classList.contains('placeholder')){ showToast('B','请选择修改勘场时间',2500,'error'); return; }
+            if(document.getElementById('B_delayReasonRow').style.display==='block' && document.getElementById('B_delayReasonVal').classList.contains('placeholder')){ showToast('B','请选择预约勘场延期原因',2500,'error'); return; }
+            showToast('B','✅ 重新预约信息已提交');
+        }else{
+            if(document.getElementById('B_failReason').classList.contains('placeholder')){ showToast('B','请选择预约不成功原因',2500,'error'); return; }
+            showToast('B','✅ 预约失败原因已记录');
         }
     }
 
     // 演示
-    function demoA1(){ switchPage('A'); setInitScene('submitted'); setTimeout(()=>setDeliveryA('yes'),500); setTimeout(()=>openDatePickerA('actual'),1200); setTimeout(()=>pickDateA('2026-06-25'),2000); setTimeout(()=>openDatePickerA('book'),2800); setTimeout(()=>pickDateA('2026-07-10'),3600); setTimeout(()=>submitA(),4400); }
-    function demoA2(){ switchPage('A'); setInitScene('submitted'); setTimeout(()=>setDeliveryA('yes'),500); setTimeout(()=>openDatePickerA('actual'),1200); setTimeout(()=>pickDateA('2026-04-10'),2000); setTimeout(()=>setBookingA('no'),2600); setTimeout(()=>openReasonModal('A_failReason','A'),3200); setTimeout(()=>pickReason('A',document.querySelector('#A_reasonList .rl-item'),'加盟商改期'),3900); setTimeout(()=>confirmReason('A'),4500); setTimeout(()=>submitA(),5200); }
-    function demoA3(){ switchPage('A'); setInitScene('notSubmitted'); setTimeout(()=>setDeliveryA('yes'),600); setTimeout(()=>openDatePickerA('actual'),1300); setTimeout(()=>pickDateA('2026-06-01'),2000); setTimeout(()=>openDatePickerA('book'),2700); setTimeout(()=>pickDateA('2026-06-15'),3400); setTimeout(()=>submitA(),4200); }
-    function demoA4(){ switchPage('A'); setInitScene('submitted'); setTimeout(()=>setDeliveryA('no'),500); setTimeout(()=>openNoDeliveryReasonModalA(),1100); setTimeout(()=>pickNoDeliveryA(document.querySelector('#A_noDeliveryList .rl-item'),'未交铺'),1800); setTimeout(()=>confirmNoDeliveryA(),2400); setTimeout(()=>openDatePickerA('revise'),3100); setTimeout(()=>pickDateA('2026-08-01'),3800); setTimeout(()=>submitA(),4500); }
-    function demoB1(){ switchPage('B'); setTimeout(()=>openDatePickerB('actual'),600); setTimeout(()=>pickDateB('2026-05-15'),1300); setTimeout(()=>openDatePickerB('book'),2000); setTimeout(()=>pickDateB('2026-06-01'),2700); setTimeout(()=>submitB(),3500); }
-    function demoB2(){ switchPage('B'); setTimeout(()=>setDeliveryB('no'),500); setTimeout(()=>openNoDeliveryReasonModalB(),1100); setTimeout(()=>pickNoDeliveryB(document.querySelector('#B_noDeliveryList .rl-item'),'拆除工作未完成'),1800); setTimeout(()=>confirmNoDeliveryB(),2400); setTimeout(()=>openDatePickerB('revise'),3100); setTimeout(()=>pickDateB('2026-09-01'),3800); setTimeout(()=>submitB(),4500); }
+    function demoA1(){ switchPage('A'); setSourceA('submitted'); setTimeout(()=>{ state.A.expectedDate='2026-06-25'; document.getElementById('A_expectedInput').textContent='2026-06-25'; document.getElementById('A_expectedInput').className='form-value'; },500); setTimeout(()=>pickDateA('2026-06-26'),1400); setTimeout(()=>submitA(),2200); }
+    function demoA2(){ switchPage('A'); setSourceA('submitted'); setTimeout(()=>{ state.A.expectedDate='2026-06-25'; document.getElementById('A_expectedInput').textContent='2026-06-25'; document.getElementById('A_expectedInput').className='form-value'; },500); setTimeout(()=>pickDateA('2026-06-28'),1400); setTimeout(()=>openDelayModalA(),2100); setTimeout(()=>{ pickDelayA(document.querySelector('#A_delayList .rl-item'),'加盟商改期'); },2600); setTimeout(()=>confirmDelayA(),3200); setTimeout(()=>submitA(),4000); }
+    function demoA3(){ switchPage('A'); setSourceA('submitted'); setTimeout(()=>{ state.A.expectedDate='2026-06-25'; document.getElementById('A_expectedInput').textContent='2026-06-25'; document.getElementById('A_expectedInput').className='form-value'; },500); setTimeout(()=>setBookingA('no'),1000); setTimeout(()=>openReasonModal('A_failReason','A'),1600); setTimeout(()=>pickReason('A',document.querySelector('#A_reasonList .rl-item'),'拆除工作未完成'),2300); setTimeout(()=>confirmReason('A'),2900); setTimeout(()=>submitA(),3600); }
+    function demoB1(){ switchPage('B'); setTimeout(()=>{ state.B.verifyDate='2026-05-20'; document.getElementById('B_verifyInput').textContent='2026-05-20'; document.getElementById('B_verifyInput').className='form-value'; },500); setTimeout(()=>pickDateB('2026-05-21'),1400); setTimeout(()=>submitB(),2200); }
+    function demoB2(){ switchPage('B'); setTimeout(()=>{ state.B.verifyDate='2026-05-20'; document.getElementById('B_verifyInput').textContent='2026-05-20'; document.getElementById('B_verifyInput').className='form-value'; },500); setTimeout(()=>pickDateB('2026-05-23'),1400); setTimeout(()=>openDelayModalB(),2100); setTimeout(()=>{ pickDelayB(document.querySelector('#B_delayList .rl-item'),'结构施工未完成'); },2600); setTimeout(()=>confirmDelayB(),3200); setTimeout(()=>submitB(),4000); }
 
     document.querySelectorAll('.modal-mask').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this) this.classList.remove('show');})});
-    setInitScene('submitted');
-    console.log('✅ 全量高保真原型 v5 已就绪');
+    setSourceA('submitted');
+    console.log('✅ 全量高保真原型 v8 已就绪（延期原因独立字段）');
 </script>
 </body>
 </html>
