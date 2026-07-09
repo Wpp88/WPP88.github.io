@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>小忙零售 · 企业微信小程序</title>
+    <title>小忙零售 · 筹建事项</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -331,6 +331,36 @@
             background: #2d6a4f;
             color: white;
         }
+
+        .mask-toggle-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            white-space: nowrap;
+            user-select: none;
+            border: 1px solid #e2e8f0;
+        }
+        .mask-toggle-inline.active {
+            background: #2d6a4f;
+            color: white;
+            border-color: #2d6a4f;
+        }
+        .mask-toggle-inline:active {
+            transform: scale(0.95);
+            background: #e2e8f0;
+        }
+        .mask-toggle-inline.active:active {
+            background: #1e4d38;
+        }
+
         .store-switch-wrap {
             position: relative;
             flex-shrink: 0;
@@ -2304,6 +2334,7 @@
             let tasks = getInitialTasks();
             const refreshTasks = () => { tasks = getInitialTasks(); };
             const calcProgress = () => { const doneCount = tasks.filter(t => t.status === 'read' || t.status === 'done').length; return Math.round((doneCount / tasks.length) * 100); };
+            let isDataMasked = false;
             const maskName = n => { if (!isDataMasked) return n; if (n.length === 2) return n[0] + '*'; if (n.length > 2) return n[0] + '**'; return '***'; };
             const maskPhone = p => { if (!isDataMasked) return p; return p.slice(0, 3) + '****' + p.slice(-4); };
             const maskStoreCode = c => { if (!isDataMasked) return c; if (c.length >= 8) return c.slice(0, 3) + '****' + c.slice(-2); return c.slice(0, 3) + '***'; };
@@ -2357,7 +2388,7 @@
             const renderReportAttachment = () => { const file = MOCK_REPORT_FILE; return `<div class="report-attachment-card"><div class="att-icon"><i class="fas fa-file-pdf"></i></div><div class="att-info"><div class="att-name">${file.name}</div><div class="att-meta"><i class="far fa-clock"></i> ${file.date} · ${file.size}</div></div><div class="file-actions"><button class="file-btn preview" data-att-act="preview" title="预览"><i class="fas fa-eye"></i></button><button class="file-btn download" data-att-act="download" title="下载"><i class="fas fa-download"></i></button></div></div>`; };
             const bindReportAttachmentEvents = (container) => { if (!container) return; container.querySelectorAll('[data-att-act="preview"]').forEach(btn => { btn.addEventListener('click', () => { showToast('📄 正在预览 ' + MOCK_REPORT_FILE.name + '...'); setTimeout(() => showToast('📋 勘场报告预览（模拟）'), 1000); }); }); container.querySelectorAll('[data-att-act="download"]').forEach(btn => { btn.addEventListener('click', () => { showToast('📥 正在下载 ' + MOCK_REPORT_FILE.name + '...'); setTimeout(() => showToast('✅ ' + MOCK_REPORT_FILE.name + ' 已下载'), 1200); }); }); };
 
-            let currentView = 'home', activeMainTab = 'tasks', detailSubTab = 'basic', isDataMasked = false;
+            let currentView = 'home', activeMainTab = 'tasks', detailSubTab = 'basic';
             let activeSettleTab = 'report';
             let currentSecondaryType = '';
 
@@ -2369,10 +2400,9 @@
                     document.getElementById('exitToWx')?.addEventListener('click', closeSubPage);
                     bindStoreSwitchEvents();
                 } else {
-                    headerDiv.innerHTML = `<div class="nav-header-construction"><div class="nav-left"><div class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></div><span class="nav-title">工程施工</span>${getProjectSwitchBtnHtml()}</div><div class="nav-right"><div class="mask-toggle ${isDataMasked ? 'active' : ''}" id="maskToggleBtn"><i class="fas fa-eye${isDataMasked ? '-slash' : ''}"></i><span></span></div><div class="nav-icon-btn" id="closeAppBtn"><i class="fas fa-times"></i></div></div></div>`;
+                    headerDiv.innerHTML = `<div class="nav-header-construction"><div class="nav-left"><div class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></div><span class="nav-title">工程施工</span>${getProjectSwitchBtnHtml()}</div><div class="nav-right"><div class="nav-icon-btn" id="closeAppBtn"><i class="fas fa-times"></i></div></div></div>`;
                     document.getElementById('backBtn')?.addEventListener('click', showHome);
                     document.getElementById('closeAppBtn')?.addEventListener('click', closeSubPage);
-                    document.getElementById('maskToggleBtn')?.addEventListener('click', openMaskConfirmModal);
                     bindStoreSwitchEvents();
                 }
             };
@@ -2380,9 +2410,12 @@
 
             const showHome = () => { currentView = 'home'; refreshTasks(); renderHeader(); document.getElementById('mainContent').innerHTML = `<div class="store-info"><div class="store-info-left"><div class="project-name">${PROJECT_META.fullName}</div><div class="store-meta"><span>编号 ${PROJECT_META.code}</span><span>· ${PROJECT_META.statusText}</span></div></div><i class="fas fa-store" style="font-size:32px; opacity:0.9;"></i></div><div class="module-grid"><div class="module-card" id="storeQualBtn"><div class="module-icon" style="background: linear-gradient(145deg, #6366f1, #4f46e5);"><i class="fas fa-id-card"></i></div><div class="module-content"><div class="module-title">门店资质收集</div><div class="module-desc">营业执照 / 银行卡 / 资质证件等</div></div><i class="fas fa-chevron-right arrow-icon"></i></div><div class="module-card" id="engBtn"><div class="module-icon" style="background: linear-gradient(145deg, #f97316, #ea580c);"><i class="fas fa-hard-hat"></i></div><div class="module-content"><div class="module-title">工程施工</div><div class="module-desc">施工进度跟踪 / 图纸 / 预算 / 验收 / 回访 / 结算 / 勘场报告</div></div><i class="fas fa-chevron-right arrow-icon"></i></div></div>`; document.getElementById('storeQualBtn').addEventListener('click', () => showToast('门店资质收集（开发中）')); document.getElementById('engBtn').addEventListener('click', showConstruction); };
 
-            const showConstruction = () => { currentView = 'construction'; refreshTasks(); renderHeader(); const progressPercent = calcProgress(); const currentProj = getCurrentProject(); const heroCard = `<div class="project-hero-card"><div class="project-title-row"><div><div class="project-name">${PROJECT_META.fullName}</div><div class="project-code"><i class="far fa-copy"></i> ${PROJECT_META.code}</div><div style="font-size:11px;color:#ea580c;font-weight:600;margin-top:2px;">🏗️ 当前工程：${currentProj.name}（${currentProj.code}）</div></div><div class="badge-status"><i class="fas fa-hard-hat"></i> ${PROJECT_META.statusText}</div></div><div class="info-grid"><div class="info-item"><div class="info-label">工程监理</div><div class="info-value">${maskName(PROJECT_META.supervisor)}</div></div><div class="info-item"><div class="info-label">项目工时</div><div class="info-value">${PROJECT_META.usedWorkTime}</div></div><div class="info-item"><div class="info-label">标准工期</div><div class="info-value">${PROJECT_META.standardDuration}</div></div><div class="info-item"><div class="info-label">剩余工时</div><div class="info-value">${PROJECT_META.remainingWorkTime}</div></div></div><div class="date-address"><div class="date-row"><i class="far fa-calendar-check"></i><span>开始: ${PROJECT_META.startDate}</span></div><div class="date-row"><i class="far fa-calendar-times"></i><span>预计结束: ${PROJECT_META.endDateExpected}</span></div><div class="address-row"><i class="fas fa-location-dot"></i><span>${PROJECT_META.address} · ${PROJECT_META.city}</span></div></div><div class="progress-section"><div class="progress-header"><span>整体进度</span><span>${progressPercent}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%;"></div></div></div></div>`;
+            const showConstruction = () => { currentView = 'construction'; refreshTasks(); renderHeader(); const progressPercent = calcProgress(); const currentProj = getCurrentProject();
+                const maskToggleHtml = `<div class="mask-toggle-inline ${isDataMasked ? 'active' : ''}" id="maskToggleBtn"><i class="fas fa-eye${isDataMasked ? '-slash' : ''}"></i><span>${isDataMasked ? '已脱敏' : '脱敏'}</span></div>`;
+                const heroCard = `<div class="project-hero-card"><div class="project-title-row"><div><div class="project-name">${PROJECT_META.fullName}</div><div class="project-code"><i class="far fa-copy"></i> ${PROJECT_META.code}</div><div style="font-size:11px;color:#ea580c;font-weight:600;margin-top:2px;">🏗️ 当前工程：${currentProj.name}（${currentProj.code}）</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;"><div class="badge-status"><i class="fas fa-hard-hat"></i> ${PROJECT_META.statusText}</div>${maskToggleHtml}</div></div><div class="info-grid"><div class="info-item"><div class="info-label">工程监理</div><div class="info-value">${maskName(PROJECT_META.supervisor)}</div></div><div class="info-item"><div class="info-label">项目工时</div><div class="info-value">${PROJECT_META.usedWorkTime}</div></div><div class="info-item"><div class="info-label">标准工期</div><div class="info-value">${PROJECT_META.standardDuration}</div></div><div class="info-item"><div class="info-label">剩余工时</div><div class="info-value">${PROJECT_META.remainingWorkTime}</div></div></div><div class="date-address"><div class="date-row"><i class="far fa-calendar-check"></i><span>开始: ${PROJECT_META.startDate}</span></div><div class="date-row"><i class="far fa-calendar-times"></i><span>预计结束: ${PROJECT_META.endDateExpected}</span></div><div class="address-row"><i class="fas fa-location-dot"></i><span>${PROJECT_META.address} · ${PROJECT_META.city}</span></div></div><div class="progress-section"><div class="progress-header"><span>整体进度（删除该功能！！）</span><span>${progressPercent}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%;"></div></div></div></div>`;
             const tabsHtml = `<div class="tab-bar"><div class="tab-item ${activeMainTab==='tasks'?'active':''}" data-tab="tasks">工程事项</div><div class="tab-item ${activeMainTab==='overview'?'active':''}" data-tab="overview">项目概览</div><div class="tab-item ${activeMainTab==='detail'?'active':''}" data-tab="detail">项目详情</div></div><div class="tab-content" id="tabContentContainer"></div>`;
             document.getElementById('mainContent').innerHTML = heroCard + tabsHtml;
+            document.getElementById('maskToggleBtn')?.addEventListener('click', openMaskConfirmModal);
             const container = document.getElementById('tabContentContainer');
             if (activeMainTab === 'tasks') { refreshTasks(); let listHtml = ''; tasks.forEach(task => { const st = getStatusInfo(task); const showUnreadDot = ((task.type==='view'||task.type==='deliveryTime')&&task.status!=='done'&&task.status!=='read'); const canAction = task.status!=='closed'; const btnLabel = getActionLabel(task); const btnCls = getActionBtnClass(task); const displayDesc = getTaskDesc(task); listHtml += `<div class="task-item"><div class="task-left"><div class="task-title">${showUnreadDot?'<span class="unread-dot"></span>':''}${task.title}</div><div class="task-desc">${displayDesc}</div></div><div style="display:flex;align-items:center;flex-direction:column;gap:6px;"><span class="task-status ${st.cls}">${st.text}</span>${canAction?`<button class="btn-small ${btnCls}" data-taskid="${task.id}">${btnLabel}</button>`:''}</div></div>`; }); container.innerHTML = `<div id="taskListContainer">${listHtml}</div>`; document.querySelectorAll('#taskListContainer .btn-small').forEach(btn => { btn.addEventListener('click', () => handleTaskAction(btn.dataset.taskid)); }); }
             else if (activeMainTab === 'overview') { container.innerHTML = `<div class="collapsible-card" id="flowCard"><div class="card-header"><span><i class="fas fa-diagram-project"></i> 工程节点</span><i class="fas fa-chevron-up" id="flowToggleIcon"></i></div><div class="card-body" id="flowBody">${renderTimelineNodes()}</div></div><div class="collapsible-card" id="personCard"><div class="card-header"><span><i class="fas fa-users"></i> 项目人员</span><i class="fas fa-chevron-up" id="personToggleIcon"></i></div><div class="card-body" id="personBody">${renderPersonnel()}</div></div><div class="collapsible-card" id="thirdCard"><div class="card-header"><span><i class="fas fa-building"></i> 第三方公司</span><i class="fas fa-chevron-up" id="thirdToggleIcon"></i></div><div class="card-body" id="thirdBody">${renderThirdParty()}</div></div>`; bindCollapse('flowCard','flowBody','flowToggleIcon'); bindCollapse('personCard','personBody','personToggleIcon'); bindCollapse('thirdCard','thirdBody','thirdToggleIcon'); }
