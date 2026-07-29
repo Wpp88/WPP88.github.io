@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>闭店管理 - APP端</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .phone-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .phone {
+            width: 375px;
+            height: 812px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #1a1a1a;
+        }
+
+        .phone-title {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            position: relative;
+            z-index: 10;
+        }
+
+        .status-bar .right-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .page-content {
+            height: calc(100% - 44px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-bg {
+            background: linear-gradient(180deg, #ffd7b8 0%, #fff5e8 30%, #f5f5f5 100%);
+            min-height: 100%;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 8px;
+            padding: 10px 16px;
+        }
+
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .app-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .app-name {
+            font-size: 12px;
+            color: #333;
+        }
+
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 5px;
+        }
+
+        .tab-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .tab-bar-item.active {
+            color: #ff6a00;
+        }
+
+        .tab-bar-item i {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .header {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            background: #fff;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-right-btn {
+            position: absolute;
+            right: 15px;
+            font-size: 13px;
+            color: #ff6a00;
+            font-weight: 600;
+            cursor: pointer;
+            background: #fff5eb;
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: 1px solid #ffd4b0;
+            white-space: nowrap;
+            z-index: 5;
+        }
+
+        .search-bar {
+            padding: 10px 15px;
+            background: #fff;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            height: 36px;
+            background: #f5f5f5;
+            border-radius: 18px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .filter-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .status-tabs {
+            display: flex;
+            background: #fff;
+            padding: 0 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .status-tab {
+            padding: 10px 10px;
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .status-tab.active {
+            color: #ff6a00;
+            font-weight: 600;
+        }
+
+        .status-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #ff6a00;
+            border-radius: 2px;
+        }
+
+        .list-card {
+            background: #fff;
+            margin: 10px 12px;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-title-left span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ff6a00;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .status-tag {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .tag-daifenpeijianli {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .tag-daiyuyue {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .tag-yuyueshibai {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .tag-daichaichu {
+            background: #fff0e0;
+            color: #ff6a00;
+        }
+
+        .tag-daifenpeichengkong {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .tag-daishenhe {
+            background: #f0f5ff;
+            color: #2f54eb;
+        }
+
+        .tag-shenheboihui {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .tag-yiwancheng {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+
+        .tag-yizhongzhi {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .card-row {
+            display: flex;
+            font-size: 12px;
+            line-height: 22px;
+            color: #333;
+        }
+
+        .card-label {
+            color: #999;
+            width: 64px;
+            flex-shrink: 0;
+        }
+
+        .card-tag-close {
+            background: #fff0f0;
+            color: #ff4d4f;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            display: inline-block;
+        }
+
+        .detail-header {
+            background: #fff;
+            padding: 14px 15px;
+            border-bottom: 8px solid #f0f2f5;
+        }
+
+        .detail-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .brand-tag {
+            background: #fff0e0;
+            color: #ff6a00;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        .detail-status-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .section {
+            background: #fff;
+            margin-bottom: 8px;
+            padding: 14px 15px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            border-left: 3px solid #ff6a00;
+            padding-left: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #999;
+            width: 90px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-value-row {
+            color: #333;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .contact-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .contact-name {
+            color: #333;
+            font-size: 13px;
+        }
+
+        .contact-phone {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .contact-call-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e8f5e9;
+            color: #52c41a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .collapse-btn {
+            font-size: 11px;
+            color: #ff6a00;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .vertical-timeline {
+            position: relative;
+            padding: 4px 0 4px 4px;
+        }
+
+        .vertical-timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 4px 0 10px 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            transition: all 0.3s;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 2px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            border: 3px solid #fff;
+            z-index: 3;
+            box-shadow: 0 0 0 2px #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: #fff;
+        }
+
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 8px;
+            height: 1.5px;
+            background: #d9d9d9;
+            transform: translateY(-50%);
+            z-index: 2;
+            margin-left: 1px;
+        }
+
+        .timeline-item.done .timeline-dot {
+            background: #52c41a;
+            box-shadow: 0 0 0 2px #b7eb8f;
+        }
+
+        .timeline-item.done .timeline-dot::after {
+            background: #b7eb8f;
+        }
+
+        .timeline-item.doing .timeline-dot {
+            background: #ff6a00;
+            box-shadow: 0 0 0 2px #ffd4b0;
+            animation: pulse-dot 1.8s infinite;
+        }
+
+        .timeline-item.doing .timeline-dot::after {
+            background: #ffd4b0;
+        }
+
+        .timeline-item.fail .timeline-dot {
+            background: #ff4d4f;
+            box-shadow: 0 0 0 2px #ffa39e;
+        }
+
+        .timeline-item.fail .timeline-dot::after {
+            background: #ffa39e;
+        }
+
+        .timeline-item.pending .timeline-dot {
+            background: #d9d9d9;
+            box-shadow: 0 0 0 2px #e8e8e8;
+        }
+
+        .timeline-item.pending .timeline-dot::after {
+            background: #e8e8e8;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 0 2px #ffd4b0;
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(255, 106, 0, 0.08);
+            }
+        }
+
+        .timeline-item-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .timeline-item-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            line-height: 1.4;
+        }
+
+        .tl-node-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-item.done .tl-node-name {
+            color: #333;
+        }
+
+        .timeline-item.doing .tl-node-name {
+            color: #ff6a00;
+        }
+
+        .timeline-item.pending .tl-node-name {
+            color: #999;
+        }
+
+        .tl-operator {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        .timeline-item.doing .tl-operator {
+            color: #ff6a00;
+            opacity: 0.8;
+        }
+
+        .tl-day-badge {
+            font-size: 10px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 7px;
+            border-radius: 10px;
+            white-space: nowrap;
+            font-weight: 500;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .timeline-item.done .tl-day-badge {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+
+        .timeline-item.doing .tl-day-badge {
+            background: #fff5eb;
+            color: #ff6a00;
+        }
+
+        .timeline-item.pending .tl-day-badge {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .tl-status-label {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .timeline-item.done .tl-status-label {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+
+        .timeline-item.doing .tl-status-label {
+            background: #fff5eb;
+            color: #ff6a00;
+        }
+
+        .timeline-item.pending .tl-status-label {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .tl-detail {
+            font-size: 11px;
+            color: #666;
+            padding-left: 0;
+            line-height: 1.5;
+        }
+
+        .timeline-item.doing .tl-detail {
+            color: #8c6a3d;
+        }
+
+        .timeline-item.pending .tl-detail {
+            color: #bbb;
+        }
+
+        .tl-detail .tl-highlight {
+            color: #ff6a00;
+            font-weight: 500;
+        }
+
+        .timeline-item.done .tl-detail .tl-highlight {
+            color: #52c41a;
+        }
+
+        .timeline-collapsed-marker {
+            position: relative;
+            padding: 4px 0 4px 36px;
+            cursor: pointer;
+            color: #ff6a00;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .timeline-collapsed-marker::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: repeating-linear-gradient(to bottom,
+                    #e5e7eb 0px,
+                    #e5e7eb 3px,
+                    transparent 3px,
+                    transparent 7px);
+            z-index: 1;
+        }
+
+        .bottom-bar {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 10px 15px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #f0f0f0;
+            z-index: 50;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: #ff6a00;
+            color: #fff;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            gap: 4px;
+        }
+
+        .btn-default {
+            flex: 1;
+            background: #fff;
+            color: #333;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 1px solid #d9d9d9;
+            cursor: pointer;
+            white-space: nowrap;
+            gap: 4px;
+        }
+
+        .btn-danger {
+            flex: 1;
+            background: #fff;
+            color: #ff4d4f;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 1px solid #ffccc7;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-dynamic {
+            flex: 1;
+            background: #f0f7ff;
+            color: #1890ff;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 1px solid #b3d8ff;
+            cursor: pointer;
+            gap: 5px;
+            white-space: nowrap;
+            max-width: 100px;
+            flex-shrink: 0;
+        }
+
+        .btn-outline-primary {
+            background: #fff;
+            color: #ff6a00;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 1px solid #ff6a00;
+            cursor: pointer;
+            flex: 1;
+            white-space: nowrap;
+            gap: 4px;
+        }
+
+        .log-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #f0f0f0;
+            transition: background 0.3s;
+        }
+
+        .log-item.highlight {
+            background: #fffde8;
+            border-radius: 6px;
+            padding: 10px 6px;
+            margin: 0 -6px;
+            border-bottom-color: #ffe58f;
+        }
+
+        .log-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6a00;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .log-content {
+            flex: 1;
+        }
+
+        .log-title {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .form-group {
+            background: #fff;
+            padding: 0 15px;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+        }
+
+        .form-item:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            width: 120px;
+            color: #333;
+            flex-shrink: 0;
+        }
+
+        .form-label .required {
+            color: #ff4d4f;
+            margin-right: 3px;
+        }
+
+        .form-value {
+            flex: 1;
+            color: #333;
+            text-align: right;
+        }
+
+        .form-value.placeholder {
+            color: #ccc;
+        }
+
+        .form-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            text-align: right;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .form-arrow {
+            color: #ccc;
+            margin-left: 5px;
+        }
+
+        .form-textarea-wrap {
+            background: #fff;
+            padding: 12px 15px;
+        }
+
+        .form-textarea-label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-textarea {
+            width: 100%;
+            background: #f7f8fa;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            resize: none;
+            height: 80px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .textarea-counter {
+            text-align: right;
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .radio-circle {
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid #d9d9d9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-item.checked .radio-circle {
+            border-color: #ff6a00;
+        }
+
+        .radio-item.checked .radio-circle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #ff6a00;
+            border-radius: 50%;
+        }
+
+        .checkbox-list {
+            padding: 8px 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .checkbox-box {
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid #d9d9d9;
+            border-radius: 3px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox-item.checked .checkbox-box {
+            background: #ff6a00;
+            border-color: #ff6a00;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .checkbox-item .price {
+            margin-left: auto;
+            color: #ff4d4f;
+            font-weight: 500;
+        }
+
+        .upload-section {
+            background: #fff;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+        }
+
+        .upload-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .upload-title .required {
+            color: #ff4d4f;
+            margin-right: 3px;
+        }
+
+        .upload-tip {
+            font-size: 11px;
+            color: #999;
+            margin-left: 6px;
+        }
+
+        .upload-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .upload-item {
+            width: 72px;
+            height: 72px;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .upload-item:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        }
+
+        .upload-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: auto;
+        }
+
+        .upload-item .del-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 2;
+            pointer-events: auto;
+        }
+
+        .upload-item .preview-hint {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .upload-btn {
+            width: 72px;
+            height: 72px;
+            background: #f7f8fa;
+            border: 1px dashed #ddd;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 11px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .upload-btn i {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+
+        .modal-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .modal-mask.active {
+            display: flex;
+        }
+
+        .modal-mask.center {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-mask.area-top {
+            z-index: 250;
+        }
+
+        .modal-mask.map-top {
+            z-index: 260;
+        }
+
+        .modal-mask.dynamic-top {
+            z-index: 270;
+        }
+
+        .modal {
+            background: #fff;
+            width: 100%;
+            border-radius: 16px 16px 0 0;
+            max-height: 70%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.center-modal {
+            width: 85%;
+            border-radius: 12px;
+            max-height: 80%;
+        }
+
+        .modal.dynamic-modal {
+            width: 92%;
+            border-radius: 16px;
+            max-height: 75%;
+        }
+
+        .modal-header {
+            padding: 14px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 12px 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 12px 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .search-modal-input {
+            background: #f5f5f5;
+            border-radius: 18px;
+            height: 36px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .search-modal-input input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+        .company-item {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .company-item:hover {
+            background: #fafafa;
+        }
+
+        .company-item.selected {
+            background: #fff5eb;
+            color: #ff6a00;
+        }
+
+        .reason-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .reason-item.selected-reason {
+            background: #fff5eb;
+            color: #ff6a00;
+            font-weight: 600;
+        }
+
+        .staff-tips {
+            background: #fff8e6;
+            padding: 8px 15px;
+            font-size: 12px;
+            color: #ff8c00;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .staff-card {
+            background: #fff;
+            margin: 10px 12px;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .staff-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9a5a, #ff6a00);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .staff-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .staff-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .staff-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .staff-jobno {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .staff-role-tag {
+            background: #e6f7ff;
+            color: #1890ff;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .staff-load {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .staff-load b {
+            color: #ff6a00;
+            font-weight: 600;
+        }
+
+        .staff-radio {
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid #d9d9d9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .staff-card.selected {
+            border: 1px solid #ff6a00;
+            background: #fff9f4;
+        }
+
+        .staff-card.selected .staff-radio {
+            background: #ff6a00;
+            border-color: #ff6a00;
+            color: #fff;
+            font-size: 11px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 999;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .badge {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            position: absolute;
+            top: -2px;
+            right: -8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .filter-drawer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 85%;
+            background: #fff;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+        }
+
+        .filter-drawer.active {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .filter-drawer-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 199;
+            display: none;
+        }
+
+        .filter-drawer-mask.active {
+            display: block;
+        }
+
+        .filter-section {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .filter-section-title {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-option {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .filter-option.selected {
+            background: #fff0e0;
+            color: #ff6a00;
+            border: 1px solid #ff6a00;
+            padding: 5px 11px;
+        }
+
+        .filter-input {
+            width: 100%;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filter-date-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-date {
+            flex: 1;
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #999;
+            border: none;
+            outline: none;
+        }
+
+        .filter-cascader {
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .filter-cascader.selected {
+            color: #333;
+        }
+
+        .app-item-relative {
+            position: relative;
+        }
+
+        .demolish-summary {
+            background: linear-gradient(135deg, #fff5eb, #fff);
+            border: 1px solid #ffe0c2;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 12px 0;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .demolish-summary b {
+            color: #ff6a00;
+        }
+
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 10px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 14px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #b3d8ff;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .map-option-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 12px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .map-option-card:hover {
+            background: #fafafa;
+        }
+
+        .map-option-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 16px;
+            margin-top: 8px;
+        }
+
+        .detail-info-mini {
+            display: flex;
+            font-size: 12px;
+            padding: 3px 0;
+            color: #333;
+        }
+
+        .detail-info-mini .mini-label {
+            color: #999;
+            flex-shrink: 0;
+            margin-right: 4px;
+        }
+
+        .detail-info-mini .mini-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .detail-address-row {
+            display: flex;
+            align-items: flex-start;
+            font-size: 13px;
+            padding: 6px 0;
+            color: #333;
+            gap: 6px;
+        }
+
+        .detail-address-row .info-label {
+            color: #999;
+            width: 90px;
+            flex-shrink: 0;
+        }
+
+        .detail-address-row .info-value {
+            flex: 1;
+            word-break: break-all;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== 全局图片预览 Lightbox ========== */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .lightbox-overlay.active {
+            display: flex;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10001;
+            transition: background 0.2s;
+        }
+
+        .lightbox-close:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .lightbox-img-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 92vw;
+            max-height: 75vh;
+            z-index: 10000;
+        }
+
+        .lightbox-img-wrap img {
+            max-width: 92vw;
+            max-height: 75vh;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: opacity 0.25s;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10001;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .lightbox-nav:active {
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .lightbox-nav.prev {
+            left: -50px;
+        }
+
+        .lightbox-nav.next {
+            right: -50px;
+        }
+
+        .lightbox-nav.hidden-nav {
+            display: none;
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: -36px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            z-index: 10001;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 500px) {
+            .lightbox-nav.prev {
+                left: 8px;
+            }
+            .lightbox-nav.next {
+                right: 8px;
+            }
+            .lightbox-nav {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+            .lightbox-close {
+                top: 10px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .lightbox-counter {
+                bottom: -30px;
+                font-size: 12px;
+            }
+        }
+
+        /* 详情页照片子标题 */
+        .photo-sub-title {
+            font-size: 13px;
+            color: #555;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .photo-sub-title .photo-count {
+            font-size: 11px;
+            color: #999;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 全局图片预览 Lightbox ========== -->
+    <div class="lightbox-overlay" id="globalLightbox" onclick="closeLightbox(event)">
+        <div class="lightbox-close" onclick="closeLightboxDirect()">
+            <i class="fa fa-times"></i>
+        </div>
+        <div class="lightbox-img-wrap" id="lightboxImgWrap" onclick="event.stopPropagation()">
+            <img src="" alt="预览图片" id="lightboxImg">
+            <div class="lightbox-nav prev hidden-nav" id="lightboxPrev" onclick="lightboxNavigate(-1)">
+                <i class="fa fa-chevron-left"></i>
+            </div>
+            <div class="lightbox-nav next hidden-nav" id="lightboxNext" onclick="lightboxNavigate(1)">
+                <i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="lightbox-counter" id="lightboxCounter"></div>
+        </div>
+    </div>
+
+    <div class="phone-wrap">
+
+        <!-- ========== 页面1：应用页 ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar">
+                    <span>13:56</span>
+                    <div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div>
+                </div>
+                <div class="page-content app-bg">
+                    <div style="padding:20px 16px 10px;"><div style="font-size:20px;font-weight:700;">工程</div></div>
+                    <div class="app-grid">
+                        <div class="app-item"><div class="app-icon" style="background:#e6f0ff;">📁</div><div class="app-name">项目管理</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#fff4e6;">🏠</div><div class="app-name">线下勘场</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#ffe6e6;">🔧</div><div class="app-name">工程施工</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#e6ffe6;">🔍</div><div class="app-name">施工巡检</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#fff9e6;">📋</div><div class="app-name">项目验收</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#f0e6ff;">📝</div><div class="app-name">整改管理</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#e6f4ff;">📦</div><div class="app-name">去货管理</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#ffe6e6;">🚨</div><div class="app-name">异常监控</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#fff4e6;">🎖️</div><div class="app-name">审核中心</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#f0e6ff;">🔎</div><div class="app-name">工程督查</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#fff9e6;">📄</div><div class="app-name">工单管理</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#ffe6e6;">📢</div><div class="app-name">工程投诉</div></div>
+                        <div class="app-item app-item-relative" onclick="showToast('进入闭店列表')">
+                            <div class="app-icon" style="background:#ffe0d6;">🏪</div>
+                            <div class="app-name" style="color:#ff6a00;font-weight:600;">闭店管理</div>
+                        </div>
+                        <div class="app-item"><div class="app-icon" style="background:#e6ffe6;">📊</div><div class="app-name">人效看板</div></div>
+                        <div class="app-item"><div class="app-icon" style="background:#e6f0ff;">📖</div><div class="app-name">操作指引</div></div>
+                    </div>
+                    <div class="tab-bar">
+                        <div class="tab-bar-item"><i class="fa fa-home"></i><span>工作台</span></div>
+                        <div class="tab-bar-item active"><i class="fa fa-th-large"></i><span>应用</span></div>
+                        <div class="tab-bar-item"><i class="fa fa-user-o"></i><span>我的</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="phone-title">① 应用页 - 闭店管理入口</div>
+        </div>
+
+        <!-- ========== 页面2：闭店列表 ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar">
+                    <span>13:56</span>
+                    <div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div>
+                </div>
+                <div class="page-content" style="background:#f0f2f5;padding-bottom:0;" id="listPage">
+                    <div class="header">
+                        <i class="fa fa-angle-left back-btn" onclick="showToast('返回应用页')"></i>
+                        <div class="header-title">闭店管理</div>
+                    </div>
+                    <div class="search-bar">
+                        <div class="search-input"><i class="fa fa-search"></i><span>项目编号/项目名称/门店名称</span></div>
+                        <div class="filter-icon" onclick="showFilter()"><i class="fa fa-filter"></i></div>
+                    </div>
+                    <div class="status-tabs" id="statusTabs">
+                        <div class="status-tab active" data-status="all" onclick="switchStatus(this)">全部 <span>(52)</span></div>
+                        <div class="status-tab" data-status="daifenpeijianli" onclick="switchStatus(this)">待分配监理<span>(5)</span></div>
+                        <div class="status-tab" data-status="daiyuyue" onclick="switchStatus(this)">待预约<span>(3)</span></div>
+                        <div class="status-tab" data-status="yuyueshibai" onclick="switchStatus(this)">预约失败<span>(2)</span></div>
+                        <div class="status-tab" data-status="daichaichu" onclick="switchStatus(this)">待拆除<span>(7)</span></div>
+                        <div class="status-tab" data-status="daifenpeichengkong" onclick="switchStatus(this)">待分配成控<span>(4)</span></div>
+                        <div class="status-tab" data-status="daishenhe" onclick="switchStatus(this)">待审核<span>(3)</span></div>
+                        <div class="status-tab" data-status="shenheboihui" onclick="switchStatus(this)">审核驳回<span>(1)</span></div>
+                        <div class="status-tab" data-status="yiwancheng" onclick="switchStatus(this)">已完成<span>(11)</span></div>
+                        <div class="status-tab" data-status="yizhongzhi" onclick="switchStatus(this)">已终止<span>(16)</span></div>
+                    </div>
+                    <div id="listContainer" style="padding-bottom:20px;"></div>
+                    <div id="emptyState" class="hidden" style="text-align:center;padding:60px 20px;color:#999;">
+                        <i class="fa fa-inbox" style="font-size:50px;color:#ddd;margin-bottom:15px;"></i>
+                        <div style="font-size:14px;">暂无数据</div>
+                    </div>
+                    <div class="filter-drawer-mask" id="filterMask" onclick="hideFilter()"></div>
+                    <div class="filter-drawer" id="filterDrawer">
+                        <div class="header">
+                            <div class="header-title">筛选</div>
+                            <i class="fa fa-close" style="position:absolute;right:15px;font-size:18px;cursor:pointer;" onclick="hideFilter()"></i>
+                        </div>
+                        <div style="flex:1;overflow-y:auto;">
+                            <div class="filter-section"><div class="filter-section-title">闭店类型</div><div class="filter-options"><div class="filter-option" onclick="toggleFilterOption(this)">常规闭店</div><div class="filter-option" onclick="toggleFilterOption(this)">强制闭店</div><div class="filter-option selected" onclick="toggleFilterOption(this)">迁址闭店</div><div class="filter-option" onclick="toggleFilterOption(this)">同址转品牌</div></div></div>
+                            <div class="filter-section"><div class="filter-section-title">项目状态</div><div class="filter-options"><div class="filter-option" onclick="toggleFilterOption(this)">待分配监理</div><div class="filter-option" onclick="toggleFilterOption(this)">待预约</div><div class="filter-option" onclick="toggleFilterOption(this)">预约失败</div><div class="filter-option" onclick="toggleFilterOption(this)">待拆除</div><div class="filter-option" onclick="toggleFilterOption(this)">待分配成控</div><div class="filter-option" onclick="toggleFilterOption(this)">待审核</div><div class="filter-option" onclick="toggleFilterOption(this)">审核驳回</div><div class="filter-option" onclick="toggleFilterOption(this)">已完成</div><div class="filter-option" onclick="toggleFilterOption(this)">已终止</div></div></div>
+                            <div class="filter-section"><div class="filter-section-title">所属品牌</div><div class="filter-options"><div class="filter-option" onclick="toggleFilterOption(this)">零食很忙</div><div class="filter-option" onclick="toggleFilterOption(this)">赵一鸣零食</div></div></div>
+                            <div class="filter-section"><div class="filter-section-title">工程监理</div><input class="filter-input" placeholder="输入姓名进行模糊查询"></div>
+                            <div class="filter-section"><div class="filter-section-title">加盟商</div><input class="filter-input" placeholder="输入加盟商姓名模糊查询"></div>
+                            <div class="filter-section"><div class="filter-section-title">成控专员</div><input class="filter-input" placeholder="输入成控专员姓名模糊查询"></div>
+                            <div class="filter-section"><div class="filter-section-title">施工单位名称</div><input class="filter-input" placeholder="输入施工单位名称模糊查询"></div>
+                            <div class="filter-section"><div class="filter-section-title">区域信息</div><div class="filter-cascader" onclick="showAreaCascader()"><span id="areaDisplay">请选择省/市/区</span><i class="fa fa-angle-right"></i></div></div>
+                            <div class="filter-section"><div class="filter-section-title">拆除类型</div><div class="filter-options"><div class="filter-option" onclick="toggleFilterOption(this)">白天施工</div><div class="filter-option" onclick="toggleFilterOption(this)">晚上施工</div><div class="filter-option" onclick="toggleFilterOption(this)">白天施工+云车</div></div></div>
+                            <div class="filter-section"><div class="filter-section-title">预约拆除日期</div><div class="filter-date-row"><input class="filter-date" type="date"><span>-</span><input class="filter-date" type="date"></div></div>
+                            <div class="filter-section"><div class="filter-section-title">创建时间</div><div class="filter-date-row"><input class="filter-date" type="date"><span>-</span><input class="filter-date" type="date"></div></div>
+                        </div>
+                        <div class="modal-footer"><button class="btn-default" onclick="resetFilter()">重置</button><button class="btn-primary" onclick="applyFilter()">确定</button></div>
+                    </div>
+                    <div class="modal-mask area-top" id="areaModal">
+                        <div class="modal">
+                            <div class="modal-header"><span>选择区域</span><i class="fa fa-close" onclick="hideAreaCascader()"></i></div>
+                            <div style="display:flex;font-size:13px;padding:10px 15px;border-bottom:1px solid #f0f0f0;"><div id="areaCrumb" style="color:#ff6a00;">请选择</div></div>
+                            <div class="modal-body"><div id="areaList"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="phone-title">② 闭店列表</div>
+        </div>
+
+        <!-- ========== 页面3：指派任务 ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar"><span>13:56</span><div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div>
+                <div class="page-content" style="background:#f0f2f5;display:flex;flex-direction:column;">
+                    <div class="header"><i class="fa fa-angle-left back-btn" onclick="showToast('返回列表')"></i><div class="header-title">指派任务</div></div>
+                    <div class="search-bar" style="border-bottom:1px solid #f0f0f0;"><div class="search-input"><i class="fa fa-search"></i><input type="text" placeholder="请输入姓名" style="border:none;outline:none;background:transparent;flex:1;font-size:13px;" oninput="filterStaff(this.value)"></div></div>
+                    <div id="staffList" style="flex:1;overflow-y:auto;padding-bottom:10px;">
+                        <div class="staff-card selected" onclick="selectStaff(this)"><div class="staff-avatar">周</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">周梦琪</span><span class="staff-jobno">工号: 20210318</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>3</b> 个</div></div><div class="staff-radio"><i class="fa fa-check"></i></div></div>
+                        <div class="staff-card" onclick="selectStaff(this)"><div class="staff-avatar" style="background:linear-gradient(135deg,#69c0ff,#1890ff);">李</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">李建国</span><span class="staff-jobno">工号: 20200625</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>5</b> 个</div></div><div class="staff-radio"></div></div>
+                        <div class="staff-card" onclick="selectStaff(this)"><div class="staff-avatar" style="background:linear-gradient(135deg,#95de64,#52c41a);">王</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">王志强</span><span class="staff-jobno">工号: 20220108</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>1</b> 个</div></div><div class="staff-radio"></div></div>
+                        <div class="staff-card" onclick="selectStaff(this)"><div class="staff-avatar" style="background:linear-gradient(135deg,#ffc069,#fa8c16);">张</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">张晓芳</span><span class="staff-jobno">工号: 20190712</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>7</b> 个</div></div><div class="staff-radio"></div></div>
+                        <div class="staff-card" onclick="selectStaff(this)"><div class="staff-avatar" style="background:linear-gradient(135deg,#b37feb,#722ed1);">陈</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">陈美丽</span><span class="staff-jobno">工号: 20210902</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>2</b> 个</div></div><div class="staff-radio"></div></div>
+                        <div class="staff-card" onclick="selectStaff(this)"><div class="staff-avatar" style="background:linear-gradient(135deg,#ff85c0,#eb2f96);">赵</div><div class="staff-info"><div class="staff-name-row"><span class="staff-name">赵磊</span><span class="staff-jobno">工号: 20200401</span></div><div class="staff-name-row" style="margin-bottom:2px;"><span class="staff-role-tag">工程监理</span></div><div class="staff-load">进行中任务：<b>4</b> 个</div></div><div class="staff-radio"></div></div>
+                    </div>
+                    <div class="bottom-bar"><button class="btn-primary" onclick="confirmAssign()">确认</button></div>
+                </div>
+            </div>
+            <div class="phone-title">③ 指派任务 - 选择监理</div>
+        </div>
+
+        <!-- ========== 页面4：项目详情页（新版流程节点竖轴样式） ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar"><span>13:56</span><div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div>
+                <div class="page-content" style="background:#f0f2f5;display:flex;flex-direction:column;" id="detailPageContentV2">
+                    <div class="header">
+                        <i class="fa fa-angle-left back-btn" onclick="showToast('返回列表')"></i>
+                        <div class="header-title">项目详情</div>
+                        <div class="header-right-btn" id="detailAssignBtnV2" onclick="showToast('进入指派任务页面')"><i class="fa fa-user-plus"></i> 指派任务</div>
+                    </div>
+                    <div style="flex:1;overflow-y:auto;" id="detailScrollAreaV2">
+                        <div class="detail-header" style="border-bottom:8px solid #f0f2f5;">
+                            <div class="detail-title">
+                                <span class="brand-tag">【迁址闭店】</span>
+                                <span class="avatar">赵</span>
+                                <span>河北廊坊三河李旗庄镇店</span>
+                            </div>
+                            <div style="font-size:12px;color:#999;margin-bottom:6px;">项目编号：BD20260706001</div>
+                            <div class="detail-status-row" style="margin-bottom:10px;">
+                                <span class="status-tag tag-daichaichu">● 待拆除</span>
+                            </div>
+                            <div class="detail-address-row">
+                                <span class="info-label">区域地址</span>
+                                <span class="info-value">
+                                    <span style="flex:1;min-width:0;">河北省廊坊市三河市李旗庄镇李七候大街142号</span>
+                                    <span class="map-btn" onclick="showMapModal()"><i class="fa fa-map-marker"></i> </span>
+                                </span>
+                            </div>
+                            <div class="detail-info-grid">
+                                <div class="detail-info-mini"><span class="mini-label">项目工期：</span><span class="mini-value" style="color:#ff6a00;">6天</span></div>
+                                <div class="detail-info-mini"><span class="mini-label">项目工时：</span><span class="mini-value">5天 3小时</span></div>
+                                <div class="detail-info-mini"><span class="mini-label">标准工期：</span><span class="mini-value">6天</span></div>
+                                <div class="detail-info-mini"><span class="mini-label">开始时间：</span><span class="mini-value">2026-07-10 09:00</span></div>
+                                <div class="detail-info-mini" style="grid-column:1/-1;"><span class="mini-label">结束时间：</span><span class="mini-value">2026-07-16 18:00</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 流程节点 - 新版竖轴展示（仅项目周期） -->
+                        <div class="section" id="flowNodeSection">
+                            <div class="section-title">
+                                <span>流程节点</span>
+                                <span class="collapse-btn" id="collapseBtn" onclick="toggleTimelineCollapse()">
+                                    <i class="fa fa-compress" id="collapseIcon"></i> <span id="collapseText">收起</span>
+                                </span>
+                            </div>
+                            <div class="vertical-timeline" id="verticalTimelineProject">
+                                <div class="timeline-item done">
+                                    <div class="timeline-dot"><i class="fa fa-check"></i></div>
+                                    <div class="timeline-item-content">
+                                        <div class="timeline-item-header">
+                                            <span class="tl-node-name">项目创建</span>
+                                            <span class="tl-operator">· 系统</span>
+                                            <span class="tl-day-badge">第1天</span>
+                                            <span class="tl-status-label">已完成</span>
+                                        </div>
+                                        <div class="tl-detail">工期：1天 ｜ 工时：1小时</div>
+                                        <div class="tl-detail">实际完成：2026-07-06 15:20</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item done">
+                                    <div class="timeline-dot"><i class="fa fa-check"></i></div>
+                                    <div class="timeline-item-content">
+                                        <div class="timeline-item-header">
+                                            <span class="tl-node-name">分配监理</span>
+                                            <span class="tl-operator">· 系统/admin</span>
+                                            <span class="tl-day-badge">第1天</span>
+                                            <span class="tl-status-label">已完成</span>
+                                        </div>
+                                        <div class="tl-detail">工期：1天 ｜ 工时：1小时</div>
+                                        <div class="tl-detail">实际完成：2026-07-06 16:00</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item doing">
+                                    <div class="timeline-dot"><i class="fa fa-clock-o"></i></div>
+                                    <div class="timeline-item-content">
+                                        <div class="timeline-item-header">
+                                            <span class="tl-node-name">拆除预约</span>
+                                            <span class="tl-operator">· 蒋东中</span>
+                                            <span class="tl-day-badge">第3天</span>
+                                            <span class="tl-status-label">待预约</span>
+                                        </div>
+                                        <div class="tl-detail">工期：1天 ｜ 工时：<span class="tl-highlight">剩余1天3小时</span></div>
+                                        <div class="tl-detail">预计完成：2026-07-08 14:20</div>
+                                    </div>
+                                </div>
+                                <div id="collapsibleNodes">
+                                    <div class="timeline-item pending">
+                                        <div class="timeline-dot"><i class="fa fa-circle-o"></i></div>
+                                        <div class="timeline-item-content">
+                                            <div class="timeline-item-header">
+                                                <span class="tl-node-name">分配成控</span>
+                                                <span class="tl-operator">· 蒋东中</span>
+                                                <!-- <span class="tl-day-badge">待开始</span> -->
+                                                <span class="tl-status-label">待开始</span>
+                                            </div>
+                                            <div class="tl-detail">工期：-- ｜ 工时：--</div>
+                                            <div class="tl-detail">预计开始：2026-07-09 09:00</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item pending">
+                                        <div class="timeline-dot"><i class="fa fa-circle-o"></i></div>
+                                        <div class="timeline-item-content">
+                                            <div class="timeline-item-header">
+                                                <span class="tl-node-name">预结算审核</span>
+                                                <span class="tl-operator">· --</span>
+                                                <!-- <span class="tl-day-badge">待开始</span> -->
+                                                <span class="tl-status-label">待开始</span>
+                                            </div>
+                                            <div class="tl-detail">工期：-- ｜ 工时：--</div>
+                                            <div class="tl-detail">预计开始：2026-07-10 09:00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-collapsed-marker hidden" id="collapsedMarker" onclick="expandTimeline()">
+                                    <i class="fa fa-ellipsis-h"></i> 展开更多节点（2个）
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 门店信息 -->
+                        <div class="section">
+                            <div class="section-title"><span>门店信息</span></div>
+                            <div class="info-item"><div class="info-label">门店编号</div><div class="info-value">MD202605001</div></div>
+                            <div class="info-item"><div class="info-label">门店名称</div><div class="info-value">河北廊坊三河李旗庄镇店</div></div>
+                            <div class="info-item"><div class="info-label">所属品牌</div><div class="info-value">零食很忙</div></div>
+                            <div class="info-item"><div class="info-label">区域大区</div><div class="info-value">华北大区</div></div>
+                            <div class="info-item"><div class="info-label">省市区</div><div class="info-value">河北省/廊坊市/三河市</div></div>
+                            <div class="info-item"><div class="info-label">门店面积</div><div class="info-value">120㎡</div></div>
+                            <div class="info-item"><div class="info-label">营业状态</div><div class="info-value">已闭店</div></div>
+                        </div>
+
+                        <!-- 闭店关联信息 -->
+                        <div class="section">
+                            <div class="section-title"><span>闭店关联信息</span></div>
+                            <div class="info-item"><div class="info-label">项目编号</div><div class="info-value">BD20260706001</div></div>
+                            <div class="info-item"><div class="info-label">决策编号</div><div class="info-value" style="color:#1890ff;">JC20260701002</div></div>
+                            <div class="info-item"><div class="info-label">闭店原因</div><div class="info-value">物业调整/租金上涨</div></div>
+                            <div class="info-item"><div class="info-label">闭店日期</div><div class="info-value">2026-07-06</div></div>
+                            <div class="info-item"><div class="info-label">创建时间</div><div class="info-value">2026-07-06 15:20:33</div></div>
+                        </div>
+
+                        <!-- 人员信息 -->
+                        <div class="section">
+                            <div class="section-title"><span>人员信息</span></div>
+                            <div class="info-item"><div class="info-label">工程监理</div><div class="info-value">周梦琪 · 138****5566</div></div>
+                            <div class="info-item" style="align-items:center;"><div class="info-label">加盟商</div><div class="contact-info"><div class="contact-detail"><span class="contact-name">刘*</span><span class="contact-phone">133****5471</span></div><div class="contact-call-btn" onclick="callPhone('13312345471')"><i class="fa fa-phone"></i></div></div></div>
+                            <div class="info-item" style="align-items:center;"><div class="info-label">施工单位</div><div class="contact-info"><div class="contact-detail"><span class="contact-name">吴* <span style="color:#999;font-size:11px;">(大连中装润泽)</span></span><span class="contact-phone">155****6617</span></div><div class="contact-call-btn" onclick="callPhone('15512346617')"><i class="fa fa-phone"></i></div></div></div>
+                            <div class="info-item"><div class="info-label">成控专员</div><div class="info-value" style="color:#999;">--</div></div>
+                        </div>
+
+                        <!-- 拆除信息（含照片展示） -->
+                        <div class="section">
+                            <div class="section-title"><span>拆除信息</span></div>
+                            <div class="info-item"><div class="info-label">拆除类型</div><div class="info-value">晚上施工 + 云车高空作业</div></div>
+                            <div class="info-item"><div class="info-label">预约拆除日期</div><div class="info-value">2026-07-08</div></div>
+                            <div class="info-item"><div class="info-label">备注说明</div><div class="info-value">--</div></div>
+                            <div class="info-item"><div class="info-label">预计完成时间</div><div class="info-value">2026-07-09</div></div>
+                            <div class="info-item"><div class="info-label">实际拆除日期</div><div class="info-value" style="color:#999;">--</div></div>
+                            <div class="info-item"><div class="info-label">包干金额</div><div class="info-value" style="color:#ff4d4f;font-weight:600;">¥1,500</div></div>
+                            <div class="info-item"><div class="info-label">拆除说明</div><div class="info-value">--</div></div>
+                            <!-- 店内照片 -->
+                            <div class="photo-sub-title">
+                                📷 店内照片 <span class="photo-count">（2张）</span>
+                            </div>
+                            <div class="upload-grid" id="detailInnerPhotos">
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailInnerPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_inner1/200/200" alt="店内照片1">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailInnerPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_inner2/200/200" alt="店内照片2">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                            </div>
+
+                            <!-- 店外照片 -->
+                            <div class="photo-sub-title">
+                                🏪 店外照片 <span class="photo-count">（4张）</span>
+                            </div>
+                            <div class="upload-grid" id="detailOuterPhotos">
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailOuterPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_outer1/200/200" alt="店外照片1">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailOuterPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_outer2/200/200" alt="店外照片2">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailOuterPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_outer3/200/200" alt="店外照片3">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailOuterPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_outer4/200/200" alt="店外照片4">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                            </div>
+
+                            <!-- 收据 -->
+                            <div class="photo-sub-title">
+                                🧾 收据 <span class="photo-count">（1张）</span>
+                            </div>
+                            <div class="upload-grid" id="detailReceiptPhotos">
+                                <div class="upload-item" onclick="previewImage(this.querySelector('img').src, 'detailReceiptPhotos')">
+                                    <img src="https://picsum.photos/seed/detail_receipt1/200/200" alt="收据1">
+                                    <div class="preview-hint"><i class="fa fa-search-plus"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height:20px;"></div>
+                    </div>
+
+                    <!-- 底部按钮 -->
+                    <div class="bottom-bar" id="detailBottomBarV2">
+                        <button class="btn-dynamic" onclick="showDynamicModal()" style="max-width:100px;">
+                            <i class="fa fa-list-alt"></i> 项目动态
+                        </button>
+                        <button class="btn-outline-primary" onclick="showToast('进入拆除预约页面')">
+                            <i class="fa fa-calendar-check-o"></i> 拆除预约
+                        </button>
+                        <button class="btn-primary" onclick="showToast('进入完成拆除页面')">
+                            <i class="fa fa-check"></i> 完成拆除
+                        </button>
+                    </div>
+
+                    <!-- 地图选择弹窗 -->
+                    <div class="modal-mask map-top" id="mapModal">
+                        <div class="modal">
+                            <div class="modal-header"><span>选择地图导航</span><i class="fa fa-close" onclick="hideMapModal()"></i></div>
+                            <div style="padding:6px 15px;font-size:12px;color:#999;border-bottom:1px solid #f0f0f0;">目的地：河北省廊坊市三河市李旗庄镇李七候大街142号</div>
+                            <div class="modal-body" style="padding:0;">
+                                <div class="map-option-card" onclick="openMap('baidu')"><div class="map-option-icon" style="background:#e6f7ff;color:#1890ff;">🗺️</div><div style="flex:1;"><div style="font-weight:500;">百度地图</div><div style="font-size:11px;color:#999;">使用百度地图导航</div></div><i class="fa fa-angle-right" style="color:#ccc;"></i></div>
+                                <div class="map-option-card" onclick="openMap('gaode')"><div class="map-option-icon" style="background:#fff0e0;color:#ff6a00;">📍</div><div style="flex:1;"><div style="font-weight:500;">高德地图</div><div style="font-size:11px;color:#999;">使用高德地图导航</div></div><i class="fa fa-angle-right" style="color:#ccc;"></i></div>
+                                <div class="map-option-card" onclick="openMap('tencent')"><div class="map-option-icon" style="background:#e6ffe6;color:#52c41a;">🧭</div><div style="flex:1;"><div style="font-weight:500;">腾讯地图</div><div style="font-size:11px;color:#999;">使用腾讯地图导航</div></div><i class="fa fa-angle-right" style="color:#ccc;"></i></div>
+                                <div class="map-option-card" onclick="openMap('apple')" style="border-bottom:none;"><div class="map-option-icon" style="background:#f5f5f5;color:#333;">🗾</div><div style="flex:1;"><div style="font-weight:500;">苹果地图</div><div style="font-size:11px;color:#999;">使用Apple地图导航</div></div><i class="fa fa-angle-right" style="color:#ccc;"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目动态弹窗 -->
+                    <div class="modal-mask dynamic-top center" id="dynamicModal">
+                        <div class="modal dynamic-modal">
+                            <div class="modal-header"><span>项目动态日志</span><i class="fa fa-close" onclick="hideDynamicModal()"></i></div>
+                            <div class="modal-body" style="max-height:55vh;">
+                                <div class="vertical-timeline" style="padding-left:4px;">
+                                    <div class="timeline-item done"><div class="timeline-dot" style="background:#ff6a00;box-shadow:0 0 0 2px #ffd4b0;"><i class="fa fa-wrench" style="font-size:8px;"></i></div><div class="timeline-item-content"><div class="timeline-item-header"><span class="tl-node-name" style="color:#ff6a00;">[工程监理]</span><span style="font-size:12px;color:#333;">周梦琪 提交拆除预约，预约日期：2026-07-08</span></div><div class="tl-detail" style="color:#999;">2026-07-07 09:22:15</div></div></div>
+                                    <div class="timeline-item done"><div class="timeline-dot" style="background:#ff6a00;box-shadow:0 0 0 2px #ffd4b0;"><i class="fa fa-cog" style="font-size:8px;"></i></div><div class="timeline-item-content"><div class="timeline-item-header"><span class="tl-node-name" style="color:#ff6a00;">[系统]</span><span style="font-size:12px;color:#333;">分配监理成功，监理人：周梦琪</span></div><div class="tl-detail" style="color:#999;">2026-07-06 15:35:22</div></div></div>
+                                    <div class="timeline-item done"><div class="timeline-dot" style="background:#1890ff;box-shadow:0 0 0 2px #b3d8ff;"><i class="fa fa-user" style="font-size:8px;"></i></div><div class="timeline-item-content"><div class="timeline-item-header"><span class="tl-node-name" style="color:#1890ff;">[管理员]</span><span style="font-size:12px;color:#333;">项目已创建，等待分配监理</span></div><div class="tl-detail" style="color:#999;">2026-07-06 15:20:15</div></div></div>
+                                    <div class="timeline-item done"><div class="timeline-dot" style="background:#52c41a;box-shadow:0 0 0 2px #b7eb8f;"><i class="fa fa-check" style="font-size:8px;"></i></div><div class="timeline-item-content"><div class="timeline-item-header"><span class="tl-node-name" style="color:#52c41a;">[决策系统]</span><span style="font-size:12px;color:#333;">闭店决策审批通过，触发闭店项目创建</span></div><div class="tl-detail" style="color:#999;">2026-07-05 18:00:00</div></div></div>
+                                    <div class="timeline-item done" style="padding-bottom:2px;"><div class="timeline-dot" style="background:#999;box-shadow:0 0 0 2px #ddd;"><i class="fa fa-file-text" style="font-size:8px;"></i></div><div class="timeline-item-content"><div class="timeline-item-header"><span class="tl-node-name" style="color:#999;">[加盟商]</span><span style="font-size:12px;color:#333;">提交闭店申请</span></div><div class="tl-detail" style="color:#999;">2026-07-01 14:22:08</div></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="phone-title">④ 项目详情 </div>
+        </div>
+
+        <!-- ========== 页面5：拆除预约 ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar"><span>13:56</span><div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div>
+                <div class="page-content" style="background:#f0f2f5;display:flex;flex-direction:column;">
+                    <div class="header"><i class="fa fa-angle-left back-btn" onclick="showToast('返回详情')"></i><div class="header-title">拆除预约</div></div>
+                    <div style="flex:1;overflow-y:auto;">
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <div class="form-item" onclick="showCompanyModal()"><div class="form-label"><span class="required">*</span>施工单位</div><div class="form-value placeholder" id="companyDisplay">请选择施工单位</div><i class="fa fa-angle-right form-arrow"></i></div>
+                            <div class="form-item" style="align-items:flex-start;"><div class="form-label" style="padding-top:2px;"><span class="required">*</span>拆除类型</div><div style="flex:1;"><div class="checkbox-list"><div class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box"><i class="fa fa-check" style="display:none;"></i></div><span>白天施工单店包干价</span><span class="price">¥700/店</span></div><div class="checkbox-item checked" onclick="toggleCheck(this)"><div class="checkbox-box"><i class="fa fa-check"></i></div><span>晚上施工单店包干价</span><span class="price">¥900/店</span></div><div class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box"><i class="fa fa-check" style="display:none;"></i></div><span>云车（高空作业）包干价</span><span class="price">¥600/台班</span></div></div></div></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <div class="form-item">
+                                <div class="form-label"><span class="required">*</span>是否预约成功</div>
+                                <div class="radio-group" style="flex:1;justify-content:flex-end;">
+                                    <div class="radio-item checked" id="radioYes" onclick="switchRadio('yes')"><div class="radio-circle"></div><span>是</span></div>
+                                    <div class="radio-item" id="radioNo" onclick="switchRadio('no')"><div class="radio-circle"></div><span>否</span></div>
+                                </div>
+                            </div>
+                            <div id="successBlock">
+                                <div class="form-item"><div class="form-label"><span class="required">*</span>预约拆除日期</div><input class="form-input" type="date" value="2026-07-10"><i class="fa fa-calendar form-arrow"></i></div>
+                            </div>
+                            <div id="failBlock" class="hidden"><div class="form-item" onclick="showReasonModal()"><div class="form-label"><span class="required">*</span>不成功原因</div><div class="form-value placeholder" id="reasonDisplay">请选择原因</div><i class="fa fa-angle-right form-arrow"></i></div></div>
+                        </div>
+                        <div class="form-textarea-wrap" style="margin-bottom:8px;"><div class="form-textarea-label">备注说明</div><textarea class="form-textarea" placeholder="请输入备注（选填）"></textarea></div>
+                    </div>
+                    <div class="bottom-bar"><button class="btn-default" onclick="showToast('取消预约')">取消</button><button class="btn-primary" onclick="submitBooking()">提交预约</button></div>
+                    <div class="modal-mask" id="companyModal"><div class="modal"><div class="modal-header"><span>选择施工单位</span><i class="fa fa-close" onclick="hideCompanyModal()"></i></div><div class="modal-body"><div class="search-modal-input"><i class="fa fa-search" style="color:#999;"></i><input placeholder="搜索施工单位名称" id="companySearch" oninput="filterCompany()"></div><div id="companyList"><div class="company-item" onclick="selectCompany(this,'大连中装润泽')"><div style="font-weight:500;">大连中装润泽装饰工程有限公司</div><div style="color:#999;font-size:11px;margin-top:2px;">联系人：吴师傅 · 155****6617</div></div><div class="company-item" onclick="selectCompany(this,'华北建工')"><div style="font-weight:500;">华北建工工程有限公司</div><div style="color:#999;font-size:11px;margin-top:2px;">联系人：李经理 · 138****5678</div></div><div class="company-item" onclick="selectCompany(this,'京诚装饰')"><div style="font-weight:500;">京诚装饰工程公司</div><div style="color:#999;font-size:11px;margin-top:2px;">联系人：王师傅 · 139****2345</div></div><div class="company-item" onclick="selectCompany(this,'鑫盛拆除')"><div style="font-weight:500;">鑫盛拆除工程有限公司</div><div style="color:#999;font-size:11px;margin-top:2px;">联系人：张总 · 137****9988</div></div><div class="company-item" onclick="selectCompany(this,'廊坊建筑')"><div style="font-weight:500;">廊坊市建筑安装公司</div><div style="color:#999;font-size:11px;margin-top:2px;">联系人：赵工 · 136****4567</div></div></div></div></div></div>
+                    <div class="modal-mask" id="reasonModal">
+                        <div class="modal">
+                            <div class="modal-header"><span>选择不成功原因</span><i class="fa fa-close" onclick="hideReasonModal()"></i></div>
+                            <div class="modal-body">
+                                <div class="reason-item" onclick="selectReason(this,'未闭店')" data-reason="未闭店">未闭店</div>
+                                <div class="reason-item" onclick="selectReason(this,'物业不允许拆除店外招牌画面')" data-reason="物业不允许拆除店外招牌画面">物业不允许拆除店外招牌画面</div>
+                                <div class="reason-item" onclick="selectReason(this,'其他')" data-reason="其他" style="border-bottom:none;">其他</div>
+                                <div id="customReasonBlock" class="hidden" style="margin-top:10px;">
+                                    <textarea class="form-textarea" placeholder="请输入自定义原因（200字以内）" maxlength="200" id="customReasonInput" style="height:60px;" oninput="updateCustomReasonCounter()"></textarea>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                                        <span class="textarea-counter"><span id="customReasonCounter">0</span>/200</span>
+                                        <button class="btn-primary" style="max-width:70px;height:30px;font-size:11px;border-radius:15px;flex:none;" onclick="confirmCustomReason()">确认</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="phone-title">⑤ 拆除预约</div>
+        </div>
+
+        <!-- ========== 页面6：完成拆除 ========== -->
+        <div>
+            <div class="phone">
+                <div class="status-bar"><span>13:56</span><div class="right-icons"><i class="fa fa-signal"></i><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div>
+                <div class="page-content" style="background:#f0f2f5;display:flex;flex-direction:column;">
+                    <div class="header"><i class="fa fa-angle-left back-btn" onclick="showToast('返回详情')"></i><div class="header-title">完成拆除</div></div>
+                    <div style="flex:1;overflow-y:auto;">
+                        <div class="form-group" style="margin-bottom:8px;"><div class="form-item"><div class="form-label"><span class="required">*</span>拆除完成时间</div><input class="form-input" type="datetime-local" value="2026-07-11T14:30" id="finishTime"><i class="fa fa-calendar form-arrow"></i></div><div class="form-item"><div class="form-label">预约拆除日期</div><div class="form-value" style="color:#999;">2026-07-11</div></div></div>
+                        <div class="form-textarea-wrap" style="margin-bottom:8px;"><div class="form-textarea-label">拆除说明</div><textarea class="form-textarea" placeholder="请输入拆除说明（选填）" maxlength="200" oninput="updateCounter(this,'counter1')" id="demolishDesc"></textarea><div class="textarea-counter"><span id="counter1">0</span>/200</div></div>
+                        <!-- 店内照片 -->
+                        <div class="upload-section"><div class="upload-title"><span class="required">*</span>上传店内照片<span class="upload-tip">（最少4张，最多10张）</span></div><div class="upload-grid" id="uploadInner"><div class="upload-item"><img src="https://picsum.photos/seed/inner1/200/200" alt="店内照片" onclick="previewImage(this.src, 'uploadInner')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadInner','inner')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/inner2/200/200" alt="店内照片" onclick="previewImage(this.src, 'uploadInner')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadInner','inner')"><i class="fa fa-close"></i></div></div><div class="upload-btn" onclick="addUpload('uploadInner','inner')"><i class="fa fa-camera"></i><span>2/10</span></div></div></div>
+                        <!-- 店外照片 -->
+                        <div class="upload-section"><div class="upload-title"><span class="required">*</span>上传店外照片<span class="upload-tip">（最少2张，最多10张）</span></div><div class="upload-grid" id="uploadOuter"><div class="upload-item"><img src="https://picsum.photos/seed/outer1/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer2/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer3/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer4/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-btn" onclick="addUpload('uploadOuter','outer')"><i class="fa fa-camera"></i><span>4/10</span></div></div></div>
+                        <!-- 收据 -->
+                        <div class="upload-section"><div class="upload-title"><span class="required">*</span>上传收据<span class="upload-tip">（最少1张，最多5张）</span></div><div class="upload-grid" id="uploadReceipt"><div class="upload-item"><img src="https://picsum.photos/seed/receipt1/200/200" alt="收据" onclick="previewImage(this.src, 'uploadReceipt')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadReceipt','receipt')"><i class="fa fa-close"></i></div></div><div class="upload-btn" onclick="addUpload('uploadReceipt','receipt')"><i class="fa fa-plus"></i><span>1/5</span></div></div></div>
+                    </div>
+                    <div class="bottom-bar"><button class="btn-default" onclick="showToast('取消')">取消</button><button class="btn-primary" onclick="submitFinish()">提交</button></div>
+                </div>
+            </div>
+            <div class="phone-title">⑥ 完成拆除 </div>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast">提示</div>
+
+    <script>
+        // ========== 列表数据 ==========
+        const allData = [
+            { code: 'BD20260705018', name: '江苏无锡百乐店', brand: '赵一鸣', brandColor: '#ff6a00', avatar: '赵',
+                closeType: '常规闭店', area: '华东大区/江苏省/无锡市', status: 'daifenpeijianli', statusText: '待分配监理',
+                date: '2026-07-05', supervisor: '--', duration: '5天', workHours: '4天 6小时', startTime: '2026-07-06 08:00',
+                endTime: '2026-07-11 18:00' },
+            { code: 'BD20260705015', name: '上海艾皮电电商', brand: '零食很忙', brandColor: '#1890ff', avatar: '李',
+                closeType: '强制闭店', area: '华东大区/上海市/浦东新区', status: 'daifenpeijianli', statusText: '待分配监理',
+                date: '2026-07-05', supervisor: '--', duration: '7天', workHours: '6天 2小时', startTime: '2026-07-06 09:00',
+                endTime: '2026-07-13 17:00' },
+            { code: 'BD20260703012', name: '北京朝阳建国路店', brand: '零食很忙', brandColor: '#1890ff', avatar: '张',
+                closeType: '迁址闭店', area: '华北大区/北京市/朝阳区', status: 'daiyuyue', statusText: '待预约', date: '2026-07-03',
+                supervisor: '李建国', duration: '4天', workHours: '3天 5小时', startTime: '2026-07-04 08:30', endTime: '2026-07-08 17:30' },
+            { code: 'BD20260630017', name: '天津和平滨江道店', brand: '赵一鸣', brandColor: '#ff6a00', avatar: '赵',
+                closeType: '常规闭店', area: '华北大区/天津市/和平区', status: 'yuyueshibai', statusText: '预约失败', date: '2026-06-30',
+                supervisor: '王志强', duration: '3天', workHours: '2天 7小时', startTime: '2026-07-01 09:00', endTime: '2026-07-04 16:00' },
+            { code: 'BD20260706001', name: '河北廊坊三河李旗庄镇店', brand: '赵一鸣', brandColor: '#ff6a00', avatar: '赵',
+                closeType: '迁址闭店', area: '华北大区/河北省/廊坊市', status: 'daichaichu', statusText: '待拆除', date: '2026-07-06',
+                supervisor: '周梦琪', duration: '6天', workHours: '5天 3小时', startTime: '2026-07-10 09:00', endTime: '2026-07-16 18:00' },
+            { code: 'BD20260702008', name: '浙江杭州西湖文三路店', brand: '零食很忙', brandColor: '#1890ff', avatar: '张',
+                closeType: '同址转品牌', area: '华东大区/浙江省/杭州市', status: 'daichaichu', statusText: '待拆除', date: '2026-07-02',
+                supervisor: '张晓芳', duration: '8天', workHours: '7天 1小时', startTime: '2026-07-05 08:00', endTime: '2026-07-13 17:00' },
+            { code: 'BD20260620002', name: '广东深圳南山科技园店', brand: '零食很忙', brandColor: '#1890ff', avatar: '李',
+                closeType: '常规闭店', area: '华南大区/广东省/深圳市', status: 'daifenpeichengkong', statusText: '待分配成控',
+                date: '2026-06-20', supervisor: '陈美丽', duration: '5天', workHours: '4天 4小时', startTime: '2026-06-22 08:30',
+                endTime: '2026-06-27 18:00' },
+            { code: 'BD20260625009', name: '湖北武汉光谷步行街店', brand: '赵一鸣', brandColor: '#ff6a00', avatar: '赵',
+                closeType: '迁址闭店', area: '华中大区/湖北省/武汉市', status: 'daishenhe', statusText: '待审核', date: '2026-06-25',
+                supervisor: '赵磊', duration: '6天', workHours: '5天 6小时', startTime: '2026-06-26 09:00', endTime: '2026-07-02 17:30' },
+            { code: 'BD20260618022', name: '河南郑州二七区店', brand: '零食很忙', brandColor: '#1890ff', avatar: '王',
+                closeType: '常规闭店', area: '华中大区/河南省/郑州市', status: 'shenheboihui', statusText: '审核驳回', date: '2026-06-18',
+                supervisor: '周梦琪', duration: '4天', workHours: '3天 2小时', startTime: '2026-06-20 08:00', endTime: '2026-06-24 16:00' },
+            { code: 'BD20260515003', name: '江苏南京鼓楼中央路店', brand: '零食很忙', brandColor: '#52c41a', avatar: '王',
+                closeType: '强制闭店', area: '华东大区/江苏省/南京市', status: 'yiwancheng', statusText: '已完成', date: '2026-05-15',
+                supervisor: '李建国', duration: '7天', workHours: '6天 3小时', startTime: '2026-05-16 08:30', endTime: '2026-05-23 17:00' },
+            { code: 'BD20260528012', name: '山东青岛市南香港中路店', brand: '赵一鸣', brandColor: '#ff6a00', avatar: '赵',
+                closeType: '强制闭店', area: '华北大区/山东省/青岛市', status: 'yiwancheng', statusText: '已完成', date: '2026-05-28',
+                supervisor: '张晓芳', duration: '5天', workHours: '4天 5小时', startTime: '2026-05-29 09:00', endTime: '2026-06-03 18:00' },
+            { code: 'BD20260410011', name: '四川成都锦江春熙路店', brand: '零食很忙', brandColor: '#52c41a', avatar: '王',
+                closeType: '常规闭店', area: '西南大区/四川省/成都市', status: 'yizhongzhi', statusText: '已终止', date: '2026-04-10',
+                supervisor: '王志强', duration: '3天', workHours: '2天 6小时', startTime: '2026-04-12 08:00', endTime: '2026-04-15 15:00' },
+        ];
+
+        let currentStatus = 'all';
+
+        function renderList() {
+            const list = document.getElementById('listContainer');
+            const empty = document.getElementById('emptyState');
+            let data = allData;
+            if (currentStatus !== 'all') { data = data.filter(d => d.status === currentStatus); }
+            if (data.length === 0) { list.innerHTML = '';
+                empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            list.innerHTML = data.map((d) => {
+                const clickAction = `showToast('进入详情：${d.name}')`;
+                return `
+    <div class="list-card" data-code="${d.code}" data-status="${d.status}" onclick="${clickAction}">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span class="avatar" style="background:${d.brandColor};">${d.avatar}</span>
+          <span>【${d.closeType}】${d.name}</span>
+        </div>
+        <span class="status-tag tag-${d.status}">${d.statusText}</span>
+      </div>
+      <div class="card-row"><span class="card-label">工程监理</span><span>${d.supervisor}</span></div>
+      <div class="card-row"><span class="card-label">项目工期</span><span style="color:#ff6a00;font-weight:500;">${d.duration}</span></div>
+      <div class="card-row"><span class="card-label">项目工时</span><span>${d.workHours}</span></div>
+      <div class="card-row"><span class="card-label">开始时间</span><span>${d.startTime}</span></div>
+      <div class="card-row"><span class="card-label">结束时间</span><span>${d.endTime}</span></div>
+    </div>`;
+            }).join('');
+        }
+
+        function switchStatus(el) {
+            document.querySelectorAll('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            currentStatus = el.dataset.status;
+            renderList();
+        }
+
+        renderList();
+
+        function showFilter() { document.getElementById('filterMask').classList.add('active');
+            document.getElementById('filterDrawer').classList.add('active'); }
+
+        function hideFilter() { document.getElementById('filterMask').classList.remove('active');
+            document.getElementById('filterDrawer').classList.remove('active'); }
+
+        function toggleFilterOption(el) { el.classList.toggle('selected'); }
+
+        function resetFilter() {
+            document.querySelectorAll('#filterDrawer .filter-option').forEach(o => o.classList.remove('selected'));
+            document.querySelectorAll('#filterDrawer .filter-input').forEach(i => i.value = '');
+            document.querySelectorAll('#filterDrawer .filter-date').forEach(i => i.value = '');
+            document.getElementById('areaDisplay').textContent = '请选择省/市/区';
+            document.getElementById('areaDisplay').parentElement.classList.remove('selected');
+            showToast('已重置');
+        }
+
+        function applyFilter() { hideFilter();
+            showToast('筛选条件已应用'); }
+
+        const areaData = {
+            '省': ['河北省', '广东省', '江苏省', '浙江省', '湖北省', '四川省', '山东省', '上海市'],
+            '河北省': ['廊坊市', '石家庄市', '唐山市', '保定市'],
+            '廊坊市': ['三河市', '霸州市', '广阳区'],
+            '广东省': ['深圳市', '广州市', '东莞市'],
+            '深圳市': ['南山区', '福田区', '宝安区'],
+            '江苏省': ['南京市', '无锡市', '苏州市'],
+            '南京市': ['鼓楼区', '玄武区', '秦淮区'],
+        };
+        let areaLevel = 0;
+        let areaSelected = [];
+
+        function showAreaCascader() { areaLevel = 0;
+            areaSelected = [];
+            renderAreaList('省');
+            document.getElementById('areaModal').classList.add('active'); }
+
+        function hideAreaCascader() { document.getElementById('areaModal').classList.remove('active'); }
+
+        function renderAreaList(key) {
+            const list = areaData[key] || [];
+            document.getElementById('areaList').innerHTML = list.map(a =>
+                `<div class="company-item" onclick="selectArea('${a}')">${a}</div>`).join('');
+            document.getElementById('areaCrumb').textContent = areaSelected.length ? areaSelected.join(' / ') + ' / 请选择' :
+                '请选择';
+        }
+
+        function selectArea(name) {
+            areaSelected.push(name);
+            areaLevel++;
+            if (areaLevel >= 3 || !areaData[name]) {
+                document.getElementById('areaDisplay').textContent = areaSelected.join('/');
+                document.getElementById('areaDisplay').parentElement.classList.add('selected');
+                hideAreaCascader();
+                return;
+            }
+            renderAreaList(name);
+        }
+
+        // ========== 流程节点 - 收起展开 ==========
+        let isTimelineCollapsed = false;
+
+        function toggleTimelineCollapse() {
+            const collapsible = document.getElementById('collapsibleNodes');
+            const marker = document.getElementById('collapsedMarker');
+            const icon = document.getElementById('collapseIcon');
+            const text = document.getElementById('collapseText');
+            if (isTimelineCollapsed) {
+                collapsible.classList.remove('hidden');
+                marker.classList.add('hidden');
+                icon.className = 'fa fa-compress';
+                text.textContent = '收起';
+                isTimelineCollapsed = false;
+            } else {
+                collapsible.classList.add('hidden');
+                marker.classList.remove('hidden');
+                icon.className = 'fa fa-expand';
+                text.textContent = '展开';
+                isTimelineCollapsed = true;
+            }
+        }
+
+        function expandTimeline() {
+            const collapsible = document.getElementById('collapsibleNodes');
+            const marker = document.getElementById('collapsedMarker');
+            const icon = document.getElementById('collapseIcon');
+            const text = document.getElementById('collapseText');
+            collapsible.classList.remove('hidden');
+            marker.classList.add('hidden');
+            icon.className = 'fa fa-compress';
+            text.textContent = '收起';
+            isTimelineCollapsed = false;
+        }
+
+        // ========== 地图弹窗 ==========
+        function showMapModal() { document.getElementById('mapModal').classList.add('active'); }
+
+        function hideMapModal() { document.getElementById('mapModal').classList.remove('active'); }
+
+        function openMap(type) {
+            const mapNames = { baidu: '百度地图', gaode: '高德地图', tencent: '腾讯地图', apple: '苹果地图' };
+            showToast('正在打开' + (mapNames[type] || '地图') + '...');
+            hideMapModal();
+        }
+
+        // ========== 项目动态弹窗 ==========
+        function showDynamicModal() { document.getElementById('dynamicModal').classList.add('active'); }
+
+        function hideDynamicModal() { document.getElementById('dynamicModal').classList.remove('active'); }
+
+        // ========== 指派任务 ==========
+        function selectStaff(el) {
+            document.querySelectorAll('#staffList .staff-card').forEach(c => { c.classList.remove('selected');
+                c.querySelector('.staff-radio').innerHTML = ''; });
+            el.classList.add('selected');
+            el.querySelector('.staff-radio').innerHTML = '<i class="fa fa-check"></i>';
+        }
+
+        function filterStaff(kw) {
+            document.querySelectorAll('#staffList .staff-card').forEach(c => {
+                const name = c.querySelector('.staff-name').textContent;
+                c.style.display = name.includes(kw) ? '' : 'none';
+            });
+        }
+
+        function confirmAssign() {
+            const sel = document.querySelector('#staffList .staff-card.selected');
+            if (!sel) { showToast('请选择人员'); return; }
+            const name = sel.querySelector('.staff-name').textContent;
+            showToast('已指派给：' + name);
+        }
+
+        function callPhone(num) { showToast('正在呼叫：' + num); }
+
+        // ========== 拆除预约 ==========
+        function toggleCheck(el) {
+            el.classList.toggle('checked');
+            el.querySelector('.fa-check').style.display = el.classList.contains('checked') ? '' : 'none';
+        }
+
+        function switchRadio(type) {
+            const y = document.getElementById('radioYes');
+            const n = document.getElementById('radioNo');
+            const sb = document.getElementById('successBlock');
+            const fb = document.getElementById('failBlock');
+            if (type === 'yes') { y.classList.add('checked');
+                n.classList.remove('checked');
+                sb.classList.remove('hidden');
+                fb.classList.add('hidden'); } else { y.classList.remove('checked');
+                n.classList.add('checked');
+                sb.classList.add('hidden');
+                fb.classList.remove('hidden'); }
+        }
+
+        function showCompanyModal() { document.getElementById('companyModal').classList.add('active'); }
+
+        function hideCompanyModal() { document.getElementById('companyModal').classList.remove('active'); }
+
+        function selectCompany(el, name) {
+            document.querySelectorAll('#companyList .company-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            const disp = document.getElementById('companyDisplay');
+            disp.textContent = name;
+            disp.classList.remove('placeholder');
+            setTimeout(hideCompanyModal, 200);
+        }
+
+        function filterCompany() {
+            const kw = document.getElementById('companySearch').value.toLowerCase();
+            document.querySelectorAll('#companyList .company-item').forEach(i => {
+                i.style.display = i.textContent.toLowerCase().includes(kw) ? '' : 'none';
+            });
+        }
+
+        function showReasonModal() {
+            document.getElementById('customReasonBlock').classList.add('hidden');
+            document.getElementById('customReasonInput').value = '';
+            document.getElementById('customReasonCounter').textContent = '0';
+            document.querySelectorAll('#reasonModal .reason-item').forEach(r => r.classList.remove('selected-reason'));
+            document.getElementById('reasonModal').classList.add('active');
+        }
+
+        function hideReasonModal() { document.getElementById('reasonModal').classList.remove('active'); }
+
+        function selectReason(el, name) {
+            const customBlock = document.getElementById('customReasonBlock');
+            document.querySelectorAll('#reasonModal .reason-item').forEach(r => r.classList.remove('selected-reason'));
+            el.classList.add('selected-reason');
+            if (name === '其他') {
+                customBlock.classList.remove('hidden');
+            } else {
+                customBlock.classList.add('hidden');
+                const disp = document.getElementById('reasonDisplay');
+                disp.textContent = name;
+                disp.classList.remove('placeholder');
+                hideReasonModal();
+            }
+        }
+
+        function updateCustomReasonCounter() {
+            const input = document.getElementById('customReasonInput');
+            document.getElementById('customReasonCounter').textContent = input.value.length;
+        }
+
+        function confirmCustomReason() {
+            const input = document.getElementById('customReasonInput');
+            const val = input.value.trim();
+            if (!val) { showToast('请输入自定义原因'); return; }
+            const disp = document.getElementById('reasonDisplay');
+            disp.textContent = '其他：' + val;
+            disp.classList.remove('placeholder');
+            hideReasonModal();
+        }
+
+        function submitBooking() { showToast('提交成功！'); }
+
+        // ========== 完成拆除 ==========
+        function updateCounter(el, id) { document.getElementById(id).textContent = el.value.length; }
+
+        function delUpload(el, containerId, type) {
+            el.parentElement.remove();
+            updateUploadCount(containerId, type);
+            showToast('已删除');
+        }
+
+        function addUpload(containerId, type) {
+            const container = document.getElementById(containerId);
+            const btn = container.querySelector('.upload-btn');
+            const max = type === 'receipt' ? 5 : 10;
+            const count = container.querySelectorAll('.upload-item').length;
+            if (count >= max) { showToast('已达到最大上传数量'); return; }
+            const newItem = document.createElement('div');
+            newItem.className = 'upload-item';
+            const imgSrc = `https://picsum.photos/seed/${type}${Date.now()}/200/200`;
+            newItem.innerHTML =
+                `<img src="${imgSrc}" alt="" onclick="previewImage(this.src, '${containerId}')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'${containerId}','${type}')"><i class="fa fa-close"></i></div>`;
+            container.insertBefore(newItem, btn);
+            updateUploadCount(containerId, type);
+            showToast('已添加照片');
+        }
+
+        function updateUploadCount(containerId, type) {
+            const container = document.getElementById(containerId);
+            const btn = container.querySelector('.upload-btn');
+            const count = container.querySelectorAll('.upload-item').length;
+            const max = type === 'receipt' ? 5 : 10;
+            btn.querySelector('span').textContent = count + '/' + max;
+        }
+
+        function submitFinish() {
+            const time = document.getElementById('finishTime').value;
+            const inner = document.querySelectorAll('#uploadInner .upload-item').length;
+            const outer = document.querySelectorAll('#uploadOuter .upload-item').length;
+            const receipt = document.querySelectorAll('#uploadReceipt .upload-item').length;
+            if (!time) { showToast('请选择拆除完成时间'); return; }
+            if (inner < 2) { showToast('请至少上传2张店内照片'); return; }
+            if (outer < 4) { showToast('请至少上传4张店外照片'); return; }
+            if (receipt < 1) { showToast('请至少上传1张收据'); return; }
+            showToast('拆除完成提交成功！项目已流转至"待分配成控专员"');
+        }
+
+        // ========== 全局图片预览 Lightbox ==========
+        let lightboxCurrentGroup = [];
+        let lightboxCurrentIndex = 0;
+
+        function previewImage(src, containerId) {
+            const overlay = document.getElementById('globalLightbox');
+            const img = document.getElementById('lightboxImg');
+            const prevBtn = document.getElementById('lightboxPrev');
+            const nextBtn = document.getElementById('lightboxNext');
+            const counter = document.getElementById('lightboxCounter');
+
+            // 收集同组图片
+            lightboxCurrentGroup = [];
+            lightboxCurrentIndex = 0;
+            if (containerId) {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    const allImgs = container.querySelectorAll('.upload-item img');
+                    allImgs.forEach((imgEl, idx) => {
+                        lightboxCurrentGroup.push(imgEl.src);
+                        if (imgEl.src === src) {
+                            lightboxCurrentIndex = idx;
+                        }
+                    });
+                }
+            }
+            if (lightboxCurrentGroup.length === 0) {
+                lightboxCurrentGroup = [src];
+                lightboxCurrentIndex = 0;
+            }
+
+            // 设置图片
+            img.src = lightboxCurrentGroup[lightboxCurrentIndex];
+
+            // 显示/隐藏导航箭头
+            if (lightboxCurrentGroup.length <= 1) {
+                prevBtn.classList.add('hidden-nav');
+                nextBtn.classList.add('hidden-nav');
+                counter.textContent = '';
+            } else {
+                prevBtn.classList.remove('hidden-nav');
+                nextBtn.classList.remove('hidden-nav');
+                counter.textContent = (lightboxCurrentIndex + 1) + ' / ' + lightboxCurrentGroup.length;
+            }
+
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function lightboxNavigate(direction) {
+            if (lightboxCurrentGroup.length <= 1) return;
+            lightboxCurrentIndex += direction;
+            if (lightboxCurrentIndex < 0) lightboxCurrentIndex = lightboxCurrentGroup.length - 1;
+            if (lightboxCurrentIndex >= lightboxCurrentGroup.length) lightboxCurrentIndex = 0;
+
+            const img = document.getElementById('lightboxImg');
+            const counter = document.getElementById('lightboxCounter');
+            img.style.opacity = '0';
+            setTimeout(() => {
+                img.src = lightboxCurrentGroup[lightboxCurrentIndex];
+                img.style.opacity = '1';
+                counter.textContent = (lightboxCurrentIndex + 1) + ' / ' + lightboxCurrentGroup.length;
+            }, 150);
+        }
+
+        function closeLightbox(event) {
+            // 点击遮罩背景关闭（非图片区域和非导航按钮）
+            if (event.target === document.getElementById('globalLightbox')) {
+                closeLightboxDirect();
+            }
+        }
+
+        function closeLightboxDirect() {
+            const overlay = document.getElementById('globalLightbox');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            lightboxCurrentGroup = [];
+            lightboxCurrentIndex = 0;
+        }
+
+        // 键盘左右箭头切换
+        document.addEventListener('keydown', function(e) {
+            const overlay = document.getElementById('globalLightbox');
+            if (!overlay.classList.contains('active')) return;
+            if (e.key === 'ArrowLeft') { lightboxNavigate(-1);
+                e.preventDefault(); }
+            if (e.key === 'ArrowRight') { lightboxNavigate(1);
+                e.preventDefault(); }
+            if (e.key === 'Escape') { closeLightboxDirect();
+                e.preventDefault(); }
+        });
+
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        document.getElementById('globalLightbox').addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        document.getElementById('globalLightbox').addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            const overlay = document.getElementById('globalLightbox');
+            if (!overlay.classList.contains('active')) return;
+            // 排除在导航按钮上的滑动
+            if (e.target.closest('.lightbox-nav') || e.target.closest('.lightbox-close')) return;
+            if (Math.abs(diff) > 60) {
+                if (diff > 0) { lightboxNavigate(1); } else { lightboxNavigate(-1); }
+            }
+        });
+
+        // ========== Toast ==========
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+    </script>
+</body>
+</html>
