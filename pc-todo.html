@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程系统 · 工作台 - 待办列表与日程</title>
+    <style>
+        :root {
+            --brand: #FF6A00;
+            --brand-light: #FFF3EA;
+            --brand-grad: linear-gradient(135deg, #FF8A00, #FF5A00);
+            --ing: #1890FF;
+            --overdue: #F5222D;
+            --todo: #8C8C8C;
+            --done: #52C41A;
+            --warn: #FA8C16;
+            --bg: #F5F6F8;
+            --card: #FFFFFF;
+            --line: #EEEFF2;
+            --t1: #1F2329;
+            --t2: #646A73;
+            --t3: #8F959E;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--t1);
+            font-size: 14px;
+        }
+        .topbar {
+            height: 56px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 17px;
+            margin-right: 40px;
+        }
+        .logo .m {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--brand-grad);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .nav {
+            display: flex;
+            gap: 28px;
+            height: 100%;
+        }
+        .nav a {
+            display: flex;
+            align-items: center;
+            color: var(--t2);
+            text-decoration: none;
+            height: 100%;
+            border-bottom: 2px solid transparent;
+            padding: 0 2px;
+        }
+        .nav a.on {
+            color: var(--brand);
+            font-weight: 600;
+            border-bottom-color: var(--brand);
+        }
+        .topbar .right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: var(--t2);
+        }
+        .bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .bell .dot {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: var(--overdue);
+            color: #fff;
+            font-size: 10px;
+            border-radius: 8px;
+            padding: 0 4px;
+            line-height: 14px;
+        }
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand-grad);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .crumb {
+            padding: 10px 24px;
+            color: var(--t3);
+            font-size: 12px;
+            background: #fff;
+            border-bottom: 1px solid var(--line);
+        }
+        .crumb b {
+            color: var(--t1);
+            font-weight: 500;
+        }
+        .wrap {
+            max-width: 1440px;
+            margin: 16px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 16px;
+            align-items: start;
+        }
+        .panel {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .panel-hd {
+            padding: 16px 20px 0;
+        }
+        .panel-hd .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .panel-hd h3 {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-hd h3::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background: var(--brand);
+            border-radius: 2px;
+        }
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 6px 10px;
+            width: 220px;
+        }
+        .search input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            font-size: 13px;
+        }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding-bottom: 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .tabs::-webkit-scrollbar {
+            height: 0;
+        }
+        .tab {
+            padding: 8px 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            color: var(--t2);
+            border-bottom: 2px solid transparent;
+            font-size: 13px;
+            position: relative;
+        }
+        .tab .cnt {
+            font-size: 11px;
+            background: #F0F1F3;
+            border-radius: 8px;
+            padding: 0 6px;
+            margin-left: 4px;
+            color: var(--t3);
+        }
+        .tab.on {
+            color: var(--brand);
+            font-weight: 600;
+            border-bottom-color: var(--brand);
+        }
+        .tab.on .cnt {
+            background: var(--brand-light);
+            color: var(--brand);
+        }
+        .filters {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .pill {
+            padding: 4px 12px;
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--t2);
+            cursor: pointer;
+            font-size: 12px;
+            border: 1px solid transparent;
+            transition: all .15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pill .pill-cnt {
+            font-size: 11px;
+            background: #E0E2E6;
+            border-radius: 10px;
+            padding: 0 6px;
+            line-height: 16px;
+            color: var(--t3);
+            transition: all .15s;
+        }
+        .pill.on {
+            background: var(--brand-light);
+            color: var(--brand);
+            border-color: #FFD3B0;
+            font-weight: 600;
+        }
+        .pill.on .pill-cnt {
+            background: #FFD3B0;
+            color: var(--brand);
+            font-weight: 600;
+        }
+        .sort {
+            margin-left: auto;
+            color: var(--t3);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .list {
+            padding: 0 20px 12px;
+            min-height: 400px;
+            max-height: 640px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .list::-webkit-scrollbar-thumb {
+            background: #E0E2E6;
+            border-radius: 3px;
+        }
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: .15s;
+            position: relative;
+            background: #fff;
+        }
+        .card:hover {
+            border-color: #FFC79E;
+            box-shadow: 0 4px 14px rgba(255, 106, 0, .08);
+        }
+        .card .bar {
+            width: 4px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .bar.ing {
+            background: var(--ing);
+        }
+        .bar.overdue {
+            background: var(--overdue);
+        }
+        .bar.todo {
+            background: #C9CDD4;
+        }
+        .card .body {
+            flex: 1;
+            min-width: 0;
+        }
+        .card .l1 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .mod-tag {
+            font-size: 11px;
+            padding: 1px 8px;
+            border-radius: 4px;
+            background: #EEF4FF;
+            color: #3370FF;
+            flex-shrink: 0;
+        }
+        .card .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .badge {
+            font-size: 11px;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .badge.ing {
+            background: #E8F4FF;
+            color: var(--ing);
+        }
+        .badge.overdue {
+            background: #FFF0F0;
+            color: var(--overdue);
+        }
+        .badge.todo {
+            background: #F2F3F5;
+            color: var(--todo);
+        }
+        .card .l2 {
+            margin-top: 6px;
+            color: var(--t3);
+            font-size: 12px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .card .l2 span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card .ops {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .btn {
+            background: var(--brand-grad);
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn:hover {
+            opacity: .88;
+        }
+        .btn.ghost {
+            background: #fff;
+            color: var(--brand);
+            border: 1px solid #FFC79E;
+        }
+        .empty {
+            text-align: center;
+            color: var(--t3);
+            padding: 60px 0;
+        }
+        .empty .e {
+            font-size: 40px;
+        }
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 20px 20px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--t2);
+            border-top: 1px solid var(--line);
+            margin-top: 4px;
+        }
+        .pg-total {
+            color: var(--t2);
+            font-size: 13px;
+            margin-right: auto;
+        }
+        .pg-size {
+            position: relative;
+        }
+        .pg-size .selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            color: var(--t1);
+            min-width: 88px;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .pg-size .selector:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+        .pg-size .selector .arr {
+            font-size: 10px;
+            color: var(--t3);
+            transition: .2s;
+        }
+        .pg-size.open .selector {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+        .pg-size.open .selector .arr {
+            transform: rotate(180deg);
+            color: var(--brand);
+        }
+        .pg-size .dropdown {
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, .08);
+            overflow: hidden;
+            display: none;
+            z-index: 10;
+        }
+        .pg-size.open .dropdown {
+            display: block;
+        }
+        .pg-size .dropdown div {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--t1);
+        }
+        .pg-size .dropdown div:hover {
+            background: var(--bg);
+        }
+        .pg-size .dropdown div.sel {
+            color: var(--brand);
+            background: var(--brand-light);
+            font-weight: 600;
+        }
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            color: var(--t1);
+            font-size: 13px;
+            padding: 0 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pg-btn:hover:not(:disabled):not(.ellipsis) {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+        .pg-btn.on {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+            font-weight: 600;
+        }
+        .pg-btn:disabled {
+            color: #C9CDD4;
+            cursor: not-allowed;
+            background: #FAFAFA;
+        }
+        .pg-btn.ellipsis {
+            border: none;
+            background: transparent;
+            cursor: default;
+        }
+        .pg-jump {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--t2);
+            font-size: 13px;
+        }
+        .pg-jump input {
+            width: 48px;
+            height: 32px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            text-align: center;
+            outline: none;
+            font-size: 13px;
+            color: var(--t1);
+        }
+        .pg-jump input:focus {
+            border-color: var(--brand);
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .cal {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .cal-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .cal-hd h3 {
+            font-size: 15px;
+        }
+        .cal-hd .nav-btn {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .cbtn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: #fff;
+            cursor: pointer;
+            color: var(--t2);
+        }
+        .cbtn:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+        .view-seg {
+            display: inline-flex;
+            background: var(--bg);
+            border-radius: 6px;
+            padding: 2px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+        .view-seg .seg {
+            flex: 1;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 12px;
+            color: var(--t2);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: .15s;
+        }
+        .view-seg .seg.on {
+            background: #fff;
+            color: var(--brand);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+        }
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+        .cal-grid .wk {
+            font-size: 11px;
+            color: var(--t3);
+            padding: 6px 0;
+        }
+        .day {
+            padding: 5px 0 7px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            font-size: 13px;
+            min-height: 38px;
+            transition: all .15s;
+        }
+        .day:hover {
+            background: var(--bg);
+        }
+        .day.dim {
+            color: #C9CDD4;
+        }
+        .day.today {
+            background: var(--brand-light);
+            color: var(--brand);
+            font-weight: 700;
+        }
+        .day.sel {
+            background: var(--brand);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(255, 106, 0, .35);
+        }
+        .day.in-week {
+            background: #FFE8D6;
+        }
+        .day.in-week.today {
+            background: var(--brand-light);
+        }
+        .day.in-week.sel {
+            background: var(--brand);
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 2px;
+        }
+        .dots i {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            display: block;
+        }
+        .dots .d-ing {
+            background: var(--ing);
+        }
+        .dots .d-overdue {
+            background: var(--overdue);
+        }
+        .dots .d-todo {
+            background: #C9CDD4;
+        }
+        .day.sel .dots i {
+            background: #fff;
+        }
+        .day .cnt-badge {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 9px;
+            background: var(--overdue);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0 4px;
+            line-height: 12px;
+            font-weight: 600;
+        }
+        .day.sel .cnt-badge {
+            background: #fff;
+            color: var(--brand);
+        }
+        .week-view {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .week-day {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            transition: all .15s;
+            background: #fff;
+        }
+        .week-day:hover {
+            border-color: var(--brand);
+            background: #FFF9F5;
+        }
+        .week-day.today {
+            background: var(--brand-light);
+            border-color: #FFD3B0;
+        }
+        .week-day.sel {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+            box-shadow: 0 2px 10px rgba(255, 106, 0, .3);
+        }
+        .week-day.sel .wd-sub {
+            color: rgba(255, 255, 255, .85);
+        }
+        .week-day.sel .wd-wk {
+            color: #fff;
+        }
+        .wd-date {
+            font-size: 16px;
+            font-weight: 700;
+            min-width: 36px;
+            text-align: center;
+        }
+        .wd-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .wd-wk {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .wd-sub {
+            font-size: 11px;
+            color: var(--t3);
+            margin-top: 2px;
+        }
+        .wd-dots {
+            display: flex;
+            gap: 3px;
+        }
+        .wd-dots i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .week-day.sel .wd-dots i {
+            background: #fff !important;
+        }
+        .legend {
+            display: flex;
+            gap: 14px;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--t3);
+            justify-content: center;
+        }
+        .legend i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        .agenda {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px 18px;
+            flex: 1;
+        }
+        .agenda h3 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .agenda h3 small {
+            color: var(--t3);
+            font-weight: 400;
+            font-size: 12px;
+        }
+        .ag-sub-desc {
+            color: var(--t3);
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+        .ag-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .ag-summary.two-col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .ag-sum-card {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: .15s;
+            border: 1px solid transparent;
+        }
+        .ag-sum-card:hover {
+            border-color: var(--brand);
+        }
+        .ag-sum-card.overdue {
+            background: #FFF0F0;
+        }
+        .ag-sum-card.due {
+            background: #FFF7E6;
+        }
+        .ag-sum-card.start {
+            background: #E8F4FF;
+        }
+        .ag-sum-num {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .ag-sum-num.c-overdue {
+            color: var(--overdue);
+        }
+        .ag-sum-num.c-warn {
+            color: var(--warn);
+        }
+        .ag-sum-num.c-ing {
+            color: var(--ing);
+        }
+        .ag-sum-label {
+            font-size: 11px;
+            color: var(--t2);
+            margin-top: 4px;
+        }
+        .ag-group {
+            margin-bottom: 4px;
+        }
+        .ag-group-hd {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 0 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--t2);
+            border-top: 1px dashed var(--line);
+            margin-top: 4px;
+        }
+        .ag-group:first-child .ag-group-hd {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 4px;
+        }
+        .ag-group-hd .g-icon {
+            font-size: 14px;
+        }
+        .ag-group-hd .g-cnt {
+            background: #F0F1F3;
+            color: var(--t2);
+            font-size: 10px;
+            padding: 0 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .ag-group.overdue .ag-group-hd {
+            color: var(--overdue);
+        }
+        .ag-group.overdue .g-cnt {
+            background: #FFF0F0;
+            color: var(--overdue);
+        }
+        .ag-group.due .ag-group-hd {
+            color: var(--warn);
+        }
+        .ag-group.due .g-cnt {
+            background: #FFF7E6;
+            color: var(--warn);
+        }
+        .ag-group.start .ag-group-hd {
+            color: var(--ing);
+        }
+        .ag-group.start .g-cnt {
+            background: #E8F4FF;
+            color: var(--ing);
+        }
+        .ag-list {
+            display: flex;
+            flex-direction: column;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .ag-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .ag-list::-webkit-scrollbar-thumb {
+            background: #E0E2E6;
+            border-radius: 2px;
+        }
+        .ag-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .15s;
+            border-left: 3px solid transparent;
+        }
+        .ag-item:hover {
+            background: #FFF9F5;
+        }
+        .ag-item.overdue {
+            background: #FFF7F7;
+            border-left-color: var(--overdue);
+        }
+        .ag-item.due {
+            background: #FFFBF0;
+            border-left-color: var(--warn);
+        }
+        .ag-item.start {
+            background: #F5FAFF;
+            border-left-color: var(--ing);
+        }
+        .ag-item.ing {
+            border-left-color: #E0E2E6;
+        }
+        .ag-time-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 42px;
+            flex-shrink: 0;
+        }
+        .ag-time-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .ag-time-tag.overdue {
+            background: var(--overdue);
+            color: #fff;
+        }
+        .ag-time-tag.due {
+            background: var(--warn);
+            color: #fff;
+        }
+        .ag-time-tag.start {
+            background: var(--ing);
+            color: #fff;
+        }
+        .ag-time-tag.ing {
+            background: #C9CDD4;
+            color: #fff;
+        }
+        .ag-time-day {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 3px;
+        }
+        .ag-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .ag-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .ag-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .ag-mod {
+            font-size: 10px;
+            padding: 0 6px;
+            border-radius: 3px;
+            background: #EEF4FF;
+            color: #3370FF;
+            line-height: 16px;
+        }
+        .ag-meta {
+            font-size: 11px;
+            color: var(--t3);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .ag-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .ag-tip {
+            font-size: 11px;
+            margin-top: 4px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .ag-tip.overdue {
+            background: #FFF0F0;
+            color: var(--overdue);
+        }
+        .ag-tip.due {
+            background: #FFF7E6;
+            color: var(--warn);
+        }
+        .ag-tip.start {
+            background: #E8F4FF;
+            color: var(--ing);
+        }
+        .ag-empty {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--t3);
+        }
+        .ag-empty .e {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        .ag-quick-filter {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .ag-qf {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--t2);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: .15s;
+        }
+        .ag-qf.on {
+            background: var(--brand-light);
+            color: var(--brand);
+            border-color: #FFD3B0;
+            font-weight: 600;
+        }
+        .mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .35);
+            z-index: 200;
+            display: none;
+        }
+        .mask.show {
+            display: block;
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 460px;
+            height: 100%;
+            background: #fff;
+            z-index: 201;
+            transition: right .25s ease;
+            box-shadow: -8px 0 24px rgba(0, 0, 0, .08);
+            display: flex;
+            flex-direction: column;
+        }
+        .drawer.show {
+            right: 0;
+        }
+        .dw-hd {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dw-hd h3 {
+            font-size: 16px;
+        }
+        .dw-close {
+            cursor: pointer;
+            color: var(--t3);
+            font-size: 18px;
+            border: none;
+            background: none;
+        }
+        .dw-bd {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .dw-row {
+            display: flex;
+            margin-bottom: 14px;
+            font-size: 13px;
+        }
+        .dw-row .k {
+            width: 110px;
+            color: var(--t3);
+            flex-shrink: 0;
+        }
+        .dw-row .v {
+            flex: 1;
+            color: var(--t1);
+            line-height: 1.6;
+        }
+        .dw-ft {
+            padding: 14px 20px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .toast {
+            position: fixed;
+            top: 76px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(31, 35, 41, .92);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            opacity: 0;
+            transition: .25s;
+            z-index: 300;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        @media(max-width:1100px) {
+            .wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="logo"><div class="m">鸣</div>鸣鸣很忙集团</div>
+    <div class="nav"><a class="on" href="javascript:;">工作台</a><a href="javascript:;" onclick="toast('跳转至：工程系统')">工程</a><a href="javascript:;" onclick="toast('跳转至：系统设置')">设置</a></div>
+    <div class="right"><span class="bell" onclick="toast('打开消息中心')">🔔<span class="dot" id="bellCnt">0</span></span><div class="avatar">王</div><span>王鹏 ▾</span></div>
+</div>
+<div class="crumb">🏠 &nbsp;/&nbsp; <b>工作台</b> &nbsp;·&nbsp; 工程系统待办与日程</div>
+<div class="wrap">
+    <div class="panel">
+        <div class="panel-hd">
+            <div class="title-row"><h3>我的待办</h3><div class="search">🔍<input id="kw" placeholder="搜索任务 / 门店 / 项目编号" oninput="onSearch()"></div></div>
+            <div class="tabs" id="tabs"></div>
+        </div>
+        <div class="filters" id="filters"></div>
+        <div class="list" id="list"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+    <div class="side">
+        <div class="cal">
+            <div class="cal-hd"><h3 id="calTitle"></h3><div class="nav-btn"><button class="cbtn" onclick="navView(-1)">‹</button><button class="cbtn" onclick="backToday()" style="width:auto;padding:0 8px;font-size:12px;">今天</button><button class="cbtn" onclick="navView(1)">›</button></div></div>
+            <div class="view-seg"><div class="seg" data-v="day" onclick="setView('day')">日</div><div class="seg" data-v="week" onclick="setView('week')">周</div><div class="seg on" data-v="month" onclick="setView('month')">月</div></div>
+            <div id="calBody"></div>
+            <div class="legend"><span><i style="background:var(--overdue)"></i>超期</span><span><i style="background:var(--warn)"></i>截止</span><span><i style="background:var(--ing)"></i>开始</span><span><i style="background:#C9CDD4"></i>进行中</span></div>
+        </div>
+        <div class="agenda">
+            <h3><span id="agTitle">今日日程</span><small id="agCnt"></small></h3>
+            <div class="ag-sub-desc" id="agSubDesc"></div>
+            <div class="ag-summary" id="agSummary"></div>
+            <div class="ag-quick-filter" id="agQuickFilter"></div>
+            <div class="ag-list" id="agList"></div>
+        </div>
+    </div>
+</div>
+<div class="mask" id="mask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="dw-hd"><h3 id="dwTitle">任务详情</h3><button class="dw-close" onclick="closeDrawer()">✕</button></div>
+    <div class="dw-bd" id="dwBody"></div>
+    <div class="dw-ft"><button class="btn ghost" onclick="closeDrawer()">关 闭</button><button class="btn" id="dwGo">去处理</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+    const today = new Date(); today.setHours(0,0,0,0);
+    const Dstart = n => { const d = new Date(today); d.setDate(d.getDate()+n); d.setHours(9,0,0,0); return d; };
+    const Dend = n => { const d = new Date(today); d.setDate(d.getDate()+n); d.setHours(23,59,59,0); return d; };
+    const fmt = d => `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    const sameDay = (a,b) => +new Date(a.getFullYear(),a.getMonth(),a.getDate()) === +new Date(b.getFullYear(),b.getMonth(),b.getDate());
+    let ID=0;
+    const T = (mod,sub,name,store,owner,s,e,jump,trigger,rule) => ({id:++ID,mod,sub,name,store,owner,start:Dstart(s),end:Dend(e),jump,trigger,rule});
+    const STORES = ['长沙梅溪湖店·MX20260112','株洲天元店·TY20260108','岳阳南湖店·NH20251230','邵阳双清店·SQ20260115','常德武陵店·WL20260110','衡阳蒸湘店·ZX20260109','湘潭岳塘店·YT20260105','益阳赫山店·HS20260103','娄底娄星店·LX20251228','怀化鹤城店·HC20260102','南昌红谷滩店·HG20260111','九江浔阳店·XY20260107','赣州章贡店·ZG20260104','武汉光谷店·GG20260113','宜昌西陵店·XL20260106','襄阳襄城店·XC20260101','贵阳观山湖店·GS20251229','遵义汇川店·HZ20251227','南宁青秀店·QX20260114','桂林秀峰店·XF20260116'];
+    const pick = (arr,i) => arr[i%arr.length];
+    let tasks = [
+        T('项目管理','待确认','项目分配（工程支持）',pick(STORES,0),'@童丽英',-1,0,'指派人员页面','项目创建成功，自动分配工程支持失败','预计开始：项目创建时间；预计结束：预计开始+24h'),
+        T('项目管理','待确认','项目分配（工程支持）',pick(STORES,10),'@童丽英',-2,-1,'指派人员页面','项目创建成功，自动分配工程支持失败','预计开始：项目创建时间；预计结束：预计开始+24h'),
+        T('项目管理','待确认','项目确认',pick(STORES,1),'工程支持',0,1,'项目确认页','创建项目后立即生成','预计结束：预计开始+24h'),
+        T('项目管理','待确认','项目确认',pick(STORES,11),'工程支持',-1,0,'项目确认页','创建项目后立即生成','预计结束：预计开始+24h'),
+        T('项目管理','待确认','项目确认',pick(STORES,13),'工程支持',1,2,'项目确认页','创建项目后立即生成','预计结束：预计开始+24h'),
+        T('项目管理','待确认','待定稿（立项）',pick(STORES,2),'工程监理',-3,-1,'项目详情-定稿页','勘场完成','预计开始：勘场完成时间；预计结束：+24H'),
+        T('项目管理','待确认','待定稿（立项）',pick(STORES,14),'工程监理',-4,-2,'项目详情-定稿页','勘场完成','预计开始：勘场完成时间；预计结束：+24H'),
+        T('设计列表','平面图&水电图','设计任务待分配',pick(STORES,0),'@周旭',0,1,'指派设计师','勘场定稿完成，设计任务创建','预计结束：预计开始+24H'),
+        T('设计列表','平面图&水电图','设计任务待分配',pick(STORES,10),'@周旭',-1,0,'指派设计师','勘场定稿完成，设计任务创建','预计结束：预计开始+24H'),
+        T('设计列表','平面图&水电图','待传平面图',pick(STORES,6),'设计师',-1,1,'平面图上传页','指派设计师完成','预计结束：预计开始+48H'),
+        T('设计列表','平面图&水电图','待传平面图',pick(STORES,12),'设计师',0,2,'平面图上传页','指派设计师完成','预计结束：预计开始+48H'),
+        T('设计列表','平面图&水电图','待传水电图',pick(STORES,7),'设计师',-4,-2,'水电图上传页','完成平面图上传','预计结束：预计开始+48H'),
+        T('设计列表','平面图&水电图','待传水电图',pick(STORES,13),'设计师',-3,-1,'水电图上传页','完成平面图上传','预计结束：预计开始+48H'),
+        T('设计列表','全套图','待传全套图',pick(STORES,8),'设计师',2,4,'全套图上传页','完成水电图上传','监控规则：施工进场后全套图未上传'),
+        T('设计列表','全套图','待传全套图',pick(STORES,14),'设计师',3,5,'全套图上传页','完成水电图上传','监控规则：施工进场后全套图未上传'),
+        T('设计列表','设计修改','待设计修改',pick(STORES,9),'设计师',-1,0,'设计修改页','设计审核驳回','预计开始：设计审核驳回时间；预计结束：+24h'),
+        T('设计列表','设计修改','待设计修改',pick(STORES,15),'设计师',-2,-1,'设计修改页','设计审核驳回','预计开始：设计审核驳回时间；预计结束：+24h'),
+        T('工程预算','基装预算','预算任务待分配',pick(STORES,0),'@巫云芳',0,1,'预算详情','勘场定稿完成，预算任务创建','预计结束：预计开始+24H'),
+        T('工程预算','基装预算','预算任务待分配',pick(STORES,10),'@巫云芳',-1,0,'预算详情','勘场定稿完成，预算任务创建','预计结束：预计开始+24H'),
+        T('工程预算','基装预算','待传预算单',pick(STORES,1),'工程预结算',-2,-1,'预算详情','指派完成且水电图上传完成','预计开始：水电图完成；预计结束：+24H'),
+        T('工程预算','基装预算','待传预算单',pick(STORES,11),'工程预结算',-3,-2,'预算详情','指派完成且水电图上传完成','预计开始：水电图完成；预计结束：+24H'),
+        T('工程预算','监控报价单','待传预算单（监控报价单）',pick(STORES,2),'工程预结算',3,8,'预算详情','施工进场后触发','预计开始：施工进场后第5天；预计结束：+5天'),
+        T('工程预算','监控报价单','待传预算单（监控报价单）',pick(STORES,13),'工程预结算',4,9,'预算详情','施工进场后触发','预计开始：施工进场后第5天；预计结束：+5天'),
+        T('去货架列表','','待去货架',pick(STORES,2),'负责人',-8,1,'货架详情','分配负责人完成','预计开始：施工进场+8天；结束：施工完工前2天'),
+        T('去货架列表','','待去货架',pick(STORES,12),'负责人',-6,3,'货架详情','分配负责人完成','预计开始：施工进场+8天；结束：施工完工前2天'),
+        T('加盟商评价','','评价任务待分配',pick(STORES,4),'@童丽英',-1,0,'加盟商评价详情','已开业，系统未查到负责人','预计结束：实际开始时间+1天'),
+        T('加盟商评价','','待评价',pick(STORES,5),'负责人',0,6,'加盟商评价详情','评价任务已指派负责人','预计结束：开始时间+6天，23:59'),
+        T('加盟商评价','','待评价',pick(STORES,15),'负责人',-2,4,'加盟商评价详情','评价任务已指派负责人','预计结束：开始时间+6天，23:59'),
+        T('设计评价','','待评价',pick(STORES,6),'负责人',1,7,'设计评价问卷详情页','设计评价流转"待分配"状态','预计结束：开始时间+6天'),
+        T('设计评价','','待评价',pick(STORES,16),'负责人',-1,5,'设计评价问卷详情页','设计评价流转"待分配"状态','预计结束：开始时间+6天'),
+    ];
+    const closeStoreTasks = [
+        T('闭店管理','待分配','分配监理',pick(STORES,5),'大区工程负责人',-1,-1,'PC-闭店详情-分配监理弹框','自动分配失败（无匹配监理）','预计开始：自动分配失败时间；预计结束：预计开始当天23:59:59'),
+        T('闭店管理','待分配','分配成控专员',pick(STORES,6),'大区工程负责人',0,0,'PC-闭店详情-分配监理弹框','自动分配失败（无匹配监理）','预计开始：自动分配失败时间；预计结束：预计开始当天23:59:59'),
+        T('闭店管理','待审核','预结算审核',pick(STORES,7),'工程预结算',1,2,'PC-闭店详情-成控审核弹框','成控专员分配完成，状态变更为"待审核"','预计开始：成控分配完成时间；预计结束：预计开始+1天'),
+    ];
+    tasks = tasks.concat(closeStoreTasks);
+    tasks = tasks.filter(t => t.mod !== '工程预结算评价');
+
+    function calc(t) {
+        if (today < t.start) return {s:'todo', txt:`待开始 · 预计 ${fmt(t.start)} ~ ${fmt(t.end)}`};
+        if (today > t.end) { const d = Math.round((today-t.end)/864e5); return {s:'overdue', txt:`已超期 ${d} 天`}; }
+        const d = Math.round((t.end-today)/864e5); return {s:'ing', txt:`进行中 · 剩余 ${d} 天`};
+    }
+    tasks.forEach(t => Object.assign(t, calc(t)));
+
+    let curMod='all', curStatus='all', curSub='all', sortOverdueFirst=true;
+    let curPage=1, pageSize=20;
+    let calYear=today.getFullYear(), calMonth=today.getMonth(), selDate=new Date(today);
+    let calView='month', agFilter='all';
+
+    const MODS = ['all', ...new Set(tasks.map(t=>t.mod))];
+    const SICON = {ing:'⏱', overdue:'🔥', todo:'📅'};
+
+    function getFilterConfig(mod) {
+        if (mod === 'all') return [{k:'all',l:'全部状态'},{k:'ing',l:'进行中'},{k:'overdue',l:'已超期'},{k:'todo',l:'待开始'}];
+        const map = {
+            '项目管理': [{k:'all',l:'全部状态'},{k:'待确认',l:'待确认'},{k:'overdue',l:'已超期'}],
+            '设计列表': [{k:'all',l:'全部状态'},{k:'平面图&水电图',l:'平面图&水电图'},{k:'全套图',l:'全套图'},{k:'下单图',l:'下单图'},{k:'补全门店信息',l:'补全门店信息'},{k:'设计修改',l:'设计修改'},{k:'overdue',l:'已超期'}],
+            '工程预算': [{k:'all',l:'全部状态'},{k:'基装预算',l:'基装预算'},{k:'广告预算单',l:'广告预算单'},{k:'货架报价单',l:'货架报价单'},{k:'监控报价单',l:'监控报价单'},{k:'冷链系统报价单',l:'冷链系统报价单'},{k:'overdue',l:'已超期'}],
+            '去货架列表': [{k:'all',l:'全部状态'},{k:'ing',l:'进行中'},{k:'overdue',l:'已超期'}],
+            '加盟商评价': [{k:'all',l:'全部状态'},{k:'ing',l:'进行中'},{k:'overdue',l:'已超期'}],
+            '设计评价': [{k:'all',l:'全部状态'},{k:'ing',l:'进行中'},{k:'overdue',l:'已超期'}],
+            '闭店管理': [{k:'all',l:'全部状态'},{k:'待分配',l:'待分配'},{k:'待审核',l:'待审核'},{k:'overdue',l:'已超期'}],
+        };
+        return map[mod] || [{k:'all',l:'全部状态'},{k:'ing',l:'进行中'},{k:'overdue',l:'已超期'},{k:'todo',l:'待开始'}];
+    }
+
+    function renderFilters() {
+        const cfg = getFilterConfig(curMod);
+        let html = cfg.map(c => {
+            const active = (curMod==='all'||curMod==='去货架列表'||curMod==='加盟商评价'||curMod==='设计评价'||(curMod==='闭店管理'&&c.k==='all')||(curMod==='项目管理'&&c.k==='all')||(curMod==='设计列表'&&c.k==='all')||(curMod==='工程预算'&&c.k==='all')) ? (curStatus===c.k||curSub===c.k) : (curSub===c.k);
+            let cnt = 0;
+            const modTasks = curMod==='all'?tasks:tasks.filter(t=>t.mod===curMod);
+            if (c.k==='overdue') cnt = modTasks.filter(t=>t.s==='overdue').length;
+            else if (c.k==='all') cnt = modTasks.length;
+            else if (c.k==='ing') cnt = modTasks.filter(t=>t.s==='ing').length;
+            else if (c.k==='todo') cnt = modTasks.filter(t=>t.s==='todo').length;
+            else cnt = modTasks.filter(t=>t.sub===c.k).length;
+            return `<span class="pill ${active?'on':''}" data-k="${c.k}" onclick="setFilter('${c.k}',this)">${c.l} <span class="pill-cnt">${cnt}</span></span>`;
+        }).join('');
+        document.getElementById('filters').innerHTML = html + `<span class="sort" onclick="toggleSort()" id="sortBtn">排序：超期优先 ⇅</span>`;
+    }
+
+    function setFilter(k, el) {
+        const cfg = getFilterConfig(curMod);
+        const isSimple = curMod==='all'||curMod==='去货架列表'||curMod==='加盟商评价'||curMod==='设计评价'||(curMod==='闭店管理'&&k==='all');
+        if (isSimple) { curStatus = k; curSub = 'all'; }
+        else { curSub = k; curStatus = 'all'; }
+        curPage=1;
+        document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+        if(el) el.classList.add('on');
+        render();
+    }
+
+    function renderTabs() {
+        document.getElementById('tabs').innerHTML = MODS.map(m=>{
+            const n = m==='all'?tasks.length:tasks.filter(t=>t.mod===m).length;
+            return `<div class="tab ${curMod===m?'on':''}" onclick="setMod('${m}')">${m==='all'?'全部':m}<span class="cnt">${n}</span></div>`;
+        }).join('');
+    }
+
+    function getFilteredTasks() {
+        const kw = document.getElementById('kw').value.trim();
+        let arr = tasks.filter(t=>(curMod==='all'||t.mod===curMod) && (!kw||t.name.includes(kw)||t.store.includes(kw)||t.mod.includes(kw)));
+        if (curMod==='all'||curMod==='去货架列表'||curMod==='加盟商评价'||curMod==='设计评价') {
+            if (curStatus!=='all') arr = arr.filter(t=>t.s===curStatus);
+        } else if (curMod==='闭店管理') {
+            if (curSub==='all') { /* 全部状态 */ }
+            else if (curSub==='待分配') arr = arr.filter(t=>t.sub==='待分配');
+            else if (curSub==='待审核') arr = arr.filter(t=>t.sub==='待审核');
+            else if (curSub==='overdue') arr = arr.filter(t=>t.s==='overdue');
+        } else if (curMod==='项目管理') {
+            if (curSub==='all') { /* 全部状态 */ }
+            else if (curSub==='待确认') arr = arr.filter(t=>t.sub==='待确认');
+            else if (curSub==='overdue') arr = arr.filter(t=>t.s==='overdue');
+        } else if (curMod==='设计列表'||curMod==='工程预算') {
+            if (curSub==='all') { /* 全部状态 */ }
+            else if (curSub==='overdue') arr = arr.filter(t=>t.s==='overdue');
+            else arr = arr.filter(t=>t.sub===curSub);
+        }
+        const w = {overdue:0, ing:1, todo:2};
+        arr.sort((a,b)=>sortOverdueFirst?(w[a.s]-w[b.s]||a.end-b.end):(a.end-b.end));
+        return arr;
+    }
+
+    function render() {
+        renderFilters();
+        renderTabs();
+        const arr = getFilteredTasks();
+        const total=arr.length, totalPage=Math.max(1,Math.ceil(total/pageSize));
+        if(curPage>totalPage) curPage=totalPage;
+        const pageArr=arr.slice((curPage-1)*pageSize, curPage*pageSize);
+        const el=document.getElementById('list');
+        if(!total) el.innerHTML=`<div class="empty"><div class="e">🎉</div>暂无符合条件的待办</div>`;
+        else el.innerHTML=pageArr.map(t=>`<div class="card" onclick="openDrawer(${t.id})"><div class="bar ${t.s}"></div><div class="body"><div class="l1"><span class="mod-tag">${t.mod}</span><span class="name">${t.name}</span><span class="badge ${t.s}">${SICON[t.s]} ${t.txt}</span></div><div class="l2"><span>🏪 ${t.store}</span><span>👤 ${t.owner}</span><span>🗓 ${fmt(t.start)} ~ ${fmt(t.end)}</span></div></div><div class="ops"><button class="btn" onclick="event.stopPropagation();toast('跳转至：${t.jump}')">去处理</button></div></div>`).join('');
+        renderPagination(total,totalPage);
+    }
+    function onSearch(){curPage=1;render();}
+    function renderPagination(total,totalPage){
+        const pages=getPageNumbers(curPage,totalPage);
+        document.getElementById('pagination').innerHTML=`<span class="pg-total">共 ${total} 条</span>${pages.map(p=>p==='...'?`<span class="pg-btn ellipsis">···</span>`:`<button class="pg-btn ${p===curPage?'on':''}" onclick="goPage(${p})">${p}</button>`).join('')}<button class="pg-btn" onclick="goPage(${curPage-1})" ${curPage<=1?'disabled':''}>‹</button><button class="pg-btn" onclick="goPage(${curPage+1})" ${curPage>=totalPage?'disabled':''}>›</button>`;
+    }
+    function getPageNumbers(cur,total){if(total<=7) return Array.from({length:total},(_,i)=>i+1);const p=[1];if(cur>4)p.push('...');for(let i=Math.max(2,cur-1);i<=Math.min(total-1,cur+1);i++)p.push(i);if(cur<total-3)p.push('...');p.push(total);return p;}
+    function goPage(p){const t=getFilteredTasks().length,tp=Math.max(1,Math.ceil(t/pageSize));if(p<1||p>tp)return;curPage=p;render();}
+    function toggleSort(){sortOverdueFirst=!sortOverdueFirst;document.getElementById('sortBtn').textContent=sortOverdueFirst?'排序：超期优先 ⇅':'排序：截止时间 ⇅';render();}
+
+    function setMod(m){curMod=m;curPage=1;curSub='all';curStatus='all';render();}
+
+    function taskRoleOnDate(t,d){const isToday=sameDay(d,today);if(isToday&&t.end<today)return'overdue';if(sameDay(d,t.end))return'due';if(sameDay(d,t.start))return'start';if(d>t.start&&d<t.end)return'ing';return null;}
+    function tasksOnDate(d){return tasks.map(t=>({task:t,role:taskRoleOnDate(t,d)})).filter(x=>x.role!==null);}
+    function getWeekRange(d){const s=new Date(d);s.setDate(d.getDate()-d.getDay());const e=new Date(s);e.setDate(s.getDate()+6);return{start:s,end:e};}
+    function setView(v){calView=v;document.querySelectorAll('.view-seg .seg').forEach(s=>s.classList.toggle('on',s.dataset.v===v));if(v==='month'){calYear=selDate.getFullYear();calMonth=selDate.getMonth();}renderCal();renderAgenda();}
+    function navView(n){if(calView==='day'){selDate=new Date(selDate);selDate.setDate(selDate.getDate()+n);calYear=selDate.getFullYear();calMonth=selDate.getMonth();}else if(calView==='week'){selDate=new Date(selDate);selDate.setDate(selDate.getDate()+n*7);calYear=selDate.getFullYear();calMonth=selDate.getMonth();}else{calMonth+=n;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}const maxDay=new Date(calYear,calMonth+1,0).getDate();selDate=new Date(calYear,calMonth,Math.min(selDate.getDate(),maxDay));}renderCal();renderAgenda();}
+    function backToday(){calYear=today.getFullYear();calMonth=today.getMonth();selDate=new Date(today);renderCal();renderAgenda();}
+    function selectDate(y,m,d){selDate=new Date(y,m,d);calYear=y;calMonth=m;renderCal();renderAgenda();}
+    function renderCal(){const t=document.getElementById('calTitle'),b=document.getElementById('calBody');if(calView==='month'){t.textContent=`${calYear}年${calMonth+1}月`;b.innerHTML=renderMonthGrid();}else if(calView==='week'){const{start,end}=getWeekRange(selDate);t.textContent=`${start.getFullYear()}年 ${fmt(start).split(' ')[0]} ~ ${fmt(end).split(' ')[0]}`;b.innerHTML=renderWeekView(start);}else{t.textContent=`${selDate.getFullYear()}年${selDate.getMonth()+1}月${selDate.getDate()}日`;b.innerHTML=renderDayView();}}
+    function renderMonthGrid(){const f=new Date(calYear,calMonth,1),sIdx=f.getDay(),days=new Date(calYear,calMonth+1,0).getDate();let h=`<div class="cal-grid">${['日','一','二','三','四','五','六'].map(w=>`<div class="wk">${w}</div>`).join('')}`;for(let i=0;i<sIdx;i++){const d=new Date(calYear,calMonth,1-sIdx+i);h+=`<div class="day dim" onclick="selectDate(${d.getFullYear()},${d.getMonth()},${d.getDate()})">${d.getDate()}</div>`;}for(let i=1;i<=days;i++){const d=new Date(calYear,calMonth,i);const set=new Set(tasksOnDate(d).map(x=>x.role));const dc={overdue:'var(--overdue)',due:'var(--warn)',start:'var(--ing)',ing:'#C9CDD4'};const dots=['overdue','due','start','ing'].filter(k=>set.has(k)).slice(0,3).map(k=>`<i style="background:${dc[k]}"></i>`).join('');const isToday=sameDay(d,today);const overdueCnt=isToday?tasks.filter(t=>t.end<today).length:0;const badge=overdueCnt>0?`<span class="cnt-badge">${overdueCnt}</span>`:'';const cls=[isToday?'today':'',sameDay(d,selDate)?'sel':'',(d>=getWeekRange(selDate).start&&d<=getWeekRange(selDate).end)?'in-week':''].join(' ');h+=`<div class="day ${cls}" onclick="selectDate(${calYear},${calMonth},${i})">${badge}${i}<div class="dots">${dots}</div></div>`;}h+=`</div>`;return h;}
+    function renderWeekView(start){const wks=['周日','周一','周二','周三','周四','周五','周六'];let h=`<div class="week-view">`;for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const list=tasksOnDate(d);const set=new Set(list.map(x=>x.role));const dc={overdue:'var(--overdue)',due:'var(--warn)',start:'var(--ing)',ing:'#C9CDD4'};const dots=['overdue','due','start','ing'].filter(k=>set.has(k)).map(k=>`<i style="background:${dc[k]}"></i>`).join('');const cls=[sameDay(d,today)?'today':'',sameDay(d,selDate)?'sel':''].join(' ');const keyCnt=list.filter(x=>x.role==='overdue'||x.role==='due'||x.role==='start').length;const dateStr=fmt(d).split(' ')[0];const subText=keyCnt>0?`${dateStr} · <b style="color:${sameDay(d,selDate)?'#fff':'var(--brand)'}">${keyCnt}</b> 项需关注 / 共 ${list.length} 项`:`${dateStr} · 共 ${list.length} 项日程`;h+=`<div class="week-day ${cls}" onclick="selectDate(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="wd-date">${d.getDate()}</div><div class="wd-info"><div class="wd-wk">${wks[i]}${sameDay(d,today)?' · 今天':''}</div><div class="wd-sub">${subText}</div></div><div class="wd-dots">${dots}</div></div>`;}h+=`</div>`;return h;}
+    function renderDayView(){const list=tasksOnDate(selDate);const cnt={overdue:0,due:0,start:0,ing:0};list.forEach(x=>cnt[x.role]++);const isToday=sameDay(selDate,today);const dayName=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][selDate.getDay()];return`<div style="padding:20px;background:var(--bg);border-radius:10px;text-align:center;"><div style="font-size:36px;font-weight:700;color:var(--brand);">${selDate.getDate()}</div><div style="color:var(--t2);margin-top:4px;">${dayName}${isToday?' · 今天':''}</div><div style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:13px;"><div><span style="color:var(--overdue);font-weight:700;font-size:20px;">${cnt.overdue}</span><div style="color:var(--t3);font-size:11px;">超期</div></div><div><span style="color:var(--warn);font-weight:700;font-size:20px;">${cnt.due}</span><div style="color:var(--t3);font-size:11px;">截止</div></div><div><span style="color:var(--ing);font-weight:700;font-size:20px;">${cnt.start}</span><div style="color:var(--t3);font-size:11px;">开始</div></div><div><span style="color:var(--t2);font-weight:700;font-size:20px;">${cnt.ing}</span><div style="color:var(--t3);font-size:11px;">进行中</div></div></div></div>`;}
+
+    function setAgFilter(f,el){agFilter=f;document.querySelectorAll('.ag-qf').forEach(q=>q.classList.toggle('on',q.dataset.f===f));renderAgendaList();}
+    function renderAgenda(){
+        const isToday=sameDay(selDate,today), isPast=selDate<today, isFuture=selDate>today;
+        const showStart = !isFuture;
+        const dayName=['周日','周一','周二','周三','周四','周五','周六'][selDate.getDay()];
+        let title=isToday?`今日日程 · ${dayName}`:`${fmt(selDate).split(' ')[0]} · ${dayName}日程`;
+        const list=tasksOnDate(selDate);
+        document.getElementById('agTitle').textContent=title;
+        document.getElementById('agCnt').textContent=`共 ${list.length} 项`;
+        let desc=isToday?'今日需处理：超期任务、截止、开始、进行中的所有工程节点':(isFuture?`${Math.round((selDate-today)/864e5)} 天后 · 该日预计截止/进行中的工程节点`:`${Math.round((today-selDate)/864e5)} 天前 · 该日曾经的工程节点`);
+        document.getElementById('agSubDesc').textContent=desc;
+        const cnt={overdue:0,due:0,start:0,ing:0};list.forEach(x=>cnt[x.role]++);
+        let summaryHtml=`<div class="ag-sum-card overdue" onclick="setAgFilter('overdue',document.querySelector('.ag-qf[data-f=overdue]'))"><div class="ag-sum-num c-overdue">${cnt.overdue}</div><div class="ag-sum-label">🔥 超期</div></div><div class="ag-sum-card due" onclick="setAgFilter('due',document.querySelector('.ag-qf[data-f=due]'))"><div class="ag-sum-num c-warn">${cnt.due}</div><div class="ag-sum-label">⏰ 截止</div></div>`;
+        if(showStart) summaryHtml+=`<div class="ag-sum-card start" onclick="setAgFilter('start',document.querySelector('.ag-qf[data-f=start]'))"><div class="ag-sum-num c-ing">${cnt.start}</div><div class="ag-sum-label">🚀 开始</div></div>`;
+        document.getElementById('agSummary').innerHTML=summaryHtml;
+        document.getElementById('agSummary').className='ag-summary'+(showStart?'':' two-col');
+        let qfHtml=`<div class="ag-qf on" data-f="all" onclick="setAgFilter('all',this)">全部</div><div class="ag-qf" data-f="overdue" onclick="setAgFilter('overdue',this)">🔥 超期</div><div class="ag-qf" data-f="due" onclick="setAgFilter('due',this)">⏰ 截止</div>`;
+        if(showStart) qfHtml+=`<div class="ag-qf" data-f="start" onclick="setAgFilter('start',this)">🚀 开始</div>`;
+        document.getElementById('agQuickFilter').innerHTML=qfHtml;
+        document.getElementById('agQuickFilter').style.display=list.length?'flex':'none';
+        document.getElementById('agSummary').style.display=list.length?'grid':'none';
+        renderAgendaList();
+    }
+    function renderAgendaList(){
+        const list=tasksOnDate(selDate), isToday=sameDay(selDate,today), isFuture=selDate>today;
+        const showStart = !isFuture;
+        const el=document.getElementById('agList');
+        if(!list.length){el.innerHTML=`<div class="ag-empty"><div class="e">☕</div><div>${isToday?'今日':fmt(selDate).split(' ')[0]+' '}暂无工程节点</div></div>`;return;}
+        let filtered=list; if(agFilter!=='all') filtered=list.filter(x=>x.role===agFilter);
+        if(!filtered.length){el.innerHTML=`<div class="ag-empty"><div class="e">🎯</div><div>该筛选条件下暂无任务</div></div>`;return;}
+        const groups={overdue:{label:'🔥 已超期 · 请立即处理',tag:'超期',items:[]},due:{label:'⏰ 截止 · 优先处理',tag:'截止',items:[]}};
+        if(showStart) groups.start={label:'🚀 新开始的任务',tag:'开始',items:[]};
+        groups.ing={label:'⏱ 进行中',tag:'进行中',items:[]};
+        filtered.forEach(x=>{if(groups[x.role]) groups[x.role].items.push(x);});
+        let html='';
+        ['overdue','due','start','ing'].forEach(k=>{if(!groups[k]||!groups[k].items.length)return;const g=groups[k];html+=`<div class="ag-group ${k}"><div class="ag-group-hd"><span>${g.label}</span><span class="g-cnt">${g.items.length}</span></div>`;g.items.forEach(x=>{const t=x.task,role=x.role;let tip='';if(role==='overdue'){const days=Math.round((today-t.end)/864e5);tip=`⚠ 已超期 ${days} 天`;}else if(role==='due'){tip=isToday?`⚠ 今日 ${fmt(t.end).split(' ')[1]} 截止`:`⚠ 截止日`;}else if(role==='start'){const dur=Math.round((t.end-t.start)/864e5)+1;tip=`📅 开始于 ${fmt(t.start).split(' ')[1]}，共 ${dur} 天`;}else if(role==='ing'){const left=Math.round((t.end-selDate)/864e5);tip=`⏳ 距截止还有 ${left} 天`;}html+=`<div class="ag-item ${role}" onclick="openDrawer(${t.id})"><div class="ag-time-col"><span class="ag-time-tag ${role}">${g.tag}</span><span class="ag-time-day">${role==='start'?fmt(t.start):fmt(t.end)}</span></div><div class="ag-body"><div class="ag-name-row"><span class="ag-mod">${t.mod}</span><span class="ag-name">${t.name}</span></div><div class="ag-meta"><span>🏪 ${t.store.split('·')[0]}</span><span>👤 ${t.owner}</span></div><div class="ag-tip ${role}">${tip}</div></div></div>`;});html+=`</div>`;});el.innerHTML=html;
+    }
+
+    let curTask=null;
+    function openDrawer(id){curTask=tasks.find(t=>t.id===id);document.getElementById('dwTitle').textContent=curTask.name;document.getElementById('dwBody').innerHTML=`<div class="dw-row"><div class="k">所属模块</div><div class="v"><span class="mod-tag">${curTask.mod}</span></div></div><div class="dw-row"><div class="k">时间状态</div><div class="v"><span class="badge ${curTask.s}">${SICON[curTask.s]} ${curTask.txt}</span></div></div><div class="dw-row"><div class="k">门店 / 项目</div><div class="v">${curTask.store}</div></div><div class="dw-row"><div class="k">任务接收对象</div><div class="v">${curTask.owner}</div></div><div class="dw-row"><div class="k">预计起止</div><div class="v">${fmt(curTask.start)} ~ ${fmt(curTask.end)}</div></div><div class="dw-row"><div class="k">触发条件</div><div class="v">${curTask.trigger}</div></div><div class="dw-row"><div class="k">时间规则</div><div class="v">${curTask.rule}</div></div><div class="dw-row"><div class="k">处理跳转目标</div><div class="v" style="color:var(--brand)">${curTask.jump}</div></div>`;document.getElementById('dwGo').onclick=()=>{toast('跳转至：'+curTask.jump);closeDrawer();};document.getElementById('mask').classList.add('show');document.getElementById('drawer').classList.add('show');}
+    function closeDrawer(){document.getElementById('mask').classList.remove('show');document.getElementById('drawer').classList.remove('show');}
+    let toastTimer;
+    function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+
+    render(); renderCal(); renderAgenda();
+</script>
+</body>
+</html>
