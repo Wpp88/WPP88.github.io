@@ -12,6 +12,7 @@
             --ing: #1890FF;
             --overdue: #F5222D;
             --todo: #8C8C8C;
+            --paused: #BFBFBF;
             --done: #52C41A;
             --warn: #FA8C16;
             --bg: #F5F6F8;
@@ -363,6 +364,9 @@
         .bar.todo {
             background: #C9CDD4;
         }
+        .bar.paused {
+            background: #D9D9D9;
+        }
         .card .body {
             flex: 1;
             min-width: 0;
@@ -402,6 +406,10 @@
         .badge.todo {
             background: #F2F3F5;
             color: var(--todo);
+        }
+        .badge.paused {
+            background: #F5F5F5;
+            color: #8C8C8C;
         }
         .card .l2 {
             margin-top: 6px;
@@ -1528,8 +1536,8 @@
             const sameDay = (a, b) => +new Date(a.getFullYear(), a.getMonth(), a.getDate()) === +new Date(b.getFullYear(), b
                 .getMonth(), b.getDate());
             let ID = 0;
-            const T = (mod, sub, name, store, owner, s, e, jump, trigger, rule) => ({ id: ++ID, mod, sub, name, store, owner,
-                start: Dstart(s), end: Dend(e), jump, trigger, rule });
+            const T = (mod, sub, name, store, owner, s, e, jump, trigger, rule, paused = false) => ({ id: ++ID, mod, sub,
+                name, store, owner, start: Dstart(s), end: Dend(e), jump, trigger, rule, paused });
             const STORES = ['长沙梅溪湖店·MX20260112', '株洲天元店·TY20260108', '岳阳南湖店·NH20251230', '邵阳双清店·SQ20260115',
                 '常德武陵店·WL20260110', '衡阳蒸湘店·ZX20260109', '湘潭岳塘店·YT20260105', '益阳赫山店·HS20260103',
                 '娄底娄星店·LX20251228', '怀化鹤城店·HC20260102', '南昌红谷滩店·HG20260111', '九江浔阳店·XY20260107',
@@ -1538,26 +1546,10 @@
             ];
             const pick = (arr, i) => arr[i % arr.length];
             const REGION_MAP = {
-                '长沙': '湖南省',
-                '株洲': '湖南省',
-                '岳阳': '湖南省',
-                '邵阳': '湖南省',
-                '常德': '湖南省',
-                '衡阳': '湖南省',
-                '湘潭': '湖南省',
-                '益阳': '湖南省',
-                '娄底': '湖南省',
-                '怀化': '湖南省',
-                '南昌': '江西省',
-                '九江': '江西省',
-                '赣州': '江西省',
-                '武汉': '湖北省',
-                '宜昌': '湖北省',
-                '襄阳': '湖北省',
-                '贵阳': '贵州省',
-                '遵义': '贵州省',
-                '南宁': '广西省',
-                '桂林': '广西省'
+                '长沙': '湖南省', '株洲': '湖南省', '岳阳': '湖南省', '邵阳': '湖南省', '常德': '湖南省', '衡阳': '湖南省',
+                '湘潭': '湖南省', '益阳': '湖南省', '娄底': '湖南省', '怀化': '湖南省', '南昌': '江西省', '九江': '江西省',
+                '赣州': '江西省', '武汉': '湖北省', '宜昌': '湖北省', '襄阳': '湖北省', '贵阳': '贵州省', '遵义': '贵州省',
+                '南宁': '广西省', '桂林': '广西省'
             };
 
             function getStoreRegion(store) {
@@ -1575,11 +1567,11 @@
                 T('项目管理', '待确认', '项目分配（工程支持）', pick(STORES, 10), '@童丽英', -2, -1, '指派人员页面',
                     '项目创建成功，自动分配工程支持失败', '预计开始：项目创建时间；预计结束：预计开始+24h'),
                 T('项目管理', '待确认', '项目确认', pick(STORES, 1), '工程支持', 0, 1, '项目确认页', '创建项目后立即生成',
-                '预计结束：预计开始+24h'),
+                    '预计结束：预计开始+24h'),
                 T('项目管理', '待确认', '项目确认', pick(STORES, 11), '工程支持', -1, 0, '项目确认页', '创建项目后立即生成',
                     '预计结束：预计开始+24h'),
                 T('项目管理', '待确认', '项目确认', pick(STORES, 13), '工程支持', 1, 2, '项目确认页', '创建项目后立即生成',
-                '预计结束：预计开始+24h'),
+                    '预计结束：预计开始+24h'),
                 T('项目管理', '待确认', '待定稿（立项）', pick(STORES, 2), '工程监理', -3, -1, '项目详情-定稿页', '勘场完成',
                     '预计开始：勘场完成时间；预计结束：+24H'),
                 T('项目管理', '待确认', '待定稿（立项）', pick(STORES, 14), '工程监理', -4, -2, '项目详情-定稿页', '勘场完成',
@@ -1630,16 +1622,24 @@
                     '预计结束：开始时间+6天'),
                 T('设计评价', '', '待评价', pick(STORES, 16), '负责人', -1, 5, '设计评价问卷详情页', '设计评价流转"待分配"状态',
                     '预计结束：开始时间+6天'),
+                // 新增已暂停任务（paused）
+                T('项目管理', '进行中', '项目跟进', pick(STORES, 3), CURRENT_USER, -2, 3, '项目详情', '项目已暂停',
+                    '暂停中', true),
+                T('项目管理', '进行中', '项目跟进', pick(STORES, 17), CURRENT_USER, -1, 4, '项目详情', '项目已暂停',
+                    '暂停中', true),
+                T('设计列表', '平面图&水电图', '待传平面图', pick(STORES, 4), CURRENT_USER, -3, 1, '平面图上传页', '任务已暂停',
+                    '暂停中', true),
+                T('设计列表', '全套图', '待传全套图', pick(STORES, 18), CURRENT_USER, 2, 5, '全套图上传页', '任务已暂停',
+                    '暂停中', true),
+                T('工程预算', '基装预算', '待传预算单', pick(STORES, 5), CURRENT_USER, -1, 1, '预算详情', '任务已暂停',
+                    '暂停中', true),
+                T('工程预算', '监控报价单', '待传预算单（监控报价单）', pick(STORES, 19), CURRENT_USER, 3, 8, '预算详情', '任务已暂停',
+                    '暂停中', true),
+                T('加盟商评价', '', '待评价', pick(STORES, 6), CURRENT_USER, 0, 6, '加盟商评价详情', '任务已暂停',
+                    '暂停中', true),
+                T('设计评价', '', '待评价', pick(STORES, 17), CURRENT_USER, 1, 7, '设计评价问卷详情页', '任务已暂停',
+                    '暂停中', true),
             ];
-            const closeStoreTasks = [
-                T('闭店管理', '待分配', '分配监理', pick(STORES, 5), '大区工程负责人', -1, -1, 'PC-闭店详情-分配监理弹框',
-                    '自动分配失败（无匹配监理）', '预计开始：自动分配失败时间；预计结束：预计开始当天23:59:59'),
-                T('闭店管理', '待分配', '分配成控专员', pick(STORES, 6), '大区工程负责人', 0, 0, 'PC-闭店详情-分配监理弹框',
-                    '自动分配失败（无匹配监理）', '预计开始：自动分配失败时间；预计结束：预计开始当天23:59:59'),
-                T('闭店管理', '待审核', '预结算审核', pick(STORES, 7), '工程预结算', 1, 2, 'PC-闭店详情-成控审核弹框',
-                    '成控专员分配完成，状态变更为"待审核"', '预计开始：成控分配完成时间；预计结束：预计开始+1天'),
-            ];
-            tasks = tasks.concat(closeStoreTasks);
             tasks = tasks.filter(t => t.mod !== '工程预结算评价');
             tasks.forEach(t => {
                 if ([1, 3, 5, 8, 10, 16, 18, 20, 24, 26, 28, 31].includes(t.id)) {
@@ -1648,6 +1648,7 @@
             });
 
             function calc(t) {
+                if (t.paused) return { s: 'paused', txt: `已暂停` };
                 if (today < t.start) return { s: 'todo', txt: `待开始 · 预计 ${fmt(t.start)} ~ ${fmt(t.end)}` };
                 if (today > t.end) { const d = Math.round((today - t.end) / 864e5); return { s: 'overdue',
                         txt: `已超期 ${d} 天` }; }
@@ -1669,7 +1670,7 @@
             let calPersonalOnly = true;
             let calOwnerFilters = [];
             const MODS = ['all', ...new Set(tasks.map(t => t.mod))];
-            const SICON = { ing: '⏱', overdue: '🔥', todo: '📅' };
+            const SICON = { ing: '⏱', overdue: '🔥', todo: '📅', paused: '⏸️' };
 
             function getRegionFilteredTasks(taskList) {
                 return (taskList || tasks).filter(t => getStoreRegion(t.store) === USER_REGION);
@@ -1702,21 +1703,29 @@
             }
 
             function getFilterConfig(mod) {
-                if (mod === 'all') return [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' }];
+                if (mod === 'all') return [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' },
+                    { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
+                ];
                 const map = {
-                    '项目管理': [{ k: 'all', l: '全部状态' }, { k: '待确认', l: '待确认' }, { k: 'overdue', l: '已超期' }],
+                    '项目管理': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' },
+                        { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
+                    ],
                     '设计列表': [{ k: 'all', l: '全部状态' }, { k: '平面图&水电图', l: '平面图&水电图' }, { k: '全套图', l: '全套图' },
                         { k: '下单图', l: '下单图' }, { k: '补全门店信息', l: '补全门店信息' }, { k: '设计修改', l: '设计修改' },
-                    { k: 'overdue', l: '已超期' }],
+                        { k: 'overdue', l: '已超期' }, { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
+                    ],
                     '工程预算': [{ k: 'all', l: '全部状态' }, { k: '基装预算', l: '基装预算' }, { k: '广告预算单', l: '广告预算单' },
                         { k: '货架报价单', l: '货架报价单' }, { k: '监控报价单', l: '监控报价单' },
-                        { k: '冷链系统报价单', l: '冷链系统报价单' }, { k: 'overdue', l: '已超期' }
+                        { k: '冷链系统报价单', l: '冷链系统报价单' }, { k: 'overdue', l: '已超期' },
+                        { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
                     ],
                     '去货架列表': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' }],
-                    '加盟商评价': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' }],
-                    '设计评价': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' }],
-                    '闭店管理': [{ k: 'all', l: '全部状态' }, { k: '待分配', l: '待分配' }, { k: '待审核', l: '待审核' },
-                    { k: 'overdue', l: '已超期' }],
+                    '加盟商评价': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' },
+                        { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
+                    ],
+                    '设计评价': [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' },
+                        { k: 'paused', l: '已暂停' }, { k: 'todo', l: '待开始' }
+                    ],
                 };
                 return map[mod] || [{ k: 'all', l: '全部状态' }, { k: 'ing', l: '进行中' }, { k: 'overdue', l: '已超期' }];
             }
@@ -1724,17 +1733,17 @@
             function renderFilters() {
                 const cfg = getFilterConfig(curMod);
                 const myTasks = getMyTasksForList();
+                const isSimple = curMod === 'all' || curMod === '去货架列表' || curMod === '加盟商评价' || curMod ===
+                    '设计评价' || curMod === '项目管理';
                 let html = cfg.map(c => {
-                    const active = (curMod === 'all' || curMod === '去货架列表' || curMod === '加盟商评价' || curMod ===
-                        '设计评价' || (curMod === '闭店管理' && c.k === 'all') || (curMod === '项目管理' && c.k ===
-                            'all') || (curMod === '设计列表' && c.k === 'all') || (curMod === '工程预算' && c.k ===
-                            'all')) ? (curStatus === c.k || curSub === c.k) : (curSub === c.k);
+                    const active = isSimple ? (curStatus === c.k) : (curSub === c.k);
                     let cnt = 0;
                     const modTasks = curMod === 'all' ? myTasks : myTasks.filter(t => t.mod === curMod);
                     if (c.k === 'overdue') cnt = modTasks.filter(t => t.s === 'overdue').length;
                     else if (c.k === 'all') cnt = modTasks.length;
                     else if (c.k === 'ing') cnt = modTasks.filter(t => t.s === 'ing').length;
                     else if (c.k === 'todo') cnt = modTasks.filter(t => t.s === 'todo').length;
+                    else if (c.k === 'paused') cnt = modTasks.filter(t => t.s === 'paused').length;
                     else cnt = modTasks.filter(t => t.sub === c.k).length;
                     return `<span class="pill ${active?'on':''}" data-k="${c.k}" onclick="setFilter('${c.k}',this)">${c.l} <span class="pill-cnt">${cnt}</span></span>`;
                 }).join('');
@@ -1743,9 +1752,8 @@
             }
 
             function setFilter(k, el) {
-                const cfg = getFilterConfig(curMod);
                 const isSimple = curMod === 'all' || curMod === '去货架列表' || curMod === '加盟商评价' || curMod ===
-                    '设计评价' || (curMod === '闭店管理' && k === 'all');
+                    '设计评价' || curMod === '项目管理';
                 if (isSimple) { curStatus = k;
                     curSub = 'all'; } else { curSub = k;
                     curStatus = 'all'; }
@@ -1768,20 +1776,16 @@
                 let arr = getMyTasksForList();
                 arr = arr.filter(t => (curMod === 'all' || t.mod === curMod) && (!kw || t.name.includes(kw) || t.store
                     .includes(kw) || t.mod.includes(kw)));
-                if (curMod === 'all' || curMod === '去货架列表' || curMod === '加盟商评价' || curMod === '设计评价') {
+                if (curMod === 'all' || curMod === '去货架列表' || curMod === '加盟商评价' || curMod === '设计评价' ||
+                    curMod === '项目管理') {
                     if (curStatus !== 'all') arr = arr.filter(t => t.s === curStatus);
-                } else if (curMod === '闭店管理') {
-                    if (curSub === 'all') {} else if (curSub === '待分配') arr = arr.filter(t => t.sub === '待分配');
-                    else if (curSub === '待审核') arr = arr.filter(t => t.sub === '待审核');
-                    else if (curSub === 'overdue') arr = arr.filter(t => t.s === 'overdue');
-                } else if (curMod === '项目管理') {
-                    if (curSub === 'all') {} else if (curSub === '待确认') arr = arr.filter(t => t.sub === '待确认');
-                    else if (curSub === 'overdue') arr = arr.filter(t => t.s === 'overdue');
                 } else if (curMod === '设计列表' || curMod === '工程预算') {
                     if (curSub === 'all') {} else if (curSub === 'overdue') arr = arr.filter(t => t.s === 'overdue');
+                    else if (curSub === 'paused') arr = arr.filter(t => t.s === 'paused');
+                    else if (curSub === 'todo') arr = arr.filter(t => t.s === 'todo');
                     else arr = arr.filter(t => t.sub === curSub);
                 }
-                const w = { overdue: 0, ing: 1, todo: 2 };
+                const w = { overdue: 0, ing: 1, paused: 2, todo: 3 };
                 arr.sort((a, b) => sortOverdueFirst ? (w[a.s] - w[b.s] || a.end - b.end) : (a.end - b.end));
                 return arr;
             }
@@ -1839,9 +1843,15 @@
                 curStatus = 'all';
                 render(); }
 
-            function taskRoleOnDate(t, d) { const isToday = sameDay(d, today); if (isToday && t.end < today) return 'overdue'; if (
-                    sameDay(d, t.end)) return 'due'; if (sameDay(d, t.start)) return 'start'; if (d > t.start && d < t.end)
-                return 'ing'; return null; }
+            function taskRoleOnDate(t, d) {
+                if (t.paused) return null;
+                const isToday = sameDay(d, today);
+                if (isToday && t.end < today) return 'overdue';
+                if (sameDay(d, t.end)) return 'due';
+                if (sameDay(d, t.start)) return 'start';
+                if (d > t.start && d < t.end) return 'ing';
+                return null;
+            }
 
             function tasksOnDate(d) { const calTasks = getCalendarTasks(); return calTasks.map(t => ({ task: t,
                     role: taskRoleOnDate(t, d) })).filter(x => x.role !== null); }
@@ -2112,7 +2122,7 @@
                         `<i style="background:${dc[k]}"></i>`).join('');
                     const isToday = sameDay(d, today);
                     const calTasks = getCalendarTasks();
-                    const overdueCnt = isToday ? calTasks.filter(t => t.end < today).length : 0;
+                    const overdueCnt = isToday ? calTasks.filter(t => t.end < today && !t.paused).length : 0;
                     const badge = overdueCnt > 0 ? `<span class="cnt-badge">${overdueCnt}</span>` : '';
                     const cls = [isToday ? 'today' : '', sameDay(d, selDate) ? 'sel' : '', (d >= getWeekRange(selDate).start &&
                         d <= getWeekRange(selDate).end) ? 'in-week' : ''].join(' ');
