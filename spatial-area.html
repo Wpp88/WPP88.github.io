@@ -1,306 +1,295 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>门店信息编辑 - 空间区域维护</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-<style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background:#f5f6f8; margin:0; color:#333; }
-  
-  /* 顶部 */
-  .top-bar { background:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; position:sticky; top:0; z-index:20; }
-  .store-title { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; }
-  .badge-new { background:linear-gradient(90deg,#fa7014,#ff9048); color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:500; }
-  .btn { padding:6px 18px; border-radius:4px; font-size:13px; cursor:pointer; border:1px solid transparent; transition:all .2s; }
-  .btn-default { background:#fff; border-color:#dcdfe6; color:#606266; }
-  .btn-default:hover { color:#fa7014; border-color:#fa7014; }
-  .btn-primary { background:#fa7014; color:#fff; }
-  .btn-primary:hover { background:#e85f0a; }
-  .btn-ghost { color:#fa7014; background:#fff5ee; border:1px dashed #fa7014; }
-  .btn-icon { width:34px; height:34px; border-radius:4px; background:#fff; border:1px solid #dcdfe6; color:#606266; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+    <meta charset="UTF-8">
+    <title>门店信息编辑 - 空间区域维护</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background:#f5f6f8; margin:0; color:#333; }
 
-  /* 主体两栏 */
-  .layout { display:grid; grid-template-columns: 1fr 320px; gap:16px; padding:16px 24px; }
-  .card { background:#fff; border-radius:8px; padding:20px 24px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
-  .section-title { display:flex; align-items:center; font-weight:600; font-size:14px; margin:8px 0 18px; }
-  .section-title::before { content:''; width:3px; height:14px; background:#fa7014; border-radius:2px; margin-right:8px; }
-  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px 32px; }
-  .form-item label { font-size:13px; color:#606266; display:block; margin-bottom:6px; }
-  .form-item .req::before { content:'*'; color:#f56c6c; margin-right:2px; }
-  .input, select { width:100%; padding:6px 10px; border:1px solid #dcdfe6; border-radius:4px; font-size:13px; color:#333; height:32px; background:#fff; }
-  .input:focus, select:focus { outline:none; border-color:#fa7014; }
-  .hint { font-size:12px; color:#909399; margin-top:4px; }
-  .radio-group { display:flex; gap:16px; align-items:center; height:32px; }
-  .radio-group label { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
-  .radio-group input[type=radio] { accent-color:#fa7014; }
+        /* 顶部 */
+        .top-bar { background:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; position:sticky; top:0; z-index:20; }
+        .store-title { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; }
+        .badge-new { background:linear-gradient(90deg,#fa7014,#ff9048); color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:500; }
+        .btn { padding:6px 18px; border-radius:4px; font-size:13px; cursor:pointer; border:1px solid transparent; transition:all .2s; }
+        .btn-default { background:#fff; border-color:#dcdfe6; color:#606266; }
+        .btn-default:hover { color:#fa7014; border-color:#fa7014; }
+        .btn-primary { background:#fa7014; color:#fff; }
+        .btn-primary:hover { background:#e85f0a; }
+        .btn-ghost { color:#fa7014; background:#fff5ee; border:1px dashed #fa7014; }
+        .btn-icon { width:34px; height:34px; border-radius:4px; background:#fff; border:1px solid #dcdfe6; color:#606266; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 
-  /* 右侧空间层级 - 深色科技风 */
-  .space-panel { background:linear-gradient(180deg,#0d1633 0%,#1a2547 100%); border-radius:8px; padding:16px; color:#e8eeff; height:fit-content; position:sticky; top:80px; box-shadow:0 4px 20px rgba(13,22,51,.25); border:1px solid rgba(80,120,220,.2); }
-  .space-header { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(120,150,220,.2); margin-bottom:12px; }
-  .space-title { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; letter-spacing:1px; }
-  .space-title i { color:#5b8dff; }
-  .space-actions { display:flex; gap:6px; }
-  .space-btn { width:26px; height:26px; border-radius:4px; background:rgba(91,141,255,.15); color:#8fb0ff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid rgba(91,141,255,.3); transition:all .2s; }
-  .space-btn:hover { background:rgba(91,141,255,.3); color:#fff; }
-  .tree-node { font-size:13px; }
-  .level-1 { display:flex; align-items:center; gap:6px; padding:8px 6px; background:rgba(91,141,255,.08); border-radius:4px; margin-bottom:6px; font-weight:500; }
-  .level-1 i { color:#5b8dff; }
-  .level-2 { display:flex; align-items:center; gap:6px; padding:6px 6px 6px 16px; font-weight:500; color:#cfd9ff; }
-  .level-2 i { color:#7dd3fc; }
-  .level-3 { display:flex; align-items:center; padding:5px 6px 5px 30px; color:#a9bde6; font-size:13px; position:relative; }
-  .level-3::before { content:'▪'; position:absolute; left:22px; color:#5b8dff; }
-  .level-3-wrapper { position:relative; }
-  .level-4-container { padding-left:44px; }
-  .level-4 { display:flex; align-items:center; padding:4px 6px; color:#8fb0ff; font-size:12px; position:relative; border-radius:3px; transition:background .2s; }
-  .level-4::before { content:'○'; margin-right:6px; color:#5b8dff; font-size:10px; }
-  .level-4:hover { background:rgba(91,141,255,.12); }
-  .level-4 .del { margin-left:auto; opacity:0; color:#ff7a90; cursor:pointer; padding:0 4px; }
-  .level-4:hover .del { opacity:1; }
-  .add-level4 { display:inline-flex; align-items:center; gap:4px; margin-left:44px; color:#5b8dff; font-size:12px; cursor:pointer; padding:3px 6px; border:1px dashed rgba(91,141,255,.5); border-radius:3px; margin-top:4px; margin-bottom:6px; background:rgba(91,141,255,.05); }
-  .add-level4:hover { background:rgba(91,141,255,.15); }
-  .modified-tag { background:#ff9048; color:#fff; font-size:10px; padding:1px 5px; border-radius:8px; margin-left:6px; }
+        /* 主体两栏 */
+        .layout { display:grid; grid-template-columns: 1fr 320px; gap:16px; padding:16px 24px; }
+        .card { background:#fff; border-radius:8px; padding:20px 24px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+        .section-title { display:flex; align-items:center; font-weight:600; font-size:14px; margin:8px 0 18px; }
+        .section-title::before { content:''; width:3px; height:14px; background:#fa7014; border-radius:2px; margin-right:8px; }
+        .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px 32px; }
+        .form-item label { font-size:13px; color:#606266; display:block; margin-bottom:6px; }
+        .form-item .req::before { content:'*'; color:#f56c6c; margin-right:2px; }
+        .input, select { width:100%; padding:6px 10px; border:1px solid #dcdfe6; border-radius:4px; font-size:13px; color:#333; height:32px; background:#fff; }
+        .input:focus, select:focus { outline:none; border-color:#fa7014; }
+        .hint { font-size:12px; color:#909399; margin-top:4px; }
+        .radio-group { display:flex; gap:16px; align-items:center; height:32px; }
+        .radio-group label { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
+        .radio-group input[type=radio] { accent-color:#fa7014; }
 
-  /* 资产明细 */
-  .tabs { display:flex; gap:8px; margin-bottom:10px; }
-  .tab { padding:6px 18px; font-size:13px; border-radius:4px; cursor:pointer; background:#f4f5f7; color:#606266; }
-  .tab.active { background:#fff5ee; color:#fa7014; border:1px solid #fa7014; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  table th { text-align:left; background:#fafafa; color:#606266; font-weight:500; padding:10px; border-bottom:1px solid #eee; }
-  table td { padding:10px; border-bottom:1px solid #f5f5f5; }
-  .link { color:#5b8dff; cursor:pointer; }
-  .link-danger { color:#f56c6c; cursor:pointer; }
+        /* 新增楼层标签样式 */
+        .floor-dynamic { margin-top:16px; padding:12px 16px; background:#fafbfc; border-radius:6px; border:1px dashed #e0e0e0; }
+        .floor-dynamic .floor-line { margin-bottom:12px; }
+        .floor-dynamic .floor-line:last-child { margin-bottom:0; }
+        .floor-dynamic .floor-label { font-size:13px; color:#606266; margin-bottom:6px; }
+        .floor-dynamic .floor-label .req { color:#f56c6c; margin-right:2px; }
+        .tag-group { display:flex; gap:8px; flex-wrap:wrap; }
+        .tag { padding:4px 12px; background:#f5f5f7; border-radius:16px; font-size:13px; color:#555; border:1px solid transparent; cursor:pointer; transition:all .2s; }
+        .tag.selected { background:#fff5ee; color:#fa7014; border-color:#fa7014; }
+        .second-floor-area { margin-top:12px; padding:8px 12px; background:#fff8f0; border-radius:4px; }
+        .second-floor-area .form-item { margin-top:8px; }
 
-  /* 弹窗 */
-  .modal-mask { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:100; }
-  .modal-mask.show { display:flex; }
-  .modal { background:#fff; border-radius:8px; width:520px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden; animation:slideIn .3s ease; }
-  @keyframes slideIn { from { transform:translateY(-30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-  .modal-header { padding:14px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-  .modal-body { padding:16px 20px; overflow-y:auto; flex:1; }
-  .modal-footer { padding:12px 20px; border-top:1px solid #eee; display:flex; justify-content:flex-end; gap:8px; }
-  .dict-search { position:relative; margin-bottom:12px; }
-  .dict-search input { padding-left:32px; height:34px; }
-  .dict-search i { position:absolute; left:10px; top:10px; color:#c0c4cc; }
-  .dict-item { display:flex; align-items:center; padding:8px 12px; border-radius:4px; cursor:pointer; margin-bottom:4px; border:1px solid #f0f0f0; transition:all .2s; }
-  .dict-item:hover { background:#fff5ee; border-color:#fa7014; }
-  .dict-item.selected { background:#fff5ee; border-color:#fa7014; }
-  .dict-item input[type=checkbox] { margin-right:8px; accent-color:#fa7014; }
-  .dict-tag { background:#f0f4ff; color:#5b8dff; font-size:11px; padding:1px 6px; border-radius:3px; margin-left:6px; }
-  .parent-selector { background:#f7f8fa; padding:10px 12px; border-radius:4px; margin-bottom:12px; font-size:13px; color:#606266; }
-  .parent-selector strong { color:#fa7014; }
+        /* 右侧空间层级 - 深色科技风 */
+        .space-panel { background:linear-gradient(180deg,#0d1633 0%,#1a2547 100%); border-radius:8px; padding:16px; color:#e8eeff; height:fit-content; position:sticky; top:80px; box-shadow:0 4px 20px rgba(13,22,51,.25); border:1px solid rgba(80,120,220,.2); }
+        .space-header { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(120,150,220,.2); margin-bottom:12px; }
+        .space-title { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; letter-spacing:1px; }
+        .space-title i { color:#5b8dff; }
+        .space-actions { display:flex; gap:6px; }
+        .space-btn { width:26px; height:26px; border-radius:4px; background:rgba(91,141,255,.15); color:#8fb0ff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid rgba(91,141,255,.3); transition:all .2s; }
+        .space-btn:hover { background:rgba(91,141,255,.3); color:#fff; }
+        .tree-node { font-size:13px; }
+        .level-1 { display:flex; align-items:center; gap:6px; padding:8px 6px; background:rgba(91,141,255,.08); border-radius:4px; margin-bottom:6px; font-weight:500; }
+        .level-1 i { color:#5b8dff; }
+        .level-2 { display:flex; align-items:center; gap:6px; padding:6px 6px 6px 16px; font-weight:500; color:#cfd9ff; }
+        .level-2 i { color:#7dd3fc; }
+        .level-3 { display:flex; align-items:center; padding:5px 6px 5px 30px; color:#a9bde6; font-size:13px; position:relative; }
+        .level-3::before { content:'▪'; position:absolute; left:22px; color:#5b8dff; }
+        .level-3-wrapper { position:relative; }
+        .level-4-container { padding-left:44px; }
+        .level-4 { display:flex; align-items:center; padding:4px 6px; color:#8fb0ff; font-size:12px; position:relative; border-radius:3px; transition:background .2s; }
+        .level-4::before { content:'○'; margin-right:6px; color:#5b8dff; font-size:10px; }
+        .level-4:hover { background:rgba(91,141,255,.12); }
+        .level-4 .del { margin-left:auto; opacity:0; color:#ff7a90; cursor:pointer; padding:0 4px; }
+        .level-4:hover .del { opacity:1; }
+        .add-level4 { display:inline-flex; align-items:center; gap:4px; margin-left:44px; color:#5b8dff; font-size:12px; cursor:pointer; padding:3px 6px; border:1px dashed rgba(91,141,255,.5); border-radius:3px; margin-top:4px; margin-bottom:6px; background:rgba(91,141,255,.05); }
+        .add-level4:hover { background:rgba(91,141,255,.15); }
+        .modified-tag { background:#ff9048; color:#fff; font-size:10px; padding:1px 5px; border-radius:8px; margin-left:6px; }
 
-  /* 动态抽屉 */
-  .drawer-mask { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; z-index:90; }
-  .drawer-mask.show { display:block; }
-  .drawer { position:fixed; top:0; right:-460px; width:460px; height:100vh; background:#fff; z-index:91; transition:right .3s; display:flex; flex-direction:column; }
-  .drawer.show { right:0; }
-  .drawer-header { padding:16px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-  .drawer-tip { background:#fff8ee; color:#e6a23c; font-size:12px; padding:6px 12px; margin:8px 20px; border-radius:4px; }
-  .drawer-body { flex:1; overflow-y:auto; padding:8px 20px 20px; }
-  .log-item { position:relative; padding:12px 0 12px 20px; border-left:2px solid #f0f0f0; }
-  .log-item::before { content:''; position:absolute; left:-6px; top:16px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid #dcdfe6; }
-  .log-item.new::before { background:#fa7014; border-color:#fa7014; box-shadow:0 0 0 3px #fff2e6; }
-  .log-title { font-size:13px; font-weight:500; color:#303133; margin-bottom:4px; display:flex; justify-content:space-between; gap:8px; }
-  .log-time { color:#909399; font-size:12px; font-weight:normal; }
-  .log-user { font-size:12px; color:#606266; margin-bottom:6px; }
-  .log-tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:3px; margin-top:4px; }
-  .tag-add { background:#f0fbe6; color:#67c23a; }
-  .tag-del { background:#fef0f0; color:#f56c6c; }
-  .tag-edit { background:#fff8ee; color:#e6a23c; }
-  .tag-sync { background:#ecf5ff; color:#409eff; }
-  .log-detail { background:#fafbfc; padding:8px 10px; border-radius:4px; font-size:12px; color:#606266; margin-top:6px; line-height:1.7; }
+        /* 资产明细 */
+        .tabs { display:flex; gap:8px; margin-bottom:10px; }
+        .tab { padding:6px 18px; font-size:13px; border-radius:4px; cursor:pointer; background:#f4f5f7; color:#606266; }
+        .tab.active { background:#fff5ee; color:#fa7014; border:1px solid #fa7014; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        table th { text-align:left; background:#fafafa; color:#606266; font-weight:500; padding:10px; border-bottom:1px solid #eee; }
+        table td { padding:10px; border-bottom:1px solid #f5f5f5; }
+        .link { color:#5b8dff; cursor:pointer; }
+        .link-danger { color:#f56c6c; cursor:pointer; }
 
-  /* Toast */
-  .toast { position:fixed; top:80px; left:50%; transform:translateX(-50%); background:#f0f9eb; color:#67c23a; padding:10px 20px; border-radius:4px; border:1px solid #e1f3d8; font-size:13px; z-index:200; display:none; animation:fadeIn .3s; }
-  .toast.show { display:block; }
-  .toast.error { background:#fef0f0; color:#f56c6c; border-color:#fde2e2; }
-  @keyframes fadeIn { from { opacity:0; transform:translate(-50%,-10px);} to { opacity:1; transform:translate(-50%,0);} }
+        /* 弹窗 */
+        .modal-mask { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:100; }
+        .modal-mask.show { display:flex; }
+        .modal { background:#fff; border-radius:8px; width:520px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden; animation:slideIn .3s ease; }
+        @keyframes slideIn { from { transform:translateY(-30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        .modal-header { padding:14px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+        .modal-body { padding:16px 20px; overflow-y:auto; flex:1; }
+        .modal-footer { padding:12px 20px; border-top:1px solid #eee; display:flex; justify-content:flex-end; gap:8px; }
+        .dict-search { position:relative; margin-bottom:12px; }
+        .dict-search input { padding-left:32px; height:34px; }
+        .dict-search i { position:absolute; left:10px; top:10px; color:#c0c4cc; }
+        .dict-item { display:flex; align-items:center; padding:8px 12px; border-radius:4px; cursor:pointer; margin-bottom:4px; border:1px solid #f0f0f0; transition:all .2s; }
+        .dict-item:hover { background:#fff5ee; border-color:#fa7014; }
+        .dict-item.selected { background:#fff5ee; border-color:#fa7014; }
+        .dict-item input[type=checkbox] { margin-right:8px; accent-color:#fa7014; }
+        .dict-tag { background:#f0f4ff; color:#5b8dff; font-size:11px; padding:1px 6px; border-radius:3px; margin-left:6px; }
+        .parent-selector { background:#f7f8fa; padding:10px 12px; border-radius:4px; margin-bottom:12px; font-size:13px; color:#606266; }
+        .parent-selector strong { color:#fa7014; }
 
-  /* 悬浮动态按钮 */
-  .fab { position:fixed; right:24px; bottom:80px; background:#fa7014; color:#fff; padding:10px 14px; border-radius:24px; box-shadow:0 4px 14px rgba(250,112,20,.4); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; z-index:50; }
-  .fab:hover { background:#e85f0a; }
-</style>
+        /* 动态抽屉 */
+        .drawer-mask { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; z-index:90; }
+        .drawer-mask.show { display:block; }
+        .drawer { position:fixed; top:0; right:-460px; width:460px; height:100vh; background:#fff; z-index:91; transition:right .3s; display:flex; flex-direction:column; }
+        .drawer.show { right:0; }
+        .drawer-header { padding:16px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+        .drawer-tip { background:#fff8ee; color:#e6a23c; font-size:12px; padding:6px 12px; margin:8px 20px; border-radius:4px; }
+        .drawer-body { flex:1; overflow-y:auto; padding:8px 20px 20px; }
+        .log-item { position:relative; padding:12px 0 12px 20px; border-left:2px solid #f0f0f0; }
+        .log-item::before { content:''; position:absolute; left:-6px; top:16px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid #dcdfe6; }
+        .log-item.new::before { background:#fa7014; border-color:#fa7014; box-shadow:0 0 0 3px #fff2e6; }
+        .log-title { font-size:13px; font-weight:500; color:#303133; margin-bottom:4px; display:flex; justify-content:space-between; gap:8px; }
+        .log-time { color:#909399; font-size:12px; font-weight:normal; }
+        .log-user { font-size:12px; color:#606266; margin-bottom:6px; }
+        .log-tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:3px; margin-top:4px; }
+        .tag-add { background:#f0fbe6; color:#67c23a; }
+        .tag-del { background:#fef0f0; color:#f56c6c; }
+        .tag-edit { background:#fff8ee; color:#e6a23c; }
+        .tag-sync { background:#ecf5ff; color:#409eff; }
+        .log-detail { background:#fafbfc; padding:8px 10px; border-radius:4px; font-size:12px; color:#606266; margin-top:6px; line-height:1.7; }
+
+        /* Toast */
+        .toast { position:fixed; top:80px; left:50%; transform:translateX(-50%); background:#f0f9eb; color:#67c23a; padding:10px 20px; border-radius:4px; border:1px solid #e1f3d8; font-size:13px; z-index:200; display:none; animation:fadeIn .3s; }
+        .toast.show { display:block; }
+        .toast.error { background:#fef0f0; color:#f56c6c; border-color:#fde2e2; }
+        @keyframes fadeIn { from { opacity:0; transform:translate(-50%,-10px);} to { opacity:1; transform:translate(-50%,0);} }
+
+        /* 悬浮动态按钮 */
+        .fab { position:fixed; right:24px; bottom:80px; background:#fa7014; color:#fff; padding:10px 14px; border-radius:24px; box-shadow:0 4px 14px rgba(250,112,20,.4); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; z-index:50; }
+        .fab:hover { background:#e85f0a; }
+    </style>
 </head>
 <body>
 
 <!-- 顶部 -->
 <div class="top-bar">
-  <div class="store-title">
-    <span style="font-size:22px;">😀</span>
-    <span class="badge-new">新店</span>
-    <span>贵州毕节七星关一中店 (P20260709260)</span>
-    <span style="color:#909399;font-weight:normal;">--</span>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn btn-default">取消</button>
-    <button class="btn btn-primary" onclick="saveAll()"><i class="fa fa-save"></i> 保存</button>
-    <div class="btn-icon" title="重置"><i class="fa fa-undo"></i></div>
-  </div>
+    <div class="store-title">
+        <span style="font-size:22px;">😀</span>
+        <span class="badge-new">新店</span>
+        <span>贵州毕节七星关一中店 (P20260709260)</span>
+        <span style="color:#909399;font-weight:normal;">--</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-default">取消</button>
+        <button class="btn btn-primary" onclick="saveAll()"><i class="fa fa-save"></i> 保存</button>
+        <div class="btn-icon" title="重置"><i class="fa fa-undo"></i></div>
+    </div>
 </div>
 
 <!-- 主布局 -->
 <div class="layout">
-  <!-- 左侧原有信息 -->
-  <div>
-    <div class="card">
-      <div class="section-title">功能区域</div>
-      <div class="grid-3">
-        <div class="form-item">
-          <label class="req">门店版本</label>
-          <select class="input"><option>常规新店（新版六代）</option></select>
-          <div class="hint">选址提供：--</div>
+    <!-- 左侧原有信息 -->
+    <div>
+        <div class="card">
+            <div class="section-title">功能区域</div>
+            <div class="grid-3">
+                <div class="form-item">
+                    <label class="req">门店版本</label>
+                    <select class="input"><option>常规新店（新版六代）</option></select>
+                    <div class="hint">选址提供：--</div>
+                </div>
+                <div class="form-item">
+                    <label class="req">楼层</label>
+                    <input class="input" type="number" id="floorCount" min="1" max="2" value="2" oninput="updateFloorDynamic()">
+                    <div class="hint">若门店有二层有仓库或卖场，填写2</div>
+                </div>
+                <div class="form-item">
+                    <label class="req">营业面积</label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="125.00"><span style="color:#909399;">m²</span></div>
+                    <div class="hint">选址提供：140</div>
+                </div>
+                <div class="form-item">
+                    <label>是否有仓库</label>
+                    <div class="radio-group"><label><input type="radio" name="r1" checked>是</label><label><input type="radio" name="r1">否</label></div>
+                </div>
+                <div class="form-item">
+                    <label class="req">仓库类型</label>
+                    <select class="input"><option>内仓</option></select>
+                </div>
+                <div class="form-item">
+                    <label class="req">仓库面积</label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="17.00"><span style="color:#909399;">m²</span></div>
+                </div>
+                <div class="form-item">
+                    <label>店铺面积</label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="142" disabled style="background:#f5f7fa;"><span style="color:#909399;">m²</span></div>
+                </div>
+            </div>
+            <!-- 楼层动态区域 -->
+            <div id="floorDynamicArea" style="margin-top:16px;"></div>
         </div>
-        <div class="form-item">
-          <label class="req">营业面积</label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="125.00"><span style="color:#909399;">m²</span></div>
-          <div class="hint">选址提供：140</div>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="section-title">设计信息</div>
+            <div class="form-item" style="width:260px;">
+                <label class="req">第三方绘图</label>
+                <div class="radio-group"><label><input type="radio" name="r2" checked>是</label><label><input type="radio" name="r2">否</label></div>
+            </div>
         </div>
-        <div class="form-item">
-          <label>是否有仓库</label>
-          <div class="radio-group"><label><input type="radio" name="r1" checked>是</label><label><input type="radio" name="r1">否</label></div>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="section-title">建筑结构</div>
+            <div class="grid-3">
+                <div class="form-item">
+                    <label class="req">结构层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="5.00"><span style="color:#909399;">m</span></div>
+                    <div class="hint">线下勘察提供：5</div>
+                </div>
+                <div class="form-item">
+                    <label class="req">开间长度</label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="11.50"><span style="color:#909399;">m</span></div>
+                </div>
+                <div class="form-item">
+                    <label class="req">完成面层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div>
+                </div>
+                <div class="form-item">
+                    <label class="req">是否有3.0收银背景墙</label>
+                    <div class="radio-group"><label><input type="radio" name="r3">是</label><label><input type="radio" name="r3">否</label></div>
+                    <div class="hint" style="color:#f56c6c;">请选择是否有3.0收银背景墙</div>
+                </div>
+                <div class="form-item">
+                    <label>收银台数量</label>
+                    <div style="display:flex;align-items:center;gap:4px;"><input class="input" placeholder="请输入收银台数量"><span style="color:#909399;">台</span></div>
+                </div>
+                <div class="form-item">
+                    <label>是否有熟食区</label>
+                    <div class="radio-group"><label><input type="radio" name="r4">是</label><label><input type="radio" name="r4" checked>否</label></div>
+                </div>
+            </div>
         </div>
-        <div class="form-item">
-          <label class="req">仓库类型</label>
-          <select class="input"><option>内仓</option></select>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="section-title">陈列数据</div>
+            <div class="grid-3">
+                <div class="form-item"><label>零食盒总数</label><input class="input" value="0"></div>
+                <div class="form-item"><label>地堆米数</label><div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div></div>
+                <div class="form-item"><label>包装米数</label><div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div></div>
+                <div class="form-item"><label>端头数量</label><input class="input" value="0"></div>
+                <div class="form-item"><label>门店吊旗</label><input class="input" placeholder="请输入门店吊旗数量（3~30）"></div>
+            </div>
         </div>
-        <div class="form-item">
-          <label class="req">仓库面积</label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="17.00"><span style="color:#909399;">m²</span></div>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="section-title">资产明细</div>
+            <div class="tabs">
+                <div class="tab active">设备</div>
+                <div class="tab">货架</div>
+                <div class="tab">未分类</div>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px;">
+                    <span style="color:#909399;"><i class="fa fa-circle" style="color:#c0c4cc;font-size:8px;"></i> 暂无产品解析任务</span>
+                    <span class="link"><i class="fa fa-plus"></i> 添加设备</span>
+                </div>
+            </div>
+            <table>
+                <thead><tr><th>序号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>单位</th><th>商品分类</th><th>产地品牌</th><th>操作</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>SB010101-0005</td><td class="link">1.25米风幕柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/风幕柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
+                    <tr><td>2</td><td>SB010101-0007</td><td class="link">1.9米风幕柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/风幕柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
+                    <tr><td>3</td><td>SB010102-0001</td><td class="link">两门水饮柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/水饮柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
+                    <tr><td>4</td><td>SB010103-0011</td><td class="link">两门冻柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/立式冻柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
+                </tbody>
+            </table>
         </div>
-        <div class="form-item">
-          <label>店铺面积</label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="142" disabled style="background:#f5f7fa;"><span style="color:#909399;">m²</span></div>
-        </div>
-      </div>
     </div>
 
-    <div class="card" style="margin-top:16px;">
-      <div class="section-title">设计信息</div>
-      <div class="form-item" style="width:260px;">
-        <label class="req">第三方绘图</label>
-        <div class="radio-group"><label><input type="radio" name="r2" checked>是</label><label><input type="radio" name="r2">否</label></div>
-      </div>
+    <!-- 右侧空间层级 -->
+    <div>
+        <div class="space-panel">
+            <div class="space-header">
+                <div class="space-title"><i class="fa fa-cube"></i> 空间层级 <span style="font-size:11px;color:#8fb0ff;font-weight:normal;">(来源门店实例)</span></div>
+                <div class="space-actions">
+                    <div class="space-btn" title="展开/收起" onclick="toggleAll()"><i class="fa fa-arrows-alt"></i></div>
+                    <div class="space-btn" title="刷新"><i class="fa fa-refresh"></i></div>
+                </div>
+            </div>
+
+            <div id="tree" class="tree-node">
+                <!-- 动态生成树结构 -->
+            </div>
+
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(120,150,220,.2);font-size:12px;color:#8fb0ff;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>共计四级项</span><span id="cnt-total" style="color:#fff;">0</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>本次修改</span><span id="cnt-modified" style="color:#ff9048;">0</span></div>
+            </div>
+        </div>
     </div>
-
-    <div class="card" style="margin-top:16px;">
-      <div class="section-title">建筑结构</div>
-      <div class="grid-3">
-        <div class="form-item">
-          <label class="req">结构层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="5.00"><span style="color:#909399;">m</span></div>
-          <div class="hint">线下勘察提供：5</div>
-        </div>
-        <div class="form-item">
-          <label class="req">开间长度</label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="11.50"><span style="color:#909399;">m</span></div>
-        </div>
-        <div class="form-item">
-          <label class="req">完成面层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div>
-        </div>
-        <div class="form-item">
-          <label class="req">是否有3.0收银背景墙</label>
-          <div class="radio-group"><label><input type="radio" name="r3">是</label><label><input type="radio" name="r3">否</label></div>
-          <div class="hint" style="color:#f56c6c;">请选择是否有3.0收银背景墙</div>
-        </div>
-        <div class="form-item">
-          <label>收银台数量</label>
-          <div style="display:flex;align-items:center;gap:4px;"><input class="input" placeholder="请输入收银台数量"><span style="color:#909399;">台</span></div>
-        </div>
-        <div class="form-item">
-          <label>是否有熟食区</label>
-          <div class="radio-group"><label><input type="radio" name="r4">是</label><label><input type="radio" name="r4" checked>否</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:16px;">
-      <div class="section-title">陈列数据</div>
-      <div class="grid-3">
-        <div class="form-item"><label>零食盒总数</label><input class="input" value="0"></div>
-        <div class="form-item"><label>地堆米数</label><div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div></div>
-        <div class="form-item"><label>包装米数</label><div style="display:flex;align-items:center;gap:4px;"><input class="input" value="0.00"><span style="color:#909399;">m</span></div></div>
-        <div class="form-item"><label>端头数量</label><input class="input" value="0"></div>
-        <div class="form-item"><label>门店吊旗</label><input class="input" placeholder="请输入门店吊旗数量（3~30）"></div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:16px;">
-      <div class="section-title">资产明细</div>
-      <div class="tabs">
-        <div class="tab active">设备</div>
-        <div class="tab">货架</div>
-        <div class="tab">未分类</div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px;">
-          <span style="color:#909399;"><i class="fa fa-circle" style="color:#c0c4cc;font-size:8px;"></i> 暂无产品解析任务</span>
-          <span class="link"><i class="fa fa-plus"></i> 添加设备</span>
-        </div>
-      </div>
-      <table>
-        <thead><tr><th>序号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>单位</th><th>商品分类</th><th>产地品牌</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>SB010101-0005</td><td class="link">1.25米风幕柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/风幕柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
-          <tr><td>2</td><td>SB010101-0007</td><td class="link">1.9米风幕柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/风幕柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
-          <tr><td>3</td><td>SB010102-0001</td><td class="link">两门水饮柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/水饮柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
-          <tr><td>4</td><td>SB010103-0011</td><td class="link">两门冻柜（青岛海容）</td><td><input class="input" style="width:60px;height:28px;"></td><td>台</td><td>设备/冷链设备/立式冻柜</td><td>青岛海容</td><td><span class="link">复制</span> <span class="link-danger">删除</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 右侧空间层级 -->
-  <div>
-    <div class="space-panel">
-      <div class="space-header">
-        <div class="space-title"><i class="fa fa-cube"></i> 空间层级 <span style="font-size:11px;color:#8fb0ff;font-weight:normal;">(来源门店实例)</span></div>
-        <div class="space-actions">
-          <div class="space-btn" title="展开/收起" onclick="toggleAll()"><i class="fa fa-arrows-alt"></i></div>
-          <div class="space-btn" title="刷新"><i class="fa fa-refresh"></i></div>
-        </div>
-      </div>
-
-      <div id="tree" class="tree-node">
-        <!-- 一层 -->
-        <div class="level-1"><i class="fa fa-th-large"></i> 一层</div>
-
-        <!-- 室内空间 -->
-        <div class="level-2"><i class="fa fa-home"></i> 室内空间</div>
-
-        <!-- 功能区域 -->
-        <div class="level-3-wrapper" data-parent="功能区域">
-          <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>功能区域</div>
-          <div class="level-4-container" data-container="功能区域">
-            <div class="level-4">收银区 <span class="del" onclick="removeLevel4(this,'收银区')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">中岛区 <span class="del" onclick="removeLevel4(this,'中岛区')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">仓储区 <span class="del" onclick="removeLevel4(this,'仓储区')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">冷链区 <span class="del" onclick="removeLevel4(this,'冷链区')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">墙面陈列区 <span class="del" onclick="removeLevel4(this,'墙面陈列区')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">橱窗区 <span class="del" onclick="removeLevel4(this,'橱窗区')"><i class="fa fa-times-circle"></i></span></div>
-          </div>
-          <div class="add-level4" onclick="openAddDialog('功能区域')"><i class="fa fa-plus"></i> 新增子级</div>
-        </div>
-
-        <!-- 空间要素 -->
-        <div class="level-3-wrapper" data-parent="空间要素">
-          <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>空间要素</div>
-          <div class="level-4-container" data-container="空间要素">
-            <div class="level-4">墙面 <span class="del" onclick="removeLevel4(this,'墙面')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">地面 <span class="del" onclick="removeLevel4(this,'地面')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">顶面 <span class="del" onclick="removeLevel4(this,'顶面')"><i class="fa fa-times-circle"></i></span></div>
-            <div class="level-4">立柱 <span class="del" onclick="removeLevel4(this,'立柱')"><i class="fa fa-times-circle"></i></span></div>
-          </div>
-          <div class="add-level4" onclick="openAddDialog('空间要素')"><i class="fa fa-plus"></i> 新增子级</div>
-        </div>
-      </div>
-
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(120,150,220,.2);font-size:12px;color:#8fb0ff;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>共计四级项</span><span id="cnt-total" style="color:#fff;">10</span></div>
-        <div style="display:flex;justify-content:space-between;"><span>本次修改</span><span id="cnt-modified" style="color:#ff9048;">0</span></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- 悬浮动态按钮 -->
@@ -308,223 +297,376 @@
 
 <!-- 新增四级弹窗 -->
 <div class="modal-mask" id="addModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div style="font-weight:600;font-size:15px;">新增空间区域</div>
-      <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeAddDialog()"></i>
+    <div class="modal">
+        <div class="modal-header">
+            <div style="font-weight:600;font-size:15px;">新增空间区域</div>
+            <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeAddDialog()"></i>
+        </div>
+        <div class="modal-body">
+            <div class="parent-selector">上级：室内空间 / <strong id="parentName">功能区域</strong></div>
+            <div class="dict-search">
+                <i class="fa fa-search"></i>
+                <input class="input" placeholder="搜索空间区域字典..." oninput="filterDict(this.value)">
+            </div>
+            <div style="font-size:12px;color:#909399;margin-bottom:8px;">
+                <i class="fa fa-info-circle"></i> 数据来源：门店维护的空间区域字典，若无数据请联系管理员
+            </div>
+            <div id="dictList"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" onclick="closeAddDialog()">取消</button>
+            <button class="btn btn-primary" onclick="confirmAdd()">确认新增</button>
+        </div>
     </div>
-    <div class="modal-body">
-      <div class="parent-selector">上级：室内空间 / <strong id="parentName">功能区域</strong></div>
-      <div class="dict-search">
-        <i class="fa fa-search"></i>
-        <input class="input" placeholder="搜索空间区域字典..." oninput="filterDict(this.value)">
-      </div>
-      <div style="font-size:12px;color:#909399;margin-bottom:8px;">
-        <i class="fa fa-info-circle"></i> 数据来源：门店维护的空间区域字典，若无数据请联系管理员
-      </div>
-      <div id="dictList"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeAddDialog()">取消</button>
-      <button class="btn btn-primary" onclick="confirmAdd()">确认新增</button>
-    </div>
-  </div>
 </div>
 
 <!-- 动态抽屉 -->
 <div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
-  <div class="drawer-header">
-    <div style="font-weight:600;font-size:15px;">动态</div>
-    <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeDrawer()"></i>
-  </div>
-  <div class="drawer-tip"><i class="fa fa-info-circle"></i> 2025-12-05 起的项目动态将被完整保留</div>
-  <div class="drawer-body" id="logList">
-    <!-- 动态注入 -->
-  </div>
+    <div class="drawer-header">
+        <div style="font-weight:600;font-size:15px;">动态</div>
+        <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeDrawer()"></i>
+    </div>
+    <div class="drawer-tip"><i class="fa fa-info-circle"></i> 2025-12-05 起的项目动态将被完整保留</div>
+    <div class="drawer-body" id="logList">
+        <!-- 动态注入 -->
+    </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-  // 字典数据（模拟从门店维护的字典获取）
-  const dictData = {
-    '功能区域': [
-      { code:'F001', name:'收银区', used:true },
-      { code:'F002', name:'中岛区', used:true },
-      { code:'F003', name:'仓储区', used:true },
-      { code:'F004', name:'冷链区', used:true },
-      { code:'F005', name:'墙面陈列区', used:true },
-      { code:'F006', name:'橱窗区', used:true },
-      { code:'F007', name:'熟食加工区', used:false },
-      { code:'F008', name:'烘焙区', used:false },
-      { code:'F009', name:'休息洽谈区', used:false },
-      { code:'F010', name:'饮品操作区', used:false },
-      { code:'F011', name:'散称区', used:false },
-      { code:'F012', name:'活动堆头区', used:false }
-    ],
-    '空间要素': [
-      { code:'E001', name:'墙面', used:true },
-      { code:'E002', name:'地面', used:true },
-      { code:'E003', name:'顶面', used:true },
-      { code:'E004', name:'立柱', used:true },
-      { code:'E005', name:'门头', used:false },
-      { code:'E006', name:'橱窗', used:false },
-      { code:'E007', name:'过道', used:false },
-      { code:'E008', name:'吊顶', used:false }
-    ]
-  };
+    // ===== 状态管理 =====
+    let state = {
+        floorCount: 1,   // 当前楼层数，默认为1
+        floorUsages: {   // 每层用途，key为楼层号，value为数组（如['仓库','卖场']）
+            2: ['卖场']  // 默认第二层包含卖场，便于演示
+        }
+    };
 
-  // 初始动态日志
-  let logs = [
-    { time:'2026-08-17 22:23', user:'王鹏', title:'编辑门店信息', tag:'tag-edit', tagText:'门店编辑', detail:'进入门店信息编辑页面' },
-    { time:'2026-08-17 14:06', user:'张华', title:'设计审核：通过', tag:'tag-sync', tagText:'工程设计' },
-    { time:'2026-08-17 14:06', user:'张华', title:'编辑门店信息', tag:'tag-edit', tagText:'工程设计' },
-    { time:'2026-08-16 17:29', user:'李祥', title:'项目确认', tag:'tag-sync', tagText:'项目确认' }
-  ];
+    // ===== 字典数据 =====
+    const dictData = {
+        '功能区域': [
+            { code:'F001', name:'收银区', used:true },
+            { code:'F002', name:'中岛区', used:true },
+            { code:'F003', name:'仓储区', used:true },
+            { code:'F004', name:'冷链区', used:true },
+            { code:'F005', name:'墙面陈列区', used:true },
+            { code:'F006', name:'橱窗区', used:true },
+            { code:'F007', name:'熟食加工区', used:false },
+            { code:'F008', name:'烘焙区', used:false },
+            { code:'F009', name:'休息洽谈区', used:false },
+            { code:'F010', name:'饮品操作区', used:false },
+            { code:'F011', name:'散称区', used:false },
+            { code:'F012', name:'活动堆头区', used:false }
+        ],
+        '空间要素': [
+            { code:'E001', name:'墙面', used:true },
+            { code:'E002', name:'地面', used:true },
+            { code:'E003', name:'顶面', used:true },
+            { code:'E004', name:'立柱', used:true },
+            { code:'E005', name:'门头', used:false },
+            { code:'E006', name:'橱窗', used:false },
+            { code:'E007', name:'过道', used:false },
+            { code:'E008', name:'吊顶', used:false }
+        ]
+    };
 
-  let currentParent = '';
-  let modifiedCount = 0;
-  let pendingChanges = []; // 待保存的变更
+    // 初始动态日志
+    let logs = [
+        { time:'2026-08-17 22:23', user:'王鹏', title:'编辑门店信息', tag:'tag-edit', tagText:'门店编辑', detail:'进入门店信息编辑页面' },
+        { time:'2026-08-17 14:06', user:'张华', title:'设计审核：通过', tag:'tag-sync', tagText:'工程设计' },
+        { time:'2026-08-17 14:06', user:'张华', title:'编辑门店信息', tag:'tag-edit', tagText:'工程设计' },
+        { time:'2026-08-16 17:29', user:'李祥', title:'项目确认', tag:'tag-sync', tagText:'项目确认' }
+    ];
 
-  function openAddDialog(parent) {
-    currentParent = parent;
-    document.getElementById('parentName').innerText = parent;
-    renderDictList();
-    document.getElementById('addModal').classList.add('show');
-  }
-  function closeAddDialog() {
-    document.getElementById('addModal').classList.remove('show');
-    document.querySelectorAll('#dictList input:checked').forEach(cb=>cb.checked=false);
-  }
+    let currentParent = '';
+    let currentContainer = null;
+    let modifiedCount = 0;
+    let pendingChanges = [];
 
-  function renderDictList(keyword='') {
-    const list = dictData[currentParent] || [];
-    const container = document.getElementById('dictList');
-    container.innerHTML = list.filter(d=>d.name.includes(keyword)).map(d=>`
-      <label class="dict-item ${d.used?'':''}" style="${d.used?'opacity:.5;pointer-events:none;background:#fafafa;':''}">
-        <input type="checkbox" value="${d.name}" data-code="${d.code}" ${d.used?'disabled':''}>
-        <span>${d.name}</span>
-        <span class="dict-tag">${d.code}</span>
-        ${d.used?'<span style="margin-left:auto;color:#909399;font-size:12px;">已存在</span>':''}
-      </label>
-    `).join('');
-  }
-  function filterDict(v){ renderDictList(v); }
+    // ===== 楼层动态交互 =====
+    function updateFloorDynamic() {
+        const input = document.getElementById('floorCount');
+        if (!input) return;
+        let floorVal = parseInt(input.value);
+        if (isNaN(floorVal) || floorVal < 1) {
+            floorVal = 1;
+        }
+        if (floorVal > 2) floorVal = 2; // 本期最大2
+        // 更新状态
+        state.floorCount = floorVal;
 
-  function confirmAdd() {
-    const checked = document.querySelectorAll('#dictList input:checked');
-    if (checked.length === 0) { showToast('请至少选择一项','error'); return; }
-    const container = document.querySelector(`[data-container="${currentParent}"]`);
-    checked.forEach(cb=>{
-      const name = cb.value;
-      const div = document.createElement('div');
-      div.className = 'level-4';
-      div.innerHTML = `${name} <span class="modified-tag">新增</span> <span class="del" onclick="removeLevel4(this,'${name}')"><i class="fa fa-times-circle"></i></span>`;
-      container.appendChild(div);
-      // 更新字典标记
-      const item = dictData[currentParent].find(d=>d.name===name);
-      if (item) item.used = true;
-      // 记录变更
-      pendingChanges.push({ type:'add', parent:currentParent, name });
-      modifiedCount++;
-    });
-    updateCount();
-    closeAddDialog();
-    showToast(`成功新增 ${checked.length} 项，保存后同步至门店`);
-  }
+        // 清理超出楼层数的用途
+        for (let f = 2; f <= 5; f++) {
+            if (f > floorVal) {
+                delete state.floorUsages[f];
+            }
+        }
 
-  function removeLevel4(el, name) {
-    const container = el.closest('.level-4-container');
-    const parent = container.dataset.container;
-    if (!confirm(`确定删除四级层级"${name}"吗？`)) return;
-    el.parentElement.remove();
-    // 释放字典占用
-    const item = dictData[parent]?.find(d=>d.name===name);
-    if (item) item.used = false;
-    pendingChanges.push({ type:'delete', parent, name });
-    modifiedCount++;
-    updateCount();
-    showToast(`已删除"${name}"，保存后同步至门店`);
-  }
-
-  function updateCount() {
-    document.getElementById('cnt-total').innerText = document.querySelectorAll('.level-4').length;
-    document.getElementById('cnt-modified').innerText = modifiedCount;
-  }
-
-  function saveAll() {
-    if (pendingChanges.length === 0) {
-      showToast('未检测到空间区域变更，仅保存基础信息');
-      addLog({ title:'编辑门店信息', tagText:'门店编辑', tag:'tag-edit', detail:'保存了功能区域/建筑结构等基础信息' });
-      return;
+        // 渲染动态区域
+        renderFloorDynamic();
+        // 更新右侧树
+        renderTree();
     }
-    // 生成变更摘要
-    const adds = pendingChanges.filter(c=>c.type==='add');
-    const dels = pendingChanges.filter(c=>c.type==='delete');
-    let detail = [];
-    if (adds.length) detail.push(`新增：${adds.map(a=>`[${a.parent}] ${a.name}`).join('、')}`);
-    if (dels.length) detail.push(`删除：${dels.map(d=>`[${d.parent}] ${d.name}`).join('、')}`);
 
-    addLog({ title:'空间区域维护', tagText:'空间层级', tag:'tag-edit', detail:detail.join('；') });
-    addLog({ title:'同步空间区域至门店实例', tagText:'数据同步', tag:'tag-sync', detail:`共同步 ${pendingChanges.length} 项变更 → 门店 P20260709260` });
+    function renderFloorDynamic() {
+        const container = document.getElementById('floorDynamicArea');
+        if (!container) return;
+        const floorCount = state.floorCount;
+        if (floorCount <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        let html = '';
+        // 从第2层开始显示
+        for (let f = 2; f <= floorCount; f++) {
+            const usages = state.floorUsages[f] || [];
+            html += `
+                <div class="floor-line">
+                    <div class="floor-label">第${f}层用途 <span class="req">*</span></div>
+                    <div class="tag-group" data-floor="${f}">
+                        <div class="tag ${usages.includes('仓库')?'selected':''}" onclick="toggleFloorUsage(${f},'仓库',this)">仓库</div>
+                        <div class="tag ${usages.includes('卖场')?'selected':''}" onclick="toggleFloorUsage(${f},'卖场',this)">卖场</div>
+                    </div>
+                </div>
+            `;
+            // 如果第2层包含卖场，并且当前楼层>=2，则显示第二层营业面积输入
+            if (f === 2 && usages.includes('卖场')) {
+                html += `
+                    <div class="second-floor-area">
+                        <div class="form-item">
+                            <label class="req">第二层营业面积</label>
+                            <div style="display:flex;align-items:center;gap:4px;"><input class="input" value=""><span style="color:#909399;">m²</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        container.innerHTML = html;
+    }
 
-    // 清理"新增"标签
-    document.querySelectorAll('.modified-tag').forEach(t=>t.remove());
-    pendingChanges = [];
-    modifiedCount = 0;
+    function toggleFloorUsage(floor, type, el) {
+        if (!state.floorUsages[floor]) {
+            state.floorUsages[floor] = [];
+        }
+        const usages = state.floorUsages[floor];
+        const idx = usages.indexOf(type);
+        if (idx >= 0) {
+            usages.splice(idx, 1);
+            el.classList.remove('selected');
+        } else {
+            usages.push(type);
+            el.classList.add('selected');
+        }
+        // 重新渲染动态区域，以更新第二层营业面积显示
+        renderFloorDynamic();
+        // 更新右侧树（特别是二层显示条件）
+        renderTree();
+    }
+
+    // ===== 右侧空间层级树 =====
+    function renderTree() {
+        const tree = document.getElementById('tree');
+        if (!tree) return;
+        const floorCount = state.floorCount;
+        // 二层显示条件：楼层数>=2 且 第二层用途包含卖场
+        const hasSecondFloorWithSales = floorCount >= 2 && (state.floorUsages[2] || []).includes('卖场');
+
+        let html = '';
+
+        // 一层
+        html += `
+            <div class="level-1"><i class="fa fa-th-large"></i> 一层</div>
+            <div class="level-2"><i class="fa fa-home"></i> 室内空间</div>
+            <div class="level-3-wrapper" data-parent="功能区域">
+                <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>功能区域</div>
+                <div class="level-4-container" data-container="功能区域">
+                    ${generateLevel4Items('功能区域', ['收银区','中岛区','仓储区','冷链区','墙面陈列区','橱窗区'])}
+                </div>
+                <div class="add-level4" onclick="openAddDialog('功能区域', this)"><i class="fa fa-plus"></i> 新增子级</div>
+            </div>
+            <div class="level-3-wrapper" data-parent="空间要素">
+                <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>空间要素</div>
+                <div class="level-4-container" data-container="空间要素">
+                    ${generateLevel4Items('空间要素', ['墙面','地面','顶面','立柱'])}
+                </div>
+                <div class="add-level4" onclick="openAddDialog('空间要素', this)"><i class="fa fa-plus"></i> 新增子级</div>
+            </div>
+        `;
+
+        if (hasSecondFloorWithSales) {
+            html += `
+                <div class="level-1" style="margin-top:10px;"><i class="fa fa-th-large"></i> 二层</div>
+                <div class="level-2"><i class="fa fa-home"></i> 室内空间</div>
+                <div class="level-3-wrapper" data-parent="功能区域">
+                    <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>功能区域</div>
+                    <div class="level-4-container" data-container="功能区域"></div>
+                    <div class="add-level4" onclick="openAddDialog('功能区域', this)"><i class="fa fa-plus"></i> 新增子级</div>
+                </div>
+                <div class="level-3-wrapper" data-parent="空间要素">
+                    <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>空间要素</div>
+                    <div class="level-4-container" data-container="空间要素"></div>
+                    <div class="add-level4" onclick="openAddDialog('空间要素', this)"><i class="fa fa-plus"></i> 新增子级</div>
+                </div>
+            `;
+        }
+
+        tree.innerHTML = html;
+        updateCount();
+    }
+
+    function generateLevel4Items(parent, items) {
+        return items.map(name => {
+            return `<div class="level-4">${name} <span class="del" onclick="removeLevel4(this,'${name}')"><i class="fa fa-times-circle"></i></span></div>`;
+        }).join('');
+    }
+
+    // ===== 新增、删除等操作 =====
+    function openAddDialog(parent, btn) {
+        currentParent = parent;
+        if (btn && btn.closest('.level-3-wrapper')) {
+            currentContainer = btn.closest('.level-3-wrapper').querySelector('.level-4-container');
+        } else {
+            currentContainer = document.querySelector(`[data-container="${parent}"]`);
+        }
+        document.getElementById('parentName').innerText = parent;
+        renderDictList();
+        document.getElementById('addModal').classList.add('show');
+    }
+    function closeAddDialog() {
+        document.getElementById('addModal').classList.remove('show');
+        document.querySelectorAll('#dictList input:checked').forEach(cb=>cb.checked=false);
+    }
+
+    function renderDictList(keyword='') {
+        const list = dictData[currentParent] || [];
+        const container = document.getElementById('dictList');
+        container.innerHTML = list.filter(d=>d.name.includes(keyword)).map(d=>`
+            <label class="dict-item ${d.used?'':''}" style="${d.used?'opacity:.5;pointer-events:none;background:#fafafa;':''}">
+                <input type="checkbox" value="${d.name}" data-code="${d.code}" ${d.used?'disabled':''}>
+                <span>${d.name}</span>
+                <span class="dict-tag">${d.code}</span>
+                ${d.used?'<span style="margin-left:auto;color:#909399;font-size:12px;">已存在</span>':''}
+            </label>
+        `).join('');
+    }
+    function filterDict(v){ renderDictList(v); }
+
+    function confirmAdd() {
+        const checked = document.querySelectorAll('#dictList input:checked');
+        if (checked.length === 0) { showToast('请至少选择一项','error'); return; }
+        if (!currentContainer) { showToast('未定位到容器','error'); return; }
+
+        checked.forEach(cb=>{
+            const name = cb.value;
+            const div = document.createElement('div');
+            div.className = 'level-4';
+            div.innerHTML = `${name} <span class="modified-tag">新增</span> <span class="del" onclick="removeLevel4(this,'${name}')"><i class="fa fa-times-circle"></i></span>`;
+            currentContainer.appendChild(div);
+            const item = dictData[currentParent]?.find(d=>d.name===name);
+            if (item) item.used = true;
+            pendingChanges.push({ type:'add', parent:currentParent, name });
+            modifiedCount++;
+        });
+        updateCount();
+        closeAddDialog();
+        showToast(`成功新增 ${checked.length} 项，保存后同步至门店`);
+    }
+
+    function removeLevel4(el, name) {
+        const container = el.closest('.level-4-container');
+        const parent = container.dataset.container;
+        if (!confirm(`确定删除四级层级"${name}"吗？`)) return;
+        el.parentElement.remove();
+        const item = dictData[parent]?.find(d=>d.name===name);
+        if (item) item.used = false;
+        pendingChanges.push({ type:'delete', parent, name });
+        modifiedCount++;
+        updateCount();
+        showToast(`已删除"${name}"，保存后同步至门店`);
+    }
+
+    function updateCount() {
+        document.getElementById('cnt-total').innerText = document.querySelectorAll('.level-4').length;
+        document.getElementById('cnt-modified').innerText = modifiedCount;
+    }
+
+    function saveAll() {
+        if (pendingChanges.length === 0) {
+            showToast('未检测到空间区域变更，仅保存基础信息');
+            addLog({ title:'编辑门店信息', tagText:'门店编辑', tag:'tag-edit', detail:'保存了功能区域/建筑结构等基础信息' });
+            return;
+        }
+        const adds = pendingChanges.filter(c=>c.type==='add');
+        const dels = pendingChanges.filter(c=>c.type==='delete');
+        let detail = [];
+        if (adds.length) detail.push(`新增：${adds.map(a=>`[${a.parent}] ${a.name}`).join('、')}`);
+        if (dels.length) detail.push(`删除：${dels.map(d=>`[${d.parent}] ${d.name}`).join('、')}`);
+
+        addLog({ title:'空间区域维护', tagText:'空间层级', tag:'tag-edit', detail:detail.join('；') });
+        addLog({ title:'同步空间区域至门店实例', tagText:'数据同步', tag:'tag-sync', detail:`共同步 ${pendingChanges.length} 项变更 → 门店 P20260709260` });
+
+        document.querySelectorAll('.modified-tag').forEach(t=>t.remove());
+        pendingChanges = [];
+        modifiedCount = 0;
+        updateCount();
+        showToast('保存成功，空间区域已同步至门店');
+    }
+
+    function addLog(item) {
+        const now = new Date();
+        const pad = n => String(n).padStart(2,'0');
+        const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        logs.unshift({ time, user:'王鹏', ...item, isNew:true });
+        renderLogs();
+    }
+
+    function renderLogs() {
+        document.getElementById('logList').innerHTML = logs.map((l,i)=>`
+            <div class="log-item ${l.isNew?'new':''}">
+                <div class="log-title"><span>${l.title}</span><span class="log-time">${l.time}</span></div>
+                <div class="log-user">${l.user}</div>
+                <span class="log-tag ${l.tag}">${l.tagText}</span>
+                ${l.detail?`<div class="log-detail">${l.detail}</div>`:''}
+            </div>
+        `).join('');
+        setTimeout(()=>{ logs.forEach(l=>l.isNew=false); },3000);
+    }
+
+    function openDrawer() {
+        document.getElementById('drawer').classList.add('show');
+        document.getElementById('drawerMask').classList.add('show');
+        renderLogs();
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('show');
+        document.getElementById('drawerMask').classList.remove('show');
+    }
+
+    function showToast(msg, type='') {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.className = 'toast show ' + type;
+        setTimeout(()=>t.classList.remove('show'),2500);
+    }
+
+    function toggleAll() {
+        document.querySelectorAll('.level-4-container').forEach(c=>{
+            c.style.display = c.style.display==='none' ? 'block' : 'none';
+        });
+    }
+
+    // ===== 初始化 =====
+    // 设置初始楼层输入框的值并触发更新
+    const floorInput = document.getElementById('floorCount');
+    if (floorInput) {
+        floorInput.value = 2; // 初始为2，方便演示动态效果
+    }
+    updateFloorDynamic();  // 渲染左侧动态区域和右侧树
+    renderLogs();
     updateCount();
-    showToast('保存成功，空间区域已同步至门店');
-  }
-
-  function addLog(item) {
-    const now = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    logs.unshift({ time, user:'王鹏', ...item, isNew:true });
-    renderLogs();
-  }
-
-  function renderLogs() {
-    document.getElementById('logList').innerHTML = logs.map((l,i)=>`
-      <div class="log-item ${l.isNew?'new':''}">
-        <div class="log-title"><span>${l.title}</span><span class="log-time">${l.time}</span></div>
-        <div class="log-user">${l.user}</div>
-        <span class="log-tag ${l.tag}">${l.tagText}</span>
-        ${l.detail?`<div class="log-detail">${l.detail}</div>`:''}
-      </div>
-    `).join('');
-    // 3秒后取消new标记
-    setTimeout(()=>{ logs.forEach(l=>l.isNew=false); },3000);
-  }
-
-  function openDrawer() {
-    document.getElementById('drawer').classList.add('show');
-    document.getElementById('drawerMask').classList.add('show');
-    renderLogs();
-  }
-  function closeDrawer() {
-    document.getElementById('drawer').classList.remove('show');
-    document.getElementById('drawerMask').classList.remove('show');
-  }
-
-  function showToast(msg, type='') {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(()=>t.classList.remove('show'),2500);
-  }
-
-  function toggleAll() {
-    document.querySelectorAll('.level-4-container').forEach(c=>{
-      c.style.display = c.style.display==='none' ? 'block' : 'none';
-    });
-  }
-
-  // 初始化
-  updateCount();
-  renderLogs();
 </script>
 </body>
 </html>
