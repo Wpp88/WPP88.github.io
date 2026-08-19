@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>工程系统 - 点击重新定位交互</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f2f3f5;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  color: #1f2329;
+}
+
+.prototype {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 12px;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.tabs {
+  width: 410px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.tabs button {
+  flex: 0 0 auto;
+  border: 1px solid #e5e6eb;
+  background: #fff;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #4e5969;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  color: #ff6a00;
+  border-color: #ff6a00;
+  background: #fff7f0;
+  font-weight: 600;
+}
+
+.phone {
+  position: relative;
+  width: 410px;
+  height: 890px;
+  background: #f7f8fa;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px #ddd,
+    0 12px 36px rgba(0, 0, 0, 0.16);
+}
+
+/* iOS 状态栏 */
+.status-bar {
+  height: 44px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px 0 26px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.signal {
+  width: 18px;
+  height: 12px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.signal span {
+  width: 3px;
+  background: #000;
+  border-radius: 2px;
+}
+
+.signal span:nth-child(1) { height: 4px; }
+.signal span:nth-child(2) { height: 6px; }
+.signal span:nth-child(3) { height: 9px; }
+.signal span:nth-child(4) { height: 12px; }
+
+.wifi {
+  width: 15px;
+  height: 10px;
+  border: 2px solid #000;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.battery {
+  width: 22px;
+  height: 11px;
+  border: 1.5px solid #000;
+  border-radius: 3px;
+  position: relative;
+}
+
+.battery::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 3px;
+  width: 2px;
+  height: 5px;
+  background: #000;
+  border-radius: 1px;
+}
+
+.battery::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 15px;
+  height: 5px;
+  background: #000;
+  border-radius: 2px;
+}
+
+.nav {
+  height: 48px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.back {
+  position: absolute;
+  left: 14px;
+  font-size: 25px;
+  color: #1f2329;
+  line-height: 1;
+}
+
+.nav-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.nav-more {
+  position: absolute;
+  right: 16px;
+  font-size: 22px;
+}
+
+.app {
+  height: calc(100% - 44px);
+  background: #f7f8fa;
+  overflow: hidden;
+}
+
+/* 表单页面 */
+.stepper {
+  height: 70px;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 22px;
+  border-bottom: 1px solid #f2f3f5;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+  color: #8f959e;
+  font-size: 11px;
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  width: 100%;
+  height: 1px;
+  background: #eceff3;
+  z-index: 0;
+}
+
+.step:last-child::before {
+  display: none;
+}
+
+.step-num {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin: 0 auto 6px;
+  border-radius: 50%;
+  background: #e5e6eb;
+  color: #fff;
+  line-height: 18px;
+  font-size: 11px;
+}
+
+.step.active {
+  color: #ff6a00;
+  font-weight: 600;
+}
+
+.step.active .step-num {
+  background: #ff6a00;
+}
+
+.form-scroll {
+  height: calc(100% - 118px);
+  overflow-y: auto;
+  padding-bottom: 92px;
+}
+
+.section-title {
+  padding: 14px 14px 8px;
+  font-size: 13px;
+  color: #4e5969;
+}
+
+.form-card {
+  background: #fff;
+  margin: 0 8px 10px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.form-row {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid #f2f3f5;
+  font-size: 13px;
+}
+
+.form-row:last-child {
+  border-bottom: none;
+}
+
+.form-row.required .label::before {
+  content: "*";
+  color: #f53f3f;
+  margin-right: 3px;
+}
+
+.label {
+  flex: 0 0 120px;
+  color: #1f2329;
+  font-weight: 500;
+}
+
+.value {
+  flex: 1;
+  text-align: right;
+  color: #4e5969;
+}
+
+.placeholder {
+  color: #c9cdd4;
+}
+
+.orange {
+  color: #ff6a00;
+}
+
+.relocate {
+  color: #ff7a00;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.relocate::before {
+  content: "⌖";
+  font-size: 13px;
+}
+
+.textarea {
+  height: 98px;
+  align-items: flex-start;
+  padding-top: 14px;
+}
+
+.count {
+  align-self: flex-end;
+  padding-bottom: 10px;
+  font-size: 11px;
+  color: #8f959e;
+}
+
+.upload {
+  width: 52px;
+  height: 52px;
+  border: 1px solid #edf0f5;
+  border-radius: 4px;
+  position: relative;
+  background: #fff;
+}
+
+.upload::before,
+.upload::after {
+  content: "";
+  position: absolute;
+  background: #dcdfe6;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.upload::before {
+  width: 24px;
+  height: 1px;
+}
+
+.upload::after {
+  width: 1px;
+  height: 24px;
+}
+
+.hint {
+  font-size: 11px;
+  color: #8f959e;
+  margin-top: 4px;
+}
+
+.pass {
+  color: #00b42a;
+  font-weight: 600;
+}
+
+.bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 74px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.save {
+  width: 34px;
+  text-align: center;
+  font-size: 11px;
+  color: #1f2329;
+}
+
+.save-icon {
+  font-size: 20px;
+}
+
+.primary-btn {
+  flex: 1;
+  height: 44px;
+  background: #ff6a00;
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* 详情页 */
+.detail-page {
+  height: calc(100% - 48px);
+  background: #f2f3f5;
+  position: relative;
+}
+
+.detail-bg {
+  padding: 12px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.project-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  color: #4e5969;
+}
+
+.project-title {
+  font-size: 14px;
+  color: #1f2329;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 11px;
+  color: #ff7a00;
+  background: #fff3e8;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.project-sub {
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.info-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  row-gap: 8px;
+  font-size: 12px;
+}
+
+.info-grid span:nth-child(odd) {
+  color: #8f959e;
+}
+
+.info-grid span:nth-child(even) {
+  color: #1f2329;
+}
+
+.blur-block {
+  margin-top: 12px;
+  height: 72px;
+  background: #fff;
+  border-radius: 8px;
+  opacity: .7;
+}
+
+.bottom-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 637px;
+  background: #fff;
+  border-radius: 14px 14px 0 0;
+  padding: 14px 12px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, .12);
+}
+
+.sheet-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f2f3f5;
+  text-align: center;
+  line-height: 22px;
+  color: #333;
+  font-size: 18px;
+}
+
+.sheet-title {
+  font-size: 15px;
+  font-weight: 700;
+  padding-right: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-address {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #6b7785;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.map-mini {
+  margin-top: 10px;
+  height: 100px;
+  border: 1px solid #e5e6eb;
+  overflow: hidden;
+  position: relative;
+  background:
+    linear-gradient(18deg, transparent 46%, #7ec8f7 47%, #7ec8f7 53%, transparent 54%),
+    linear-gradient(0deg, transparent 45%, #ffd34d 46%, #ffd34d 58%, transparent 59%),
+    linear-gradient(90deg, #e7ebef 0 10%, transparent 10% 90%, #e7ebef 90%),
+    #f7fafc;
+}
+
+.map-mini::before {
+  content: "";
+  position: absolute;
+  left: 48px;
+  top: 26px;
+  width: 150px;
+  height: 42px;
+  border: 4px solid #c9b1ee;
+  border-radius: 4px;
+  background: rgba(188, 162, 226, .18);
+}
+
+.pin {
+  position: absolute;
+  left: 214px;
+  top: 28px;
+  width: 22px;
+  height: 22px;
+  background: #ff7a00;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+.pin::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  left: 7px;
+  top: 7px;
+}
+
+.map-copyright {
+  position: absolute;
+  bottom: 2px;
+  left: 6px;
+  font-size: 9px;
+  color: #4e5969;
+  background: rgba(255,255,255,.7);
+}
+
+.check-row {
+  margin-top: 16px;
+  font-size: 12px;
+  color: #1f2329;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question {
+  color: #1f2329;
+}
+
+.options {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.option {
+  flex: 1;
+  height: 44px;
+  border: 1px solid #edf0f5;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.shop-icon {
+  font-size: 18px;
+}
+
+.continue-btn {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 18px;
+  height: 44px;
+  background: #ff6a00;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  box-shadow: 0 3px 8px rgba(255, 106, 0, .35);
+}
+
+/* 定位页 */
+.locator {
+  position: absolute;
+  inset: 0;
+  background: #dce4e8;
+  z-index: 30;
+  display: none;
+}
+
+.locator.show {
+  display: block;
+}
+
+.locator-map {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(35deg, transparent 41%, rgba(87,170,226,.62) 42%, rgba(87,170,226,.62) 50%, transparent 51%),
+    linear-gradient(-8deg, transparent 48%, rgba(255,218,78,.8) 49%, rgba(255,218,78,.8) 54%, transparent 55%),
+    linear-gradient(72deg, transparent 38%, rgba(255,255,255,.75) 39%, rgba(255,255,255,.75) 42%, transparent 43%),
+    linear-gradient(0deg, transparent 18%, rgba(255,255,255,.65) 19%, rgba(255,255,255,.65) 21%, transparent 22%),
+    linear-gradient(90deg, transparent 28%, rgba(255,255,255,.65) 29%, rgba(255,255,255,.65) 31%, transparent 32%),
+    #d9e3e7;
+}
+
+.locator-map::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 70px;
+  width: 92px;
+  height: 76px;
+  background: #6fa66b;
+  transform: rotate(-2deg);
+  opacity: .75;
+}
+
+.locator-map::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 92px;
+  width: 118px;
+  height: 80px;
+  background: #3d8fc4;
+  clip-path: polygon(20% 0, 75% 0, 75% 25%, 100% 38%, 86% 100%, 0 78%);
+  opacity: .78;
+}
+
+.locator-road-label {
+  position: absolute;
+  color: rgba(90, 95, 105, .35);
+  font-size: 14px;
+  transform: rotate(-12deg);
+}
+
+.locator-top {
+  position: relative;
+  z-index: 3;
+  height: 102px;
+  background: rgba(255,255,255,.18);
+}
+
+.locator-status {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 22px 0 42px;
+  color: #000;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.locator-actions {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 28px;
+  font-size: 30px;
+  color: #000;
+}
+
+.locator-actions .dots {
+  margin-left: auto;
+  font-size: 26px;
+  padding-right: 8px;
+}
+
+.locator-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.34);
+  z-index: 2;
+  display: none;
+}
+
+.locator.permission .locator-dim {
+  display: block;
+}
+
+.locator-card {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  top: 202px;
+  margin: auto;
+  width: 100%;
+  min-height: 150px;
+  border-radius: 16px 16px 0 0;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(8px);
+  padding: 26px 18px 18px;
+  text-align: center;
+}
+
+.locator-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2329;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.locator-title .blue {
+  color: #1687c9;
+  font-size: 21px;
+}
+
+.locator-retry {
+  margin-top: 24px;
+  color: #178b95;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.locator-retry .spin {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.locator-address {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4e5969;
+}
+
+.use-location {
+  margin-top: 20px;
+  height: 42px;
+  width: 220px;
+  border: none;
+  border-radius: 22px;
+  background: #1677ff;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.permission-sheet {
+  position: absolute;
+  z-index: 6;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 246px;
+  background: rgba(255,255,255,.95);
+  border-radius: 14px 14px 0 0;
+  padding: 28px 26px;
+  display: none;
+}
+
+.locator.permission .permission-sheet {
+  display: block;
+}
+
+.permission-url {
+  font-size: 17px;
+  color: #000;
+  margin-bottom: 22px;
+}
+
+.permission-title {
+  font-size: 19px;
+  color: #000;
+  font-weight: 700;
+  margin-bottom: 50px;
+}
+
+.permission-actions {
+  display: flex;
+  gap: 18px;
+}
+
+.permission-actions button {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 6px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.reject {
+  background: #f2f3f5;
+  color: #000;
+}
+
+.allow {
+  background: #1d83ff;
+  color: #fff;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(22,119,255,.18);
+  border-top-color: #1677ff;
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}
+
+.toast {
+  position: absolute;
+  z-index: 50;
+  left: 50%;
+  bottom: 106px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.78);
+  color: #fff;
+  font-size: 13px;
+  padding: 9px 15px;
+  border-radius: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+@media (max-width: 460px) {
+  .prototype {
+    padding: 0;
+  }
+
+  .page-title,
+  .tabs {
+    display: none;
+  }
+
+  .phone {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+</style>
+</head>
+<body>
+<div class="prototype">
+  <div class="page-title">工程系统各页面「点击重新定位」动态交互原型</div>
+  <div class="tabs" id="tabs"></div>
+
+  <div class="phone">
+    <div class="status-bar">
+      <div id="phoneTime">19:30</div>
+      <div class="status-icons">
+        <div class="signal"><span></span><span></span><span></span><span></span></div>
+        <div class="wifi"></div>
+        <div class="battery"></div>
+      </div>
+    </div>
+
+    <div class="app" id="app"></div>
+
+    <!-- 定位交互页 -->
+    <div class="locator" id="locator">
+      <div class="locator-map">
+        <div class="locator-road-label" style="left:52px;top:310px;">创业路 2026年数据</div>
+        <div class="locator-road-label" style="left:180px;top:510px;">@地图底图 5650</div>
+        <div class="locator-road-label" style="left:24px;top:690px;">道路信息 5630</div>
+      </div>
+
+      <div class="locator-dim"></div>
+
+      <div class="locator-top">
+        <div class="locator-status">
+          <div>19:41</div>
+          <div class="status-icons">
+            <div class="signal"><span></span><span></span><span></span><span></span></div>
+            <span style="font-size:13px;font-weight:600;">5G</span>
+            <div class="battery"></div>
+          </div>
+        </div>
+        <div class="locator-actions">
+          <span onclick="closeLocator()">‹</span>
+          <span onclick="closeLocator()">×</span>
+          <span class="dots">···</span>
+        </div>
+      </div>
+
+      <div class="locator-card" id="locatorCard"></div>
+
+      <div class="permission-sheet">
+        <div class="permission-url">https://cloud.italent.cn&nbsp; 申请</div>
+        <div class="permission-title">获取你的地理位置</div>
+        <div class="permission-actions">
+          <button class="reject" onclick="rejectPermission()">拒绝</button>
+          <button class="allow" onclick="allowPermission()">允许</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">定位已更新</div>
+  </div>
+</div>
+
+<script>
+const pages = [
+  {
+    key: "survey",
+    tab: "勘场",
+    title: "立即勘场",
+    type: "form",
+    time: "19:30",
+    distance: "879.9km",
+    rows: {
+      plan: "2026-08-18 23:12",
+      actual: "2026-08-18 19:30"
+    }
+  },
+  {
+    key: "editSurvey",
+    tab: "修改勘场",
+    title: "修改勘场",
+    type: "editForm",
+    time: "19:30",
+    distance: "658.3km",
+    rows: {
+      last: "2026-04-26 15:06",
+      redo: "2026-04-26 15:06"
+    }
+  },
+  {
+    key: "entry",
+    tab: "进场",
+    title: "施工详情页",
+    type: "detail",
+    time: "19:27",
+    project: "【新店】河北廊坊三河李旗庄镇店",
+    code: "P20250901719",
+    manager: "周梦琪",
+    badge: "待施工",
+    distance: "1361.36km",
+    date1: "2025-09-19 18:08",
+    date2: "2025-10-04 18:08"
+  },
+  {
+    key: "finish",
+    tab: "完工",
+    title: "施工详情页",
+    type: "detail",
+    time: "19:27",
+    project: "【新店】河北沧州沧县基地镇曹庄子村店",
+    code: "P20260709588",
+    manager: "聂彬峰",
+    badge: "待完工",
+    distance: "1177.17km",
+    date1: "2026-08-05 09:36",
+    date2: "2026-08-18 23:59"
+  },
+  {
+    key: "inspection",
+    tab: "巡检",
+    title: "巡检详情页",
+    type: "detail",
+    time: "19:28",
+    project: "【新店】湖北黄石西塞花园店",
+    code: "P20260708705",
+    manager: "喻喻",
+    badge: "待开始",
+    distance: "306.98km",
+    date1: "2026-08-18 23:40",
+    date2: "2026-08-25 23:59"
+  },
+  {
+    key: "rectify",
+    tab: "整改",
+    title: "整改详情页",
+    type: "detail",
+    time: "19:28",
+    project: "【新店】广东湛江吴川城东市场店",
+    code: "P20250700651",
+    manager: "温林晓",
+    badge: "待整改",
+    distance: "782.62km",
+    date1: "361天6小时",
+    date2: ""
+  },
+  {
+    key: "acceptance",
+    tab: "验收",
+    title: "验收详情页",
+    type: "detail",
+    time: "19:28",
+    project: "【新店】天津津南吾悦广场店",
+    code: "P20250801095",
+    manager: "周梦琪",
+    badge: "待验收",
+    distance: "1266.76km",
+    date1: "2025-10-25 12:11",
+    date2: "2025-10-27 12:11"
+  }
+];
+
+let currentKey = "survey";
+let permissionGranted = false;
+
+const tabsEl = document.getElementById("tabs");
+const appEl = document.getElementById("app");
+const phoneTime = document.getElementById("phoneTime");
+const locator = document.getElementById("locator");
+const locatorCard = document.getElementById("locatorCard");
+const toast = document.getElementById("toast");
+
+function initTabs() {
+  tabsEl.innerHTML = pages.map(p => `
+    <button class="${p.key === currentKey ? "active" : ""}" onclick="switchPage('${p.key}')">
+      ${p.tab}
+    </button>
+  `).join("");
+}
+
+function getPage() {
+  return pages.find(p => p.key === currentKey);
+}
+
+function switchPage(key) {
+  currentKey = key;
+  initTabs();
+  renderPage();
+}
+
+function renderPage() {
+  const page = getPage();
+  phoneTime.textContent = page.time;
+
+  if (page.type === "form") {
+    appEl.innerHTML = renderSurveyForm(page);
+  } else if (page.type === "editForm") {
+    appEl.innerHTML = renderEditForm(page);
+  } else {
+    appEl.innerHTML = renderDetail(page);
+  }
+}
+
+function renderNav(title, more = false) {
+  return `
+    <div class="nav">
+      <div class="back">‹</div>
+      <div class="nav-title">${title}</div>
+      ${more ? `<div class="nav-more">⌘</div>` : ""}
+    </div>
+  `;
+}
+
+function renderSurveyForm(page) {
+  return `
+    ${renderNav(page.title)}
+    <div class="stepper">
+      <div class="step active">
+        <div class="step-num">1</div>
+        基础信息
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        施工信息
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        现场&结论
+      </div>
+    </div>
+
+    <div class="form-scroll">
+      <div class="section-title">勘场时间</div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="label">预约勘场时间</div>
+          <div class="value">${page.rows.plan}</div>
+        </div>
+        <div class="form-row required">
+          <div class="label">实际勘场时间</div>
+          <div class="value">${page.rows.actual} ›</div>
+        </div>
+      </div>
+
+      <div class="section-title">未到场信息</div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="label">距离</div>
+          <div class="value">
+            <span class="orange" id="distanceText">${page.distance}</span>
+            &nbsp;&nbsp;
+            <span class="relocate" onclick="openLocator()">重新定位</span>
+          </div>
+        </div>
+        <div class="form-row required">
+          <div class="label">未到场原因</div>
+          <div class="value placeholder">请选择 ›</div>
+        </div>
+        <div class="form-row required textarea">
+          <div class="label">未到场证明</div>
+          <div class="value" style="text-align:left;">
+            <div class="upload"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">空间信息</div>
+      <div class="form-card">
+        <div class="form-row required">
+          <div class="label">层高（m）</div>
+          <div class="value">3&nbsp;&nbsp;m</div>
+        </div>
+        <div class="form-row" style="height:58px;">
+          <div class="label" style="flex:1;">
+            <div>是否满足高度≥2.2米 <span style="margin-left:8px;background:#f7f8fa;padding:3px 6px;color:#8f959e;">系统自动计算</span></div>
+            <div class="hint">初始值为选址提供，请核实（与完成面层高一致）</div>
+          </div>
+          <div class="pass">● 满足</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="save">
+        <div class="save-icon">▣</div>
+        暂存
+      </div>
+      <button class="primary-btn">下一步</button>
+    </div>
+  `;
+}
+
+function renderEditForm(page) {
+  return `
+    ${renderNav(page.title)}
+    <div class="stepper">
+      <div class="step active">
+        <div class="step-num">1</div>
+        基础信息
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        施工信息
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        现场&结论
+      </div>
+    </div>
+
+    <div class="form-scroll">
+      <div class="section-title">勘场时间</div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="label">上一次勘场时间</div>
+          <div class="value">${page.rows.last}</div>
+        </div>
+        <div class="form-row required">
+          <div class="label">重新勘场时间</div>
+          <div class="value">${page.rows.redo} ›</div>
+        </div>
+        <div class="form-row required textarea">
+          <div class="label">原因</div>
+          <div class="value placeholder" style="text-align:left;">请输入</div>
+          <div class="count">0/200</div>
+        </div>
+      </div>
+
+      <div class="section-title">未到场信息</div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="label">距离</div>
+          <div class="value">
+            <span class="orange" id="distanceText">${page.distance}</span>
+            &nbsp;&nbsp;
+            <span class="relocate" onclick="openLocator()">重新定位</span>
+          </div>
+        </div>
+        <div class="form-row required">
+          <div class="label">未到场原因</div>
+          <div class="value placeholder">请选择 ›</div>
+        </div>
+        <div class="form-row required textarea">
+          <div class="label">未到场证明</div>
+          <div class="value" style="text-align:left;">
+            <div class="upload"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">空间信息</div>
+      <div class="form-card">
+        <div class="form-row required">
+          <div class="label">层高（m）</div>
+          <div class="value placeholder">请输入</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="save">
+        <div class="save-icon">▣</div>
+        暂存
+      </div>
+      <button class="primary-btn">下一步</button>
+    </div>
+  `;
+}
+
+function renderDetail(page) {
+  return `
+    ${renderNav(page.title, true)}
+    <div class="detail-page">
+      <div class="detail-bg">
+        <div class="project-card">
+          <div class="project-title">
+            <span>${page.project}</span>
+            <span class="badge">${page.badge}</span>
+          </div>
+          <div class="project-sub">(${page.code})</div>
+          <div class="project-sub">◎ 门店地址信息展示，点击可查看完整地址 ›</div>
+
+          <div class="info-grid">
+            <span>工程经理</span><span>${page.manager}</span>
+            <span>开始时间</span><span>${page.date1} <span class="orange">预计</span></span>
+            <span>结束时间</span><span>${page.date2 || "-"} <span class="orange">预计</span></span>
+            <span>实际施工</span><span><span class="orange">14天</span>&nbsp;&nbsp; 标准工期 14天</span>
+          </div>
+        </div>
+        <div class="blur-block"></div>
+        <div class="blur-block"></div>
+      </div>
+
+      <div class="bottom-sheet">
+        <div class="sheet-close">×</div>
+        <div class="sheet-title">${page.project}</div>
+        <div class="sheet-address">
+          <span>◎ 河北省廊坊市三河市李旗庄镇李七候大街14...</span>
+          <span>距离<span class="orange" id="distanceText">${page.distance}</span></span>
+        </div>
+
+        <div class="map-mini">
+          <div class="pin"></div>
+          <div class="map-copyright">高德地图 ©2026 AutoNavi - GS(2025)5996号</div>
+        </div>
+
+        <div class="check-row">
+          <div class="question">
+            <span class="orange">•</span>
+            门店距您较远，请确认是否在门店
+          </div>
+          <span class="relocate" onclick="openLocator()">重新定位</span>
+        </div>
+
+        <div class="options">
+          <div class="option"><span class="shop-icon">♜</span>不在门店</div>
+          <div class="option"><span class="shop-icon">♜</span>我在门店</div>
+        </div>
+
+        <button class="continue-btn">继续填写</button>
+      </div>
+    </div>
+  `;
+}
+
+function openLocator() {
+  locator.className = "locator show permission";
+  renderLocatorFailed();
+}
+
+function closeLocator() {
+  locator.className = "locator";
+}
+
+function renderLocatorFailed() {
+  locatorCard.innerHTML = `
+    <div class="locator-title">
+      <span class="blue">📍</span>
+      无法定位当前位置
+    </div>
+    <div class="locator-retry" onclick="retryLocate()">
+      <span class="spin">↻</span> 定位不准？点我重试
+    </div>
+  `;
+}
+
+function rejectPermission() {
+  locator.className = "locator show";
+  permissionGranted = false;
+  renderLocatorFailed();
+}
+
+function allowPermission() {
+  permissionGranted = true;
+  locator.className = "locator show";
+  renderLocating();
+
+  setTimeout(() => {
+    renderLocateSuccess();
+  }, 1100);
+}
+
+function retryLocate() {
+  if (!permissionGranted) {
+    locator.className = "locator show permission";
+    renderLocatorFailed();
+    return;
+  }
+
+  renderLocating();
+
+  setTimeout(() => {
+    renderLocateSuccess();
+  }, 900);
+}
+
+function renderLocating() {
+  locatorCard.innerHTML = `
+    <div class="locator-title">
+      <span class="spinner"></span>
+      正在获取当前位置
+    </div>
+    <div class="locator-address">
+      正在通过浏览器定位服务获取您的地理位置，请稍候...
+    </div>
+  `;
+}
+
+function renderLocateSuccess() {
+  locatorCard.innerHTML = `
+    <div class="locator-title">
+      <span class="blue">📍</span>
+      定位成功
+    </div>
+    <div class="locator-address">
+      当前位置：广东省深圳市南山区科技园科兴科学园<br/>
+      距离门店：<span class="orange">32m</span>
+    </div>
+    <button class="use-location" onclick="useCurrentLocation()">使用当前位置</button>
+  `;
+}
+
+function useCurrentLocation() {
+  const page = getPage();
+  page.distance = "32m";
+  closeLocator();
+  renderPage();
+  showToast("定位已更新，距离重新计算为 32m");
+}
+
+function showToast(text) {
+  toast.textContent = text;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1800);
+}
+
+initTabs();
+renderPage();
+</script>
+</body>
+</html>
