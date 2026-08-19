@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>档案更新纳入空间区域维护</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+        color: #1f2933;
+        background: #f5f6f8;
+        font-size: 13px;
+    }
+
+    :root {
+        --orange: #ff6a00;
+        --orange-hover: #f05f00;
+        --orange-light: #fff4ea;
+        --border: #e5e7eb;
+        --text: #303133;
+        --sub: #606266;
+        --muted: #909399;
+        --blue: #409eff;
+        --green: #67c23a;
+        --red: #f56c6c;
+        --yellow: #e6a23c;
+    }
+
+    .prototype-switch {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px;
+        background: rgba(17, 24, 39, .82);
+        border-radius: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.18);
+        backdrop-filter: blur(8px);
+    }
+    .prototype-switch button {
+        border: 0;
+        background: transparent;
+        color: #cbd5e1;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    .prototype-switch button.active {
+        background: var(--orange);
+        color: #fff;
+    }
+
+    .watermark {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+            repeating-linear-gradient(-25deg,
+                transparent 0,
+                transparent 180px,
+                rgba(148, 163, 184, .08) 180px,
+                rgba(148, 163, 184, .08) 181px);
+    }
+    .watermark::after {
+        content: "2026-08-19 12:03:23\A 王鹏\A nmhhm";
+        white-space: pre;
+        position: absolute;
+        inset: 0;
+        color: rgba(148, 163, 184, .18);
+        font-size: 20px;
+        line-height: 1.35;
+        transform: rotate(-20deg);
+        background-size: 430px 230px;
+        background-image: repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 300px
+        );
+        display: block;
+        padding: 70px 0 0 120px;
+        letter-spacing: 1px;
+    }
+
+    .page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        background: #fff;
+    }
+
+    .hidden-page { display: none; }
+
+    /* 通用按钮 */
+    .btn {
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: #fff;
+        cursor: pointer;
+        transition: all .18s ease;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    .btn-primary {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: #fff;
+    }
+    .btn-primary:hover {
+        background: var(--orange-hover);
+        border-color: var(--orange-hover);
+    }
+    .btn-default {
+        border-color: #dcdfe6;
+        color: var(--sub);
+        background: #fff;
+    }
+    .btn-default:hover {
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+    .btn-text {
+        border: none;
+        background: transparent;
+        color: var(--orange);
+        padding: 0 4px;
+    }
+    .btn-danger {
+        background: #fef0f0;
+        border-color: #fde2e2;
+        color: var(--red);
+    }
+    .btn-success {
+        background: #f0f9eb;
+        border-color: #e1f3d8;
+        color: var(--green);
+    }
+
+    .icon-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid #dcdfe6;
+        background: #fff;
+        color: #606266;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .icon-btn:hover {
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+
+    /* 新增页 */
+    .add-header {
+        height: 46px;
+        border-bottom: 1px solid #eeeeee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        background: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+    .add-header-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #303133;
+    }
+    .add-content {
+        height: calc(100vh - 46px);
+        overflow-y: auto;
+        padding: 18px 20px 78px;
+        background: #fff;
+    }
+    .project-btn {
+        background: var(--orange);
+        color: #fff;
+        border-radius: 6px;
+        border: 0;
+        padding: 8px 18px;
+        cursor: pointer;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+    .project-card {
+        height: 36px;
+        background: #f7f7f8;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 14px;
+        color: #303133;
+        margin-bottom: 18px;
+    }
+    .project-card .project-code {
+        color: #909399;
+        font-size: 12px;
+    }
+    .section {
+        margin-bottom: 28px;
+    }
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+        color: #303133;
+        margin: 0 0 16px;
+        font-size: 14px;
+    }
+    .section-title::before {
+        content: "";
+        width: 3px;
+        height: 14px;
+        border-radius: 2px;
+        background: var(--orange);
+    }
+    .section-sub-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        color: #303133;
+        font-weight: 600;
+    }
+    .section-sub-title small {
+        color: #909399;
+        font-weight: 400;
+    }
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px 24px;
+    }
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px 24px;
+    }
+    .form-item label {
+        display: block;
+        color: #606266;
+        margin-bottom: 6px;
+        line-height: 18px;
+    }
+    .req::before {
+        content: "*";
+        color: var(--red);
+        margin-right: 3px;
+    }
+    .input, select, textarea {
+        width: 100%;
+        height: 32px;
+        border: 1px solid #dcdfe6;
+        border-radius: 5px;
+        outline: none;
+        padding: 0 10px;
+        color: #303133;
+        background: #fff;
+        transition: border .16s ease, box-shadow .16s ease;
+        font-size: 13px;
+    }
+    textarea {
+        height: 64px;
+        resize: vertical;
+        padding: 8px 10px;
+    }
+    .input:focus, select:focus, textarea:focus {
+        border-color: var(--orange);
+        box-shadow: 0 0 0 2px rgba(255,106,0,.08);
+    }
+    .input[disabled], select[disabled] {
+        background: #f5f7fa;
+        color: #a8abb2;
+        cursor: not-allowed;
+    }
+    .input-unit {
+        position: relative;
+    }
+    .input-unit .unit {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #909399;
+    }
+    .input-unit .input {
+        padding-right: 38px;
+    }
+    .hint {
+        color: #909399;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+    .orange-hint {
+        color: var(--orange);
+        font-size: 12px;
+        margin-left: 4px;
+    }
+    .radio-group {
+        display: flex;
+        height: 32px;
+        align-items: center;
+        gap: 18px;
+    }
+    .radio-group label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        cursor: pointer;
+    }
+    input[type="radio"], input[type="checkbox"] {
+        accent-color: var(--orange);
+    }
+    .upload-box {
+        height: 136px;
+        border: 1px dashed #d8dde6;
+        border-radius: 6px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #606266;
+        gap: 8px;
+    }
+    .upload-box i {
+        font-size: 24px;
+        color: #303133;
+    }
+    .upload-box .upload-link {
+        color: var(--orange);
+        cursor: pointer;
+    }
+
+    .archive-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 344px;
+        gap: 16px;
+        align-items: start;
+    }
+    .archive-left {
+        min-width: 0;
+    }
+    .archive-card {
+        border: 1px solid #ebeef5;
+        border-radius: 8px;
+        padding: 16px;
+        background: #fff;
+        margin-bottom: 14px;
+    }
+    .archive-card.is-highlight {
+        background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+        border-color: #ffd9ba;
+    }
+    .switch-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff8f0;
+        border: 1px solid #ffe1c7;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+    }
+    .switch-line strong {
+        color: #303133;
+    }
+    .switch {
+        width: 42px;
+        height: 22px;
+        border-radius: 99px;
+        background: #dcdfe6;
+        position: relative;
+        cursor: pointer;
+        transition: background .2s;
+    }
+    .switch::after {
+        content: "";
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        transition: left .2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    }
+    .switch.on {
+        background: var(--orange);
+    }
+    .switch.on::after {
+        left: 22px;
+    }
+
+    .floor-dynamic {
+        padding: 12px;
+        background: #fafbfc;
+        border-radius: 7px;
+        border: 1px dashed #e0e0e0;
+        margin-top: 12px;
+    }
+    .floor-line {
+        margin-bottom: 12px;
+    }
+    .floor-line:last-child { margin-bottom: 0; }
+    .floor-label {
+        color: #606266;
+        margin-bottom: 8px;
+    }
+    .tag-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .tag {
+        min-width: 52px;
+        text-align: center;
+        padding: 4px 12px;
+        border-radius: 16px;
+        background: #f5f5f7;
+        color: #555;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all .18s ease;
+        user-select: none;
+    }
+    .tag.selected {
+        color: var(--orange);
+        background: #fff5ee;
+        border-color: var(--orange);
+    }
+    .tag.disabled {
+        color: #c0c4cc;
+        cursor: not-allowed;
+    }
+    .second-floor-area {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: #fff8f0;
+        border-radius: 6px;
+        border: 1px solid #ffe6d1;
+    }
+
+    /* 右侧空间层级 */
+    .space-panel {
+        background: linear-gradient(180deg, #0d1633 0%, #1a2547 100%);
+        border-radius: 8px;
+        color: #e8eeff;
+        padding: 14px;
+        position: sticky;
+        top: 62px;
+        box-shadow: 0 6px 22px rgba(13,22,51,.25);
+        border: 1px solid rgba(80,120,220,.25);
+    }
+    .space-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 11px;
+        border-bottom: 1px solid rgba(120,150,220,.2);
+        margin-bottom: 12px;
+    }
+    .space-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+    }
+    .space-title i { color: #6ea0ff; }
+    .space-sub {
+        color: #8fb0ff;
+        font-size: 11px;
+        font-weight: 400;
+    }
+    .space-actions {
+        display: flex;
+        gap: 6px;
+    }
+    .space-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 4px;
+        background: rgba(91,141,255,.15);
+        color: #8fb0ff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 1px solid rgba(91,141,255,.3);
+    }
+    .space-btn:hover {
+        background: rgba(91,141,255,.3);
+        color: #fff;
+    }
+    .tree-node { font-size: 13px; }
+    .level-1 {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 7px;
+        background: rgba(91,141,255,.08);
+        border-radius: 4px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+    .level-1 i { color: #6ea0ff; }
+    .level-2 {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 6px 6px 16px;
+        font-weight: 500;
+        color: #cfd9ff;
+    }
+    .level-2 i { color: #7dd3fc; }
+    .level-3 {
+        display: flex;
+        align-items: center;
+        padding: 5px 6px 5px 30px;
+        color: #a9bde6;
+        position: relative;
+    }
+    .level-3::before {
+        content: "▪";
+        position: absolute;
+        left: 22px;
+        color: #5b8dff;
+    }
+    .level-4-container {
+        padding-left: 44px;
+    }
+    .level-4 {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 6px;
+        color: #8fb0ff;
+        font-size: 12px;
+        position: relative;
+        border-radius: 3px;
+        transition: background .18s ease;
+    }
+    .level-4::before {
+        content: "○";
+        color: #5b8dff;
+        font-size: 10px;
+        margin-right: 2px;
+    }
+    .level-4:hover {
+        background: rgba(91,141,255,.13);
+    }
+    .level-4 .del {
+        margin-left: auto;
+        color: #ff7a90;
+        opacity: 0;
+        cursor: pointer;
+        padding: 0 4px;
+    }
+    .level-4:hover .del { opacity: 1; }
+    .modified-tag {
+        background: #ff9048;
+        color: #fff;
+        font-size: 10px;
+        line-height: 1;
+        padding: 2px 5px;
+        border-radius: 8px;
+        margin-left: 4px;
+    }
+    .deleted-tag {
+        background: #f56c6c;
+        color: #fff;
+        font-size: 10px;
+        line-height: 1;
+        padding: 2px 5px;
+        border-radius: 8px;
+        margin-left: 4px;
+    }
+    .add-level4 {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin: 4px 0 8px 44px;
+        color: #5b8dff;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 3px 6px;
+        border: 1px dashed rgba(91,141,255,.5);
+        border-radius: 3px;
+        background: rgba(91,141,255,.05);
+    }
+    .add-level4:hover {
+        background: rgba(91,141,255,.15);
+    }
+    .space-stat {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(120,150,220,.2);
+        color: #8fb0ff;
+        font-size: 12px;
+    }
+    .space-stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .bottom-actions {
+        position: fixed;
+        right: 18px;
+        bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 40;
+        background: rgba(255,255,255,.9);
+        padding: 6px 0 6px 12px;
+        border-radius: 8px;
+    }
+
+    /* 详情页 */
+    .detail-header {
+        height: 46px;
+        background: #fff;
+        border-bottom: 1px solid #ebeef5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+    .detail-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+        color: #303133;
+    }
+    .status-dot {
+        width: 5px;
+        height: 5px;
+        background: var(--orange);
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .detail-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 250px;
+        min-height: calc(100vh - 46px);
+        background: #fff;
+    }
+    .detail-main {
+        padding: 14px 16px 70px;
+        border-right: 1px solid #ebeef5;
+        min-width: 0;
+    }
+    .detail-side {
+        padding: 16px 14px;
+        background: #fff;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 90px minmax(0, 1fr) 90px minmax(0, 1fr);
+        row-gap: 16px;
+        column-gap: 8px;
+        max-width: 760px;
+        margin-bottom: 22px;
+    }
+    .info-label {
+        color: #606266;
+    }
+    .info-value {
+        color: #303133;
+    }
+    .mini-tag {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 7px;
+        border-radius: 4px;
+        font-size: 12px;
+        background: #f4f4f5;
+        color: #606266;
+    }
+    .mini-tag.orange {
+        color: var(--orange);
+        background: #fff4ea;
+    }
+    .mini-tag.blue {
+        color: var(--blue);
+        background: #ecf5ff;
+    }
+    .mini-tag.green {
+        color: var(--green);
+        background: #f0f9eb;
+    }
+    .mini-tag.red {
+        color: var(--red);
+        background: #fef0f0;
+    }
+    .archive-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-bottom: 16px;
+    }
+    .archive-table th,
+    .archive-table td {
+        border: 1px solid #ebeef5;
+        padding: 10px;
+        text-align: center;
+        line-height: 1.55;
+        word-break: break-all;
+    }
+    .archive-table th {
+        background: #fafafa;
+        color: #303133;
+        font-weight: 500;
+    }
+    .archive-table td:first-child {
+        background: #fafafa;
+        color: #303133;
+        width: 30%;
+    }
+    .after-value {
+        color: var(--orange);
+        font-weight: 600;
+    }
+    .diff-negative {
+        display: inline-flex;
+        align-items: center;
+        color: #f56c6c;
+        background: #fef0f0;
+        border-radius: 3px;
+        padding: 1px 4px;
+        margin-left: 4px;
+        font-size: 11px;
+    }
+    .detail-space-compare {
+        border: 1px solid #ebeef5;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 12px;
+    }
+    .compare-header {
+        height: 40px;
+        background: #fafafa;
+        border-bottom: 1px solid #ebeef5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+    }
+    .compare-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+    .compare-col {
+        min-height: 320px;
+        padding: 14px;
+        background: #fff;
+    }
+    .compare-col + .compare-col {
+        border-left: 1px solid #ebeef5;
+    }
+    .compare-col-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        color: #606266;
+        font-weight: 600;
+    }
+    .plain-tree {
+        font-size: 13px;
+        line-height: 1.9;
+    }
+    .plain-floor {
+        font-weight: 600;
+        color: #303133;
+        margin-top: 6px;
+    }
+    .plain-l2 { padding-left: 16px; color: #606266; }
+    .plain-l3 { padding-left: 32px; color: #606266; }
+    .plain-l4 { padding-left: 50px; color: #909399; }
+    .plain-l4.added {
+        color: var(--green);
+        background: #f0f9eb;
+        border-radius: 4px;
+    }
+    .plain-l4.deleted {
+        color: var(--red);
+        text-decoration: line-through;
+        background: #fef0f0;
+        border-radius: 4px;
+    }
+
+    .approval-title {
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 20px;
+    }
+    .flow {
+        position: relative;
+        padding-left: 20px;
+    }
+    .flow::before {
+        content: "";
+        position: absolute;
+        left: 7px;
+        top: 8px;
+        bottom: 14px;
+        width: 1px;
+        background: #e4e7ed;
+    }
+    .flow-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .flow-icon {
+        position: absolute;
+        left: -19px;
+        top: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #c0c4cc;
+        color: #fff;
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+    .flow-item.current .flow-icon {
+        background: var(--orange);
+    }
+    .flow-item.done .flow-icon {
+        background: var(--green);
+    }
+    .flow-name {
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 8px;
+    }
+    .flow-user {
+        color: #606266;
+        margin-bottom: 5px;
+    }
+    .flow-status {
+        color: var(--orange);
+        margin-left: 6px;
+    }
+    .flow-time {
+        color: #909399;
+        font-size: 11px;
+        margin-left: 8px;
+    }
+
+    /* 弹窗 */
+    .modal-mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.48);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 120;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+        width: 540px;
+        max-height: 82vh;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 12px 36px rgba(0,0,0,.18);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: pop .22s ease;
+    }
+    @keyframes pop {
+        from { opacity: 0; transform: translateY(-16px) scale(.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-header {
+        height: 48px;
+        padding: 0 18px;
+        border-bottom: 1px solid #ebeef5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+    .modal-body {
+        padding: 16px 18px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    .modal-footer {
+        border-top: 1px solid #ebeef5;
+        padding: 12px 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    .parent-selector {
+        background: #f7f8fa;
+        padding: 10px 12px;
+        border-radius: 5px;
+        color: #606266;
+        margin-bottom: 12px;
+    }
+    .parent-selector strong { color: var(--orange); }
+    .dict-search {
+        position: relative;
+        margin-bottom: 10px;
+    }
+    .dict-search i {
+        position: absolute;
+        left: 10px;
+        top: 9px;
+        color: #c0c4cc;
+    }
+    .dict-search .input { padding-left: 30px; }
+    .dict-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        padding: 7px 10px;
+        border: 1px solid #f0f0f0;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 6px;
+        transition: all .16s;
+    }
+    .dict-item:hover {
+        background: #fff5ee;
+        border-color: var(--orange);
+    }
+    .dict-item.disabled {
+        opacity: .55;
+        background: #fafafa;
+        cursor: not-allowed;
+    }
+    .dict-code {
+        background: #f0f4ff;
+        color: #5b8dff;
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 3px;
+    }
+    .dict-exist {
+        margin-left: auto;
+        color: #909399;
+        font-size: 12px;
+    }
+
+    .toast {
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        min-width: 210px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        background: #f0f9eb;
+        border: 1px solid #e1f3d8;
+        color: var(--green);
+        z-index: 260;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    .toast.show { display: block; animation: toastIn .2s ease; }
+    .toast.error {
+        color: var(--red);
+        background: #fef0f0;
+        border-color: #fde2e2;
+    }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translate(-50%, -10px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .drawer-mask {
+        position: fixed;
+        inset: 0;
+        display: none;
+        background: rgba(0,0,0,.45);
+        z-index: 100;
+    }
+    .drawer-mask.show { display: block; }
+    .drawer {
+        position: fixed;
+        right: -430px;
+        top: 0;
+        width: 430px;
+        height: 100vh;
+        background: #fff;
+        z-index: 101;
+        transition: right .24s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .drawer.show { right: 0; }
+    .drawer-header {
+        height: 50px;
+        border-bottom: 1px solid #ebeef5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        font-weight: 600;
+    }
+    .drawer-tip {
+        margin: 10px 18px;
+        padding: 8px 10px;
+        background: #fff8ee;
+        border-radius: 5px;
+        color: #e6a23c;
+        font-size: 12px;
+    }
+    .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 18px 20px;
+    }
+    .log-item {
+        position: relative;
+        padding: 13px 0 13px 20px;
+        border-left: 2px solid #f0f0f0;
+    }
+    .log-item::before {
+        content: "";
+        position: absolute;
+        left: -6px;
+        top: 17px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #dcdfe6;
+    }
+    .log-item.new::before {
+        background: var(--orange);
+        border-color: var(--orange);
+        box-shadow: 0 0 0 3px #fff2e6;
+    }
+    .log-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 5px;
+    }
+    .log-time {
+        color: #909399;
+        font-size: 12px;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+    .log-user {
+        color: #606266;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    .log-tag {
+        display: inline-flex;
+        height: 20px;
+        align-items: center;
+        padding: 0 7px;
+        border-radius: 3px;
+        font-size: 11px;
+    }
+    .tag-edit { background: #fff8ee; color: #e6a23c; }
+    .tag-sync { background: #ecf5ff; color: #409eff; }
+    .tag-add { background: #f0f9eb; color: #67c23a; }
+    .log-detail {
+        background: #fafbfc;
+        color: #606266;
+        line-height: 1.7;
+        padding: 8px 10px;
+        border-radius: 5px;
+        margin-top: 7px;
+        font-size: 12px;
+    }
+
+    .fab {
+        position: fixed;
+        right: 24px;
+        bottom: 78px;
+        background: var(--orange);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 24px;
+        box-shadow: 0 4px 14px rgba(250,112,20,.38);
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        z-index: 50;
+    }
+
+    @media (max-width: 1180px) {
+        .archive-layout {
+            grid-template-columns: 1fr;
+        }
+        .space-panel {
+            position: relative;
+            top: 0;
+        }
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+        .detail-side {
+            border-top: 1px solid #ebeef5;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="watermark"></div>
+
+<!-- 原型页面切换 -->
+<div class="prototype-switch">
+    <button id="switchAdd" class="active" onclick="showPage('add')"><i class="fa fa-pencil-square-o"></i> 新增页面</button>
+    <button id="switchDetail" onclick="showPage('detail')"><i class="fa fa-list-alt"></i> 详情页面</button>
+</div>
+
+<!-- ========================= 新增页面 ========================= -->
+<div id="addPage" class="page">
+    <div class="add-header">
+        <div class="add-header-title">新增信息</div>
+        <i class="fa fa-times" style="font-size:18px;color:#606266;cursor:pointer;"></i>
+    </div>
+
+    <div class="add-content">
+        <button class="project-btn" onclick="showToast('已打开项目选择器')">选择项目</button>
+
+        <div class="project-card">
+            <span style="font-size:18px;">😎</span>
+            <strong>【新店】重庆市定店260722163116908</strong>
+            <span class="project-code">(P20260800580)</span>
+            <span style="color:#606266;">项目验收</span>
+        </div>
+
+        <div class="section">
+            <div class="section-title">反馈类型</div>
+            <div class="form-grid-2">
+                <div class="form-item">
+                    <label class="req">工程节点</label>
+                    <select>
+                        <option>工程设计</option>
+                        <option>项目验收</option>
+                        <option>工程施工</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label class="req">问题类型</label>
+                    <select disabled>
+                        <option>基础空间</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label class="req">修改原因</label>
+                    <textarea id="reasonInput" maxlength="200" placeholder="请输入">门店现场确认二层存在卖场区域，需同步更新档案及空间区域层级。</textarea>
+                    <div class="hint" style="text-align:right;"><span id="reasonCount">0</span> / 200</div>
+                </div>
+                <div class="form-item">
+                    <label>附件</label>
+                    <div class="upload-box" onclick="showToast('附件上传组件示意')">
+                        <i class="fa fa-cloud-upload"></i>
+                        <div>拖拽文件、粘贴或 <span class="upload-link">点击上传</span></div>
+                        <div class="hint">支持 .png、.jpg、.jpeg、.pdf 格式，最多上传10个文件</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">档案更新内容</div>
+
+            <div class="archive-layout">
+                <div class="archive-left">
+                    <div class="archive-card">
+                        <div class="section-sub-title">
+                            <span>基础档案字段</span>
+                            <small>沿用当前档案更新新增页结构，空间区域字段在此基础上迭代</small>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-item">
+                                <label class="req">门店版本</label>
+                                <select id="storeVersion">
+                                    <option>第五代门店</option>
+                                    <option selected>第六代门店</option>
+                                    <option>常规新店（新版六代）</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label class="req">营业面积 <span class="orange-hint">（超大型店＞200平方米）</span></label>
+                                <div class="input-unit">
+                                    <input id="businessArea" class="input" value="243.00" oninput="recalcStoreArea()">
+                                    <span class="unit">m²</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="req">是否有仓库</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="hasWarehouse" value="yes" onchange="syncWarehouse()" checked> 是</label>
+                                    <label><input type="radio" name="hasWarehouse" value="no" onchange="syncWarehouse()"> 否</label>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label>店铺面积</label>
+                                <div class="input-unit">
+                                    <input id="storeArea" class="input" value="260.00" disabled>
+                                    <span class="unit">m²</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="req">结构层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
+                                <div class="input-unit">
+                                    <input class="input" value="2.00">
+                                    <span class="unit">m</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="req">开间长度</label>
+                                <div class="input-unit">
+                                    <input class="input" value="1.00">
+                                    <span class="unit">m</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="req">完成面层高 <i class="fa fa-question-circle-o" style="color:#c0c4cc;"></i></label>
+                                <div class="input-unit">
+                                    <input class="input" value="0.00">
+                                    <span class="unit">m</span>
+                                </div>
+                            </div>
+                            <div class="form-item" id="warehouseAreaItem">
+                                <label class="req">仓库面积</label>
+                                <div class="input-unit">
+                                    <input id="warehouseArea" class="input" value="17.00" oninput="recalcStoreArea()">
+                                    <span class="unit">m²</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="archive-card is-highlight">
+                        <div class="switch-line">
+                            <div>
+                                <strong>同步维护空间区域</strong>
+                                <div class="hint">开启后，本次档案更新将同时形成“空间区域变更记录”，审核通过后同步至门店实例。</div>
+                            </div>
+                            <div id="spaceSwitch" class="switch on" onclick="toggleSpaceModule()"></div>
+                        </div>
+
+                        <div id="spaceFormBlock">
+                            <div class="form-grid-3">
+                                <div class="form-item">
+                                    <label class="req">楼层</label>
+                                    <input id="floorCount" class="input" type="number" min="1" max="2" value="2" oninput="updateFloorDynamic()">
+                                    <div class="hint">本期支持1-2层；若门店二层有仓库或卖场，填写2</div>
+                                </div>
+                                <div class="form-item">
+                                    <label class="req">空间更新类型</label>
+                                    <select id="spaceUpdateType">
+                                        <option selected>楼层及空间区域维护</option>
+                                        <option>仅空间区域维护</option>
+                                        <option>仅楼层维护</option>
+                                    </select>
+                                </div>
+                                <div class="form-item">
+                                    <label>更新来源</label>
+                                    <select disabled>
+                                        <option>档案更新单</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="floorDynamicArea" class="floor-dynamic"></div>
+
+                            <div class="hint" style="margin-top:10px;">
+                                <i class="fa fa-info-circle"></i>
+                                规则：当楼层=2且“第2层用途”包含“卖场”时，右侧空间层级自动生成“二层 / 室内空间 / 功能区域、空间要素”，并允许新增四级空间区域。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-panel" id="spacePanel">
+                    <div class="space-header">
+                        <div class="space-title">
+                            <i class="fa fa-cube"></i>
+                            空间层级
+                            <span class="space-sub">(随档案更新同步)</span>
+                        </div>
+                        <div class="space-actions">
+                            <div class="space-btn" title="展开/收起" onclick="toggleAllTree()"><i class="fa fa-arrows-alt"></i></div>
+                            <div class="space-btn" title="刷新" onclick="renderTree();showToast('空间层级已刷新')"><i class="fa fa-refresh"></i></div>
+                        </div>
+                    </div>
+
+                    <div id="tree" class="tree-node"></div>
+
+                    <div class="space-stat">
+                        <div class="space-stat-row">
+                            <span>共计四级项</span>
+                            <span id="cntTotal" style="color:#fff;">0</span>
+                        </div>
+                        <div class="space-stat-row">
+                            <span>本次新增</span>
+                            <span id="cntAdd" style="color:#67c23a;">0</span>
+                        </div>
+                        <div class="space-stat-row">
+                            <span>本次删除</span>
+                            <span id="cntDel" style="color:#ff7a90;">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <button class="btn btn-default">取消</button>
+        <button class="btn btn-primary" onclick="submitArchive()">下一步</button>
+    </div>
+
+    <div class="fab" onclick="openDrawer()"><i class="fa fa-history"></i> 动态记录</div>
+</div>
+
+<!-- ========================= 详情页面 ========================= -->
+<div id="detailPage" class="page hidden-page">
+    <div class="detail-header">
+        <div class="detail-title">
+            <span style="font-size:18px;">😎</span>
+            <span>【新店】重庆市定店260523183552230</span>
+            <span>(P20260500344)</span>
+            <span class="status-dot"></span>
+            <span>审核中</span>
+        </div>
+        <button class="icon-btn" onclick="showPage('add')" title="返回新增页"><i class="fa fa-mail-reply"></i></button>
+    </div>
+
+    <div class="detail-layout">
+        <div class="detail-main">
+            <div class="section">
+                <div class="section-title">基础信息</div>
+                <div class="info-grid">
+                    <div class="info-label">提交人</div>
+                    <div class="info-value">刘思意</div>
+                    <div class="info-label">工程节点</div>
+                    <div class="info-value"><span class="mini-tag orange">项目验收</span></div>
+
+                    <div class="info-label">问题类型</div>
+                    <div class="info-value"><span class="mini-tag">基础空间</span></div>
+                    <div class="info-label">修改原因</div>
+                    <div class="info-value" id="detailReason">门店现场确认二层存在卖场区域，需同步更新档案及空间区域层级。</div>
+
+                    <div class="info-label">附件</div>
+                    <div class="info-value">--</div>
+                    <div class="info-label">空间同步</div>
+                    <div class="info-value"><span class="mini-tag blue">纳入空间区域更新</span></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">档案记录</div>
+                <table class="archive-table">
+                    <thead>
+                        <tr>
+                            <th>信息对比</th>
+                            <th>变更后</th>
+                            <th>原数据</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailDiffBody">
+                        <tr>
+                            <td>营业面积（m²）</td>
+                            <td><span class="after-value">243.00</span></td>
+                            <td>230.00</td>
+                        </tr>
+                        <tr>
+                            <td>店铺面积（m²）</td>
+                            <td><span class="after-value">260.00</span></td>
+                            <td>247.00</td>
+                        </tr>
+                        <tr>
+                            <td>楼层</td>
+                            <td><span class="after-value">2</span></td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>第2层用途</td>
+                            <td><span class="after-value">卖场</span></td>
+                            <td>--</td>
+                        </tr>
+                        <tr>
+                            <td>空间区域层级</td>
+                            <td><span class="mini-tag green">新增 二层空间层级</span></td>
+                            <td>仅一层空间层级</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="detail-space-compare">
+                    <div class="compare-header">
+                        <strong>空间区域变更快照</strong>
+                        <div style="display:flex;gap:8px;">
+                            <span class="mini-tag green">新增：<span id="detailAddCount">0</span></span>
+                            <span class="mini-tag red">删除：<span id="detailDelCount">0</span></span>
+                        </div>
+                    </div>
+                    <div class="compare-body">
+                        <div class="compare-col">
+                            <div class="compare-col-title">
+                                <span>原数据</span>
+                                <span class="mini-tag">门店实例</span>
+                            </div>
+                            <div class="plain-tree" id="beforeTree"></div>
+                        </div>
+                        <div class="compare-col">
+                            <div class="compare-col-title">
+                                <span>变更后</span>
+                                <span class="mini-tag orange">档案更新单</span>
+                            </div>
+                            <div class="plain-tree" id="afterTree"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;">
+                <button class="btn btn-danger" onclick="approve('reject')"><i class="fa fa-times"></i> 驳回</button>
+                <button class="btn btn-success" onclick="approve('pass')"><i class="fa fa-check"></i> 审批通过</button>
+            </div>
+        </div>
+
+        <div class="detail-side">
+            <div class="approval-title">审批流程</div>
+            <div class="flow">
+                <div class="flow-item current" id="flowCurrent">
+                    <div class="flow-icon">1</div>
+                    <div class="flow-name">工程信息负责人审核 <span class="mini-tag orange">或签</span></div>
+                    <div class="flow-user">刘思意 <span class="flow-status">处理中</span></div>
+                    <div class="flow-user">李国文 <span class="flow-status">处理中</span></div>
+                </div>
+                <div class="flow-item done">
+                    <div class="flow-icon"><i class="fa fa-check"></i></div>
+                    <div class="flow-name">填写申请单</div>
+                    <div class="flow-user">刘思意 <span style="color:#67c23a;">提交</span><span class="flow-time">2026-06-08 19:15:46</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增空间区域弹窗 -->
+<div class="modal-mask" id="addModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>新增空间区域</span>
+            <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeAddDialog()"></i>
+        </div>
+        <div class="modal-body">
+            <div class="parent-selector">
+                上级：<span id="modalFloorName">一层</span> / 室内空间 / <strong id="parentName">功能区域</strong>
+            </div>
+            <div class="dict-search">
+                <i class="fa fa-search"></i>
+                <input class="input" id="dictKeyword" placeholder="搜索空间区域字典..." oninput="renderDictList(this.value)">
+            </div>
+            <div class="hint" style="margin-bottom:10px;">
+                <i class="fa fa-info-circle"></i>
+                数据来源：门店维护的空间区域字典；已存在项不可重复选择。
+            </div>
+            <div id="dictList"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" onclick="closeAddDialog()">取消</button>
+            <button class="btn btn-primary" onclick="confirmAdd()">确认新增</button>
+        </div>
+    </div>
+</div>
+
+<!-- 动态抽屉 -->
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">
+        <span>动态</span>
+        <i class="fa fa-times" style="cursor:pointer;color:#909399;" onclick="closeDrawer()"></i>
+    </div>
+    <div class="drawer-tip"><i class="fa fa-info-circle"></i> 2025-12-05 起的项目动态将被完整保留</div>
+    <div class="drawer-body" id="logList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========================= 数据状态 ========================= */
+const initialSpace = {
+    1: {
+        "功能区域": ["收银区", "中岛区", "仓储区", "冷链区", "墙面陈列区", "橱窗区"],
+        "空间要素": ["墙面", "地面", "顶面", "立柱"]
+    }
+};
+
+let state = {
+    spaceEnabled: true,
+    floorCount: 2,
+    floorUsages: { 2: ["卖场"] },
+    spaceTree: JSON.parse(JSON.stringify(initialSpace)),
+    pendingChanges: [],
+    currentFloor: 1,
+    currentParent: "功能区域",
+    currentContainerKey: ""
+};
+
+const dictData = {
+    "功能区域": [
+        { code:"F001", name:"收银区" },
+        { code:"F002", name:"中岛区" },
+        { code:"F003", name:"仓储区" },
+        { code:"F004", name:"冷链区" },
+        { code:"F005", name:"墙面陈列区" },
+        { code:"F006", name:"橱窗区" },
+        { code:"F007", name:"熟食加工区" },
+        { code:"F008", name:"烘焙区" },
+        { code:"F009", name:"休息洽谈区" },
+        { code:"F010", name:"饮品操作区" },
+        { code:"F011", name:"散称区" },
+        { code:"F012", name:"活动堆头区" }
+    ],
+    "空间要素": [
+        { code:"E001", name:"墙面" },
+        { code:"E002", name:"地面" },
+        { code:"E003", name:"顶面" },
+        { code:"E004", name:"立柱" },
+        { code:"E005", name:"门头" },
+        { code:"E006", name:"橱窗" },
+        { code:"E007", name:"过道" },
+        { code:"E008", name:"吊顶" },
+        { code:"E009", name:"楼梯" }
+    ]
+};
+
+let logs = [
+    { time:"2026-08-17 22:23", user:"王鹏", title:"编辑门店信息", tag:"tag-edit", tagText:"门店编辑", detail:"进入档案更新新增页面" },
+    { time:"2026-08-17 14:06", user:"张华", title:"设计审核：通过", tag:"tag-sync", tagText:"工程设计", detail:"工程设计节点审核通过" },
+    { time:"2026-08-16 17:29", user:"李祥", title:"项目确认", tag:"tag-sync", tagText:"项目确认", detail:"项目基础资料已确认" }
+];
+
+/* ========================= 页面切换 ========================= */
+function showPage(type) {
+    document.getElementById("addPage").classList.toggle("hidden-page", type !== "add");
+    document.getElementById("detailPage").classList.toggle("hidden-page", type !== "detail");
+    document.getElementById("switchAdd").classList.toggle("active", type === "add");
+    document.getElementById("switchDetail").classList.toggle("active", type === "detail");
+    if (type === "detail") renderDetail();
+}
+
+/* ========================= 表单动态 ========================= */
+function updateReasonCount() {
+    const input = document.getElementById("reasonInput");
+    document.getElementById("reasonCount").innerText = input.value.length;
+}
+document.getElementById("reasonInput").addEventListener("input", updateReasonCount);
+
+function recalcStoreArea() {
+    const business = parseFloat(document.getElementById("businessArea").value) || 0;
+    const hasWarehouse = document.querySelector("input[name='hasWarehouse']:checked").value === "yes";
+    const warehouse = hasWarehouse ? (parseFloat(document.getElementById("warehouseArea").value) || 0) : 0;
+    document.getElementById("storeArea").value = (business + warehouse).toFixed(2);
+}
+function syncWarehouse() {
+    const hasWarehouse = document.querySelector("input[name='hasWarehouse']:checked").value === "yes";
+    document.getElementById("warehouseAreaItem").style.display = hasWarehouse ? "block" : "none";
+    recalcStoreArea();
+}
+function toggleSpaceModule() {
+    state.spaceEnabled = !state.spaceEnabled;
+    document.getElementById("spaceSwitch").classList.toggle("on", state.spaceEnabled);
+    document.getElementById("spaceFormBlock").style.display = state.spaceEnabled ? "block" : "none";
+    document.getElementById("spacePanel").style.opacity = state.spaceEnabled ? "1" : ".45";
+    showToast(state.spaceEnabled ? "已开启空间区域同步维护" : "已关闭空间区域同步维护");
+}
+function updateFloorDynamic() {
+    let floorVal = parseInt(document.getElementById("floorCount").value, 10);
+    if (isNaN(floorVal) || floorVal < 1) floorVal = 1;
+    if (floorVal > 2) floorVal = 2;
+    document.getElementById("floorCount").value = floorVal;
+    state.floorCount = floorVal;
+
+    if (floorVal < 2) {
+        delete state.floorUsages[2];
+        delete state.spaceTree[2];
+        state.pendingChanges = state.pendingChanges.filter(c => c.floor !== 2);
+    } else {
+        if (!state.floorUsages[2]) state.floorUsages[2] = [];
+    }
+
+    syncSecondFloorTree();
+    renderFloorDynamic();
+    renderTree();
+}
+function renderFloorDynamic() {
+    const container = document.getElementById("floorDynamicArea");
+    if (state.floorCount <= 1) {
+        container.innerHTML = `<div class="hint"><i class="fa fa-info-circle"></i> 当前为单层门店，无需维护二层用途。</div>`;
+        return;
+    }
+
+    const usages = state.floorUsages[2] || [];
+    container.innerHTML = `
+        <div class="floor-line">
+            <div class="floor-label"><span class="req">第2层用途</span></div>
+            <div class="tag-group">
+                <div class="tag ${usages.includes("仓库") ? "selected" : ""}" onclick="toggleFloorUsage(2,'仓库')">仓库</div>
+                <div class="tag ${usages.includes("卖场") ? "selected" : ""}" onclick="toggleFloorUsage(2,'卖场')">卖场</div>
+            </div>
+        </div>
+        ${usages.includes("卖场") ? `
+        <div class="second-floor-area">
+            <div class="form-item" style="max-width:260px;">
+                <label class="req">第二层营业面积</label>
+                <div class="input-unit">
+                    <input class="input" id="secondFloorArea" value="38.00">
+                    <span class="unit">m²</span>
+                </div>
+            </div>
+        </div>` : ""}
+    `;
+}
+function toggleFloorUsage(floor, type) {
+    if (!state.floorUsages[floor]) state.floorUsages[floor] = [];
+    const arr = state.floorUsages[floor];
+    const idx = arr.indexOf(type);
+    if (idx >= 0) {
+        arr.splice(idx, 1);
+    } else {
+        arr.push(type);
+    }
+    syncSecondFloorTree();
+    renderFloorDynamic();
+    renderTree();
+}
+function syncSecondFloorTree() {
+    const hasSecondSales = state.floorCount >= 2 && (state.floorUsages[2] || []).includes("卖场");
+    if (hasSecondSales) {
+        if (!state.spaceTree[2]) {
+            state.spaceTree[2] = { "功能区域": [], "空间要素": [] };
+            state.pendingChanges.push({ type:"addFloor", floor:2, parent:"空间层级", name:"二层 / 室内空间" });
+        }
+    } else {
+        if (state.spaceTree[2]) {
+            delete state.spaceTree[2];
+            state.pendingChanges.push({ type:"deleteFloor", floor:2, parent:"空间层级", name:"二层 / 室内空间" });
+        }
+    }
+}
+
+/* ========================= 空间树 ========================= */
+function renderTree() {
+    const tree = document.getElementById("tree");
+    let html = "";
+
+    Object.keys(state.spaceTree).sort((a,b)=>Number(a)-Number(b)).forEach(floor => {
+        const floorName = floor === "1" ? "一层" : "二层";
+        html += `
+            <div class="level-1" style="${floor !== '1' ? 'margin-top:10px;' : ''}">
+                <i class="fa fa-th-large"></i>${floorName}
+                ${floor === "2" ? '<span class="modified-tag">新增</span>' : ''}
+            </div>
+            <div class="level-2"><i class="fa fa-home"></i>室内空间</div>
+        `;
+
+        ["功能区域", "空间要素"].forEach(parent => {
+            const list = state.spaceTree[floor][parent] || [];
+            html += `
+                <div class="level-3-wrapper">
+                    <div class="level-3"><i class="fa fa-folder-o" style="margin-right:5px;color:#5b8dff;"></i>${parent}</div>
+                    <div class="level-4-container" data-key="${floor}_${parent}">
+                        ${list.map(name => renderLevel4(floor, parent, name)).join("")}
+                    </div>
+                    <div class="add-level4" onclick="openAddDialog(${floor}, '${parent}')">
+                        <i class="fa fa-plus"></i> 新增子级
+                    </div>
+                </div>
+            `;
+        });
+    });
+
+    tree.innerHTML = html || `<div style="color:#8fb0ff;">暂无空间层级</div>`;
+    updateCount();
+}
+function renderLevel4(floor, parent, name) {
+    const isAdd = state.pendingChanges.some(c => c.type === "add" && c.floor == floor && c.parent === parent && c.name === name);
+    return `
+        <div class="level-4">
+            ${name}
+            ${isAdd ? '<span class="modified-tag">新增</span>' : ''}
+            <span class="del" onclick="removeLevel4(${floor}, '${parent}', '${name}')"><i class="fa fa-times-circle"></i></span>
+        </div>
+    `;
+}
+function openAddDialog(floor, parent) {
+    state.currentFloor = floor;
+    state.currentParent = parent;
+    document.getElementById("modalFloorName").innerText = floor === 1 ? "一层" : "二层";
+    document.getElementById("parentName").innerText = parent;
+    document.getElementById("dictKeyword").value = "";
+    renderDictList("");
+    document.getElementById("addModal").classList.add("show");
+}
+function closeAddDialog() {
+    document.getElementById("addModal").classList.remove("show");
+}
+function renderDictList(keyword = "") {
+    const parent = state.currentParent;
+    const floor = String(state.currentFloor);
+    const existed = (state.spaceTree[floor]?.[parent] || []);
+    const list = dictData[parent].filter(d => d.name.includes(keyword));
+
+    document.getElementById("dictList").innerHTML = list.map(d => {
+        const disabled = existed.includes(d.name);
+        return `
+            <label class="dict-item ${disabled ? 'disabled' : ''}">
+                <input type="checkbox" value="${d.name}" data-code="${d.code}" ${disabled ? 'disabled' : ''}>
+                <span>${d.name}</span>
+                <span class="dict-code">${d.code}</span>
+                ${disabled ? '<span class="dict-exist">已存在</span>' : ''}
+            </label>
+        `;
+    }).join("");
+}
+function confirmAdd() {
+    const checked = Array.from(document.querySelectorAll("#dictList input:checked"));
+    if (!checked.length) {
+        showToast("请至少选择一项", "error");
+        return;
+    }
+
+    const floor = String(state.currentFloor);
+    const parent = state.currentParent;
+    if (!state.spaceTree[floor]) state.spaceTree[floor] = { "功能区域": [], "空间要素": [] };
+    if (!state.spaceTree[floor][parent]) state.spaceTree[floor][parent] = [];
+
+    checked.forEach(cb => {
+        const name = cb.value;
+        if (!state.spaceTree[floor][parent].includes(name)) {
+            state.spaceTree[floor][parent].push(name);
+            state.pendingChanges.push({ type:"add", floor:Number(floor), parent, name });
+        }
+    });
+
+    addLog({
+        title:"新增空间区域",
+        tag:"tag-add",
+        tagText:"空间层级",
+        detail:`在${floor === "1" ? "一层" : "二层"} / ${parent} 下新增：${checked.map(c => c.value).join("、")}`
+    });
+
+    closeAddDialog();
+    renderTree();
+    showToast(`成功新增 ${checked.length} 项空间区域`);
+}
+function removeLevel4(floor, parent, name) {
+    if (!confirm(`确定删除“${floor === 1 ? "一层" : "二层"} / ${parent} / ${name}”吗？`)) return;
+    const list = state.spaceTree[String(floor)][parent];
+    const idx = list.indexOf(name);
+    if (idx >= 0) list.splice(idx, 1);
+
+    const addIdx = state.pendingChanges.findIndex(c => c.type === "add" && c.floor == floor && c.parent === parent && c.name === name);
+    if (addIdx >= 0) {
+        state.pendingChanges.splice(addIdx, 1);
+    } else {
+        state.pendingChanges.push({ type:"delete", floor, parent, name });
+    }
+
+    addLog({
+        title:"删除空间区域",
+        tag:"tag-edit",
+        tagText:"空间层级",
+        detail:`删除${floor === 1 ? "一层" : "二层"} / ${parent} / ${name}`
+    });
+
+    renderTree();
+    showToast(`已删除“${name}”，保存后同步至门店`);
+}
+function toggleAllTree() {
+    document.querySelectorAll(".level-4-container").forEach(c => {
+        c.style.display = c.style.display === "none" ? "block" : "none";
+    });
+}
+function updateCount() {
+    document.getElementById("cntTotal").innerText = document.querySelectorAll(".level-4").length;
+    document.getElementById("cntAdd").innerText = state.pendingChanges.filter(c => c.type === "add" || c.type === "addFloor").length;
+    document.getElementById("cntDel").innerText = state.pendingChanges.filter(c => c.type === "delete" || c.type === "deleteFloor").length;
+}
+
+/* ========================= 提交与详情 ========================= */
+function submitArchive() {
+    if (!document.getElementById("reasonInput").value.trim()) {
+        showToast("请输入修改原因", "error");
+        return;
+    }
+    if (state.spaceEnabled && state.floorCount >= 2 && (state.floorUsages[2] || []).length === 0) {
+        showToast("请选择第2层用途", "error");
+        return;
+    }
+
+    addLog({
+        title:"提交档案更新单",
+        tag:"tag-sync",
+        tagText:"档案更新",
+        detail:`提交基础空间档案更新；${state.spaceEnabled ? "已纳入空间区域维护" : "未纳入空间区域维护"}`
+    });
+
+    showToast("提交成功，已进入详情审核页");
+    setTimeout(() => showPage("detail"), 700);
+}
+function renderDetail() {
+    document.getElementById("detailReason").innerText = document.getElementById("reasonInput").value || "--";
+
+    const businessArea = document.getElementById("businessArea").value || "243.00";
+    const storeArea = document.getElementById("storeArea").value || "260.00";
+    const usages = (state.floorUsages[2] || []).join("、") || "--";
+    const addCount = state.pendingChanges.filter(c => c.type === "add" || c.type === "addFloor").length;
+    const delCount = state.pendingChanges.filter(c => c.type === "delete" || c.type === "deleteFloor").length;
+
+    document.getElementById("detailDiffBody").innerHTML = `
+        <tr>
+            <td>门店版本</td>
+            <td><span class="after-value">${document.getElementById("storeVersion").value}</span></td>
+            <td>第五代门店</td>
+        </tr>
+        <tr>
+            <td>营业面积（m²）</td>
+            <td><span class="after-value">${businessArea}</span></td>
+            <td>230.00</td>
+        </tr>
+        <tr>
+            <td>店铺面积（m²）</td>
+            <td><span class="after-value">${storeArea}</span></td>
+            <td>247.00</td>
+        </tr>
+        <tr>
+            <td>楼层</td>
+            <td><span class="after-value">${state.floorCount}</span>${state.floorCount === 2 ? '<span class="diff-negative" style="color:#67c23a;background:#f0f9eb;">+1</span>' : ''}</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>第2层用途</td>
+            <td><span class="after-value">${usages}</span></td>
+            <td>--</td>
+        </tr>
+        <tr>
+            <td>空间区域层级</td>
+            <td>
+                <span class="mini-tag green">新增 ${addCount}</span>
+                <span class="mini-tag red">删除 ${delCount}</span>
+            </td>
+            <td>仅一层空间层级</td>
+        </tr>
+    `;
+
+    document.getElementById("detailAddCount").innerText = addCount;
+    document.getElementById("detailDelCount").innerText = delCount;
+    renderPlainTree();
+}
+function renderPlainTree() {
+    document.getElementById("beforeTree").innerHTML = plainTreeHTML(initialSpace, "before");
+    document.getElementById("afterTree").innerHTML = plainTreeHTML(state.spaceTree, "after");
+}
+function plainTreeHTML(treeData, mode) {
+    let html = "";
+    Object.keys(treeData).sort((a,b)=>Number(a)-Number(b)).forEach(floor => {
+        const floorName = floor === "1" ? "一层" : "二层";
+        const isNewFloor = mode === "after" && floor === "2" && !initialSpace[2];
+        html += `<div class="plain-floor">${isNewFloor ? '<span class="mini-tag green">新增</span> ' : ''}<i class="fa fa-th-large"></i> ${floorName}</div>`;
+        html += `<div class="plain-l2"><i class="fa fa-home"></i> 室内空间</div>`;
+
+        ["功能区域", "空间要素"].forEach(parent => {
+            html += `<div class="plain-l3"><i class="fa fa-folder-o"></i> ${parent}</div>`;
+            const list = treeData[floor][parent] || [];
+            if (!list.length) {
+                html += `<div class="plain-l4">--</div>`;
+            } else {
+                list.forEach(name => {
+                    const added = mode === "after" && state.pendingChanges.some(c => c.type === "add" && String(c.floor) === String(floor) && c.parent === parent && c.name === name);
+                    html += `<div class="plain-l4 ${added ? 'added' : ''}">${added ? '+ ' : ''}${name}</div>`;
+                });
+            }
+
+            if (mode === "before") {
+                state.pendingChanges
+                    .filter(c => c.type === "delete" && String(c.floor) === String(floor) && c.parent === parent)
+                    .forEach(c => {
+                        html += `<div class="plain-l4 deleted">- ${c.name}</div>`;
+                    });
+            }
+        });
+    });
+    return html;
+}
+function approve(type) {
+    if (type === "pass") {
+        document.getElementById("flowCurrent").classList.remove("current");
+        document.getElementById("flowCurrent").classList.add("done");
+        document.getElementById("flowCurrent").querySelector(".flow-icon").innerHTML = '<i class="fa fa-check"></i>';
+        document.querySelectorAll(".flow-status").forEach(el => {
+            el.innerText = "通过";
+            el.style.color = "#67c23a";
+        });
+        addLog({
+            title:"档案更新审核通过",
+            tag:"tag-sync",
+            tagText:"审批流程",
+            detail:"基础空间档案及空间区域层级变更已审核通过，待同步门店实例。"
+        });
+        showToast("审批通过，空间区域将同步至门店实例");
+    } else {
+        addLog({
+            title:"档案更新被驳回",
+            tag:"tag-edit",
+            tagText:"审批流程",
+            detail:"审核人驳回了本次档案更新，请修改后重新提交。"
+        });
+        showToast("已驳回", "error");
+    }
+}
+
+/* ========================= 动态记录 ========================= */
+function addLog(item) {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, "0");
+    const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    logs.unshift({ time, user:"王鹏", isNew:true, ...item });
+    renderLogs();
+}
+function renderLogs() {
+    document.getElementById("logList").innerHTML = logs.map(l => `
+        <div class="log-item ${l.isNew ? 'new' : ''}">
+            <div class="log-title">
+                <span>${l.title}</span>
+                <span class="log-time">${l.time}</span>
+            </div>
+            <div class="log-user">${l.user}</div>
+            <span class="log-tag ${l.tag}">${l.tagText}</span>
+            ${l.detail ? `<div class="log-detail">${l.detail}</div>` : ""}
+        </div>
+    `).join("");
+    setTimeout(() => logs.forEach(l => l.isNew = false), 1000);
+}
+function openDrawer() {
+    document.getElementById("drawer").classList.add("show");
+    document.getElementById("drawerMask").classList.add("show");
+    renderLogs();
+}
+function closeDrawer() {
+    document.getElementById("drawer").classList.remove("show");
+    document.getElementById("drawerMask").classList.remove("show");
+}
+
+/* ========================= Toast ========================= */
+function showToast(msg, type = "") {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.className = "toast show " + type;
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => t.classList.remove("show"), 2300);
+}
+
+/* ========================= 初始化 ========================= */
+function init() {
+    updateReasonCount();
+    syncWarehouse();
+    syncSecondFloorTree();
+    renderFloorDynamic();
+    renderTree();
+    renderLogs();
+
+    /* 默认补充几个二层空间，便于高保真演示 */
+    if (state.spaceTree[2]) {
+        state.spaceTree[2]["功能区域"] = ["收银区", "中岛区"];
+        state.spaceTree[2]["空间要素"] = ["墙面", "地面"];
+        state.pendingChanges.push({ type:"add", floor:2, parent:"功能区域", name:"收银区" });
+        state.pendingChanges.push({ type:"add", floor:2, parent:"功能区域", name:"中岛区" });
+        state.pendingChanges.push({ type:"add", floor:2, parent:"空间要素", name:"墙面" });
+        state.pendingChanges.push({ type:"add", floor:2, parent:"空间要素", name:"地面" });
+        renderTree();
+    }
+}
+init();
+</script>
+</body>
+</html>
