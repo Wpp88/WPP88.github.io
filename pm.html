@@ -1,0 +1,2763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>工程系统 - 万店调改（大改）项目管理</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.full.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.1.0/dist/index.iife.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        body {
+            background: #f5f6f8;
+            color: #333;
+            font-size: 13px;
+        }
+        .top-nav {
+            height: 48px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: #ff6a00;
+            font-size: 16px;
+            margin-right: 40px;
+        }
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #ff6a00;
+            border-radius: 6px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+        }
+        .top-menu {
+            display: flex;
+            gap: 30px;
+        }
+        .top-menu a {
+            color: #666;
+            text-decoration: none;
+            padding: 6px 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .top-menu a.active {
+            color: #ff6a00;
+            font-weight: bold;
+            border-bottom: 2px solid #ff6a00;
+        }
+        .top-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #666;
+        }
+        .tab-bar {
+            background: #fff;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #eee;
+            gap: 2px;
+        }
+        .tab-item {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-item.active {
+            background: #f5f6f8;
+            color: #ff6a00;
+            font-weight: bold;
+        }
+        .tab-item .close {
+            color: #999;
+            font-size: 12px;
+        }
+        .layout {
+            display: flex;
+            height: calc(100vh - 84px);
+        }
+        .sidebar {
+            width: 180px;
+            background: #fff;
+            border-right: 1px solid #eee;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+        .side-item {
+            padding: 10px 20px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .side-item:hover {
+            background: #fff5ee;
+            color: #ff6a00;
+        }
+        .side-item.active {
+            background: #fff5ee;
+            color: #ff6a00;
+            border-left: 3px solid #ff6a00;
+            font-weight: bold;
+        }
+        .side-sub {
+            padding: 8px 20px 8px 42px;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .side-sub:hover,
+        .side-sub.active {
+            color: #ff6a00;
+            background: #fff9f4;
+        }
+        .main {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+        }
+        .filter-card {
+            background: #fff;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 16px;
+            margin-bottom: 10px;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-item label {
+            color: #666;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+        .filter-item input,
+        .filter-item select {
+            flex: 1;
+            height: 30px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 0 8px;
+            font-size: 13px;
+        }
+        .filter-item .tag-input {
+            flex: 1;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            min-height: 30px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+        .tag .x {
+            margin-left: 4px;
+            color: #999;
+            cursor: pointer;
+        }
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .btn {
+            height: 30px;
+            padding: 0 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: #ff6a00;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #e85f00;
+        }
+        .btn-default {
+            background: #fff;
+            border: 1px solid #dcdfe6;
+            color: #666;
+        }
+        .btn-default:hover {
+            color: #ff6a00;
+            border-color: #ff6a00;
+        }
+        .btn-text {
+            background: transparent;
+            color: #ff6a00;
+        }
+        .op-bar {
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .tab-status {
+            display: flex;
+            gap: 22px;
+            padding: 10px 16px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .tab-status .t {
+            color: #666;
+            cursor: pointer;
+            padding-bottom: 6px;
+            font-size: 13px;
+        }
+        .tab-status .t.active {
+            color: #ff6a00;
+            font-weight: bold;
+            border-bottom: 2px solid #ff6a00;
+        }
+        .tab-status .t .num {
+            color: #999;
+            margin-left: 4px;
+        }
+        .table-wrap {
+            background: #fff;
+            border-radius: 0 0 6px 6px;
+            overflow: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #fafafa;
+            color: #666;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 500;
+            white-space: nowrap;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f5f5f5;
+            white-space: nowrap;
+            color: #333;
+        }
+        tr:hover td {
+            background: #fffaf5;
+        }
+        .pcode {
+            color: #666;
+        }
+        .pname {
+            color: #ff6a00;
+            cursor: pointer;
+        }
+        .pname:hover {
+            text-decoration: underline;
+        }
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff5ee;
+            color: #ff6a00;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .brand.zym {
+            background: #fff0f0;
+            color: #e04545;
+        }
+        .brand-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ff6a00;
+            color: #fff;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #52c41a;
+            margin-right: 4px;
+        }
+        .node-tag {
+            color: #ff8800;
+        }
+        .node-tag::before {
+            content: "⚙";
+            margin-right: 2px;
+        }
+        .pred {
+            background: #e6f7ff;
+            color: #1890ff;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: 0 0 6px 6px;
+            color: #666;
+        }
+        .page-btn {
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+        .page-btn.active {
+            background: #ff6a00;
+            color: #fff;
+            border-color: #ff6a00;
+        }
+        .detail-header {
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .detail-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .tag-blue {
+            background: #e6f7ff;
+            color: #1890ff;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .tag-orange {
+            background: #fff5ee;
+            color: #ff6a00;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .tag-red {
+            background: #fff0f0;
+            color: #e04545;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .detail-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .detail-tabs {
+            background: #fff;
+            padding: 0 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 22px;
+            margin-bottom: 12px;
+            border-radius: 6px 6px 0 0;
+        }
+        .detail-tabs .dt {
+            padding: 12px 4px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .detail-tabs .dt.active {
+            color: #ff6a00;
+            font-weight: bold;
+            border-bottom: 2px solid #ff6a00;
+        }
+        .section {
+            background: #fff;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 14px;
+            padding-left: 8px;
+            border-left: 3px solid #ff6a00;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 40px;
+        }
+        .info-item {
+            display: flex;
+            font-size: 13px;
+            line-height: 24px;
+        }
+        .info-item .lb {
+            color: #999;
+            min-width: 140px;
+        }
+        .info-item .vl {
+            color: #333;
+        }
+        .info-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px 24px;
+        }
+        .info-block .lb {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .info-block .vl {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .timeline {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            padding: 20px 0 10px;
+        }
+        .tl-node {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            position: relative;
+        }
+        .tl-day {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .tl-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        .tl-circle.current {
+            background: #ff6a00;
+            box-shadow: 0 0 0 4px rgba(255, 106, 0, 0.2);
+        }
+        .tl-circle.done {
+            background: #ff6a00;
+        }
+        .tl-line {
+            position: absolute;
+            top: calc(50% + 6px);
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        .tl-line.active {
+            background: #ff6a00;
+        }
+        .tl-node:last-child .tl-line {
+            display: none;
+        }
+        .tl-name {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .tl-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .node-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .node-table th {
+            background: #fafafa;
+            padding: 10px 12px;
+            text-align: left;
+            color: #666;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        .node-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+        }
+        .node-table td a {
+            color: #ff6a00;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .badge-green {
+            background: #f0f9eb;
+            color: #67c23a;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        .gp-toolbar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .gp-toolbar .cnt {
+            color: #999;
+            font-size: 12px;
+        }
+        .gp-table th {
+            background: #fdf5eb;
+            color: #a15c00;
+        }
+        .gp-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .gp-y {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+        .gp-n {
+            background: #ffebee;
+            color: #e04545;
+        }
+        .gp-neutral {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .gp-name-link {
+            color: #ff6a00;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .gp-name-link:hover {
+            text-decoration: underline;
+        }
+        .sub-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+        }
+        .sub-tab {
+            padding: 10px 20px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .sub-tab.active {
+            color: #ff6a00;
+            font-weight: bold;
+            border-bottom-color: #ff6a00;
+        }
+        .upgrade-panel .upgrade-block {
+            margin-bottom: 20px;
+        }
+        .upgrade-block-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-left: 8px;
+            border-left: 3px solid #ff6a00;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .upgrade-block-title .src {
+            font-size: 12px;
+            color: #999;
+            font-weight: normal;
+        }
+        .upgrade-body {
+            background: #fafbfc;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            padding: 16px 20px;
+        }
+        .upgrade-body.compare-body {
+            background: #fffdf5;
+            border-color: #ffe4a8;
+        }
+        .compare-tip {
+            color: #e04545;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .file-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f5f7fa;
+            border: 1px solid #e0e5eb;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: #333;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .file-chip:hover {
+            border-color: #ff6a00;
+            color: #ff6a00;
+        }
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99;
+        }
+        .modal-mask.show {
+            display: flex;
+        }
+        .modal {
+            background: #fff;
+            width: 820px;
+            max-height: 85vh;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-foot {
+            padding: 12px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .form-row label {
+            color: #666;
+            text-align: right;
+        }
+        .form-row label .req {
+            color: #e04545;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .form-row textarea {
+            height: 60px;
+            padding: 6px 8px;
+        }
+        .radio-group {
+            text-align: left;
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 16px;
+            text-align: left;
+        }
+        .hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .section-sub-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 14px 0 8px;
+            padding-left: 6px;
+            border-left: 3px solid #ff6a00;
+        }
+        .drawer-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+            z-index: 100;
+        }
+        .drawer-mask.show {
+            display: block;
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -880px;
+            width: 860px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, .1);
+            z-index: 101;
+            transition: right .3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .drawer.show {
+            right: 0;
+        }
+        .drawer-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .drawer-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .drawer-close {
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+            padding: 4px 8px;
+        }
+        .drawer-close:hover {
+            color: #333;
+        }
+        .drawer-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+            background: #fafbfc;
+        }
+        .drawer-block {
+            background: #fff;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border: 1px solid #f0f0f0;
+        }
+        .drawer-block-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 14px;
+            padding-left: 8px;
+            border-left: 3px solid #ff6a00;
+        }
+        .drawer-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 30px;
+            font-size: 13px;
+        }
+        .drawer-info-item {
+            display: flex;
+            line-height: 24px;
+        }
+        .drawer-info-item .lb {
+            color: #999;
+            min-width: 100px;
+        }
+        .compare-group {
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #fafbfc;
+        }
+        .compare-group-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 13px;
+        }
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        .compare-side .side-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .side-label.before {
+            color: #e04545;
+        }
+        .side-label.after {
+            color: #52c41a;
+        }
+        .compare-imgs {
+            display: flex;
+            gap: 6px;
+        }
+        .compare-img {
+            flex: 1;
+            height: 88px;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 11px;
+            position: relative;
+            overflow: hidden;
+        }
+        .compare-img.before-bg {
+            background: linear-gradient(135deg, #ffe4e4, #ffd0d0);
+            color: #c04545;
+        }
+        .compare-img.after-bg {
+            background: linear-gradient(135deg, #e4f5e4, #d0e8d0);
+            color: #458c45;
+        }
+        .arrow {
+            text-align: center;
+            color: #ff6a00;
+            font-size: 22px;
+        }
+        .eva-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .eva-table th {
+            background: #fafafa;
+            padding: 8px 10px;
+            text-align: left;
+            color: #666;
+            font-weight: 500;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .eva-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .collab-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #fff5ee;
+            color: #ff6a00;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 0 6px 6px 0;
+            border: 1px solid #ffd8b8;
+        }
+        .judge-block {
+            background: #fffbf0;
+            border: 1px solid #ffe4a8;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-top: 10px;
+        }
+        .judge-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .judge-row:last-child {
+            margin-bottom: 0;
+        }
+        .judge-label {
+            color: #666;
+            min-width: 100px;
+        }
+        .compare-field-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+        .compare-field-table th {
+            background: #f7f9fc;
+            color: #666;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-bottom: 1px solid #eef1f5;
+            text-align: left;
+            font-size: 12px;
+        }
+        .compare-field-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .compare-field-table .col-field {
+            color: #666;
+            width: 200px;
+        }
+        .compare-field-table .col-orig {
+            color: #333;
+        }
+        .compare-field-table .col-upg {
+            color: #333;
+        }
+        .compare-field-table .col-kc {
+            color: #ff6a00;
+            font-weight: 500;
+        }
+        .compare-field-table .col-kc.diff {
+            background: #fff5ee;
+        }
+        .diff-arrow {
+            color: #e04545;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        .hide {
+            display: none !important;
+        }
+        /* 调改项表格中的原因小字 */
+        .gp-reason {
+            font-size: 11px;
+            color: #999;
+            display: block;
+            margin-top: 2px;
+            max-width: 180px;
+            white-space: normal;
+            word-break: break-all;
+        }
+        /* 弹窗中调改项确认卡片内的三列radio */
+        .kc-three-col {
+            display: grid;
+            grid-template-columns: 90px 1fr 90px 1fr 90px 1fr;
+            gap: 6px 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .kc-three-col>label {
+            color: #666;
+            text-align: right;
+            font-size: 12px;
+        }
+        .kc-three-col .radio-group label {
+            margin-right: 8px;
+            font-size: 12px;
+        }
+        .kc-reason-row {
+            display: grid;
+            grid-template-columns: 90px 1fr;
+            gap: 6px 10px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .kc-reason-row label {
+            color: #999;
+            text-align: right;
+            font-size: 12px;
+        }
+        .kc-reason-row input {
+            height: 26px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 0 6px;
+            font-size: 12px;
+        }
+        #tabPaneInfo .dtv-info-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 1fr;
+            gap: 14px 20px;
+            font-size: 13px;
+        }
+        #tabPaneInfo .dtv-info-grid .label {
+            color: #86909c;
+            text-align: right;
+        }
+        #tabPaneInfo .dtv-info-grid .value {
+            color: #1f2329;
+        }
+        #tabPaneInfo .dtv-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2329;
+            padding-left: 8px;
+            border-left: 3px solid #ff7d00;
+            margin: 20px 0 14px;
+        }
+        #tabPaneInfo .dtv-info-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 14px 0;
+        }
+        #tabPaneInfo .dtv-info-tab {
+            padding: 6px 16px;
+            border: 1px solid #e5e6eb;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #4e5969;
+            cursor: pointer;
+            background: #fff;
+        }
+        #tabPaneInfo .dtv-info-tab.active {
+            background: #fff7e6;
+            color: #ff7d00;
+            border-color: #ff7d00;
+        }
+        #tabPaneInfo .dtv-version-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background: #fafbfc;
+            padding: 10px 14px;
+            border-radius: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #tabPaneInfo .dtv-version-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #tabPaneInfo .dtv-version-tab {
+            padding: 5px 12px;
+            border: 1px solid #e5e6eb;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #fff;
+            color: #4e5969;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #tabPaneInfo .dtv-version-tab.active {
+            background: #e8f3ff;
+            border-color: #165dff;
+            color: #165dff;
+        }
+        #tabPaneInfo .dtv-version-tab .badge {
+            background: #ff7d00;
+            color: white;
+            padding: 0 6px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+        #tabPaneInfo .dtv-compare-btn {
+            padding: 5px 14px;
+            border: 1px solid #ff7d00;
+            color: #ff7d00;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #tabPaneInfo .dtv-compare-btn.active {
+            background: #ff7d00;
+            color: #fff;
+        }
+        #tabPaneInfo .dtv-compare-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        #tabPaneInfo .dtv-compare-column {
+            flex: 1;
+            border: 1px solid #e5e6eb;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+            min-width: 0;
+        }
+        #tabPaneInfo .dtv-compare-col-header {
+            background: linear-gradient(135deg, #f7f8fa, #f2f3f5);
+            padding: 10px 14px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #1f2329;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e6eb;
+        }
+        #tabPaneInfo .dtv-compare-col-header .tag-original {
+            background: #e8f3ff;
+            color: #165dff;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        #tabPaneInfo .dtv-compare-col-header .tag-upgrade {
+            background: #fff7e6;
+            color: #ff7d00;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        #tabPaneInfo .dtv-compare-col-header .time {
+            font-size: 12px;
+            color: #86909c;
+            font-weight: normal;
+        }
+        #tabPaneInfo .dtv-compare-col-body {
+            padding: 14px;
+        }
+        #tabPaneInfo .dtv-compare-info-grid {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 12px 12px;
+            font-size: 13px;
+        }
+        #tabPaneInfo .dtv-compare-info-grid .label {
+            color: #86909c;
+        }
+        #tabPaneInfo .dtv-compare-info-grid .value {
+            color: #1f2329;
+        }
+        #tabPaneInfo .dtv-compare-info-grid .subsection {
+            grid-column: 1/-1;
+            font-weight: 600;
+            color: #1f2329;
+            padding: 8px 0 4px;
+            border-bottom: 1px dashed #e5e6eb;
+        }
+        #tabPaneInfo .dtv-diff {
+            background: #fff9e6;
+            padding: 1px 4px;
+            border-radius: 2px;
+            position: relative;
+        }
+        #tabPaneInfo .dtv-diff.changed {
+            color: #ff7d00;
+            font-weight: 500;
+        }
+        #tabPaneInfo .dtv-diff.added {
+            color: #00b42a;
+            background: #e8ffea;
+        }
+        #tabPaneInfo .dtv-diff.removed {
+            color: #f53f3f;
+            background: #ffece8;
+            text-decoration: line-through;
+        }
+        #tabPaneInfo .dtv-tag-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff2e8;
+            color: #ff7d00;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        #tabPaneInfo .dtv-tag-brand .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ff7d00;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        #tabPaneInfo .dtv-tag-store {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+        #tabPaneInfo .dtv-tag-regular {
+            background: #e8f3ff;
+            color: #165dff;
+        }
+        #tabPaneInfo .dtv-tag-town {
+            background: #e8ffea;
+            color: #00b42a;
+        }
+        #tabPaneInfo .dtv-tag-upgrading {
+            background: #fff7e6;
+            color: #ff7d00;
+        }
+        #tabPaneInfo .dtv-collapse-tip {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #tabPaneInfo .dtv-collapse-tip span {
+            display: inline-block;
+            padding: 6px 20px;
+            background: #f7f8fa;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #4e5969;
+            cursor: pointer;
+        }
+        #tabPaneInfo .dtv-file-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        #tabPaneInfo .dtv-file-table thead {
+            background: #f7f8fa;
+        }
+        #tabPaneInfo .dtv-file-table th {
+            padding: 10px 12px;
+            text-align: left;
+            color: #4e5969;
+            font-weight: 500;
+            background: #f7f8fa;
+        }
+        #tabPaneInfo .dtv-file-table td {
+            padding: 12px;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: none;
+        }
+        #tabPaneInfo .dtv-file-table .link {
+            color: #ff7d00;
+            cursor: pointer;
+        }
+        #tabPaneInfo .dtv-file-table .version-num {
+            color: #f53f3f;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        #tabPaneInfo .dtv-media-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        #tabPaneInfo .dtv-media-tree {
+            width: 220px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            padding: 10px;
+            max-height: 600px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        #tabPaneInfo .dtv-tree-item {
+            padding: 6px 8px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #tabPaneInfo .dtv-tree-item:hover {
+            background: #f5f7fa;
+        }
+        #tabPaneInfo .dtv-tree-item.active {
+            color: #ff7d00;
+            font-weight: 500;
+        }
+        #tabPaneInfo .dtv-tree-item .caret {
+            width: 12px;
+            font-size: 10px;
+            color: #86909c;
+        }
+        #tabPaneInfo .dtv-tree-item.sub {
+            padding-left: 24px;
+        }
+        #tabPaneInfo .dtv-tree-item.sub2 {
+            padding-left: 40px;
+        }
+        #tabPaneInfo .dtv-media-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            align-content: start;
+        }
+        #tabPaneInfo .dtv-media-item {
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f7f8fa;
+            aspect-ratio: 1;
+        }
+        #tabPaneInfo .dtv-media-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #tabPaneInfo .dtv-media-item .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c9cdd4;
+            font-size: 24px;
+        }
+        #tabPaneInfo .dtv-equip-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        #tabPaneInfo .dtv-equip-table th {
+            background: #f7f8fa;
+            padding: 10px;
+            text-align: left;
+            color: #4e5969;
+            font-weight: 500;
+        }
+        #tabPaneInfo .dtv-equip-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        #tabPaneInfo .dtv-equip-table .link {
+            color: #165dff;
+            cursor: pointer;
+        }
+        #tabPaneInfo .dtv-sub-tab-bar {
+            display: flex;
+            gap: 8px;
+            margin: 14px 0;
+        }
+        #tabPaneInfo .dtv-sub-tab {
+            padding: 5px 14px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #4e5969;
+            cursor: pointer;
+        }
+        #tabPaneInfo .dtv-sub-tab.active {
+            border-color: #ff7d00;
+            color: #ff7d00;
+        }
+        #tabPaneInfo .dtv-space-section {
+            margin-bottom: 18px;
+        }
+        #tabPaneInfo .dtv-space-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1f2329;
+            margin-bottom: 10px;
+            padding-left: 6px;
+            border-left: 3px solid #ff7d00;
+        }
+        #tabPaneInfo .dtv-diff-badge {
+            display: inline-block;
+            padding: 0 5px;
+            margin-left: 6px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        #tabPaneInfo .dtv-diff-badge.changed {
+            background: #fff7e6;
+            color: #ff7d00;
+        }
+        #tabPaneInfo .dtv-diff-badge.new {
+            background: #e8ffea;
+            color: #00b42a;
+        }
+        #tabPaneInfo .dtv-empty-tip {
+            color: #c9cdd4;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+        #tabPaneInfo .dtv-compare-select-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            background: #f7f8fa;
+            border-radius: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #tabPaneInfo .dtv-media-grid-sm {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+        }
+        #tabPaneInfo .dtv-inline-flex {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #tabPaneInfo .dtv-flex-1 {
+            flex: 1;
+        }
+        #tabPaneInfo .dtv-ml-auto {
+            margin-left: auto;
+        }
+        #tabPaneInfo .dtv-gap-8 {
+            gap: 8px;
+        }
+        #tabPaneInfo .dtv-gap-12 {
+            gap: 12px;
+        }
+        #tabPaneInfo .dtv-gap-16 {
+            gap: 16px;
+        }
+        #tabPaneInfo .dtv-text-sm {
+            font-size: 13px;
+        }
+        #tabPaneInfo .dtv-text-xs {
+            font-size: 12px;
+        }
+        #tabPaneInfo .dtv-color-muted {
+            color: #86909c;
+        }
+        #tabPaneInfo .dtv-color-dark {
+            color: #1f2329;
+        }
+        #tabPaneInfo .dtv-mb-4 {
+            margin-bottom: 4px;
+        }
+        #tabPaneInfo .dtv-mb-8 {
+            margin-bottom: 8px;
+        }
+        #tabPaneInfo .dtv-mb-12 {
+            margin-bottom: 12px;
+        }
+        #tabPaneInfo .dtv-mb-16 {
+            margin-bottom: 16px;
+        }
+        #tabPaneInfo .dtv-mb-20 {
+            margin-bottom: 20px;
+        }
+        #tabPaneInfo .dtv-mt-8 {
+            margin-top: 8px;
+        }
+        #tabPaneInfo .dtv-mt-10 {
+            margin-top: 10px;
+        }
+        #tabPaneInfo .dtv-mt-12 {
+            margin-top: 12px;
+        }
+        #tabPaneInfo .dtv-mt-20 {
+            margin-top: 20px;
+        }
+        #tabPaneInfo .dtv-p-10 {
+            padding: 10px;
+        }
+        #tabPaneInfo .dtv-p-12 {
+            padding: 12px;
+        }
+        #tabPaneInfo .dtv-p-14 {
+            padding: 14px;
+        }
+        #tabPaneInfo .dtv-p-16 {
+            padding: 16px;
+        }
+        #tabPaneInfo .dtv-p-20 {
+            padding: 20px;
+        }
+        #tabPaneInfo .dtv-rounded {
+            border-radius: 4px;
+        }
+        #tabPaneInfo .dtv-rounded-6 {
+            border-radius: 6px;
+        }
+        #tabPaneInfo .dtv-bg-light {
+            background: #fafbfc;
+        }
+        #tabPaneInfo .dtv-bg-gray {
+            background: #f7f8fa;
+        }
+        #tabPaneInfo .dtv-border {
+            border: 1px solid #f0f0f0;
+        }
+        #tabPaneInfo .dtv-font-bold {
+            font-weight: 600;
+        }
+        #tabPaneInfo .dtv-cursor-pointer {
+            cursor: pointer;
+        }
+        #tabPaneInfo .dtv-text-orange {
+            color: #ff7d00;
+        }
+        #tabPaneInfo .dtv-text-blue {
+            color: #165dff;
+        }
+        #tabPaneInfo .dtv-text-green {
+            color: #00b42a;
+        }
+        #tabPaneInfo .dtv-text-red {
+            color: #f53f3f;
+        }
+        #tabPaneInfo .dtv-w-full {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部 -->
+    <div class="top-nav">
+        <div class="logo"><span class="logo-icon">M</span>鸣鸣很忙集团</div>
+        <div class="top-menu">
+            <a>工作台</a>
+            <a class="active">工程</a>
+            <a>设置</a>
+        </div>
+        <div class="top-right">
+            <span>☁</span><span>🔔</span><span>👤 王鹏 ▾</span>
+        </div>
+    </div>
+    <div class="tab-bar">
+        <div class="tab-item">🏠 工作台</div>
+        <div class="tab-item">项目大盘</div>
+        <div class="tab-item active" id="tabList">项目列表 <span class="close">×</span></div>
+        <div class="tab-item hide" id="tabDetail">项目详情 <span class="close" onclick="showList(event)">×</span></div>
+    </div>
+    <div class="layout">
+        <!-- 侧边 -->
+        <div class="sidebar">
+            <div class="side-item">📊 工程大盘</div>
+            <div class="side-item active">📁 项目管理 ▾</div>
+            <div class="side-sub active">项目列表</div>
+            <div class="side-sub">异常监测</div>
+            <div class="side-sub">工单管理</div>
+            <div class="side-sub">档案更新</div>
+            <div class="side-item">📍 线下勘场 ▾</div>
+            <div class="side-item">🎨 设计中心 ▾</div>
+            <div class="side-item">💰 工程造价 ▾</div>
+            <div class="side-item">🔍 施工巡检 ▾</div>
+            <div class="side-item">✅ 项目验收 ▾</div>
+            <div class="side-item">📋 工程档案 ▾</div>
+            <div class="side-item">📅 物资预报 ▾</div>
+            <div class="side-item">🔄 工程回访 ▾</div>
+            <div class="side-item">🤝 合作商管理 ▾</div>
+            <div class="side-item">🏪 资产管理 ▾</div>
+            <div class="side-item">👥 审核中心 ▾</div>
+            <div class="side-item">⚙ 系统设置 ▾</div>
+        </div>
+        <!-- 主体 -->
+        <div class="main">
+            <!-- 项目列表页 -->
+            <div id="listPage">
+                <div class="filter-card">
+                    <div class="filter-row">
+                        <div class="filter-item"><label>项目信息</label><input placeholder="编号/项目名称"></div>
+                        <div class="filter-item"><label>门店信息</label><input placeholder="编号/门店名称"></div>
+                        <div class="filter-item"><label>项目状态</label><select><option>请选择项目状态</option></select></div>
+                        <div class="filter-item"><label>工程类型</label><div class="tag-input"><span class="tag">万店调改（大改）<span class="x">×</span></span></div></div>
+                        <div class="filter-item"><label>所属品牌</label><select><option>请选择所属品牌</option></select></div>
+                        <div class="filter-item"><label>工程监理</label><input placeholder="请输入工程监理"></div>
+                        <div class="filter-item"><label>工程支持</label><input placeholder="请输入工程支持"></div>
+                        <div class="filter-item"><label>区域信息</label><select><option>请选择区域信息</option></select></div>
+                        <div class="filter-item"><label>工程节点</label><select><option>请选择工程节点</option></select></div>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-text">▲ 收起</button>
+                        <button class="btn btn-primary">搜索</button>
+                        <button class="btn btn-default">重置</button>
+                        <button class="btn btn-text">更多筛选</button>
+                    </div>
+                </div>
+                <div class="op-bar">
+                    <button class="btn btn-default" disabled>指派任务</button>
+                    <button class="btn btn-default" disabled>更换监理</button>
+                    <button class="btn btn-default">导出</button>
+                </div>
+                <div class="tab-status">
+                    <div class="t">全部 <span class="num">(429)</span></div>
+                    <div class="t">待分配 <span class="num">(0)</span></div>
+                    <div class="t">待确认 <span class="num">(0)</span></div>
+                    <div class="t active">进行中 <span class="num">(252)</span></div>
+                    <div class="t">已完成 <span class="num">(138)</span></div>
+                    <div class="t">暂停中 <span class="num">(7)</span></div>
+                    <div class="t">已终止 <span class="num">(32)</span></div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>项目编号</th><th>项目名称</th><th>所属品牌</th>
+                                <th>区域地址</th><th>项目状态</th><th>工程节点</th>
+                                <th>项目工期</th><th>项目工时</th>
+                                <th>工程监理</th><th>工程支持</th>
+                                <th>开始时间</th><th>结束时间</th><th>创建时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <span>共 252 条</span>
+                    <select style="height:28px;border:1px solid #dcdfe6;border-radius:4px;padding:0 6px;"><option>20条/页</option></select>
+                    <button class="page-btn">&lt;</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">6</button>
+                    <span>...</span>
+                    <button class="page-btn">13</button>
+                    <button class="page-btn">&gt;</button>
+                </div>
+            </div>
+            <!-- 项目详情页 -->
+            <div id="detailPage" class="hide">
+                <div class="detail-header">
+                    <span class="brand"><span class="brand-dot">赵</span>赵一鸣</span>
+                    <span class="detail-title">【万店调改（大改）】南昌安义中学店 (P20260404126)</span>
+                    <span class="tag-blue">● 线下勘场中</span>
+                    <span class="tag-orange">工程周期 22天</span>
+                    <span class="tag-red">调改清单 v2.0 已锁定</span>
+                    <div class="detail-actions">
+                        <button class="icon-btn" title="布局">⚏</button>
+                        <button class="icon-btn" title="预览">👁</button>
+                        <button class="icon-btn" title="评论">💬</button>
+                        <button class="icon-btn" title="成员">👤</button>
+                        <button class="icon-btn">…</button>
+                        <button class="icon-btn" onclick="showList()">↩</button>
+                    </div>
+                </div>
+                <div class="detail-tabs">
+                    <div class="dt active" data-tab="overview" onclick="switchDetailTab('overview')">项目概览</div>
+                    <div class="dt" data-tab="info" onclick="switchDetailTab('info')">详细信息</div>
+                    <div class="dt" data-tab="gp" onclick="switchDetailTab('gp')">调改清单</div>
+                </div>
+                <!-- 项目概览 Tab -->
+                <div id="tabPaneOverview">
+                    <div class="section">
+                        <div class="section-title">基础信息</div>
+                        <div class="info-grid">
+                            <div class="info-item"><span class="lb">区域地址</span><span class="vl">江西省南昌市安义县前进大道620号一楼</span></div>
+                            <div class="info-item"><span class="lb">项目工期</span><span class="vl">120天 ⓘ</span></div>
+                            <div class="info-item"><span class="lb">项目工时</span><span class="vl">119天</span></div>
+                            <div class="info-item"><span class="lb">标准工期</span><span class="vl">29天</span></div>
+                            <div class="info-item"><span class="lb">工程监理</span><span class="vl">李卓</span></div>
+                            <div class="info-item"><span class="lb">工程支持</span><span class="vl">周靓洁</span></div>
+                            <div class="info-item"><span class="lb">开始时间</span><span class="vl">2026-04-28 15:05</span></div>
+                            <div class="info-item"><span class="lb">结束时间</span><span class="vl">2026-06-10 16:02 <span class="pred">预计</span></span></div>
+                            <div class="info-item"><span class="lb">创建时间</span><span class="vl">2026-04-28 15:05</span></div>
+                            <div class="info-item"><span class="lb">最近编辑</span><span class="vl">2026-08-06 20:37</span></div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">流程节点
+                            <span style="font-size:12px;font-weight:normal;">
+                                <button class="btn btn-text">项目周期</button>
+                                <button class="btn btn-text">工程周期</button>
+                            </span>
+                        </div>
+                        <div class="timeline" id="timeline"></div>
+                        <table class="node-table">
+                            <thead><tr><th>节点名称</th><th>状态</th><th>风险标签</th><th>节点工期</th><th>节点工时</th><th>标准工期</th><th>开始时间</th><th>结束时间</th><th>负责人</th></tr></thead>
+                            <tbody id="nodeBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">项目人员</div>
+                        <table class="node-table">
+                            <thead><tr><th>负责人</th><th>岗位名称</th><th>组织信息</th><th>工期耗时</th><th>执行工作</th></tr></thead>
+                            <tbody>
+                                <tr><td>李卓</td><td>工程监理</td><td>区域工程部</td><td>15天48小时</td><td>线下勘场,勘场定稿,工程施工,施工巡检,项目验收</td></tr>
+                                <tr><td>戴佳栩</td><td>工程设计</td><td>工程设计组</td><td>6天19小时</td><td>工程设计</td></tr>
+                                <tr><td>赖烨敏</td><td>工程预算</td><td>工程预结算组</td><td>--</td><td>工程预算,工程结算</td></tr>
+                                <tr><td>周靓洁</td><td>工程督察</td><td>工程督察组</td><td>1小时</td><td>项目确认</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">第三方公司 <button class="btn btn-primary" style="height:26px;padding:0 12px;font-size:12px;">编辑</button></div>
+                        <table class="node-table">
+                            <thead><tr><th>公司类型</th><th>公司名称</th><th>业务范围</th><th>装修方式</th><th>公司负责人</th><th>业务负责人</th></tr></thead>
+                            <tbody>
+                                <tr><td>装修一体化</td><td style="color:#ff6a00;">江西大厦建设有限公司</td><td>装修业务</td><td>第三方公司</td><td>彭**</td><td>彭**</td></tr>
+                                <tr><td>装修一体化</td><td style="color:#ff6a00;">江西大厦建设有限公司</td><td>门窗业务</td><td>第三方公司</td><td>彭**</td><td>--</td></tr>
+                                <tr><td>装修一体化</td><td style="color:#ff6a00;">江西大厦建设有限公司</td><td>广告业务</td><td>第三方公司</td><td>彭**</td><td>--</td></tr>
+                                <tr><td>货架第三方</td><td style="color:#ff6a00;">广东好运通创意展示科技有限公司</td><td>货架生产及安装</td><td>第三方公司</td><td>肖**</td><td>肖**</td></tr>
+                                <tr><td>监控第三方</td><td style="color:#ff6a00;">苏州万店掌网络科技有限公司</td><td>监控设计及安装</td><td>第三方公司</td><td>张**</td><td>张**</td></tr>
+                                <tr><td>冷链第三方</td><td style="color:#ff6a00;">青岛海容商用冷链股份有限公司</td><td>冷链业务</td><td>第三方公司</td><td>张**</td><td>--</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- 详细信息 Tab（Vue渲染） -->
+                <div id="tabPaneInfo" class="hide">
+                    <div id="detailInfoApp">
+                        <div class="dtv-section-title">加盟商信息</div>
+                        <div class="dtv-info-grid">
+                            <div class="label">加盟商姓名</div><div class="value">高**</div>
+                            <div class="label">联系方式</div><div class="value">139****9888</div>
+                        </div>
+                        <div class="dtv-section-title dtv-inline-flex" style="display:flex;align-items:center;gap:16px;">门店信息 <span style="font-size:13px;color:#ff7d00;font-weight:normal;cursor:pointer;">选址门店信息</span></div>
+                        <div class="dtv-info-tabs">
+                            <div class="dtv-info-tab" :class="{active:subTab==='base'}" @click="subTab='base'">基础档案</div>
+                            <div class="dtv-info-tab" :class="{active:subTab==='space'}" @click="subTab='space'">空间信息</div>
+                            <div class="dtv-info-tab" :class="{active:subTab==='equip'}" @click="subTab='equip'">门店设施与设备</div>
+                            <div class="dtv-info-tab" :class="{active:subTab==='safe'}" @click="subTab='safe'">安全与保障</div>
+                            <div class="dtv-info-tab" :class="{active:subTab==='cost'}" @click="subTab='cost'">工程费用</div>
+                            <div class="dtv-info-tab" :class="{active:subTab==='upgrade'}" @click="subTab='upgrade'">升级信息</div>
+                        </div>
+                        <div class="dtv-version-bar" v-if="['base','space','equip','file','media'].includes(subTab)">
+                            <div class="dtv-inline-flex dtv-flex-1" style="display:flex;align-items:center;gap:12px;flex:1;">
+                                <span class="dtv-text-sm dtv-color-dark dtv-font-bold"><i class="fa fa-history" style="color:#ff7d00;margin-right:4px;"></i>版本对比</span>
+                                <div class="dtv-version-tabs">
+                                    <div v-for="v in versions" :key="v.id" class="dtv-version-tab" :class="{active:v.id===currentVersion}" @click="switchVersion(v.id)">
+                                        <span>{{v.name}}</span><span class="badge" v-if="v.isLatest">最新</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dtv-compare-btn" :class="{active:compareMode}" @click="compareMode=!compareMode"><i class="fa fa-columns"></i><span>{{compareMode ? '退出对比' : '开启对比'}}</span></div>
+                        </div>
+                        <div v-if="compareMode && ['base','space','equip','file','media'].includes(subTab)" class="dtv-compare-select-row">
+                            <span class="dtv-text-sm dtv-color-muted">对比：</span>
+                            <el-select v-model="leftVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                            <i class="fa fa-arrow-right" style="color:#86909c;"></i>
+                            <el-select v-model="rightVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                            <span class="dtv-text-xs dtv-color-muted dtv-ml-auto"><i class="fa fa-info-circle" style="color:#ff7d00;"></i><span style="background:#fff9e6;padding:1px 6px;border-radius:2px;margin-left:4px;">黄色</span> 为差异内容</span>
+                        </div>
+                        <!-- 基础档案 -->
+                        <div v-if="subTab==='base'">
+                            <div v-if="!compareMode">
+                                <div class="dtv-space-title">基础信息</div>
+                                <div class="dtv-info-grid">
+                                    <div class="label">门店编码</div><div class="value">{{currentData.base.code}}</div>
+                                    <div class="label">门店名称</div><div class="value">{{currentData.base.name}}</div>
+                                    <div class="label">所属品牌</div><div class="value"><span class="dtv-tag-brand"><span class="dot">赵</span>赵一鸣</span></div>
+                                    <div class="label">门店标签</div><div class="value"><span class="dtv-tag-store dtv-tag-regular">🏪 常规新店</span><span class="dtv-tag-store dtv-tag-town">🏘 乡镇门店</span><span class="dtv-tag-store dtv-tag-upgrading">📈 升级中</span></div>
+                                    <div class="label">门店状态</div><div class="value">{{currentData.base.status}}</div>
+                                    <div class="label">经营状态</div><div class="value">{{currentData.base.bizStatus}}</div>
+                                    <div class="label">拓展专员</div><div class="value">{{currentData.base.developer}}</div>
+                                    <div class="label">门店版本</div><div class="value">{{currentData.base.version}}</div>
+                                    <div class="label">门店规模</div><div class="value">{{currentData.base.scale}}</div>
+                                    <div class="label">交铺日期</div><div class="value">{{currentData.base.deliverDate}}</div>
+                                    <div class="label">开业时间</div><div class="value">{{currentData.base.openTime}}</div>
+                                    <div class="label">门店类型</div><div class="value">{{currentData.base.storeType}}</div>
+                                    <div class="label">实际开业日期</div><div class="value">{{currentData.base.actualOpen}}</div>
+                                    <div class="label"></div><div class="value"></div>
+                                </div>
+                                <div class="dtv-space-title dtv-mt-20">位置信息</div>
+                                <div class="dtv-info-grid">
+                                    <div class="label">省市区</div><div class="value">{{currentData.base.region}}</div>
+                                    <div class="label">详细地址</div><div class="value">{{currentData.base.address}}</div>
+                                    <div class="label">GPS定位</div><div class="value">{{currentData.base.gps}}</div>
+                                </div>
+                            </div>
+                            <div v-else class="dtv-compare-container">
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(leftVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(leftVersion).name}}</span></div><span class="time">{{getVersion(leftVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body">
+                                        <div class="dtv-compare-info-grid">
+                                            <div class="subsection">基础信息</div>
+                                            <div class="label">门店编码</div><div class="value">{{getVersion(leftVersion).data.base.code}}</div>
+                                            <div class="label">门店名称</div><div class="value">{{getVersion(leftVersion).data.base.name}}</div>
+                                            <div class="label">所属品牌</div><div class="value"><span class="dtv-tag-brand"><span class="dot">赵</span>赵一鸣</span></div>
+                                            <div class="label">门店标签</div><div class="value" v-html="renderStoreTags(getVersion(leftVersion).data.base.tags, getVersion(rightVersion).data.base.tags)"></div>
+                                            <div class="label">门店状态</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.status, getVersion(rightVersion).data.base.status)">{{getVersion(leftVersion).data.base.status}}</div>
+                                            <div class="label">经营状态</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.bizStatus, getVersion(rightVersion).data.base.bizStatus)">{{getVersion(leftVersion).data.base.bizStatus}}</div>
+                                            <div class="label">拓展专员</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.developer, getVersion(rightVersion).data.base.developer)">{{getVersion(leftVersion).data.base.developer}}</div>
+                                            <div class="label">门店版本</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.version, getVersion(rightVersion).data.base.version)">{{getVersion(leftVersion).data.base.version}}</div>
+                                            <div class="label">门店规模</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.scale, getVersion(rightVersion).data.base.scale)">{{getVersion(leftVersion).data.base.scale}}</div>
+                                            <div class="label">交铺日期</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.deliverDate, getVersion(rightVersion).data.base.deliverDate)">{{getVersion(leftVersion).data.base.deliverDate}}</div>
+                                            <div class="label">开业时间</div><div class="value">{{getVersion(leftVersion).data.base.openTime}}</div>
+                                            <div class="label">门店类型</div><div class="value">{{getVersion(leftVersion).data.base.storeType}}</div>
+                                            <div class="label">实际开业日期</div><div class="value">{{getVersion(leftVersion).data.base.actualOpen}}</div>
+                                            <div class="subsection">位置信息</div>
+                                            <div class="label">省市区</div><div class="value">{{getVersion(leftVersion).data.base.region}}</div>
+                                            <div class="label">详细地址</div><div class="value" :class="diffClass(getVersion(leftVersion).data.base.address, getVersion(rightVersion).data.base.address)">{{getVersion(leftVersion).data.base.address}}</div>
+                                            <div class="label">GPS定位</div><div class="value">{{getVersion(leftVersion).data.base.gps}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(rightVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(rightVersion).name}}</span></div><span class="time">{{getVersion(rightVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body">
+                                        <div class="dtv-compare-info-grid">
+                                            <div class="subsection">基础信息</div>
+                                            <div class="label">门店编码</div><div class="value">{{getVersion(rightVersion).data.base.code}}</div>
+                                            <div class="label">门店名称</div><div class="value">{{getVersion(rightVersion).data.base.name}}</div>
+                                            <div class="label">所属品牌</div><div class="value"><span class="dtv-tag-brand"><span class="dot">赵</span>赵一鸣</span></div>
+                                            <div class="label">门店标签</div><div class="value" v-html="renderStoreTags(getVersion(rightVersion).data.base.tags, getVersion(leftVersion).data.base.tags)"></div>
+                                            <div class="label">门店状态</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.status, getVersion(leftVersion).data.base.status)">{{getVersion(rightVersion).data.base.status}}</div>
+                                            <div class="label">经营状态</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.bizStatus, getVersion(leftVersion).data.base.bizStatus)">{{getVersion(rightVersion).data.base.bizStatus}}</div>
+                                            <div class="label">拓展专员</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.developer, getVersion(leftVersion).data.base.developer)">{{getVersion(rightVersion).data.base.developer}}</div>
+                                            <div class="label">门店版本</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.version, getVersion(leftVersion).data.base.version)">{{getVersion(rightVersion).data.base.version}}</div>
+                                            <div class="label">门店规模</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.scale, getVersion(leftVersion).data.base.scale)">{{getVersion(rightVersion).data.base.scale}}</div>
+                                            <div class="label">交铺日期</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.deliverDate, getVersion(leftVersion).data.base.deliverDate)">{{getVersion(rightVersion).data.base.deliverDate}}</div>
+                                            <div class="label">开业时间</div><div class="value">{{getVersion(rightVersion).data.base.openTime}}</div>
+                                            <div class="label">门店类型</div><div class="value">{{getVersion(rightVersion).data.base.storeType}}</div>
+                                            <div class="label">实际开业日期</div><div class="value">{{getVersion(rightVersion).data.base.actualOpen}}</div>
+                                            <div class="subsection">位置信息</div>
+                                            <div class="label">省市区</div><div class="value">{{getVersion(rightVersion).data.base.region}}</div>
+                                            <div class="label">详细地址</div><div class="value" :class="diffClass(getVersion(rightVersion).data.base.address, getVersion(leftVersion).data.base.address)">{{getVersion(rightVersion).data.base.address}}</div>
+                                            <div class="label">GPS定位</div><div class="value">{{getVersion(rightVersion).data.base.gps}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 空间信息 -->
+                        <div v-if="subTab==='space'">
+                            <div v-if="!compareMode">
+                                <div v-for="sec in currentData.space" :key="sec.title" class="dtv-space-section">
+                                    <div class="dtv-space-title">{{sec.title}}</div>
+                                    <div class="dtv-info-grid">
+                                        <template v-for="(item,idx) in sec.items" :key="idx"><div class="label">{{item.label}}</div><div class="value">{{item.value}}</div></template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="dtv-compare-container">
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(leftVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(leftVersion).name}}</span></div><span class="time">{{getVersion(leftVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body">
+                                        <div v-for="(sec,si) in getVersion(leftVersion).data.space" :key="si"><div class="dtv-space-title" style="font-size:13px;">{{sec.title}}</div>
+                                            <div class="dtv-compare-info-grid dtv-mb-12" style="margin-bottom:12px;">
+                                                <template v-for="(item,idx) in sec.items" :key="idx"><div class="label">{{item.label}}</div><div class="value" :class="diffClass(item.value, getSpaceRight(si, idx))">{{item.value}}</div></template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(rightVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(rightVersion).name}}</span></div><span class="time">{{getVersion(rightVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body">
+                                        <div v-for="(sec,si) in getVersion(rightVersion).data.space" :key="si"><div class="dtv-space-title" style="font-size:13px;">{{sec.title}}</div>
+                                            <div class="dtv-compare-info-grid dtv-mb-12" style="margin-bottom:12px;">
+                                                <template v-for="(item,idx) in sec.items" :key="idx"><div class="label">{{item.label}}</div><div class="value" :class="diffClass(item.value, getSpaceLeft(si, idx))">{{item.value}}</div></template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 门店设施与设备 -->
+                        <div v-if="subTab==='equip'">
+                            <div class="dtv-sub-tab-bar">
+                                <div class="dtv-sub-tab" :class="{active:equipTab==='device'}" @click="equipTab='device'">设备</div>
+                                <div class="dtv-sub-tab" :class="{active:equipTab==='shelf'}" @click="equipTab='shelf'">货架</div>
+                                <div class="dtv-sub-tab" :class="{active:equipTab==='other'}" @click="equipTab='other'">未分类</div>
+                                <div style="margin-left:auto;color:#c9cdd4;font-size:12px;"><i class="fa fa-circle" style="font-size:6px;"></i> 暂无产品解析任务</div>
+                            </div>
+                            <div v-if="!compareMode">
+                                <table class="dtv-equip-table">
+                                    <thead><tr><th>序号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>单位</th><th>商品分类</th><th>规格/型号</th><th>产地品牌</th><th>外形尺寸</th></tr></thead>
+                                    <tbody><tr v-for="(row,idx) in currentData.equip" :key="idx"><td>{{idx+1}}</td><td><span class="link">{{row.code}}</span></td><td><span class="link">{{row.name}}</span></td><td>{{row.qty}}</td><td>{{row.unit}}</td><td>{{row.category}}</td><td>{{row.spec}}</td><td>{{row.brand}}</td><td>{{row.size}}</td></tr></tbody>
+                                </table>
+                            </div>
+                            <div v-else class="dtv-compare-container">
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(leftVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(leftVersion).name}}</span></div><span class="time">{{getVersion(leftVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body" style="padding:0;">
+                                        <table class="dtv-equip-table">
+                                            <thead><tr><th>序号</th><th>商品名称</th><th>数量</th><th>规格/型号</th><th>状态</th></tr></thead>
+                                            <tbody><tr v-for="(row,idx) in getVersion(leftVersion).data.equip" :key="idx" :style="getEquipStyle(row, getVersion(rightVersion).data.equip)"><td>{{idx+1}}</td><td><span class="link">{{row.name}}</span></td><td>{{row.qty}}</td><td>{{row.spec}}</td><td><span :class="getEquipStatusClass(row, getVersion(rightVersion).data.equip)">{{getEquipStatus(row, getVersion(rightVersion).data.equip)}}</span></td></tr></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="dtv-compare-column">
+                                    <div class="dtv-compare-col-header"><div><span :class="getVersion(rightVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(rightVersion).name}}</span></div><span class="time">{{getVersion(rightVersion).time}}</span></div>
+                                    <div class="dtv-compare-col-body" style="padding:0;">
+                                        <table class="dtv-equip-table">
+                                            <thead><tr><th>序号</th><th>商品名称</th><th>数量</th><th>规格/型号</th><th>状态</th></tr></thead>
+                                            <tbody><tr v-for="(row,idx) in getVersion(rightVersion).data.equip" :key="idx" :style="getEquipStyle(row, getVersion(leftVersion).data.equip)"><td>{{idx+1}}</td><td><span class="link">{{row.name}}</span></td><td>{{row.qty}}</td><td>{{row.spec}}</td><td><span :class="getEquipStatusClass(row, getVersion(leftVersion).data.equip)">{{getEquipStatus(row, getVersion(leftVersion).data.equip)}}</span></td></tr></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 安全与保障 -->
+                        <div v-if="subTab==='safe'">
+                            <div class="dtv-space-title">安全类</div>
+                            <div class="dtv-info-grid"><div class="label">门店是否有升降机</div><div class="value">否</div><div class="label">门店是否为有钢结构阁楼</div><div class="value">否</div></div>
+                            <div class="dtv-space-title dtv-mt-20">消防</div>
+                            <div class="dtv-info-grid"><div class="label">是否有消防资质</div><div class="value">否</div></div>
+                        </div>
+                        <!-- 工程费用 -->
+                        <div v-if="subTab==='cost'">
+                            <div class="dtv-space-title">费用信息</div>
+                            <div class="dtv-info-grid">
+                                <div class="label">广告费用(元)</div><div class="value">¥ 128,600.00</div>
+                                <div class="label">装修费用(元)</div><div class="value">¥ 128,600.00</div>
+                                <div class="label">货架费用(元)</div><div class="value">¥ 8,600.00</div>
+                                <div class="label">铝合金门窗及收银台费用(元)</div><div class="value">¥ 0.00</div>
+                                <div class="label">冷链系统费用(元)</div><div class="value">¥ 32,000.00</div>
+                                <div class="label">监控费用(元)</div><div class="value">¥ 6,000.00</div>
+                            </div>
+                        </div>
+                        <!-- 升级信息 -->
+                        <div v-if="subTab==='upgrade'">
+                            <div class="dtv-space-title">升级记录</div>
+                            <el-timeline>
+                                <el-timeline-item v-for="v in versions.filter(x=>x.id!=='original')" :key="v.id" :timestamp="v.time" placement="top" :color="v.isLatest?'#ff7d00':'#86909c'">
+                                    <div style="background:#fafbfc;padding:12px 16px;border-radius:6px;">
+                                        <div style="font-weight:600;margin-bottom:4px;">{{v.name}} <span v-if="v.isLatest" style="background:#ff7d00;color:white;padding:1px 6px;border-radius:8px;font-size:11px;margin-left:6px;">最新</span></div>
+                                        <div style="font-size:13px;color:#4e5969;">{{v.desc}}</div>
+                                    </div>
+                                </el-timeline-item>
+                            </el-timeline>
+                        </div>
+                        <div class="dtv-collapse-tip"><span>收起详情 <i class="fa fa-angle-up"></i></span></div>
+                        <div class="dtv-section-title">项目文件</div>
+                        <div class="dtv-version-bar">
+                            <div class="dtv-inline-flex dtv-flex-1" style="display:flex;align-items:center;gap:12px;flex:1;">
+                                <span class="dtv-text-sm dtv-color-dark dtv-font-bold"><i class="fa fa-history" style="color:#ff7d00;margin-right:4px;"></i>版本对比</span>
+                                <div class="dtv-version-tabs">
+                                    <div v-for="v in versions" :key="v.id" class="dtv-version-tab" :class="{active:v.id===fileVersion}" @click="fileVersion=v.id"><span>{{v.name}}</span><span class="badge" v-if="v.isLatest">最新</span></div>
+                                </div>
+                            </div>
+                            <div class="dtv-compare-btn" :class="{active:fileCompare}" @click="fileCompare=!fileCompare"><i class="fa fa-columns"></i><span>{{fileCompare ? '退出对比' : '开启对比'}}</span></div>
+                        </div>
+                        <div v-if="fileCompare" class="dtv-compare-select-row">
+                            <span class="dtv-text-sm dtv-color-muted">对比：</span>
+                            <el-select v-model="leftVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                            <i class="fa fa-arrow-right" style="color:#86909c;"></i>
+                            <el-select v-model="rightVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                        </div>
+                        <div v-if="!fileCompare">
+                            <table class="dtv-file-table">
+                                <thead><tr><th>文件名称</th><th>文件来源</th><th>版本记录</th><th>最新更新时间</th><th>操作</th></tr></thead>
+                                <tbody><tr v-for="f in getVersion(fileVersion).data.files" :key="f.name"><td>{{f.name}}</td><td>{{f.source}}</td><td><span class="version-num">{{f.version}}</span></td><td>{{f.time}}</td><td><span class="link">查看文件</span></td></tr></tbody>
+                            </table>
+                        </div>
+                        <div v-else class="dtv-compare-container">
+                            <div class="dtv-compare-column">
+                                <div class="dtv-compare-col-header"><div><span :class="getVersion(leftVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(leftVersion).name}}</span></div><span class="time">{{getVersion(leftVersion).time}}</span></div>
+                                <div class="dtv-compare-col-body" style="padding:0;">
+                                    <table class="dtv-file-table">
+                                        <thead><tr><th>文件名称</th><th>版本</th><th>更新时间</th><th>操作</th></tr></thead>
+                                        <tbody><tr v-for="f in getVersion(leftVersion).data.files" :key="f.name"><td>{{f.name}}</td><td><span class="version-num">{{f.version}}</span></td><td>{{f.time}}</td><td><span class="link">查看</span></td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dtv-compare-column">
+                                <div class="dtv-compare-col-header"><div><span :class="getVersion(rightVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(rightVersion).name}}</span></div><span class="time">{{getVersion(rightVersion).time}}</span></div>
+                                <div class="dtv-compare-col-body" style="padding:0;">
+                                    <table class="dtv-file-table">
+                                        <thead><tr><th>文件名称</th><th>版本</th><th>更新时间</th><th>操作</th></tr></thead>
+                                        <tbody><tr v-for="f in getVersion(rightVersion).data.files" :key="f.name" :style="isFileChanged(f, getVersion(leftVersion).data.files) ? 'background:#fff9e6;' : ''"><td>{{f.name}} <span class="dtv-diff-badge changed" v-if="isFileChanged(f, getVersion(leftVersion).data.files)">已更新</span></td><td><span class="version-num">{{f.version}}</span></td><td>{{f.time}}</td><td><span class="link">查看</span></td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dtv-section-title">图片 & 视频</div>
+                        <div class="dtv-version-bar">
+                            <div class="dtv-inline-flex dtv-flex-1" style="display:flex;align-items:center;gap:12px;flex:1;">
+                                <div class="dtv-version-tabs">
+                                    <div v-for="v in versions" :key="v.id" class="dtv-version-tab" :class="{active:v.id===mediaVersion}" @click="mediaVersion=v.id"><span>{{v.name}}</span><span class="badge" v-if="v.isLatest">最新</span></div>
+                                </div>
+                            </div>
+                            <div class="dtv-inline-flex dtv-gap-8" style="display:flex;gap:8px;">
+                                <el-select v-model="mediaFilter" size="small" style="width:120px;"><el-option label="全部" value="all"></el-option><el-option label="图片" value="image"></el-option><el-option label="视频" value="video"></el-option></el-select>
+                                <div class="dtv-compare-btn" :class="{active:mediaCompare}" @click="mediaCompare=!mediaCompare"><i class="fa fa-columns"></i></div>
+                            </div>
+                        </div>
+                        <div v-if="mediaCompare" class="dtv-compare-select-row">
+                            <span class="dtv-text-sm dtv-color-muted">对比：</span>
+                            <el-select v-model="leftVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                            <i class="fa fa-arrow-right" style="color:#86909c;"></i>
+                            <el-select v-model="rightVersion" size="small" style="width:200px;"><el-option v-for="v in versions" :key="v.id" :label="v.name" :value="v.id"></el-option></el-select>
+                        </div>
+                        <div v-if="!mediaCompare" class="dtv-media-container">
+                            <div class="dtv-media-tree">
+                                <div class="dtv-tree-item active"><i class="caret fa fa-caret-down"></i>全部 (92)</div>
+                                <div class="dtv-tree-item sub"><i class="caret fa fa-caret-down"></i>项目确认 (1)</div>
+                                <div class="dtv-tree-item sub2">企微群二维码 (1)</div>
+                                <div class="dtv-tree-item sub"><i class="caret fa fa-caret-down"></i>勘场 (14)</div>
+                                <div class="dtv-tree-item sub2">招牌立面图 (1)</div>
+                                <div class="dtv-tree-item sub2">室内/室外视频 (2)</div>
+                                <div class="dtv-tree-item sub2">原始平面图 (1)</div>
+                                <div class="dtv-tree-item sub2">门头照片 (3)</div>
+                                <div class="dtv-tree-item sub2">街区图 (1)</div>
+                                <div class="dtv-tree-item sub2">勘场报告 (2)</div>
+                                <div class="dtv-tree-item sub2">室内照片 (4)</div>
+                                <div class="dtv-tree-item sub"><i class="caret fa fa-caret-down"></i>定稿 (1)</div>
+                                <div class="dtv-tree-item sub2">原始框架图 (1)</div>
+                            </div>
+                            <div class="dtv-media-grid"><div class="dtv-media-item" v-for="i in 24" :key="i"><div class="placeholder"><i class="fa fa-file-image-o"></i></div></div></div>
+                        </div>
+                        <div v-else class="dtv-compare-container">
+                            <div class="dtv-compare-column">
+                                <div class="dtv-compare-col-header"><div><span :class="getVersion(leftVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(leftVersion).name}}</span></div><span class="time">{{getVersion(leftVersion).time}} · 共{{getVersion(leftVersion).data.mediaCount}}项</span></div>
+                                <div class="dtv-compare-col-body"><div class="dtv-media-grid-sm"><div class="dtv-media-item" v-for="i in getVersion(leftVersion).data.mediaCount" :key="i"><div class="placeholder"><i class="fa fa-file-image-o"></i></div></div></div></div>
+                            </div>
+                            <div class="dtv-compare-column">
+                                <div class="dtv-compare-col-header"><div><span :class="getVersion(rightVersion).id==='original' ? 'tag-original' : 'tag-upgrade'">{{getVersion(rightVersion).name}}</span></div><span class="time">{{getVersion(rightVersion).time}} · 共{{getVersion(rightVersion).data.mediaCount}}项 <span class="dtv-diff-badge new" v-if="getVersion(rightVersion).data.mediaCount > getVersion(leftVersion).data.mediaCount">+{{getVersion(rightVersion).data.mediaCount - getVersion(leftVersion).data.mediaCount}}</span></span></div>
+                                <div class="dtv-compare-col-body"><div class="dtv-media-grid-sm"><div class="dtv-media-item" v-for="i in getVersion(rightVersion).data.mediaCount" :key="i" :style="i > getVersion(leftVersion).data.mediaCount ? 'border:2px solid #00b42a;' : ''"><div class="placeholder"><i class="fa fa-file-image-o"></i></div></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 调改清单 Tab -->
+                <div id="tabPaneGp" class="hide">
+                    <div class="section">
+                        <div class="sub-tabs">
+                            <div class="sub-tab active" data-sub="upgrade" onclick="switchSubTab('upgrade')">升级信息</div>
+                            <div class="sub-tab" data-sub="items" onclick="switchSubTab('items')">调改项清单</div>
+                        </div>
+                        <div id="subPaneUpgrade" class="upgrade-panel">
+                            <div class="upgrade-block">
+                                <div class="upgrade-block-title">流程关联 <span class="src">来源：BPM 决策/执行流程</span></div>
+                                <div class="upgrade-body">
+                                    <div class="info-grid-4">
+                                        <div class="info-block"><div class="lb">关联决策流程</div><div class="vl"><a style="color:#1890ff;cursor:pointer;">查看流程详情 →</a></div></div>
+                                        <div class="info-block"><div class="lb">关联执行流程</div><div class="vl"><a style="color:#1890ff;cursor:pointer;">查看流程详情 →</a></div></div>
+                                        <div class="info-block"><div class="lb">升级申请人</div><div class="vl">王鹏</div></div>
+                                        <div class="info-block"><div class="lb">升级项目编号</div><div class="vl" style="color:#ff6a00;">SJ20260428001</div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="upgrade-block">
+                                <div class="upgrade-block-title">升级类型 <span class="src">来源：门店升级系统事件推送（源数据）</span></div>
+                                <div class="upgrade-body">
+                                    <div class="info-grid-4">
+                                        <div class="info-block"><div class="lb">升级类型</div><div class="vl">万店调改-大改</div></div>
+                                        <div class="info-block"><div class="lb">升级详细类型</div><div class="vl">内扩</div></div>
+                                        <div class="info-block"><div class="lb">装修类型</div><div class="vl">整装</div></div>
+                                        <div class="info-block"><div class="lb">是否属于万店调改（大改）</div><div class="vl">是</div></div>
+                                        <div class="info-block"><div class="lb">是否属于万店调改（中改）</div><div class="vl">否</div></div>
+                                        <div class="info-block"><div class="lb">是否涉及面积调整</div><div class="vl">是</div></div>
+                                        <div class="info-block"><div class="lb">升级后门店类型</div><div class="vl">3.5品类扩充店（新版）</div></div>
+                                        <div class="info-block"><div class="lb">是否需要增加品类</div><div class="vl">是</div></div>
+                                        <div class="info-block"><div class="lb">需要增加的品类</div><div class="vl">现制、冻品甜品、中式糕点</div></div>
+                                        <div class="info-block"><div class="lb">升级前营业面积是否满足扩品条件</div><div class="vl">是</div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="upgrade-block">
+                                <div class="upgrade-block-title">面积与开间 <span class="src">来源：门店升级系统 + 勘场环节复尺 <span class="compare-tip">⚠ 存在勘场差异，请核实</span></span></div>
+                                <div class="upgrade-body compare-body">
+                                    <table class="compare-field-table">
+                                        <thead><tr><th class="col-field">字段项</th><th>升级前</th><th>升级后（BPM决策流程申报值）</th><th>勘场复尺升级后（测量）</th></tr></thead>
+                                        <tbody>
+                                            <tr><td class="col-field">原门店开间（m）</td><td class="col-orig">8.5</td><td class="col-upg">—</td><td class="col-kc">8.5</td></tr>
+                                            <tr><td class="col-field">新增门店开间（m）</td><td class="col-orig">—</td><td class="col-upg">1.5</td><td class="col-kc diff">1.8 <span class="diff-arrow">▲ +0.3</span></td></tr>
+                                            <tr><td class="col-field">升级后门店开间（m）</td><td class="col-orig">—</td><td class="col-upg">10.0</td><td class="col-kc diff">10.3 <span class="diff-arrow">▲ +0.3</span></td></tr>
+                                            <tr><td class="col-field">原营业面积（㎡）</td><td class="col-orig">180</td><td class="col-upg">—</td><td class="col-kc">180</td></tr>
+                                            <tr><td class="col-field">新增营业面积（㎡）</td><td class="col-orig">—</td><td class="col-upg">25</td><td class="col-kc diff">28 <span class="diff-arrow">▲ +3</span></td></tr>
+                                            <tr><td class="col-field">升级后营业面积（㎡）</td><td class="col-orig">—</td><td class="col-upg">205</td><td class="col-kc diff">208 <span class="diff-arrow">▲ +3</span></td></tr>
+                                        </tbody>
+                                    </table>
+                                    <div style="margin-top:10px;color:#999;font-size:12px;">说明：勘场复尺数据由工程监理【李卓】于 2026-05-08 22:42 提交，若与申报值差异较大将触发运营调改系统审核复核。</div>
+                                </div>
+                            </div>
+                            <div class="upgrade-block">
+                                <div class="upgrade-block-title">闭店结论 <span class="src">来源：勘场审核结论</span></div>
+                                <div class="upgrade-body">
+                                    <div class="info-grid-4">
+                                        <div class="info-block"><div class="lb">闭店结论</div><div class="vl"><span class="gp-badge gp-n">需要闭店</span></div></div>
+                                        <div class="info-block"><div class="lb">预计闭店天数</div><div class="vl">14天</div></div>
+                                        <div class="info-block"><div class="lb">调改清单版本</div><div class="vl">v2.0 <span class="badge-green">已审核</span></div></div>
+                                        <div class="info-block"><div class="lb">审核时间</div><div class="vl">2026-05-09 10:15</div></div>
+                                    </div>
+                                    <div style="margin-top:12px;padding:10px 12px;background:#fff;border:1px dashed #ffd8b8;border-radius:4px;color:#666;"><span style="color:#999;">闭店说明：</span>外扩涉及主体墙改造，需闭店14天施工。</div>
+                                </div>
+                            </div>
+                            <div class="upgrade-block">
+                                <div class="upgrade-block-title">其他</div>
+                                <div class="upgrade-body">
+                                    <div style="margin-bottom:12px;"><div style="color:#999;font-size:12px;margin-bottom:6px;">相关附件</div><div><span class="file-chip">📄 租赁合同.pdf</span><span class="file-chip">📄 评估报告.docx</span><span class="file-chip">🖼 门店外观.jpg</span></div></div>
+                                    <div><div style="color:#999;font-size:12px;margin-bottom:6px;">备注</div><div style="line-height:22px;">本次升级含门头VI更新、现制区改造及货架陈列调整，标准工期16天（整装）。因属万店调改大改范畴，工程施工按大改标准执行。</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 调改项清单 -->
+                        <div id="subPaneItems" class="hide">
+                            <div class="gp-toolbar">
+                                <span style="color:#999;">共 <b id="gpCnt">8</b> 项</span>
+                                <span class="gp-badge gp-y" id="statY">工程条件满足 0</span>
+                                <span class="gp-badge gp-n" id="statN">条件不满足 0</span>
+                                <span class="gp-badge gp-neutral" id="statBd">需闭店项 0</span>
+                                <span class="gp-badge gp-neutral" id="statCancel">取消项 0</span>
+                                <span class="cnt">数据来源：调改系统 v2.0</span>
+                                <button class="btn btn-default" style="margin-left:auto;" onclick="exportGp()">导出调改清单</button>
+                            </div>
+                            <table class="gp-table node-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px;">调改项ID</th>
+                                        <th>调改项名称</th>
+                                        <th>场景</th>
+                                        <th>一级/二级目录</th>
+                                        <th>归属区域</th>
+                                        <th>最低预算(元)</th>
+                                        <th>工程条件</th>
+                                        <th>是否闭店</th>
+                                        <th>是否取消</th>
+                                        <th>协作标签</th>
+                                        <th style="width:80px;">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gpBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 勘场提交弹窗 -->
+    <div class="modal-mask" id="kcModal">
+        <div class="modal">
+            <div class="modal-head">
+                <span>提交勘场报告 - 万店调改（大改）</span>
+                <span style="cursor:pointer;color:#999;" onclick="closeKc()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="section-sub-title">调改项清单逐项确认（数据源：调改系统 v1）</div>
+                <div id="kcGpList"></div>
+                <div class="hint">📌 提交后将推送至运营调改系统审核；审核通过后调改清单锁定为 v2.0；审核驳回则工程项目终止。</div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-default" onclick="closeKc()">取消</button>
+                <button class="btn btn-primary" onclick="submitKc()">提交勘场并推送审核</button>
+            </div>
+        </div>
+    </div>
+    <!-- 调改项详情右侧抽屉 -->
+    <div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-head">
+            <div class="drawer-title">
+                <span style="width:6px;height:22px;background:#ff6a00;border-radius:3px;display:inline-block;"></span>
+                <span id="drawerName">调改项详情</span>
+                <span class="gp-badge gp-neutral" id="drawerCode" style="font-weight:normal;"></span>
+            </div>
+            <div>
+                <button class="btn btn-default" onclick="prevGp()">← 上一项</button>
+                <button class="btn btn-default" onclick="nextGp()">下一项 →</button>
+                <span class="drawer-close" onclick="closeDrawer()">×</span>
+            </div>
+        </div>
+        <div class="drawer-body" id="drawerBody"></div>
+    </div>
+    <script>
+        /* ============ 数据 ============ */
+        const listData = [
+            ['P20260404126', '【万店调改（大改）】南昌安义中学店', '赵一鸣', '江西省南昌市安义县', '线下勘场中', '线下勘场', '120天', '119天',
+                '李卓', '周靓洁', '2026-04-28 15:05', '2026-06-10 16:02', '2026-04-28 15:05'
+            ],
+            ['P20260404016', '【万店调改（大改）】永州宁远车华阴路店', '零食很忙', '湖南省永州市宁远县', '工程设计中', '工程设计', '108天', '101天',
+                '喻卓煜', '何盈', '2026-04-26 11:50', '2026-06-14 15:20', '2026-04-26 11:50'
+            ],
+            ['P20260504370', '【万店调改（大改）】云南昆明柏枝里店', '零食很忙', '云南省昆明市呈贡区', '工程预算中', '工程预算', '85天', '80天',
+                '张恩华', '周靓洁', '2026-05-01 09:50', '2026-06-25 09:03', '2026-05-01 09:50'
+            ],
+            ['P20260404255', '【万店调改（大改）】广东惠州汤林镇店', '赵一鸣', '广东省惠州市惠城区', '工程施工中', '工程施工', '89天', '86天',
+                '鄂文乐', '薛可佳', '2026-04-30 09:24', '2026-06-28 12:25', '2026-04-30 09:24'
+            ],
+            ['P20260505303', '【万店调改（大改）】抚州金溪老二中店', '赵一鸣', '江西省抚州市金溪县', '施工巡检中', '施工巡检', '73天', '70天',
+                '刘俊', '周靓洁', '2026-05-23 14:18', '2026-07-05 18:07', '2026-05-23 14:18'
+            ],
+            ['P20260504959', '【万店调改（大改）】江苏无锡宜兴和信广场店', '赵一鸣', '江苏省无锡市宜兴市', '项目验收中', '项目验收', '80天', '76天',
+                '颜成骏', '薛可佳', '2026-05-16 16:21', '2026-07-05 19:32', '2026-05-16 16:21'
+            ],
+            ['P20260403877', '【万店调改（大改）】山东潍坊安丘皇熊服装店', '赵一鸣', '山东省潍坊市安丘市', '工程核量中', '工程核量', '103天', '98天',
+                '马延明', '黄佳玥', '2026-04-23 18:14', '2026-07-05 19:07', '2026-04-23 18:14'
+            ],
+            ['P20260505121', '【万店调改（大改）】广东湛江民安镇店', '赵一鸣', '广东省湛江市麻章区', '工程结算中', '工程结算', '57天', '55天',
+                '温林晓', '薛可佳', '2026-05-19 18:49', '2026-07-15 02:02', '2026-05-19 18:49'
+            ]
+        ];
+        const nodeData = [
+            ['项目确认', '已完成', '--', '1天', '1小时', '1天', '2026-04-28 15:05', '2026-04-28 15:40', '周靓洁'],
+            ['线下勘场', '进行中', '--', '11天', '10天7小时', '1天', '2026-04-28 15:40', '2026-05-08 22:42', '李卓'],
+            ['勘场定稿', '待开始', '--', '1天', '1小时', '1天', '2026-05-08 22:42', '2026-05-08 22:42', '李卓'],
+            ['工程设计', '待开始', '--', '8天', '6天19小时', '11天', '2026-05-08 22:42', '2026-05-15 18:01', '戴佳栩'],
+            ['工程预算', '待开始', '--', '13天', '11天17小时', '13天', '2026-05-10 23:01', '2026-05-22 16:09', '赖烨敏'],
+            ['工程施工', '待开始', '提前', '14天', '12天19小时', '16天', '2026-05-12 18:40', '2026-05-25 14:18', '李卓'],
+            ['施工巡检', '待开始', '--', '2天', '23小时', '1天', '2026-05-15 18:40', '2026-05-16 17:40', '李卓'],
+            ['项目验收', '待开始', '--', '5天', '3天17小时', '2天', '2026-05-25 22:31', '2026-05-29 16:02', '李卓'],
+            ['工程核量', '待开始', '--', '3天', '--', '3天', '2026-05-29 16:02', '2026-06-01 16:02', '李卓'],
+            ['工程结算', '待开始', '--', '89天', '87天23小时', '12天', '2026-05-29 16:02', '2026-06-10 16:02', '赖烨敏']
+        ];
+        const timelineNodes = [
+            { day: '第1天', name: '项目确认', time: '2026-04-28 15:40', status: 'done' },
+            { day: '第11天', name: '线下勘场', time: '2026-05-08 22:42', status: 'current' },
+            { day: '第11天', name: '勘场定稿', time: '2026-05-08 22:42', status: '' },
+            { day: '第18天', name: '工程设计', time: '2026-05-15 18:01', status: '' },
+            { day: '第25天', name: '工程预算', time: '2026-05-22 16:09', status: '' },
+            { day: '第28天', name: '工程施工', time: '2026-05-25 14:18', status: '' },
+            { day: '第29天', name: '施工巡检', time: '2026-05-16 17:40', status: '' },
+            { day: '第32天', name: '项目验收', time: '2026-05-29 16:02', status: '' },
+            { day: '第35天', name: '工程核量', time: '2026-06-01 16:02', status: '' },
+            { day: '第120天', name: '工程结算', time: '2026-06-10 16:02', status: '' }
+        ];
+        // 调改项数据：增加 c3(是否取消) 和 c3r(取消原因)
+        const gpItems = [
+            { code: 'GP001', name: '门头改造', scene: '外扩改造', cat1: '外部装饰', cat2: '门头', area: '外立面', budget: 8000, c1: true,
+                c2: false, c1r: '', c2r: '', c3: false, c3r: '', collabTags: ['需工程协同', '需广告协同'], compareGroups: [{
+                    name: '门头正面对比', before: ['门头老旧', '灯箱破损'], after: ['新LED门头', '品牌LOGO', '夜景效果'] }, { name: '侧招牌对比',
+                    before: ['无侧招'], after: ['新侧招'] }], evaConfigs: [{ item: '门头灯箱亮度', way: '现场评估',
+                    result: '亮度均匀，光效达标' }, { item: '门头结构安全', way: '工程复核', result: '安装稳固' },
+                { item: 'LOGO规范', way: '品牌部审核', result: '符合最新VI' }],
+                stdReq: '门头灯箱亮度均匀，无破损，LOGO与总部VI一致；门头钢架垂直度偏差≤5mm。', createdBy: '王鹏',
+                updatedAt: '2026-04-25 10:24' },
+            { code: 'GP002', name: '冷链设备扩容', scene: '内部升级', cat1: '设备', cat2: '冷链', area: '销售区', budget: 15000, c1: true,
+                c2: true, c1r: '', c2r: '冷链设备安装需切电，闭店1天', c3: false, c3r: '', collabTags: ['需工程协同',
+                    '冷链设备增加'], compareGroups: [{ name: '冷链设备对比', before: ['原有4组冷柜', '老旧型号'],
+                    after: ['新增2组高效冷柜', '智能温控', '节能标识'] }], evaConfigs: [{ item: '设备数量', way: '设备清单核对',
+                    result: '冷链设备6组' }, { item: '温度达标', way: '现场检测', result: '-18℃±2℃' }],
+                stdReq: '冷链设备6组到位，温度稳定达标，接线规范。', createdBy: '殷正', updatedAt: '2026-04-26 09:12' },
+            { code: 'GP003', name: '水饮陈列区改造', scene: '内部升级', cat1: '设备', cat2: '水饮', area: '销售区', budget: 6500, c1: true,
+                c2: true, c1r: '', c2r: '水电改造需闭店半天', c3: false, c3r: '', collabTags: ['需工程协同',
+                    '水饮设备增加'], compareGroups: [{ name: '水饮陈列区对比', before: ['分散摆放'], after: ['集中3组陈列', 'SKU齐全',
+                        '清晰分区'] }], evaConfigs: [{ item: '陈列组数', way: '现场评估', result: '3组' },
+                { item: 'SKU完整度', way: '商品清单核对', result: '齐全' }], stdReq: '水饮陈列3组到位，SKU齐全，供电符合规范。',
+                createdBy: '殷正', updatedAt: '2026-04-26 09:18' },
+            { code: 'GP004', name: '吊顶重做', scene: '装修改造', cat1: '装修', cat2: '吊顶', area: '全场', budget: 12000, c1: true,
+                c2: true, c1r: '', c2r: '需整场闭店施工', c3: false, c3r: '', collabTags: ['需工程协同'], compareGroups: [{
+                    name: '销售区吊顶', before: ['吊顶起翘', '灯具老化'], after: ['新矿棉板', 'LED嵌入灯'] }, { name: '收银区吊顶',
+                    before: ['破损'], after: ['整体翻新'] }], evaConfigs: [{ item: '吊顶平整度', way: '现场评估',
+                    result: '平整无起翘' }, { item: '吊顶高度', way: '现场测量', result: '≥2.7m' }],
+                stdReq: '吊顶平整无起翘，接缝均匀，灯具嵌入牢固。', createdBy: '王鹏', updatedAt: '2026-04-26 11:30' },
+            { code: 'GP005', name: '仓库缩小', scene: '内扩改造', cat1: '空间', cat2: '仓储', area: '后场', budget: 3000, c1: false,
+                c2: false, c1r: '原仓库为承重墙，无法拆除', c2r: '', c3: true, c3r: '承重墙无法拆除，取消该调改项',
+                collabTags: ['需工程协同'], compareGroups: [{ name: '仓库对比', before: ['15㎡仓库'], after: ['8㎡仓库',
+                        '销售面积+7㎡'] }], evaConfigs: [{ item: '仓库面积', way: '现场测量', result: '≥8㎡' }],
+                stdReq: '仓库面积调整后≥8㎡，货架布局合理。', createdBy: '殷正', updatedAt: '2026-04-27 09:00' },
+            { code: 'GP006', name: '货架更换', scene: '内部升级', cat1: '货架', cat2: '常规货架', area: '销售区', budget: 9500, c1: true,
+                c2: false, c1r: '', c2r: '', c3: false, c3r: '', collabTags: ['需工程协同', '货架第三方'], compareGroups: [{
+                    name: '主通道货架', before: ['老旧钢架', '高度不一'], after: ['统一新货架', '标准高度'] }],
+                evaConfigs: [{ item: '货架整齐度', way: '货架清单核对', result: '整齐无锈蚀' }, { item: '货架高度', way: '现场测量',
+                    result: '2.1m 统一' }], stdReq: '货架整齐、无锈蚀、高度统一，符合陈列规范。', createdBy: '王鹏',
+                updatedAt: '2026-04-27 15:45' },
+            { code: 'GP007', name: '灯光升级', scene: '内部升级', cat1: '装修', cat2: '灯具', area: '全场', budget: 4500, c1: true,
+                c2: false, c1r: '', c2r: '', c3: false, c3r: '', collabTags: ['需工程协同'], compareGroups: [{ name: '灯光效果',
+                    before: ['照度不足', '色温偏黄'], after: ['LED节能灯', '照度提升', '冷白色温'] }],
+                evaConfigs: [{ item: '照度', way: '照度计测量', result: '≥300lux' }, { item: '色温', way: '现场评估',
+                    result: '4000K 冷白' }], stdReq: '照度≥300lux，色温4000K±200K，全场照明均匀。', createdBy: '殷正',
+                updatedAt: '2026-04-28 08:20' },
+            { code: 'GP008', name: '收银台改造', scene: '装修改造', cat1: '装修', cat2: '家具', area: '收银区', budget: 3500, c1: true,
+                c2: false, c1r: '', c2r: '', c3: false, c3r: '', collabTags: ['需工程协同'], compareGroups: [{ name: '收银台对比',
+                    before: ['木质旧台'], after: ['标准化收银台', '品牌LOGO'] }], evaConfigs: [{ item: '收银台规格',
+                    way: '现场评估', result: '标准化尺寸' }, { item: 'LOGO规范', way: '品牌审核', result: '合规' }],
+                stdReq: '收银台采用标准尺寸，品牌LOGO规范展示。', createdBy: '王鹏', updatedAt: '2026-04-28 08:30' }
+        ];
+
+        /* ============ 渲染列表 ============ */
+        function renderList() {
+            const body = document.getElementById('listBody');
+            body.innerHTML = listData.map(r => `<tr>
+          <td><input type="checkbox"></td>
+          <td class="pcode">${r[0]}</td>
+          <td class="pname" onclick="showDetail()">${r[1]}</td>
+          <td><span class="brand ${r[2]==='零食很忙'?'zym':''}"><span class="brand-dot">${r[2][0]}</span>${r[2]}</span></td>
+          <td>${r[3]}</td><td><span class="status-dot"></span>${r[4]}</td><td class="node-tag">${r[5]}</td>
+          <td>${r[6]}</td><td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]} <span class="pred">预计</span></td><td>${r[12]}</td></tr>`)
+                .join('');
+        }
+
+        function renderTimeline() {
+            document.getElementById('timeline').innerHTML = timelineNodes.map((n, i) => {
+                const active = (n.status === 'done' || (i > 0 && timelineNodes[i - 1].status === 'done'));
+                return `<div class="tl-node">
+          <div class="tl-day">${n.day}</div>
+          <div style="position:relative;"><span class="tl-circle ${n.status}">${n.status==='done'?'✓':(n.status==='current'?'●':'')}</span>
+          ${i<timelineNodes.length-1?'<div class="tl-line '+(active?'active':'')+'"></div>':''}</div>
+          <div class="tl-name" style="${n.status==='current'?'color:#ff6a00;':''}">${n.name}</div><div class="tl-time">${n.time}</div></div>`;
+            }).join('');
+        }
+
+        function renderNodeTable() {
+            document.getElementById('nodeBody').innerHTML = nodeData.map(r => {
+                const status = r[1];
+                const stColor = status === '已完成' ? '#67c23a' : (status === '进行中' ? '#ff6a00' : '#999');
+                const isKc = r[0] === '线下勘场';
+                return `<tr>
+          <td><a style="color:${isKc?'#ff6a00':'#333'};" ${isKc?'onclick="openKc()"':''}>${r[0]}${isKc?' 🖊':''}</a></td>
+          <td style="color:${stColor}">${status}${r[2]==='提前'?'<span class="badge-green">提前</span>':''}</td>
+          <td>${r[2]}</td><td>${r[3]}</td><td style="color:#ff6a00;">${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td>
+          <td>${r[7]} ${status!=='已完成'?'<span class="pred">预计</span>':''}</td><td>${r[8]}</td></tr>`;
+            }).join('');
+        }
+
+        function renderGpList() {
+            document.getElementById('gpBody').innerHTML = gpItems.map((g, i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td><span class="gp-name-link" onclick="openDrawer(${i})">${g.name} ▸</span></td>
+          <td>${g.scene}</td>
+          <td>${g.cat1} / ${g.cat2}</td>
+          <td>${g.area}</td>
+          <td>${g.budget.toLocaleString()}</td>
+          <td>
+            <span class="gp-badge ${g.c1?'gp-y':'gp-n'}">${g.c1?'满足':'不满足'}</span>
+            ${g.c1r?`<span class="gp-reason">${g.c1r}</span>`:''}
+          </td>
+          <td>
+            <span class="gp-badge ${g.c2?'gp-n':'gp-y'}">${g.c2?'需闭店':'不需'}</span>
+            ${g.c2r?`<span class="gp-reason">${g.c2r}</span>`:''}
+          </td>
+          <td>
+            <span class="gp-badge ${g.c3?'gp-n':'gp-y'}">${g.c3?'是':'否'}</span>
+            ${g.c3r?`<span class="gp-reason">${g.c3r}</span>`:''}
+          </td>
+          <td>${g.collabTags.map(t=>`<span class="collab-tag">${t}</span>`).join('')}</td>
+          <td><a style="color:#ff6a00;cursor:pointer;" onclick="openDrawer(${i})">详情</a></td>
+        </tr>`).join('');
+            document.getElementById('gpCnt').textContent = gpItems.length;
+            document.getElementById('statY').textContent = '工程条件满足 ' + gpItems.filter(g => g.c1).length;
+            document.getElementById('statN').textContent = '条件不满足 ' + gpItems.filter(g => !g.c1).length;
+            document.getElementById('statBd').textContent = '需闭店项 ' + gpItems.filter(g => g.c2).length;
+            document.getElementById('statCancel').textContent = '取消项 ' + gpItems.filter(g => g.c3).length;
+        }
+
+        function renderKcGp() {
+            document.getElementById('kcGpList').innerHTML = gpItems.map((g, i) => `
+        <div style="border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:10px;background:#fafbfc;">
+          <div style="font-weight:bold;color:#333;margin-bottom:8px;">${i+1}. ${g.name} <span style="color:#999;font-weight:normal;font-size:12px;">（${g.cat1}/${g.cat2}｜${g.area}｜预算¥${g.budget}）</span></div>
+          <div class="kc-three-col">
+            <label><span class="req">*</span>工程条件</label>
+            <div class="radio-group">
+              <label><input type="radio" name="c1_${i}" ${g.c1?'checked':''}> 满足</label>
+              <label><input type="radio" name="c1_${i}" ${!g.c1?'checked':''}> 不满足</label>
+            </div>
+            <label><span class="req">*</span>是否闭店</label>
+            <div class="radio-group">
+              <label><input type="radio" name="c2_${i}" ${g.c2?'checked':''}> 需闭店</label>
+              <label><input type="radio" name="c2_${i}" ${!g.c2?'checked':''}> 不需</label>
+            </div>
+            <label><span class="req">*</span>是否取消</label>
+            <div class="radio-group">
+              <label><input type="radio" name="c3_${i}" ${g.c3?'checked':''}> 是</label>
+              <label><input type="radio" name="c3_${i}" ${!g.c3?'checked':''}> 否</label>
+            </div>
+          </div>
+          <div class="kc-reason-row"><label>工程条件原因</label><input placeholder="填写不满足原因" value="${g.c1r||''}"></div>
+          <div class="kc-reason-row"><label>闭店原因</label><input placeholder="填写需闭店原因" value="${g.c2r||''}"></div>
+          <div class="kc-reason-row"><label>取消原因</label><input placeholder="填写取消原因" value="${g.c3r||''}"></div>
+        </div>`).join('');
+        }
+
+        /* ============ 抽屉 ============ */
+        let currentGpIndex = 0;
+
+        function openDrawer(idx) {
+            currentGpIndex = idx;
+            const g = gpItems[idx];
+            document.getElementById('drawerName').textContent = g.name;
+            document.getElementById('drawerCode').textContent = g.code;
+            document.getElementById('drawerBody').innerHTML = buildDrawer(g);
+            document.getElementById('drawerMask').classList.add('show');
+            document.getElementById('drawer').classList.add('show');
+        }
+
+        function closeDrawer() { document.getElementById('drawerMask').classList.remove('show');
+            document.getElementById('drawer').classList.remove('show'); }
+
+        function prevGp() { if (currentGpIndex > 0) openDrawer(currentGpIndex - 1); }
+
+        function nextGp() { if (currentGpIndex < gpItems.length - 1) openDrawer(currentGpIndex + 1); }
+
+        function buildDrawer(g) {
+            return `
+    <div class="drawer-block">
+      <div class="drawer-block-title">基本信息</div>
+      <div class="drawer-info-grid">
+        <div class="drawer-info-item"><span class="lb">调改项名称</span><span>${g.name}</span></div>
+        <div class="drawer-info-item"><span class="lb">调改项编号</span><span>${g.code}</span></div>
+        <div class="drawer-info-item"><span class="lb">场景</span><span>${g.scene}</span></div>
+        <div class="drawer-info-item"><span class="lb">一级目录</span><span>${g.cat1}</span></div>
+        <div class="drawer-info-item"><span class="lb">二级目录</span><span>${g.cat2}</span></div>
+        <div class="drawer-info-item"><span class="lb">归属区域</span><span>${g.area}</span></div>
+        <div class="drawer-info-item"><span class="lb">最低预算</span><span>¥ ${g.budget.toLocaleString()}</span></div>
+        <div class="drawer-info-item"><span class="lb">创建人</span><span>${g.createdBy}</span></div>
+        <div class="drawer-info-item"><span class="lb">最近更新</span><span>${g.updatedAt}</span></div>
+        <div class="drawer-info-item"><span class="lb">是否取消</span><span><span class="gp-badge ${g.c3?'gp-n':'gp-y'}">${g.c3?'是':'否'}</span></span></div>
+      </div>
+    </div>
+    <div class="drawer-block">
+      <div class="drawer-block-title">图示对比 <span style="font-size:12px;color:#999;font-weight:normal;">（共 ${g.compareGroups.length} 组，每组最多 3+3 张）</span></div>
+      ${g.compareGroups.map(gp=>`
+        <div class="compare-group">
+          <div class="compare-group-title">📷 ${gp.name}</div>
+          <div class="compare-row">
+            <div class="compare-side"><div class="side-label before">调改前</div>
+              <div class="compare-imgs">${gp.before.map(b=>`<div class="compare-img before-bg">${b}</div>`).join('')}${Array(3-gp.before.length).fill('<div class="compare-img" style="opacity:.3;">—</div>').join('')}</div>
+            </div>
+            <div class="arrow">➡</div>
+            <div class="compare-side"><div class="side-label after">调改后</div>
+              <div class="compare-imgs">${gp.after.map(a=>`<div class="compare-img after-bg">${a}</div>`).join('')}${Array(3-gp.after.length).fill('<div class="compare-img" style="opacity:.3;">—</div>').join('')}</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="drawer-block">
+      <div class="drawer-block-title">评估结果配置</div>
+      <table class="eva-table">
+        <thead><tr><th style="width:200px;">结论评估项名称</th><th style="width:180px;">评估方式</th><th>结论</th></tr></thead>
+        <tbody>${g.evaConfigs.map(e=>`<tr><td>${e.item}</td><td>${e.way}</td><td>${e.result}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="drawer-block">
+      <div class="drawer-block-title">协作标签 <span style="font-size:12px;color:#999;font-weight:normal;">（同调改系统同名字段回显）</span></div>
+      <div>${g.collabTags.map(t=>`<span class="collab-tag">🏷 ${t}</span>`).join('')}</div>
+    </div>
+    <div class="drawer-block">
+      <div class="drawer-block-title">验收标准</div>
+      <div style="line-height:24px;color:#333;background:#fafbfc;border-radius:4px;padding:12px;border:1px dashed #e0e0e0;">
+        <div style="color:#999;margin-bottom:6px;">标准说明 / 验收要求：</div>${g.stdReq}
+      </div>
+    </div>
+    <div class="drawer-block">
+      <div class="drawer-block-title">工程勘场判断结果 <span style="font-size:12px;color:#999;font-weight:normal;">（工程系统勘场环节填写）</span></div>
+      <div class="judge-block">
+        <div class="judge-row"><span class="judge-label">工程条件满足：</span><span class="gp-badge ${g.c1?'gp-y':'gp-n'}">${g.c1?'✓ 满足':'✗ 不满足'}</span>${g.c1r?`<span style="color:#666;margin-left:12px;">原因：${g.c1r}</span>`:''}</div>
+        <div class="judge-row"><span class="judge-label">是否闭店：</span><span class="gp-badge ${g.c2?'gp-n':'gp-y'}">${g.c2?'✓ 需闭店':'✗ 不需闭店'}</span>${g.c2r?`<span style="color:#666;margin-left:12px;">原因：${g.c2r}</span>`:''}</div>
+        <div class="judge-row"><span class="judge-label">是否取消：</span><span class="gp-badge ${g.c3?'gp-n':'gp-y'}">${g.c3?'✓ 是':'✗ 否'}</span>${g.c3r?`<span style="color:#666;margin-left:12px;">原因：${g.c3r}</span>`:''}</div>
+        <div class="judge-row"><span class="judge-label">勘场人：</span><span>李卓</span><span class="judge-label" style="margin-left:24px;">勘场时间：</span><span>2026-05-08 22:42</span></div>
+      </div>
+    </div>`;
+        }
+
+        /* ============ Tab切换 ============ */
+        function switchDetailTab(tab) {
+            document.querySelectorAll('.detail-tabs .dt').forEach(el => { el.classList.toggle('active', el.dataset
+                    .tab === tab); });
+            document.getElementById('tabPaneOverview').classList.toggle('hide', tab !== 'overview');
+            document.getElementById('tabPaneInfo').classList.toggle('hide', tab !== 'info');
+            document.getElementById('tabPaneGp').classList.toggle('hide', tab !== 'gp');
+            if (tab === 'gp') { renderGpList(); }
+            if (tab === 'overview') { renderTimeline();
+                renderNodeTable(); }
+        }
+
+        function switchSubTab(sub) {
+            document.querySelectorAll('.sub-tab').forEach(el => { el.classList.toggle('active', el.dataset.sub ===
+                    sub); });
+            document.getElementById('subPaneUpgrade').classList.toggle('hide', sub !== 'upgrade');
+            document.getElementById('subPaneItems').classList.toggle('hide', sub !== 'items');
+            if (sub === 'items') { renderGpList(); }
+        }
+
+        function showDetail() {
+            document.getElementById('listPage').classList.add('hide');
+            document.getElementById('detailPage').classList.remove('hide');
+            document.getElementById('tabDetail').classList.remove('hide');
+            document.getElementById('tabList').classList.remove('active');
+            document.getElementById('tabDetail').classList.add('active');
+            switchDetailTab('overview');
+            window.scrollTo(0, 0);
+        }
+
+        function showList(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            document.getElementById('detailPage').classList.add('hide');
+            document.getElementById('listPage').classList.remove('hide');
+            document.getElementById('tabDetail').classList.add('hide');
+            document.getElementById('tabList').classList.add('active');
+            document.getElementById('tabDetail').classList.remove('active');
+        }
+        document.getElementById('tabList').addEventListener('click', () => { if (document.getElementById('listPage')
+                .classList.contains('hide')) showList(); });
+        document.getElementById('tabDetail').addEventListener('click', () => { if (document.getElementById(
+                'detailPage').classList.contains('hide')) showDetail(); });
+
+        function openKc() { renderKcGp();
+            document.getElementById('kcModal').classList.add('show'); }
+
+        function closeKc() { document.getElementById('kcModal').classList.remove('show'); }
+
+        function submitKc() { alert('✅ 勘场信息已提交\n调改清单已推送至运营调改系统审核\n审核通过后清单将锁定为 v2.0');
+            closeKc(); }
+
+        function exportGp() { alert('📤 调改清单已导出（.xlsx）\n包含：调改项名称/场景/目录/区域/预算/工程条件/闭店/取消/协作标签/验收标准'); }
+        renderList();
+        /* ============ Vue 详细信息Tab ============ */
+        const { createApp, ref, computed } = Vue;
+        const detailInfoApp = createApp({
+            setup() {
+                const subTab = ref('base');
+                const equipTab = ref('device');
+                const compareMode = ref(false);
+                const fileCompare = ref(false);
+                const mediaCompare = ref(false);
+                const mediaFilter = ref('all');
+                const currentVersion = ref('latest');
+                const fileVersion = ref('latest');
+                const mediaVersion = ref('latest');
+                const leftVersion = ref('original');
+                const rightVersion = ref('latest');
+                const versions = ref([{
+                    id: 'original', name: '首次原门店信息', time: '2023-07-24', isLatest: false,
+                    desc: '门店首次开业时的原始信息',
+                    data: {
+                        base: { code: '219L0001', name: '山西临汾翼城龙都店', tags: ['常规新店', '乡镇门店'],
+                            status: '已开业', bizStatus: '正常营业', developer: '张三', version: '1.0版本',
+                            scale: '中型店(100-200平方米)', deliverDate: '2023-06-20', openTime: '2023-07-24',
+                            storeType: '加盟店', actualOpen: '2023-07-24', region: '山西省临汾市翼城县',
+                            address: '山西省临汾市翼城县解放路老门店位置', gps: '111.714956,35.73446' },
+                        space: [{ title: '功能区域', items: [{ label: '店铺面积(m²)', value: '180' },
+                                { label: '营业面积(m²)', value: '150' }, { label: '是否为拐角', value: '否' }] },
+                        { title: '建筑结构', items: [{ label: '结构层高(m)', value: '6' },
+                                { label: '完成面层高', value: '2.8' }, { label: '开间长度(m)', value: '10.5' }] },
+                        { title: '仓库', items: [{ label: '是否有仓库', value: '是' }, { label: '仓库类型',
+                                    value: '内仓' }, { label: '仓库面积(m²)', value: '60' }] },
+                        { title: '招牌', items: [{ label: '招牌材质', value: '3M布招牌' }, { label: '是否为拐角',
+                                    value: '否' }, { label: '主招牌尺寸1(长*宽)', value: '15.5m * 3.0m' },
+                                { label: '招牌总面积(m²)', value: '46.5' }, { label: '是否有副招牌', value: '否' },
+                                { label: '副招牌总面积(m²)', value: '--' }, { label: '电动眼睛', value: '否' }] },
+                        { title: '广告位', items: [{ label: '是否有高空广告位', value: '否' },
+                                { label: '广告位总面积(m²)', value: '--' }] },
+                        { title: '橱窗灯箱', items: [{ label: '是否有橱窗灯箱', value: '否' },
+                                { label: '橱窗灯箱总面积(m²)', value: '--' }] },
+                        { title: '橱窗', items: [{ label: '是否有橱窗', value: '否' }, { label: '橱窗总面积(m²)',
+                                    value: '0' }, { label: '左橱窗面积(m²)', value: '--' },
+                                { label: '右橱窗面积(m²)', value: '--' }] }],
+                        equip: [{ code: 'SB010101-0005', name: '1.5米风幕柜（佛山西科）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/风幕柜', spec: '--', brand: '佛山西科',
+                                size: '1550*720*1980' },
+                            { code: 'SB010102-0001', name: '单门水饮柜（佛山西科）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/水饮柜', spec: '--', brand: '佛山西科',
+                                size: '800*680*1900' }],
+                        files: [{ name: '平面图效果图', source: '工程设计', version: '1',
+                                time: '2023-07-10 20:00' }, { name: '下单图', source: '工程设计',
+                                version: '1', time: '2023-07-10 20:00' }],
+                        mediaCount: 32
+                    }
+                }, {
+                    id: 'upgrade1', name: '第一次升级', time: '2024-11-15', isLatest: false,
+                    desc: '门店首次升级改造，扩大营业面积，更新设备',
+                    data: {
+                        base: { code: '219L0001', name: '山西临汾翼城龙都店', tags: ['常规新店', '乡镇门店'],
+                            status: '已开业', bizStatus: '正常营业', developer: '李四', version: '1.5版本',
+                            scale: '大型店(200-300平方米)', deliverDate: '2024-10-15', openTime: '2023-07-24',
+                            storeType: '加盟店', actualOpen: '2023-07-24', region: '山西省临汾市翼城县',
+                            address: '山西省临汾市翼城县解放路龙都购物中心中国农业银行右侧',
+                            gps: '111.714956,35.73446' },
+                        space: [{ title: '功能区域', items: [{ label: '店铺面积(m²)', value: '250' },
+                                { label: '营业面积(m²)', value: '180' }, { label: '是否为拐角', value: '否' }] },
+                        { title: '建筑结构', items: [{ label: '结构层高(m)', value: '7' },
+                                { label: '完成面层高', value: '3.0' }, { label: '开间长度(m)', value: '12.5' }] },
+                        { title: '仓库', items: [{ label: '是否有仓库', value: '是' }, { label: '仓库类型',
+                                    value: '内仓' }, { label: '仓库面积(m²)', value: '70' }] },
+                        { title: '招牌', items: [{ label: '招牌材质', value: '3M布招牌' }, { label: '是否为拐角',
+                                    value: '否' }, { label: '主招牌尺寸1(长*宽)', value: '18.5m * 3.1m' },
+                                { label: '招牌总面积(m²)', value: '57.35' }, { label: '是否有副招牌', value: '否' },
+                                { label: '副招牌总面积(m²)', value: '--' }, { label: '电动眼睛', value: '否' }] },
+                        { title: '广告位', items: [{ label: '是否有高空广告位', value: '否' },
+                                { label: '广告位总面积(m²)', value: '--' }] },
+                        { title: '橱窗灯箱', items: [{ label: '是否有橱窗灯箱', value: '否' },
+                                { label: '橱窗灯箱总面积(m²)', value: '--' }] },
+                        { title: '橱窗', items: [{ label: '是否有橱窗', value: '否' }, { label: '橱窗总面积(m²)',
+                                    value: '0' }, { label: '左橱窗面积(m²)', value: '--' },
+                                { label: '右橱窗面积(m²)', value: '--' }] }],
+                        equip: [{ code: 'SB010101-0007', name: '1.8米风幕柜（佛山西科）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/风幕柜', spec: '--', brand: '佛山西科',
+                                size: '1855*730*2000' },
+                            { code: 'SB010102-0002', name: '两门水饮柜（佛山西科）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/水饮柜', spec: '--', brand: '佛山西科',
+                                size: '1253*740*2003' },
+                            { code: 'SB010104-0027', name: '1.4米弧形透视窗冰柜（浙江星星）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/卧式冻柜', spec: '--', brand: '浙江星星',
+                                size: '1475*757*858' }],
+                        files: [{ name: '平面图效果图', source: '工程设计', version: '2',
+                                time: '2024-11-10 20:00' }, { name: '水电图', source: '工程设计',
+                                version: '1', time: '2024-11-10 20:00' }, { name: '水电图展示图',
+                                source: '工程设计', version: '1', time: '2024-11-10 20:00' },
+                            { name: '下单图', source: '工程设计', version: '2', time: '2024-11-10 20:00' }],
+                        mediaCount: 58
+                    }
+                }, {
+                    id: 'latest', name: '第2次升级（万店调改）', time: '2026-08-06', isLatest: true,
+                    desc: '万店调改大改项目，全面升级门店形象与设备配置',
+                    data: {
+                        base: { code: '219L0001', name: '山西临汾翼城龙都店', tags: ['常规新店', '乡镇门店',
+                                '升级中'
+                            ], status: '已开业', bizStatus: '正常营业', developer: '--', version: '2.0版本',
+                            scale: '超大型店(>200平方米)', deliverDate: '2026-07-16', openTime: '2023-07-24',
+                            storeType: '加盟店', actualOpen: '2023-07-24', region: '山西省临汾市翼城县',
+                            address: '山西省临汾市翼城县解放路龙都购物中心中国农业银行右侧两间',
+                            gps: '111.714956,35.73446' },
+                        space: [{ title: '功能区域', items: [{ label: '店铺面积(m²)', value: '281' },
+                                { label: '营业面积(m²)', value: '201' }, { label: '是否为拐角', value: '否' }] },
+                        { title: '建筑结构', items: [{ label: '结构层高(m)', value: '8' },
+                                { label: '完成面层高', value: '3' }, { label: '开间长度(m)', value: '13.7' }] },
+                        { title: '仓库', items: [{ label: '是否有仓库', value: '是' }, { label: '仓库类型',
+                                    value: '内仓' }, { label: '仓库面积(m²)', value: '80' }] },
+                        { title: '招牌', items: [{ label: '招牌材质', value: '3M布招牌' }, { label: '是否为拐角',
+                                    value: '否' }, { label: '主招牌尺寸1(长*宽)', value: '21.4m * 3.1m' },
+                                { label: '招牌总面积(m²)', value: '66.34' }, { label: '是否有副招牌', value: '否' },
+                                { label: '副招牌总面积(m²)', value: '--' }, { label: '电动眼睛', value: '否' }] },
+                        { title: '广告位', items: [{ label: '是否有高空广告位', value: '否' },
+                                { label: '广告位总面积(m²)', value: '--' }] },
+                        { title: '橱窗灯箱', items: [{ label: '是否有橱窗灯箱', value: '否' },
+                                { label: '橱窗灯箱总面积(m²)', value: '--' }] },
+                        { title: '橱窗', items: [{ label: '是否有橱窗', value: '否' }, { label: '橱窗总面积(m²)',
+                                    value: '0' }, { label: '左橱窗面积(m²)', value: '--' },
+                                { label: '右橱窗面积(m²)', value: '--' }] }],
+                        equip: [{ code: 'SB010101-0008', name: '1.9米风幕柜（佛山西科）', qty: 1, unit: '台',
+                                category: '设备/冷链设备/风幕柜', spec: '--', brand: '佛山西科',
+                                size: '1935*740*2010' },
+                            { code: 'SB010102-0002', name: '两门水饮柜（佛山西科）', qty: 2, unit: '台',
+                                category: '设备/冷链设备/水饮柜', spec: '--', brand: '佛山西科',
+                                size: '1253*740*2003' },
+                            { code: 'SB010104-0027', name: '1.4米弧形透视窗冰柜（浙江星星）', qty: 2, unit: '台',
+                                category: '设备/冷链设备/卧式冻柜', spec: '--', brand: '浙江星星',
+                                size: '1475*757*858' }],
+                        files: [{ name: '平面图效果图', source: '工程设计', version: '1',
+                                time: '2026-07-17 20:00' }, { name: '水电图', source: '工程设计',
+                                version: '1', time: '2026-07-17 20:00' }, { name: '水电图展示图',
+                                source: '工程设计', version: '1', time: '2026-07-17 20:00' },
+                            { name: '全套图', source: '工程设计', version: '1', time: '2026-08-06 19:52' },
+                            { name: '下单图', source: '工程设计', version: '1', time: '2026-08-06 19:52' }],
+                        mediaCount: 92
+                    }
+                }]);
+                const currentData = computed(() => getVersion(currentVersion.value).data);
+
+                function getVersion(id) { return versions.value.find(v => v.id === id) || versions.value[versions
+                        .value.length - 1]; }
+
+                function switchVersion(id) { currentVersion.value = id;
+                    fileVersion.value = id;
+                    mediaVersion.value = id; }
+
+                function diffClass(a, b) { if (!compareMode.value && !fileCompare.value && !mediaCompare.value)
+                        return ''; if (a !== b) return 'dtv-diff changed'; return ''; }
+
+                function getSpaceRight(sectionIdx, itemIdx) { const d = getVersion(rightVersion.value).data.space;
+                    return d[sectionIdx]?.items[itemIdx]?.value || ''; }
+
+                function getSpaceLeft(sectionIdx, itemIdx) { const d = getVersion(leftVersion.value).data.space;
+                    return d[sectionIdx]?.items[itemIdx]?.value || ''; }
+
+                function getEquipStatus(row, otherList) { const o = otherList.find(r => r.code === row.code); if (!
+                        o) return '新增/独有'; if (o.qty !== row.qty || o.name !== row.name) return '已变更'; return '相同'; }
+
+                function getEquipStatusClass(row, otherList) { const s = getEquipStatus(row, otherList); if (s ===
+                        '新增/独有') return 'dtv-diff-badge new'; if (s === '已变更') return 'dtv-diff-badge changed';
+                    return ''; }
+
+                function getEquipStyle(row, otherList) { const s = getEquipStatus(row, otherList); if (s ===
+                        '新增/独有') return 'background:#f0fff4;'; if (s === '已变更') return 'background:#fff9e6;';
+                    return ''; }
+
+                function isFileChanged(file, otherList) { const o = otherList.find(f => f.name === file.name); if (!
+                        o) return true; return o.version !== file.version || o.time !== file.time; }
+
+                function renderStoreTags(current, other) { const st = { '常规新店': 'dtv-tag-regular', '乡镇门店': 'dtv-tag-town',
+                        '升级中': 'dtv-tag-upgrading' }; const ic = { '常规新店': '🏪', '乡镇门店': '🏘',
+                        '升级中': '📈' }; return current.map(t => { const d = !other.includes(t); return `<span class="dtv-tag-store ${st[t]||''}" style="${d?'box-shadow:0 0 0 2px #ff7d00;':''}">${ic[t]||''} ${t}</span>`; }).join(''); }
+                return { subTab, equipTab, compareMode, fileCompare, mediaCompare, mediaFilter, currentVersion,
+                    fileVersion, mediaVersion, leftVersion, rightVersion, versions, currentData, getVersion,
+                    switchVersion, diffClass, getSpaceLeft, getSpaceRight, getEquipStatus, getEquipStatusClass,
+                    getEquipStyle, isFileChanged, renderStoreTags };
+            }
+        });
+        detailInfoApp.use(ElementPlus);
+        for (const [key, comp] of Object.entries(ElementPlusIconsVue)) { detailInfoApp.component(key, comp); }
+        detailInfoApp.mount('#detailInfoApp');
+    </script>
+</body>
+</html>
