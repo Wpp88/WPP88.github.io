@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>工程预算详情 - 报价单配置</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; font-size: 13px; color: #303133; }
+  .layout { display: flex; min-height: 100vh; }
+  /* 顶部tab */
+  .top-tabs { position: fixed; top:0; left:0; right:0; height: 40px; background: #fff; border-bottom: 1px solid #ebeef5; display: flex; align-items: center; padding: 0 24px; z-index: 100; }
+  .top-tabs .tab { padding: 0 16px; height: 40px; line-height: 40px; color: #606266; cursor: pointer; }
+  .top-tabs .tab.active { color: #409eff; background: #ecf5ff; border-bottom: 2px solid #409eff; }
+  /* 侧边 */
+  .sidebar { width: 200px; background: #fff; padding: 60px 0 20px; border-right: 1px solid #ebeef5; position: fixed; top:0; bottom:0; left:0; overflow-y:auto; }
+  .menu-item { padding: 10px 20px; color: #606266; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .menu-item.active { background: #ecf5ff; color: #409eff; border-right: 3px solid #409eff; }
+  .menu-item:hover { background: #f5f7fa; }
+  .icon { width: 16px; height: 16px; display: inline-block; background: #dcdfe6; border-radius: 3px; }
+  .menu-item.active .icon { background: #409eff; }
+  /* 主内容 */
+  .main { margin-left: 200px; margin-top: 40px; flex: 1; padding: 20px; display: flex; gap: 16px; }
+  .content { flex: 1; background: #fff; border-radius: 6px; padding: 24px; }
+  .aside { width: 320px; background: #fff; border-radius: 6px; padding: 20px; height: fit-content; }
+  /* 面包屑 */
+  .crumb { color: #909399; margin-bottom: 16px; font-size: 13px; }
+  .crumb a { color: #909399; }
+  /* 标题栏 */
+  .title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .title { font-size: 18px; font-weight: 600; color: #303133; }
+  .title .tag { display: inline-block; padding: 2px 8px; background: #fdf6ec; color: #e6a23c; border-radius: 3px; font-size: 12px; font-weight: normal; margin-left: 8px; }
+  .actions { display: flex; gap: 8px; }
+  .btn { padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid #dcdfe6; background: #fff; color: #606266; }
+  .btn:hover { color: #409eff; border-color: #409eff; }
+  .btn-primary { background: #409eff; color: #fff; border-color: #409eff; }
+  .btn-primary:hover { background: #66b1ff; color: #fff; }
+  /* 详情信息 */
+  .section-title { font-size: 15px; font-weight: 600; color: #303133; border-left: 3px solid #409eff; padding-left: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; margin-bottom: 24px; }
+  .info-item { display: flex; }
+  .info-label { color: #909399; width: 90px; }
+  .info-value { color: #303133; }
+  .badge-pre { display: inline-block; padding: 1px 6px; background: #f4f4f5; color: #909399; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+  /* 报价单提示条 */
+  .config-bar { background: linear-gradient(90deg,#ecf5ff,#f0f9ff); border: 1px solid #b3d8ff; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; }
+  .config-bar-left { display:flex; align-items:center; gap:10px; color:#409eff; font-size:13px; }
+  .config-bar-left .warn-ico { width:18px; height:18px; background:#409eff; color:#fff; border-radius:50%; text-align:center; line-height:18px; font-size:12px; font-weight:bold; flex-shrink:0; }
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #fafafa; color: #606266; padding: 12px; text-align: left; font-weight: 500; border-bottom: 1px solid #ebeef5; font-size: 13px; }
+  td { padding: 14px 12px; border-bottom: 1px solid #f0f0f0; }
+  .file-name { display: flex; align-items: center; gap: 8px; }
+  .file-icon { width: 14px; height: 14px; background: #409eff; border-radius: 2px; }
+  .optional-tag { display: inline-block; padding: 1px 6px; background: #f0f9eb; color: #67c23a; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+  .closed-row { opacity: 0.5; background: #fafafa; }
+  .closed-row td { color: #c0c4cc !important; }
+  .closed-tag { display: inline-block; padding: 1px 6px; background: #f4f4f5; color: #909399; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+  .link { color: #409eff; cursor: pointer; }
+  .link:hover { text-decoration: underline; }
+  .op-btn { color: #409eff; cursor: pointer; margin: 0 6px; font-size: 13px; }
+  .op-btn.disabled { color: #c0c4cc; cursor: not-allowed; }
+  /* 开关 */
+  .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+  .switch input { display: none; }
+  .slider { position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0; background: #dcdfe6; border-radius: 20px; transition: 0.3s; }
+  .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: 0.3s; }
+  input:checked + .slider { background: #409eff; }
+  input:checked + .slider:before { transform: translateX(20px); }
+  /* 总额 */
+  .total-bar { margin-top: 20px; padding: 12px 16px; background: #fafafa; border-radius: 4px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+  .total-bar .label { color: #606266; }
+  .total-bar .amount { font-size: 20px; color: #f56c6c; font-weight: 600; }
+  /* 右侧图片 */
+  .cover { width: 100%; height: 180px; background: linear-gradient(135deg,#ffd66b,#ff9d3d); border-radius: 6px; margin-bottom: 12px; position: relative; }
+  .cover-badge { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,0.5); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+  .store-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+  .store-info { color: #606266; margin-bottom: 6px; }
+  .store-info span { color: #909399; margin-right: 6px; }
+  .tags { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .store-tag { padding: 2px 8px; background: #fff7e6; color: #e6a23c; border-radius: 3px; font-size: 12px; border: 1px solid #ffe7ba; }
+
+  /* 提示toast */
+  .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: #fef0f0; border: 1px solid #fde2e2; color: #f56c6c; padding: 10px 20px; border-radius: 4px; font-size: 13px; z-index: 2000; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .toast.show { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px);} to { opacity: 1; transform: translate(-50%, 0);} }
+</style>
+</head>
+<body>
+  <!-- 顶部 -->
+  <div class="top-tabs">
+    <div class="tab">默认工作台</div>
+    <div class="tab">工作台</div>
+    <div class="tab">工程预算</div>
+    <div class="tab active">工程预算详情</div>
+  </div>
+
+  <!-- 侧边 -->
+  <div class="sidebar">
+    <div class="menu-item"><span class="icon"></span>工作台</div>
+    <div class="menu-item"><span class="icon"></span>工程大盘</div>
+    <div class="menu-item"><span class="icon"></span>项目管理</div>
+    <div class="menu-item"><span class="icon"></span>线下勘场</div>
+    <div class="menu-item"><span class="icon"></span>设计中心</div>
+    <div class="menu-item active"><span class="icon"></span>工程造价</div>
+    <div class="menu-item"><span class="icon"></span>施工巡检</div>
+    <div class="menu-item"><span class="icon"></span>项目验收</div>
+    <div class="menu-item"><span class="icon"></span>工程督查</div>
+    <div class="menu-item"><span class="icon"></span>物资预报</div>
+    <div class="menu-item"><span class="icon"></span>工程回访</div>
+    <div class="menu-item"><span class="icon"></span>合作商管理</div>
+    <div class="menu-item"><span class="icon"></span>资产管理</div>
+    <div class="menu-item"><span class="icon"></span>审核中心</div>
+    <div class="menu-item"><span class="icon"></span>系统设置</div>
+  </div>
+
+  <div class="main">
+    <div class="content">
+      <div class="crumb"><a>工程造价</a> / 工程预算详情</div>
+
+      <div class="title-bar">
+        <div class="title">😀【万店调改（中改）】湖北荆州松滋沙道观镇店 (P20260811226) · <span class="tag">待分配</span></div>
+        <div class="actions">
+          <button class="btn">📋</button>
+          <button class="btn">👁</button>
+          <button class="btn">💬</button>
+          <button class="btn">暂停任务</button>
+          <button class="btn">编辑确认单</button>
+          <button class="btn btn-primary">指派任务</button>
+          <button class="btn">↺</button>
+        </div>
+      </div>
+
+      <!-- 详情信息 -->
+      <div class="section-title">详情信息</div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">成控负责</span><span class="info-value">--</span></div>
+        <div class="info-item"><span class="info-label">标准工期</span><span class="info-value">8天</span></div>
+        <div class="info-item"><span class="info-label">预算工期</span><span class="info-value">--</span></div>
+        <div class="info-item"><span class="info-label">预算工时</span><span class="info-value">--</span></div>
+        <div class="info-item"><span class="info-label">开始时间</span><span class="info-value">2026-09-01 18:13 <span class="badge-pre">预计</span></span></div>
+        <div class="info-item"><span class="info-label">结束时间</span><span class="info-value">2026-09-09 18:13 <span class="badge-pre">预计</span></span></div>
+        <div class="info-item"><span class="info-label">创建时间</span><span class="info-value">2026-08-30 18:13</span></div>
+        <div class="info-item"><span class="info-label">最近更新</span><span class="info-value">2026-08-30 18:13</span></div>
+      </div>
+
+      <!-- 报价单 -->
+      <div class="section-title">
+        预算报表 <span style="color:#909399;font-size:12px;font-weight:normal;">ⓘ</span>
+      </div>
+
+      <!-- 提示条 -->
+      <div class="config-bar">
+        <div class="config-bar-left">
+          <span class="warn-ico">i</span>
+          <span>当前工程类型为<strong>【万店调改（中改）】</strong>，可通过右侧"启用"开关按调改范围关闭不需要的报价单类目，<strong>至少需要保留一个启用的预算报价单</strong></span>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">所属文件</th>
+            <th style="width:15%;">版本记录</th>
+            <th style="width:18%;">预算金额（元）</th>
+            <th style="width:18%;">更新时间</th>
+            <th style="width:9%;">启用</th>
+            <th style="width:10%;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="quoteTable">
+          <tr data-name="装修工程预算报价单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon"></span>
+                <span>装修工程预算报价单</span>
+                <span class="optional-tag">已启用</span>
+              </div>
+            </td>
+            <td><span class="link">0</span></td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+            <td><span class="op-btn">上传</span></td>
+          </tr>
+          <tr data-name="铝合金门窗及收银台报价单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon"></span>
+                <span>铝合金门窗及收银台报价单</span>
+                <span class="optional-tag">已启用</span>
+              </div>
+            </td>
+            <td><span class="link">0</span></td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+            <td><span class="op-btn">上传</span></td>
+          </tr>
+          <tr data-name="广告预算单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon"></span>
+                <span>广告预算单</span>
+                <span class="optional-tag">已启用</span>
+              </div>
+            </td>
+            <td><span class="link">0</span></td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+            <td><span class="op-btn">上传</span></td>
+          </tr>
+          <tr data-name="货架报价单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon"></span>
+                <span>货架报价单</span>
+                <span class="optional-tag">已启用</span>
+              </div>
+            </td>
+            <td><span class="link">0</span></td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+            <td><span class="op-btn">上传</span></td>
+          </tr>
+          <tr class="closed-row" data-name="监控报价单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon" style="background:#c0c4cc;"></span>
+                <span>监控报价单</span>
+                <span class="closed-tag">已关闭</span>
+              </div>
+            </td>
+            <td>--</td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+            <td><span class="op-btn disabled">上传</span></td>
+          </tr>
+          <tr class="closed-row" data-name="冷链系统报价单">
+            <td>
+              <div class="file-name">
+                <span class="file-icon" style="background:#c0c4cc;"></span>
+                <span>冷链系统报价单</span>
+                <span class="closed-tag">已关闭</span>
+              </div>
+            </td>
+            <td>--</td>
+            <td>--</td>
+            <td>--</td>
+            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+            <td><span class="op-btn disabled">上传</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="total-bar">
+        <span class="label">总额算：</span>
+        <span class="amount">0.00</span>
+        <span class="label">元</span>
+      </div>
+    </div>
+
+    <!-- 右侧 -->
+    <div class="aside">
+      <div class="cover">
+        <div class="cover-badge">共15张 ></div>
+      </div>
+      <div class="store-title">【万店调改（中改）】湖北荆州松滋沙道观镇店</div>
+      <div class="store-info"><span>工程监理：</span>黄建强</div>
+      <div class="store-info"><span>门店版本：</span>第六代门店</div>
+      <div class="store-info"><span>创建时间：</span>2026-08-25 18:02</div>
+      <div class="tags">
+        <span class="store-tag">🏪 常规新店</span>
+        <span class="store-tag">🌾 乡镇门店</span>
+        <span class="store-tag">↑ 升级中</span>
+      </div>
+      <div style="margin-top:20px; border-top:1px solid #ebeef5; padding-top:16px;">
+        <div class="store-title">加盟信息</div>
+        <div class="store-info"><span>加盟商名称</span>谢**</div>
+        <div class="store-info"><span>联系方式</span>155****3663</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast提示 -->
+  <div class="toast" id="toast">⚠ 至少需要保留一个启用的预算报价单</div>
+
+  <script>
+    // Toast提示
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = '⚠ ' + msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // 表格开关切换
+    document.querySelectorAll('#quoteTable .switch input').forEach(input => {
+      input.addEventListener('change', function() {
+        // 关闭校验：至少保留一个启用
+        if (!this.checked) {
+          const enabledCount = document.querySelectorAll('#quoteTable .switch input:checked').length;
+          if (enabledCount < 1) {
+            showToast('至少需要保留一个启用的预算报价单');
+            this.checked = true;
+            return;
+          }
+        }
+        const row = this.closest('tr');
+        const tag = row.querySelector('.optional-tag, .closed-tag');
+        const opBtn = row.querySelector('.op-btn');
+        const fileIcon = row.querySelector('.file-icon');
+        if (this.checked) {
+          row.classList.remove('closed-row');
+          if (tag) { tag.className = 'optional-tag'; tag.textContent = '已启用'; }
+          if (opBtn) opBtn.classList.remove('disabled');
+          if (fileIcon) fileIcon.style.background = '#409eff';
+          row.children[1].innerHTML = '<span class="link">0</span>';
+          row.children[2].textContent = '--';
+          row.children[3].textContent = '--';
+        } else {
+          row.classList.add('closed-row');
+          if (tag) { tag.className = 'closed-tag'; tag.textContent = '已关闭'; }
+          if (opBtn) opBtn.classList.add('disabled');
+          if (fileIcon) fileIcon.style.background = '#c0c4cc';
+          row.children[1].textContent = '--';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
