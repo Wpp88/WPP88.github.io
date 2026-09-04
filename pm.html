@@ -1030,7 +1030,6 @@
         .hide {
             display: none !important;
         }
-        /* 调改项表格中的原因小字 */
         .gp-reason {
             font-size: 11px;
             color: #999;
@@ -1040,7 +1039,6 @@
             white-space: normal;
             word-break: break-all;
         }
-        /* 弹窗中调改项确认卡片内的三列radio */
         .kc-three-col {
             display: grid;
             grid-template-columns: 90px 1fr 90px 1fr 90px 1fr;
@@ -2110,8 +2108,6 @@
                                 <div class="upgrade-body">
                                     <div class="info-grid-4">
                                         <div class="info-block"><div class="lb">关联决策流程ID</div><div class="vl"><a style="color:#1890ff;cursor:pointer;"></a></div></div>
-                                        <!-- <div class="info-block"><div class="lb">关联执行流程</div><div class="vl"><a style="color:#1890ff;cursor:pointer;"></a></div></div> -->
-                                        <!-- <div class="info-block"><div class="lb">升级申请人</div><div class="vl">王鹏</div></div> -->
                                         <div class="info-block"><div class="lb">升级项目编号</div><div class="vl" style="color:#ff6a00;">SJ20260428001</div></div>
                                     </div>
                                 </div>
@@ -2133,33 +2129,34 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- 面积与开间：优化为字段项+字段值两列 -->
                             <div class="upgrade-block">
-                                <div class="upgrade-block-title">面积与开间 <span class="src">来源：门店升级项目  <span class="compare-tip"></span></span></div>
+                                <div class="upgrade-block-title">面积与开间 <span class="src">来源：门店升级项目</span></div>
                                 <div class="upgrade-body compare-body">
                                     <table class="compare-field-table">
-                                        <thead><tr><th class="col-field">字段项</th><th>升级前</th><th>升级后（BPM决策流程申报值）</th></tr></thead>
+                                        <thead><tr><th class="col-field">字段项</th><th>字段值</th></tr></thead>
                                         <tbody>
-                                            <tr><td class="col-field">原门店开间（m）</td><td class="col-orig">8.5</td><td class="col-upg">—</td></tr> 
-                                            <tr><td class="col-field">新增门店开间（m）</td><td class="col-orig">—</td><td class="col-upg">1.5</td></tr> 
-                                            <tr><td class="col-field">升级后门店开间（m）</td><td class="col-orig">—</td><td class="col-upg">10.0</td></tr> 
-                                            <tr><td class="col-field">原营业面积（㎡）</td><td class="col-orig">180</td><td class="col-upg">—</td></tr> 
-                                            <tr><td class="col-field">新增营业面积（㎡）</td><td class="col-orig">—</td><td class="col-upg">25</td></tr> 
-                                            <tr><td class="col-field">升级后营业面积（㎡）</td><td class="col-orig">—</td><td class="col-upg">205</td></tr> 
+                                            <tr><td class="col-field">原门店开间（m）</td><td class="col-upg">8.5</td></tr>
+                                            <tr><td class="col-field">新增门店开间（m）</td><td class="col-upg">1.5</td></tr>
+                                            <tr><td class="col-field">升级后门店开间（m）</td><td class="col-upg">10.0</td></tr>
+                                            <tr><td class="col-field">原营业面积（㎡）</td><td class="col-upg">180</td></tr>
+                                            <tr><td class="col-field">新增营业面积（㎡）</td><td class="col-upg">25</td></tr>
+                                            <tr><td class="col-field">升级后营业面积（㎡）</td><td class="col-upg">205</td></tr>
                                         </tbody>
                                     </table>
-                                    <div style="margin-top:10px;color:#999;font-size:12px;"></div>
                                 </div>
                             </div>
+                            <!-- 闭店结论：字段优化为运营确认是否歇业等四个字段 -->
                             <div class="upgrade-block">
                                 <div class="upgrade-block-title">闭店结论 <span class="src">来源：勘场审核结论</span></div>
                                 <div class="upgrade-body">
                                     <div class="info-grid-4">
-                                        <div class="info-block"><div class="lb">闭店结论</div><div class="vl"><span class="gp-badge gp-n">需要闭店</span></div></div>
-                                        <div class="info-block"><div class="lb">预计闭店天数</div><div class="vl">14天</div></div>
-                                        <div class="info-block"><div class="lb">调改清单版本</div><div class="vl">v2.0 <span class="badge-green">已审核</span></div></div>
-                                        <div class="info-block"><div class="lb">审核时间</div><div class="vl">2026-05-09 10:15</div></div>
+                                        <div class="info-block"><div class="lb">运营确认是否歇业</div><div class="vl"><span class="gp-badge gp-n">是</span></div></div>
+                                        <div class="info-block"><div class="lb">门店歇业天数</div><div class="vl">14天</div></div>
+                                        <div class="info-block"><div class="lb">计划歇业开始时间</div><div class="vl">2026-05-16</div></div>
+                                        <div class="info-block"><div class="lb">计划歇业结束时间</div><div class="vl">2026-05-30</div></div>
                                     </div>
-                                    <div style="margin-top:12px;padding:10px 12px;background:#fff;border:1px dashed #ffd8b8;border-radius:4px;color:#666;"><span style="color:#999;">闭店说明：</span>外扩涉及主体墙改造，需闭店14天施工。</div>
+                                    <!-- <div style="margin-top:12px;padding:10px 12px;background:#fff;border:1px dashed #ffd8b8;border-radius:4px;color:#666;"><span style="color:#999;">歇业说明：</span>外扩涉及主体墙改造，运营确认歇业14天施工。</div> -->
                                 </div>
                             </div>
                             <div class="upgrade-block">
@@ -2292,7 +2289,7 @@
             { day: '第35天', name: '工程核量', time: '2026-06-01 16:02', status: '' },
             { day: '第120天', name: '工程结算', time: '2026-06-10 16:02', status: '' }
         ];
-        // 调改项数据：增加 c3(是否取消) 和 c3r(取消原因)
+        // 调改项数据
         const gpItems = [
             { code: 'GP001', name: '门头改造', scene: '外扩改造', cat1: '外部装饰', cat2: '门头', area: '外立面', budget: 8000, c1: true,
                 c2: false, c1r: '', c2r: '', c3: false, c3r: '', collabTags: ['需工程协同', '需广告协同'], compareGroups: [{
