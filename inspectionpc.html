@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PC端巡检详情页｜工程材料（自采）展示原型</title>
+<style>
+  :root {
+    --primary: #1677ff;
+    --success: #16a34a;
+    --success-bg: #ecfdf3;
+    --success-border: #b7ebc6;
+    --danger: #f5222d;
+    --danger-bg: #fff1f0;
+    --warning: #fa8c16;
+    --warning-bg: #fff7e6;
+    --text: #1f2329;
+    --sub: #4e5969;
+    --muted: #86909c;
+    --line: #e5e6eb;
+    --bg: #f5f6f7;
+    --panel: #fff;
+    --soft: #f7f8fa;
+    --blue-soft: #eef6ff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      "PingFang SC",
+      "Microsoft YaHei",
+      Arial,
+      sans-serif;
+    font-size: 14px;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0.055;
+    background-image:
+      repeating-linear-gradient(
+        -25deg,
+        transparent 0,
+        transparent 115px,
+        rgba(60, 60, 60, 0.22) 116px,
+        transparent 118px
+      );
+  }
+
+  .watermark {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 21;
+    overflow: hidden;
+    opacity: 0.07;
+  }
+
+  .watermark span {
+    position: absolute;
+    color: #111;
+    font-size: 15px;
+    line-height: 1.5;
+    transform: rotate(-25deg);
+    white-space: nowrap;
+  }
+
+  .page {
+    width: 100%;
+    min-width: 1280px;
+    padding: 0 18px 28px;
+  }
+
+  .topbar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    margin: 0 -18px;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffdd33, #0bb35d);
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+  }
+
+  .title {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .status-done {
+    color: #1d2129;
+    font-size: 13px;
+  }
+
+  .status-done::before {
+    content: "•";
+    margin: 0 8px;
+    color: #86909c;
+  }
+
+  .content {
+    background: #fff;
+    min-height: calc(100vh - 56px);
+    padding: 14px 0 40px;
+  }
+
+  .success-alert {
+    margin: 0 0 22px;
+    height: 26px;
+    line-height: 24px;
+    border: 1px solid var(--success-border);
+    background: var(--success-bg);
+    color: #16803c;
+    border-radius: 3px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .success-alert::before {
+    content: "✓";
+    display: inline-block;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  .section {
+    margin-bottom: 22px;
+    padding: 0 0 2px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0 0 12px;
+    color: #111827;
+  }
+
+  .section-title::before {
+    content: "";
+    width: 3px;
+    height: 14px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .section-title .icon {
+    color: #86909c;
+    font-weight: 400;
+    font-size: 13px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 26px;
+    column-gap: 90px;
+    padding: 2px 0 8px;
+  }
+
+  .info-item {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    align-items: center;
+    min-height: 20px;
+  }
+
+  .info-label {
+    color: #6b7280;
+    font-size: 13px;
+  }
+
+  .info-value {
+    color: #111827;
+    font-size: 13px;
+  }
+
+  .mini-tag {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #e8f3ff;
+    color: var(--primary);
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  .block {
+    background: #fafafa;
+    border-radius: 4px;
+    padding: 16px 12px;
+  }
+
+  .log-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 90px;
+    row-gap: 14px;
+  }
+
+  .sub-title {
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #111827;
+  }
+
+  .inspection-card {
+    background: #fff;
+    padding: 14px 12px 18px;
+  }
+
+  .inspection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 90px;
+  }
+
+  .inspection-group {
+    min-height: 88px;
+  }
+
+  .group-name {
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #111827;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: start;
+    margin-bottom: 12px;
+  }
+
+  .field-label {
+    color: #6b7280;
+    font-size: 13px;
+  }
+
+  .field-value {
+    font-size: 13px;
+    color: #111827;
+  }
+
+  .thumbs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+    cursor: pointer;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(0, 0, 0, 0.2), transparent 35%),
+      linear-gradient(45deg, #3aa657, #93d56d 40%, #eaeaea 41%, #d89c42 64%, #1f2937);
+    position: relative;
+  }
+
+  .thumb::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 16px;
+    line-height: 16px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .thumb.alt {
+    background:
+      linear-gradient(135deg, rgba(0, 0, 0, 0.26), transparent 35%),
+      linear-gradient(45deg, #c9d1d9, #f2f2f2 42%, #505a64 43%, #b48a55 66%, #111);
+  }
+
+  .thumb.blue {
+    background:
+      linear-gradient(135deg, rgba(0, 0, 0, 0.18), transparent 35%),
+      linear-gradient(45deg, #1e40af, #60a5fa 42%, #f8fafc 43%, #94a3b8 66%, #111827);
+  }
+
+  .thumb.orange {
+    background:
+      linear-gradient(135deg, rgba(0, 0, 0, 0.18), transparent 35%),
+      linear-gradient(45deg, #ea580c, #facc15 42%, #f8fafc 43%, #94a3b8 66%, #111827);
+  }
+
+  /* 工程材料模块 */
+  .material-panel {
+    background: #fff;
+    border-radius: 4px;
+  }
+
+  .material-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafafa;
+    padding: 14px 16px;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid #f0f0f0;
+  }
+
+  .summary {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .summary-card {
+    min-width: 108px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .summary-card .num {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .summary-card .label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .summary-card.success .num {
+    color: var(--success);
+  }
+
+  .summary-card.danger .num {
+    color: var(--danger);
+  }
+
+  .material-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-left: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .chips {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .chip {
+    height: 28px;
+    padding: 0 13px;
+    line-height: 26px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--sub);
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .chip.active {
+    border-color: var(--primary);
+    background: #e8f3ff;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .filter-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--sub);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .check input {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn {
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .btn-primary:hover {
+    color: #fff;
+    background: #0958d9;
+  }
+
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 4px;
+    border: 1px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .btn-export:hover {
+    background: #e8f3ff;
+  }
+
+  .btn-export .ico {
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .material-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border-left: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+  }
+
+  .material-table th {
+    height: 42px;
+    background: #fafafa;
+    color: #4e5969;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .material-table td {
+    border-bottom: 1px solid #edf0f3;
+    padding: 12px;
+    vertical-align: middle;
+    color: #1f2329;
+    font-size: 13px;
+  }
+
+  .material-table tr:hover td {
+    background: #fcfdff;
+  }
+
+  .col-expand {
+    width: 44px;
+    text-align: center;
+  }
+
+  .col-index {
+    width: 56px;
+  }
+
+  .col-type {
+    width: 98px;
+  }
+
+  .col-name {
+    width: 150px;
+  }
+
+  .col-spec {
+    width: auto;
+  }
+
+  .col-img {
+    width: 210px;
+  }
+
+  .col-result {
+    width: 108px;
+  }
+
+  .col-remark {
+    width: 180px;
+  }
+
+  .expand-btn {
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #6b7280;
+  }
+
+  .expand-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .type-tag {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: #f2f3f5;
+    color: #4e5969;
+    font-size: 12px;
+  }
+
+  .type-tag.window {
+    background: #fff7e6;
+    color: #d46b08;
+  }
+
+  .result-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .result-tag.pass {
+    color: var(--success);
+    background: #ecfdf3;
+  }
+
+  .result-tag.fail {
+    color: var(--danger);
+    background: #fff1f0;
+  }
+
+  .spec {
+    color: #4e5969;
+    line-height: 1.55;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .remark {
+    color: #4e5969;
+    line-height: 1.5;
+  }
+
+  .empty {
+    padding: 38px;
+    color: var(--muted);
+    text-align: center;
+    border: 1px solid #f0f0f0;
+    border-top: 0;
+  }
+
+  .detail-row td {
+    background: #fbfcff !important;
+    padding: 0;
+  }
+
+  .material-detail {
+    padding: 16px 20px 18px 68px;
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    gap: 24px;
+    border-bottom: 1px solid #edf0f3;
+  }
+
+  .detail-info {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 10px 14px;
+    align-content: start;
+  }
+
+  .detail-info .k {
+    color: #86909c;
+  }
+
+  .detail-info .v {
+    color: #1f2329;
+    line-height: 1.6;
+  }
+
+  .standard-box {
+    background: #fff;
+    border: 1px solid #e8edf5;
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .standard-box h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+  }
+
+  .standard-box ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #4e5969;
+    line-height: 1.7;
+  }
+
+  .link {
+    color: var(--primary);
+    cursor: pointer;
+  }
+
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  .footer-note {
+    padding: 12px 16px;
+    color: #86909c;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+    font-size: 12px;
+  }
+
+  /* 图片预览弹窗 */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99;
+  }
+
+  .modal-mask.show {
+    display: flex;
+  }
+
+  .modal {
+    width: 720px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .modal-header {
+    height: 48px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-weight: 700;
+  }
+
+  .close {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: transparent;
+    font-size: 22px;
+    color: #86909c;
+    cursor: pointer;
+  }
+
+  .preview-area {
+    height: 420px;
+    background: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+  }
+
+  .preview-img {
+    width: 520px;
+    height: 330px;
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, rgba(0, 0, 0, 0.25), transparent 35%),
+      linear-gradient(45deg, #3aa657, #93d56d 40%, #eaeaea 41%, #d89c42 64%, #1f2937);
+    position: relative;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  }
+
+  .preview-img::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 44px;
+    line-height: 44px;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .modal-footer {
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #4e5969;
+  }
+
+  .toast {
+    position: fixed;
+    top: 74px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.78);
+    color: #fff;
+    padding: 9px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    z-index: 120;
+    display: none;
+  }
+
+  .toast.show {
+    display: block;
+    animation: fade 2s ease forwards;
+  }
+
+  @keyframes fade {
+    0% { opacity: 0; transform: translate(-50%, -8px); }
+    12% { opacity: 1; transform: translate(-50%, 0); }
+    82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+<div class="watermark" id="watermark"></div>
+
+<div class="page">
+  <div class="topbar">
+    <div class="avatar">👷</div>
+    <div class="title">【新店】云南曲靖陆良中医院店（P20260912014）</div>
+    <div class="status-done">已完成</div>
+  </div>
+
+  <main class="content">
+    <div class="success-alert">巡检验收基本合格</div>
+
+    <section class="section">
+      <div class="section-title">详情信息 <span class="icon">⌂</span></div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">工程监理</div>
+          <div class="info-value">张恩华</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">标准工期</div>
+          <div class="info-value">1天</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">巡检工期</div>
+          <div class="info-value">1天</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">巡检工时</div>
+          <div class="info-value">--</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">开始时间</div>
+          <div class="info-value">2026-09-17 01:00 <span class="mini-tag">预计</span></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">结束时间</div>
+          <div class="info-value">2026-09-26 23:59 <span class="mini-tag">预计</span></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">创建时间</div>
+          <div class="info-value">2026-09-14 16:41</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">最近编辑</div>
+          <div class="info-value">2026-09-16 11:05</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">巡检日志</div>
+      <div class="block">
+        <div class="sub-title">巡检时间</div>
+        <div class="log-grid">
+          <div class="info-item">
+            <div class="info-label">巡检时间</div>
+            <div class="info-value">2026-09-16 11:01</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">未按时巡检原因</div>
+            <div class="info-value">工期缩短，提前巡检</div>
+          </div>
+        </div>
+
+        <div class="sub-title" style="margin-top:18px;">反馈与处理</div>
+        <div class="log-grid">
+          <div class="info-item">
+            <div class="info-label">施工方反馈信息</div>
+            <div class="info-value">--</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">加盟商反馈信息</div>
+            <div class="info-value">--</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">处理意见</div>
+            <div class="info-value">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">巡检信息</div>
+      <div class="inspection-card">
+        <div class="inspection-grid">
+          <div class="inspection-group">
+            <div class="group-name">门头</div>
+            <div class="field-row">
+              <div class="field-label">门店门头照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb" data-label="门头1" onclick="openPreview('门店门头照片-1')"></div>
+                <div class="thumb" data-label="门头2" onclick="openPreview('门店门头照片-2')"></div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-label">备注</div>
+              <div class="field-value">门窗利用，原招牌今日完成拆除</div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">&nbsp;</div>
+            <div class="field-row">
+              <div class="field-label">门店效果照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb" data-label="效果1" onclick="openPreview('门店效果照片-1')"></div>
+                <div class="thumb" data-label="效果2" onclick="openPreview('门店效果照片-2')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">收银台</div>
+            <div class="field-row">
+              <div class="field-label">收银台照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb alt" data-label="收银台" onclick="openPreview('收银台照片')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">&nbsp;</div>
+            <div class="field-row">
+              <div class="field-label">备注</div>
+              <div class="field-value">基本合格，造型暂未施工</div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">室内地砖</div>
+            <div class="field-row">
+              <div class="field-label">室内地砖照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb alt" data-label="地砖" onclick="openPreview('室内地砖照片')"></div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-label">备注</div>
+              <div class="field-value">基本合格</div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">&nbsp;</div>
+            <div class="field-row">
+              <div class="field-label">室内效果照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb alt" data-label="室内1" onclick="openPreview('室内效果照片-1')"></div>
+                <div class="thumb alt" data-label="室内2" onclick="openPreview('室内效果照片-2')"></div>
+                <div class="thumb alt" data-label="室内3" onclick="openPreview('室内效果照片-3')"></div>
+                <div class="thumb alt" data-label="室内4" onclick="openPreview('室内效果照片-4')"></div>
+                <div class="thumb alt" data-label="室内5" onclick="openPreview('室内效果照片-5')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">仓库</div>
+            <div class="field-row">
+              <div class="field-label">仓库照片</div>
+              <div class="field-value thumbs">
+                <div class="thumb alt" data-label="仓库1" onclick="openPreview('仓库照片-1')"></div>
+                <div class="thumb alt" data-label="仓库2" onclick="openPreview('仓库照片-2')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">&nbsp;</div>
+            <div class="field-row">
+              <div class="field-label">备注</div>
+              <div class="field-value">基本合格</div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">采购验收</div>
+            <div class="field-row">
+              <div class="field-label">验收单图片</div>
+              <div class="field-value thumbs">
+                <div class="thumb alt" data-label="验收单" onclick="openPreview('验收单图片')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspection-group">
+            <div class="group-name">&nbsp;</div>
+            <div class="field-row">
+              <div class="field-label">是否采用公司采购</div>
+              <div class="field-value">是</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 工程材料（自采） -->
+    <section class="section">
+      <div class="section-title">工程材料（自采）</div>
+
+      <div class="material-panel">
+        <div class="material-top">
+          <div class="summary">
+            <div class="summary-card">
+              <div class="num" id="sumTotal">19</div>
+              <div class="label">材料总数</div>
+            </div>
+            <div class="summary-card success">
+              <div class="num" id="sumPass">17</div>
+              <div class="label">合格项</div>
+            </div>
+            <div class="summary-card danger">
+              <div class="num" id="sumFail">2</div>
+              <div class="label">不合格项</div>
+            </div>
+          </div>
+
+          <div class="material-actions">
+            <!-- <button class="btn" onclick="toggleAll(true)">展开全部</button> -->
+            <!-- <button class="btn" onclick="toggleAll(false)">收起全部</button> -->
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="chips">
+            <div class="chip active" data-filter="全部" onclick="setFilter(this)">全部</div>
+            <div class="chip" data-filter="装修业务" onclick="setFilter(this)">装修业务</div>
+            <div class="chip" data-filter="门窗业务" onclick="setFilter(this)">门窗业务</div>
+          </div>
+
+          <div class="filter-right">
+            <button class="btn-export" onclick="exportMaterialList()">
+              <span class="ico">⤓</span> 导出工程材料（自采）巡检全部项清单
+            </button>
+
+            <label class="check">
+              <input type="checkbox" id="onlyFail" onchange="renderMaterials()" />
+              仅看不合格项
+            </label>
+          </div>
+        </div>
+
+        <table class="material-table">
+          <thead>
+            <tr>
+              <th class="col-expand"></th>
+              <th class="col-index">序号</th>
+              <th class="col-type">业务分类</th>
+              <th class="col-name">材料名称</th>
+              <th class="col-spec">公司规格要求</th>
+              <th class="col-img">现场图片</th>
+              <th class="col-result">检查结果</th>
+              <th class="col-remark">备注</th>
+            </tr>
+          </thead>
+          <tbody id="materialBody"></tbody>
+        </table>
+
+        <div id="emptyState" class="empty" style="display:none;">暂无符合筛选条件的工程材料</div>
+
+        <div class="footer-note">
+          <!-- 展示规则：提交巡检报告后，PC端巡检详情页需展示全部工程材料（自采）检查项；每项展示业务分类、材料名称、公司规格要求、现场图片、合格/不合格结果与备注。点击缩略图可预览大图，点击行首按钮可查看详情。 -->
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-mask" id="previewModal" onclick="closePreview(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="previewTitle">图片预览</div>
+      <button class="close" onclick="hidePreview()">×</button>
+    </div>
+    <div class="preview-area">
+      <div class="preview-img" id="previewImg" data-label="现场图片"></div>
+    </div>
+    <div class="modal-footer">
+      <span id="previewDesc">工程巡检现场图片</span>
+      <button class="btn btn-primary" onclick="hidePreview()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const materials = [
+    {
+      type: "装修业务",
+      name: "电线",
+      spec: "品牌：郑州第三、永通中策、山东正泰、江苏上上、广东珠江、金杯、昆明电缆、贵阳中安、湖南西湖、恒飞电缆、远东电缆、上海起帆、安徽绿宝、广州南洋、民丰、太平洋。",
+      result: "不合格",
+      remark: "现场电线品牌未在公司要求品牌范围内，需施工方更换。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "木方",
+      spec: "20mm（±1mm）×30mm（±1mm）。",
+      result: "合格",
+      remark: "规格符合要求。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "镀锌方通（招牌）",
+      spec: "20mm×40mm×1.2mm±0.2mm；30mm×30mm×1.2mm±0.2mm（弧形处）。",
+      result: "合格",
+      remark: "现场抽检厚度符合要求。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "检修口（招牌）",
+      spec: "白色成品检修口，400×400mm×1.2mm厚 / 盖板壁厚0.6mm。",
+      result: "合格",
+      remark: "已按要求预留。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "底漆",
+      spec: "品牌：立邦漆、多乐士。",
+      result: "合格",
+      remark: "使用立邦底漆。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "吊杆",
+      spec: "直径8mm，间距900–1200mm。",
+      result: "合格",
+      remark: "间距符合标准。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "吊顶主龙骨",
+      spec: "38mm±3mm卡式龙骨；间距1200mm。",
+      result: "合格",
+      remark: "主龙骨安装基本合格。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "吊顶副龙骨",
+      spec: "50mm±2mm铝合金副龙骨；间距400mm。",
+      result: "合格",
+      remark: "副龙骨规格符合要求。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "9mm难燃/阻燃胶合板",
+      spec: "立柱、背景墙、灯箱、外立面铝塑板基层、收银台品牌区域加厚。",
+      result: "合格",
+      remark: "材料有阻燃标识。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "12mm难燃/阻燃胶合板",
+      spec: "招牌、地台、风幕机。",
+      result: "合格",
+      remark: "厚度符合要求。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "灯带",
+      spec: "室外高压：蓝景光电（A0-FT）、日上光电（ZY0137THA-1100）；室内低压：蓝景光电（YD2-PRO-C）、华展阳光（HZ-1）。",
+      result: "不合格",
+      remark: "部分室内灯带型号与标准不一致，需复核采购批次。",
+      imgs: 3
+    },
+    {
+      type: "装修业务",
+      name: "隔墙龙骨",
+      spec: "75型轻钢龙骨，以国标为准，至少0.6mm厚。",
+      result: "合格",
+      remark: "符合国标要求。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "石膏板",
+      spec: "9.5mm以上；品牌：泰山、梦牌、龙牌（北新）。",
+      result: "合格",
+      remark: "使用龙牌石膏板。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "插座面板",
+      spec: "颜色：纯白；品牌：德力西 / 正泰 / 西门子 / 公牛 / 罗格朗 / 施罗格。",
+      result: "合格",
+      remark: "颜色与品牌符合要求。",
+      imgs: 1
+    },
+    {
+      type: "装修业务",
+      name: "电线波纹管/阻燃黄腊管",
+      spec: "阻燃等级需达B1；打火机烧是否起明火。",
+      result: "合格",
+      remark: "现场阻燃测试无明火。",
+      imgs: 2
+    },
+    {
+      type: "装修业务",
+      name: "水泥",
+      spec: "325标号及以上水泥。",
+      result: "合格",
+      remark: "使用325标号水泥。",
+      imgs: 1
+    },
+    {
+      type: "门窗业务",
+      name: "门/窗框铝型材",
+      spec: "门框铝型材壁厚2mm±0.2mm；橱窗铝型材壁厚1.5mm±0.2mm。",
+      result: "合格",
+      remark: "抽检厚度符合要求。",
+      imgs: 2
+    },
+    {
+      type: "门窗业务",
+      name: "10厚钢化玻璃",
+      spec: "门；3C钢印。",
+      result: "合格",
+      remark: "有3C钢印。",
+      imgs: 2
+    },
+    {
+      type: "门窗业务",
+      name: "12厚钢化玻璃",
+      spec: "窗；3C钢印。",
+      result: "合格",
+      remark: "有3C钢印。",
+      imgs: 1
+    }
+  ];
+
+  let currentFilter = "全部";
+  const expanded = new Set();
+
+  function createWatermark() {
+    const box = document.getElementById("watermark");
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    let html = "";
+    for (let y = -80; y < h + 160; y += 120) {
+      for (let x = -120; x < w + 200; x += 280) {
+        html += `<span style="left:${x}px;top:${y}px;">王鹏<br/>2026/9/16</span>`;
+      }
+    }
+    box.innerHTML = html;
+  }
+
+  function renderThumbs(item, index) {
+    let html = "";
+    for (let i = 1; i <= item.imgs; i++) {
+      const cls = item.type === "门窗业务" ? "thumb blue" : (item.result === "不合格" ? "thumb orange" : "thumb alt");
+      html += `<div class="${cls}" data-label="图${i}" onclick="openPreview('${item.name} 现场图片-${i}', '${item.name}')"></div>`;
+    }
+    return `<div class="thumbs">${html}</div>`;
+  }
+
+  function getFilteredMaterials() {
+    return materials.filter(item => {
+      const typeOk = currentFilter === "全部" || item.type === currentFilter;
+      const failOk = !document.getElementById("onlyFail").checked || item.result === "不合格";
+      return typeOk && failOk;
+    });
+  }
+
+  function renderMaterials() {
+    const tbody = document.getElementById("materialBody");
+    const empty = document.getElementById("emptyState");
+    const list = getFilteredMaterials();
+
+    if (!list.length) {
+      tbody.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+
+    empty.style.display = "none";
+
+    let html = "";
+    list.forEach((item) => {
+      const realIndex = materials.indexOf(item);
+      const isOpen = expanded.has(realIndex);
+      const resultCls = item.result === "合格" ? "pass" : "fail";
+      const typeCls = item.type === "门窗业务" ? "type-tag window" : "type-tag";
+
+      html += `
+        <tr>
+          <td class="col-expand">
+            <button class="expand-btn" onclick="toggleRow(${realIndex})">${isOpen ? "−" : "+"}</button>
+          </td>
+          <td class="col-index">${realIndex + 1}</td>
+          <td class="col-type"><span class="${typeCls}">${item.type}</span></td>
+          <td class="col-name"><strong>${item.name}</strong></td>
+          <td class="col-spec"><div class="spec" title="${item.spec}">${item.spec}</div></td>
+          <td class="col-img">${renderThumbs(item, realIndex)}</td>
+          <td class="col-result">
+            <span class="result-tag ${resultCls}">${item.result === "合格" ? "✓" : "!"} ${item.result}</span>
+          </td>
+          <td class="col-remark"><div class="remark">${item.remark || "--"}</div></td>
+        </tr>
+      `;
+
+      if (isOpen) {
+        html += `
+          <tr class="detail-row">
+            <td colspan="8">
+              <div class="material-detail">
+                <div class="detail-info">
+                  <div class="k">材料名称</div>
+                  <div class="v">${item.name}</div>
+                  <div class="k">业务分类</div>
+                  <div class="v">${item.type}</div>
+                  <div class="k">规格要求</div>
+                  <div class="v">${item.spec}</div>
+                  <div class="k">现场图片</div>
+                  <div class="v">${renderThumbs(item, realIndex)}</div>
+                  <div class="k">检查结果</div>
+                  <div class="v"><span class="result-tag ${resultCls}">${item.result === "合格" ? "✓" : "!"} ${item.result}</span></div>
+                  <div class="k">备注说明</div>
+                  <div class="v">${item.remark || "--"}</div>
+                </div>
+
+                <div class="standard-box">
+                  <h4>展示说明</h4>
+                  <ul>
+                    <li>PC端详情页仅做巡检结果展示，不允许直接编辑。</li>
+                    <li>点击缩略图可查看现场上传大图。</li>
+                    <li>不合格材料以红色标签突出展示。</li>
+                    <li><span class="link" onclick="openPreview('${item.name} 示例标准', '${item.name}')">查看该材料示例标准</span></li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    });
+
+    tbody.innerHTML = html;
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const total = materials.length;
+    const pass = materials.filter(i => i.result === "合格").length;
+    const fail = materials.filter(i => i.result === "不合格").length;
+    document.getElementById("sumTotal").innerText = total;
+    document.getElementById("sumPass").innerText = pass;
+    document.getElementById("sumFail").innerText = fail;
+  }
+
+  function setFilter(el) {
+    document.querySelectorAll(".chip").forEach(chip => chip.classList.remove("active"));
+    el.classList.add("active");
+    currentFilter = el.dataset.filter;
+    renderMaterials();
+  }
+
+  function toggleRow(index) {
+    if (expanded.has(index)) {
+      expanded.delete(index);
+    } else {
+      expanded.add(index);
+    }
+    renderMaterials();
+  }
+
+  function toggleAll(open) {
+    expanded.clear();
+    if (open) {
+      getFilteredMaterials().forEach(item => expanded.add(materials.indexOf(item)));
+      showToast("已展开全部工程材料");
+    } else {
+      showToast("已收起全部工程材料");
+    }
+    renderMaterials();
+  }
+
+  /* 导出工程材料（自采）巡检全部项清单 */
+  function exportMaterialList() {
+    const headers = [
+      "序号",
+      "业务分类",
+      "材料名称",
+      "公司规格要求",
+      "检查结果",
+      "现场图片数量",
+      "备注"
+    ];
+
+    const rows = materials.map((item, index) => [
+      index + 1,
+      item.type,
+      item.name,
+      item.spec,
+      item.result,
+      item.imgs,
+      item.remark || ""
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const storeTitle = document.querySelector(".title").innerText.replace(/[\\/:*?"<>|]/g, "");
+    link.href = url;
+    link.download = `${storeTitle}_工程材料（自采）巡检全部项清单.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast("已导出工程材料（自采）巡检全部项清单");
+  }
+
+  function openPreview(title, desc) {
+    const modal = document.getElementById("previewModal");
+    const previewTitle = document.getElementById("previewTitle");
+    const previewImg = document.getElementById("previewImg");
+    const previewDesc = document.getElementById("previewDesc");
+
+    previewTitle.innerText = title || "图片预览";
+    previewImg.setAttribute("data-label", title || "现场图片");
+    previewDesc.innerText = desc ? `当前材料：${desc}` : "工程巡检现场图片";
+    modal.classList.add("show");
+  }
+
+  function closePreview(e) {
+    if (e.target.id === "previewModal") {
+      hidePreview();
+    }
+  }
+
+  function hidePreview() {
+    document.getElementById("previewModal").classList.remove("show");
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById("toast");
+    toast.innerText = text;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") hidePreview();
+  });
+
+  window.addEventListener("resize", createWatermark);
+
+  createWatermark();
+  renderMaterials();
+</script>
+</body>
+</html>
