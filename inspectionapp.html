@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>巡检详情页-上传报告完整动态原型</title>
+<style>
+  :root{
+    --orange:#ff6a00;
+    --orange2:#ff8a1f;
+    --bg:#f7f7f7;
+    --card:#fff;
+    --text:#222;
+    --sub:#8b8b8b;
+    --line:#eeeeee;
+    --red:#ff4d4f;
+    --green:#16b364;
+    --blue:#2f80ed;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;
+    background:#d8d8d8;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    color:var(--text);
+  }
+  .phone{
+    width:390px;
+    height:844px;
+    margin:18px auto;
+    background:var(--bg);
+    border-radius:28px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+  }
+  .status{
+    height:44px;
+    background:#fff;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    padding:0 20px 8px;
+    font-size:18px;
+    font-weight:700;
+  }
+  .status-icons{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .signal{
+    width:22px;height:18px;display:inline-block;
+    background:linear-gradient(to top,#111 0 35%,transparent 35%),
+               linear-gradient(to top,#111 0 55%,transparent 55%),
+               linear-gradient(to top,#111 0 75%,transparent 75%),
+               linear-gradient(to top,#111 0 100%,transparent 100%);
+    background-size:4px 100%;
+    background-repeat:no-repeat;
+    background-position:0 bottom,6px bottom,12px bottom,18px bottom;
+    border-radius:2px;
+  }
+  .wifi{
+    width:22px;height:15px;position:relative;display:inline-block;
+  }
+  .wifi:before{
+    content:"";
+    position:absolute;inset:0;
+    border:4px solid #111;
+    border-color:#111 transparent transparent transparent;
+    border-radius:50%;
+  }
+  .wifi:after{
+    content:"";
+    position:absolute;left:8px;top:8px;
+    width:6px;height:6px;background:#111;border-radius:50%;
+  }
+  .battery{
+    width:28px;height:15px;border:2px solid #111;border-radius:5px;position:relative;display:inline-block;
+  }
+  .battery:before{
+    content:"";position:absolute;left:3px;top:3px;width:14px;height:5px;background:#111;border-radius:2px;
+  }
+  .battery:after{
+    content:"";position:absolute;right:-5px;top:4px;width:3px;height:5px;background:#111;border-radius:1px;
+  }
+
+  .nav{
+    height:54px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    border-bottom:1px solid #efefef;
+    z-index:20;
+  }
+  .back{
+    position:absolute;
+    left:16px;
+    top:11px;
+    width:32px;height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    line-height:1;
+    font-weight:300;
+  }
+  .nav-title{
+    font-size:22px;
+    font-weight:800;
+  }
+  .page{
+    height:668px;
+    overflow-y:auto;
+    padding:12px 12px 92px;
+  }
+  .page::-webkit-scrollbar{display:none}
+
+  .project-card{
+    background:linear-gradient(135deg,#fff5ed,#fff);
+    border-radius:12px;
+    padding:18px 14px;
+    margin-bottom:14px;
+  }
+  .project-head{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:21px;
+    font-weight:800;
+    line-height:28px;
+  }
+  .logo{
+    width:26px;height:26px;border-radius:50%;
+    background:linear-gradient(135deg,#ff4040,#ffb000);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:16px;flex-shrink:0;
+  }
+  .status-tag{
+    margin-left:auto;
+    flex-shrink:0;
+    height:30px;
+    padding:0 9px;
+    border-radius:5px;
+    border:1px solid #f4dfc7;
+    color:#c28a43;
+    background:#fffaf2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    font-weight:500;
+  }
+  .project-code{
+    color:#777;
+    font-size:17px;
+    margin-top:8px;
+  }
+  .address{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    color:#777;
+    margin-top:13px;
+    font-size:16px;
+  }
+  .detail-info{
+    margin-top:18px;
+  }
+  .info-row{
+    display:flex;
+    align-items:center;
+    min-height:34px;
+    font-size:17px;
+  }
+  .info-row .k{
+    width:92px;
+    color:#8a8a8a;
+  }
+  .info-row .v{
+    color:#222;
+    font-weight:500;
+  }
+  .info-row .orange{
+    color:#c66d11;
+  }
+  .mini-tag{
+    display:inline-block;
+    margin-left:8px;
+    padding:2px 6px;
+    border-radius:4px;
+    background:#fff4e9;
+    color:#d97816;
+    font-size:13px;
+  }
+
+  .empty{
+    height:360px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#555;
+    font-size:18px;
+  }
+  .empty-illu{
+    width:150px;height:120px;
+    position:relative;
+    margin-bottom:20px;
+    opacity:.62;
+  }
+  .empty-illu .box{
+    position:absolute;bottom:0;left:15px;width:120px;height:50px;background:#d7d7d7;border-radius:8px;
+  }
+  .empty-illu .paper{
+    position:absolute;bottom:30px;left:45px;width:70px;height:80px;background:#efefef;border-radius:7px;
+  }
+  .empty-illu .paper:before{
+    content:"";position:absolute;left:16px;top:18px;width:38px;height:26px;background:#d4d4d4;border-radius:4px;
+  }
+  .empty-illu .paper:after{
+    content:"";position:absolute;left:16px;top:52px;width:40px;height:5px;background:#d4d4d4;border-radius:4px;
+    box-shadow:0 12px 0 #d4d4d4;
+  }
+  .empty-illu .bubble{
+    position:absolute;right:0;top:0;width:58px;height:42px;background:#e9e9e9;border-radius:22px;
+  }
+  .empty-illu .bubble:after{
+    content:"";position:absolute;left:8px;bottom:-8px;border:8px solid transparent;border-top-color:#e9e9e9;
+  }
+  .empty-illu .bubble span{
+    position:absolute;left:16px;top:18px;width:6px;height:6px;background:#bbb;border-radius:50%;
+    box-shadow:13px 0 0 #bbb,26px 0 0 #bbb;
+  }
+
+  .bottom{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:92px;
+    background:#fff;
+    border-top:1px solid #e9e9e9;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:10px 16px 18px;
+    z-index:40;
+  }
+  .bottom-tab{
+    width:50px;
+    text-align:center;
+    color:#222;
+    font-size:14px;
+  }
+  .bottom-tab .ico{
+    display:block;
+    font-size:28px;
+    line-height:30px;
+    margin-bottom:4px;
+  }
+  .main-btn{
+    flex:1;
+    height:54px;
+    border:none;
+    border-radius:12px;
+    background:var(--orange);
+    color:#fff;
+    font-size:22px;
+    font-weight:700;
+  }
+  .main-btn.light{
+    background:#ffb680;
+  }
+
+  .section-title{
+    margin:14px 4px 9px;
+    font-size:15px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .section-title .left{
+    display:flex;
+    align-items:center;
+  }
+  .section-title .left:before{
+    content:"";
+    width:3px;height:15px;border-radius:2px;background:var(--orange);
+    margin-right:7px;
+  }
+  .card{
+    background:#fff;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .form-row{
+    min-height:48px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    font-size:15px;
+  }
+  .form-row:last-child{border-bottom:none}
+  .form-row .label{
+    min-width:96px;
+    color:#555;
+  }
+  .form-row .value{
+    flex:1;
+    text-align:right;
+    color:#333;
+  }
+  .required{color:#f5222d;margin-left:2px}
+
+  .tabbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:flex;
+    background:#fff;
+    border-radius:10px;
+    padding:4px;
+    margin-bottom:10px;
+    box-shadow:0 3px 12px rgba(0,0,0,.04);
+  }
+  .tabbar button{
+    flex:1;
+    border:none;
+    height:36px;
+    border-radius:8px;
+    background:transparent;
+    color:#777;
+    font-size:15px;
+    font-weight:700;
+  }
+  .tabbar button.active{
+    background:var(--orange);
+    color:#fff;
+  }
+
+  .form-item{
+    padding:9px 0 13px;
+    border-bottom:1px solid var(--line);
+  }
+  .form-item:last-child{border-bottom:none}
+  .form-label{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .help{
+    font-size:12px;
+    color:#aaa;
+    line-height:18px;
+    margin-top:5px;
+  }
+  textarea{
+    width:100%;
+    border:none;
+    outline:none;
+    resize:none;
+    min-height:58px;
+    font-size:14px;
+    line-height:22px;
+    font-family:inherit;
+    color:#333;
+  }
+  textarea::placeholder{color:#bbb}
+  .counter{
+    text-align:right;
+    color:#bbb;
+    font-size:12px;
+  }
+
+  .upload-list{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .upload-add,.thumb{
+    width:58px;height:58px;
+    border-radius:7px;
+    overflow:hidden;
+    position:relative;
+  }
+  .upload-add{
+    border:1px dashed #ddd;
+    background:#fafafa;
+    color:#999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+  }
+  .thumb img{
+    width:100%;height:100%;object-fit:cover;
+  }
+  .del{
+    position:absolute;
+    top:0;right:0;
+    width:18px;height:18px;
+    line-height:18px;
+    text-align:center;
+    color:#fff;
+    background:rgba(0,0,0,.48);
+    border-bottom-left-radius:6px;
+    font-size:13px;
+  }
+
+  .radio-line{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    font-size:15px;
+  }
+  .radio{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot{
+    width:16px;height:16px;
+    border-radius:50%;
+    border:1.5px solid #ccc;
+    position:relative;
+  }
+  .radio.active .dot{
+    border-color:var(--orange);
+  }
+  .radio.active .dot:after{
+    content:"";
+    position:absolute;
+    left:3px;top:3px;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--orange);
+  }
+  .result-group{
+    display:flex;
+    height:42px;
+    border:1px solid #eee;
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .result-group button{
+    flex:1;
+    border:none;
+    background:#fff;
+    font-size:15px;
+    color:#777;
+  }
+  .result-group button+button{
+    border-left:1px solid #eee;
+  }
+  .result-group .pass.active{
+    color:var(--orange);
+    background:#fff7ef;
+    font-weight:800;
+  }
+  .result-group .fail.active{
+    color:#f5222d;
+    background:#fff1f0;
+    font-weight:800;
+  }
+
+  .filter{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    margin-bottom:10px;
+  }
+  .filter::-webkit-scrollbar{display:none}
+  .chip{
+    flex-shrink:0;
+    border:1px solid #eee;
+    background:#fff;
+    color:#666;
+    border-radius:18px;
+    padding:7px 12px;
+    font-size:13px;
+  }
+  .chip.active{
+    background:var(--orange);
+    color:#fff;
+    border-color:var(--orange);
+  }
+
+  .material-card{
+    background:#fff;
+    border-radius:12px;
+    margin-bottom:10px;
+    overflow:hidden;
+    border:1px solid #f1f1f1;
+  }
+  .material-head{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    padding:12px;
+    border-bottom:1px solid #f3f3f3;
+  }
+  .index{
+    width:24px;height:24px;border-radius:50%;
+    background:#fff2e8;
+    color:var(--orange);
+    font-size:12px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .material-name{
+    font-size:16px;
+    line-height:22px;
+    font-weight:800;
+  }
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    height:20px;
+    padding:0 6px;
+    border-radius:4px;
+    font-size:11px;
+    font-weight:700;
+    margin-right:4px;
+    margin-top:5px;
+  }
+  .tag-orange{background:#fff2e6;color:#ff6a00}
+  .tag-blue{background:#edf5ff;color:#2f80ed}
+  .tag-red{background:#fff1f0;color:#f5222d}
+  .tag-green{background:#eafff2;color:#12a15b}
+  .expand{
+    margin-left:auto;
+    color:#999;
+    font-size:20px;
+    transform:rotate(90deg);
+    transition:.18s;
+  }
+  .material-card.closed .expand{
+    transform:rotate(0);
+  }
+  .material-body{
+    padding:0 12px 12px;
+  }
+  .material-card.closed .material-body{
+    display:none;
+  }
+  .standard{
+    margin:10px 0;
+    padding:10px;
+    border-radius:8px;
+    background:#fafafa;
+    color:#555;
+    font-size:13px;
+    line-height:20px;
+  }
+  .standard b{color:#222}
+  .sample-link{
+    color:var(--orange);
+    font-weight:700;
+    margin-left:4px;
+  }
+
+  .detail-section{
+    background:#fff;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .detail-section h3{
+    margin:0 0 10px;
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .detail-section h3:before{
+    content:"";
+    width:3px;height:15px;border-radius:2px;background:var(--orange);
+  }
+  .detail-item{
+    padding:9px 0;
+    border-bottom:1px solid #f0f0f0;
+  }
+  .detail-item:last-child{border-bottom:none}
+  .detail-label{
+    color:#999;
+    font-size:13px;
+    margin-bottom:7px;
+  }
+  .detail-value{
+    color:#333;
+    font-size:14px;
+    line-height:21px;
+  }
+  .detail-imgs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .detail-img{
+    width:58px;height:58px;border-radius:7px;object-fit:cover;
+  }
+  .detail-row{
+    display:flex;
+    min-height:35px;
+    padding:8px 0;
+    border-bottom:1px solid #f0f0f0;
+    font-size:14px;
+  }
+  .detail-row:last-child{border-bottom:none}
+  .detail-row .k{width:110px;color:#999}
+  .detail-row .v{flex:1;text-align:right;color:#333}
+  .pass-text{color:var(--green);font-weight:800}
+  .fail-text{color:#f5222d;font-weight:800}
+
+  .toast{
+    position:absolute;
+    left:50%;
+    bottom:112px;
+    transform:translateX(-50%);
+    max-width:310px;
+    background:rgba(0,0,0,.78);
+    color:#fff;
+    padding:10px 14px;
+    border-radius:22px;
+    font-size:13px;
+    z-index:200;
+    display:none;
+  }
+  .toast.show{display:block}
+
+  .modal-mask{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.48);
+    z-index:180;
+    display:none;
+    align-items:flex-end;
+  }
+  .modal-mask.show{display:flex}
+  .modal{
+    width:100%;
+    max-height:78%;
+    overflow-y:auto;
+    background:#fff;
+    border-radius:18px 18px 0 0;
+    padding:16px 14px 26px;
+  }
+  .modal-title{
+    text-align:center;
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:12px;
+  }
+  .sample-img{
+    height:178px;
+    border-radius:13px;
+    background:
+      linear-gradient(135deg,rgba(255,106,0,.9),rgba(255,182,110,.75)),
+      repeating-linear-gradient(45deg,#fff 0,#fff 8px,#e8e8e8 8px,#e8e8e8 16px);
+    color:#fff;
+    position:relative;
+    padding:15px;
+    overflow:hidden;
+  }
+  .sample-img:before{
+    content:"示例图片";
+    position:absolute;
+    top:14px;left:14px;
+    font-size:14px;
+    font-weight:700;
+    opacity:.9;
+  }
+  .sample-img:after{
+    content:"材料本体 + 品牌/规格标签 + 尺寸/厚度测量";
+    position:absolute;
+    left:15px;right:15px;bottom:15px;
+    font-size:17px;
+    font-weight:800;
+    line-height:24px;
+  }
+  .modal-info{
+    margin-top:10px;
+    padding:10px;
+    background:#fafafa;
+    border-radius:10px;
+    color:#555;
+    font-size:13px;
+    line-height:21px;
+  }
+  .modal-info b{color:#222}
+  .modal-btn{
+    margin-top:14px;
+    width:100%;
+    height:44px;
+    border:none;
+    border-radius:9px;
+    background:var(--orange);
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+  }
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="status">
+    <div id="timeText">11:49</div>
+    <div class="status-icons">
+      <span class="signal"></span>
+      <span class="wifi"></span>
+      <span class="battery"></span>
+    </div>
+  </div>
+
+  <!-- 巡检详情页 -->
+  <div id="detailScreen">
+    <div class="nav">
+      <div class="back">‹</div>
+      <div class="nav-title">巡检详情页</div>
+    </div>
+
+    <div class="page" id="detailPage">
+      <div class="project-card">
+        <div class="project-head">
+          <div class="logo">🐵</div>
+          <div style="flex:1">【新店】新疆伊犁伊宁花城商场店</div>
+          <div class="status-tag" id="projectStatus">待巡检</div>
+        </div>
+        <div class="project-code">(P20260607709)</div>
+        <div class="address">
+          <div>◎ 解放西路303号 ›</div>
+          <div>&gt;10km</div>
+        </div>
+        <div class="detail-info">
+          <div class="info-row"><div class="k">工程监理</div><div class="v">席伟</div></div>
+          <div class="info-row"><div class="k">开始时间</div><div class="v">2026-08-25 17:30 <span class="mini-tag">预计</span></div></div>
+          <div class="info-row"><div class="k">结束时间</div><div class="v">2026-10-03 23:59 <span class="mini-tag">预计</span></div></div>
+          <div class="info-row"><div class="k">巡检工时</div><div class="v" id="workHour">--</div></div>
+          <div class="info-row"><div class="k">剩余工期</div><div class="v"><span class="orange">17天12小时</span></div></div>
+        </div>
+      </div>
+
+      <div id="emptyBlock" class="empty">
+        <div class="empty-illu">
+          <div class="bubble"><span></span></div>
+          <div class="paper"></div>
+          <div class="box"></div>
+        </div>
+        <div>暂无巡检</div>
+      </div>
+
+      <div id="reportDetailBlock" class="hidden"></div>
+    </div>
+
+    <div class="bottom">
+      <div class="bottom-tab"><span class="ico">▰</span>项目</div>
+      <div class="bottom-tab"><span class="ico">▤</span>动态</div>
+      <button id="uploadBtn" class="main-btn" onclick="openReportForm()">上传报告</button>
+    </div>
+  </div>
+
+  <!-- 上传巡检报告页 -->
+  <div id="formScreen" class="hidden">
+    <div class="nav">
+      <div class="back" onclick="backToDetail()">‹</div>
+      <div class="nav-title" style="font-size:18px">巡检报告</div>
+    </div>
+
+    <div class="page" id="formPage">
+      <div class="project-card">
+        <div class="project-head" style="font-size:16px;line-height:22px">
+          <div class="logo" style="width:22px;height:22px;font-size:13px">🐵</div>
+          <div>【新店】新疆伊犁伊宁花城商场店</div>
+        </div>
+        <div class="address" style="font-size:13px;margin-top:8px">
+          <div>◎ 解放西路303号</div>
+          <div>&gt;10km</div>
+        </div>
+        <div class="form-row">
+          <div class="label">计划巡检</div>
+          <div class="value">2026-08-25 ～ 2026-10-03</div>
+        </div>
+        <div class="form-row">
+          <div class="label">实际巡检<span class="required">*</span></div>
+          <div class="value">2026-09-16 11:49 ›</div>
+        </div>
+        <div class="form-item" style="border-bottom:none;padding-bottom:0">
+          <div class="form-label">检测到你未按时巡检</div>
+          <textarea placeholder="请输入原因" oninput="state.delayReason=this.value"></textarea>
+        </div>
+      </div>
+
+      <div class="tabbar">
+        <button id="craftTabBtn" class="active" onclick="switchFormTab('craft')">工艺标准</button>
+        <button id="materialTabBtn" onclick="switchFormTab('material')">工程材料（自采）</button>
+      </div>
+
+      <div id="craftPanel"></div>
+      <div id="materialPanel" class="hidden"></div>
+    </div>
+
+    <div class="bottom">
+      <button class="main-btn light" style="height:46px;font-size:16px;flex:.7;background:#fff;color:#ff6a00;border:1px solid #ff6a00" onclick="saveDraft()">暂存</button>
+      <button class="main-btn light" style="height:46px;font-size:16px;flex:.85;background:#fff4ec;color:#ff6a00" onclick="fillDemo()">一键填充（演示）</button>
+      <button class="main-btn" style="height:46px;font-size:16px" onclick="submitReport()">提交</button>
+    </div>
+  </div>
+
+  <!-- 示例标准弹窗 -->
+  <div class="modal-mask" id="sampleModal" onclick="hideSample(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title" id="sampleTitle">示例标准</div>
+      <div class="sample-img"></div>
+      <div class="modal-info">
+        <b>图片上传要求：</b><br>
+        1. 每个工程自采材料必须上传图片，至少1张，最多5张。<br>
+        2. 图片需清晰展示材料本体、品牌、规格标签。<br>
+        3. 涉及厚度、尺寸、间距的材料，需拍摄卷尺/卡尺测量画面。<br>
+        4. 不符合公司规格要求时，选择“不合格”并填写备注。
+      </div>
+      <div class="modal-info" id="sampleSpec"></div>
+      <button class="modal-btn" onclick="closeSample()">知道了</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const materials = [
+  {biz:'装修业务',name:'电线',spec:'品牌：郑州第三、永通中策、山东正泰、江苏上上、广东珠江、金杯、昆明电缆、贵阳中安、湖南西湖、恒飞电缆、远东电缆、上海起帆、安徽绿宝、广州南洋、民丰、太平洋。'},
+  {biz:'装修业务',name:'木方',spec:'20mm（±1mm）×30mm（±1mm）。'},
+  {biz:'装修业务',name:'镀锌方通（招牌）',spec:'20mm×40mm×1.2mm±0.2mm；30mm×30mm×1.2mm±0.2mm（弧形处）。'},
+  {biz:'装修业务',name:'检修口（招牌）',spec:'白色成品检修口，400×400mm×1.2mm厚 / 盖板壁厚0.6mm。'},
+  {biz:'装修业务',name:'底漆',spec:'品牌：立邦漆、多乐士。'},
+  {biz:'装修业务',name:'吊杆',spec:'直径8mm，间距900–1200mm。'},
+  {biz:'装修业务',name:'吊顶主龙骨',spec:'38mm±3mm卡式龙骨；间距1200mm。'},
+  {biz:'装修业务',name:'吊顶副龙骨',spec:'50mm±2mm铝合金副龙骨；间距400mm。'},
+  {biz:'装修业务',name:'9mm难燃/阻燃胶合板',spec:'立柱、背景墙、灯箱、外立面铝塑板基层、收银台品牌区域加厚。'},
+  {biz:'装修业务',name:'12mm难燃/阻燃胶合板',spec:'招牌、地台、风幕机。'},
+  {biz:'装修业务',name:'灯带',spec:'室外高压：蓝景光电（A0-FT）、日上光电（ZY0137THA-1100）；室内低压：蓝景光电（YD2-PRO-C）、华展阳光（HZ-1）。'},
+  {biz:'装修业务',name:'隔墙龙骨',spec:'75型轻钢龙骨，以国标为准，至少0.6mm厚。'},
+  {biz:'装修业务',name:'石膏板',spec:'9.5mm以上；品牌：泰山、梦牌、龙牌（北新）。'},
+  {biz:'装修业务',name:'插座面板',spec:'颜色：纯白；品牌：德力西 / 正泰 / 西门子 / 公牛 / 罗格朗 / 施罗格。'},
+  {biz:'装修业务',name:'电线波纹管/阻燃黄腊管',spec:'阻燃等级需达B1；打火机烧是否起明火。'},
+  {biz:'装修业务',name:'水泥',spec:'325标号及以上水泥。'},
+  {biz:'门窗业务',name:'门/窗框铝型材',spec:'门框铝型材壁厚2mm±0.2mm；橱窗铝型材壁厚1.5mm±0.2mm。'},
+  {biz:'门窗业务',name:'10厚钢化玻璃',spec:'门；3C钢印。'},
+  {biz:'门窗业务',name:'12厚钢化玻璃',spec:'窗；3C钢印。'}
+];
+
+const craftSections = [
+  {
+    title:'1.门头信息',
+    items:[
+      {type:'image',key:'doorPhoto',label:'门店门头照片',help:'门头LOGO位置，至少2张'},
+      {type:'image',key:'doorEffect',label:'门头效果照片',help:'铝塑板收边打胶处理'},
+      {type:'text',key:'doorRemark',label:'门头信息备注'}
+    ]
+  },
+  {
+    title:'2.收银台信息',
+    items:[
+      {type:'image',key:'cashierPhoto',label:'收银台照片',help:'收银台、背板、顶部造型照片'},
+      {type:'text',key:'cashierRemark',label:'收银台备注'}
+    ]
+  },
+  {
+    title:'3.室内地砖信息',
+    items:[
+      {type:'image',key:'tilePhoto',label:'室内地砖照片',help:'地砖详解、美缝'},
+      {type:'image',key:'insidePhoto',label:'室内效果照片',help:'室内对角照片'},
+      {type:'text',key:'insideRemark',label:'室内信息备注'}
+    ]
+  },
+  {
+    title:'4.仓库信息',
+    items:[
+      {type:'image',key:'warehousePhoto',label:'仓库照片',help:'仓库对角拍摄'},
+      {type:'text',key:'warehouseRemark',label:'仓库备注'}
+    ]
+  },
+  {
+    title:'5.采购验收信息',
+    items:[
+      {type:'image',key:'acceptPhoto',label:'验收单图片',help:'采购单'},
+      {type:'radio',key:'companyPurchase',label:'是否采用公司采购',options:['是','否']}
+    ]
+  },
+  {
+    title:'6.反馈与处理',
+    items:[
+      {type:'text',key:'builderFeedback',label:'施工方反馈信息',max:150},
+      {type:'text',key:'franchiseeFeedback',label:'加盟商反馈信息',max:150},
+      {type:'text',key:'handleOpinion',label:'处理意见',max:150}
+    ]
+  }
+];
+
+const state = {
+  hasReport:false,
+  formTab:'craft',
+  materialFilter:'全部',
+  delayReason:'',
+  acceptance:'',
+  craft:{},
+  material:{}
+};
+
+craftSections.forEach(sec=>{
+  sec.items.forEach(it=>{
+    if(it.type === 'image') state.craft[it.key] = {imgs:[]};
+    if(it.type === 'text') state.craft[it.key] = '';
+    if(it.type === 'radio') state.craft[it.key] = '';
+  });
+});
+
+materials.forEach((m,i)=>{
+  state.material[i] = {
+    open:i < 3,
+    imgs:[],
+    result:'',
+    remark:''
+  };
+});
+
+function imgSvg(label,color='#ff8a1f'){
+  const t = encodeURIComponent(label);
+  const c = encodeURIComponent(color);
+  return `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop stop-color='%23edf8ff'/%3E%3Cstop offset='1' stop-color='%23c9e9fb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='160' height='160' rx='18' fill='url(%23g)'/%3E%3Crect x='20' y='26' width='120' height='78' rx='8' fill='%23fff' opacity='.75'/%3E%3Cpath d='M32 88 L66 53 L88 74 L105 59 L132 88' stroke='${c}' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='112' cy='45' r='10' fill='${c}'/%3E%3Crect x='18' y='116' width='124' height='24' rx='5' fill='${c}'/%3E%3Ctext x='80' y='132' text-anchor='middle' font-size='13' fill='white' font-family='Arial'%3E${t}%3C/text%3E%3C/svg%3E`;
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.innerText=msg;
+  el.classList.add('show');
+  clearTimeout(window.__toast);
+  window.__toast=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+function openReportForm(){
+  document.getElementById('detailScreen').classList.add('hidden');
+  document.getElementById('formScreen').classList.remove('hidden');
+}
+
+function backToDetail(){
+  document.getElementById('formScreen').classList.add('hidden');
+  document.getElementById('detailScreen').classList.remove('hidden');
+}
+
+function switchFormTab(tab){
+  state.formTab=tab;
+  document.getElementById('craftTabBtn').classList.toggle('active',tab==='craft');
+  document.getElementById('materialTabBtn').classList.toggle('active',tab==='material');
+  document.getElementById('craftPanel').classList.toggle('hidden',tab!=='craft');
+  document.getElementById('materialPanel').classList.toggle('hidden',tab!=='material');
+}
+
+function renderUpload(group,key,imgs,max,label){
+  return `
+    <div class="upload-list">
+      ${imgs.map((src,idx)=>`
+        <div class="thumb">
+          <img src="${src}">
+          <span class="del" onclick="removeImg('${group}','${key}',${idx})">×</span>
+        </div>
+      `).join('')}
+      ${imgs.length < max ? `
+        <div class="upload-add" onclick="addImg('${group}','${key}','${label || '图片'}')">+</div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function addImg(group,key,label){
+  const src = imgSvg(label, group === 'material' ? '#ff6a00' : '#2f80ed');
+  if(group === 'craft'){
+    state.craft[key].imgs.push(src);
+  }else{
+    state.material[key].imgs.push(src);
+  }
+  renderAll();
+}
+
+function removeImg(group,key,idx){
+  if(group === 'craft'){
+    state.craft[key].imgs.splice(idx,1);
+  }else{
+    state.material[key].imgs.splice(idx,1);
+  }
+  renderAll();
+}
+
+function renderCraft(){
+  const root=document.getElementById('craftPanel');
+  root.innerHTML='';
+  craftSections.forEach(sec=>{
+    root.innerHTML += `
+      <div class="section-title"><div class="left">${sec.title}</div></div>
+      <div class="card" id="craft-${sec.title}"></div>
+    `;
+    const card = root.querySelector(`#craft-${CSS.escape(sec.title)}`);
+    sec.items.forEach(it=>{
+      let html='';
+      if(it.type === 'image'){
+        html=`
+          <div class="form-item">
+            <div class="form-label">${it.label}<span class="required">*</span></div>
+            ${renderUpload('craft',it.key,state.craft[it.key].imgs,5,it.label)}
+            <div class="help">${it.help}</div>
+          </div>
+        `;
+      }
+      if(it.type === 'text'){
+        const val=state.craft[it.key] || '';
+        html=`
+          <div class="form-item">
+            <div class="form-label">${it.label}<span class="required">*</span></div>
+            <textarea maxlength="${it.max || 500}" placeholder="请输入" oninput="state.craft['${it.key}']=this.value">${val}</textarea>
+            ${it.max ? `<div class="counter">${val.length}/${it.max}</div>` : ''}
+          </div>
+        `;
+      }
+      if(it.type === 'radio'){
+        html=`
+          <div class="form-item">
+            <div class="form-label">${it.label}<span class="required">*</span></div>
+            <div class="radio-line">
+              ${it.options.map(op=>`
+                <div class="radio ${state.craft[it.key]===op?'active':''}" onclick="state.craft['${it.key}']='${op}';renderCraft()">
+                  <span class="dot"></span>${op}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      card.innerHTML += html;
+    });
+  });
+
+  root.innerHTML += `
+    <div class="section-title"><div class="left">验收结果</div></div>
+    <div class="card">
+      <div class="result-group">
+        <button class="pass ${state.acceptance==='合格'?'active':''}" onclick="setAcceptance('合格')">合格</button>
+        <button class="pass ${state.acceptance==='基本合格'?'active':''}" onclick="setAcceptance('基本合格')">基本合格</button>
+        <button class="fail ${state.acceptance==='不合格'?'active':''}" onclick="setAcceptance('不合格')">不合格</button>
+      </div>
+    </div>
+  `;
+}
+
+function setAcceptance(v){
+  state.acceptance=v;
+  renderCraft();
+}
+
+function renderMaterial(){
+  const root=document.getElementById('materialPanel');
+  root.innerHTML=`
+    <div class="section-title">
+      <div class="left">工程材料（自采）</div>
+      <div style="font-size:12px;color:#999;font-weight:400">每项至少1张，最多5张</div>
+    </div>
+    <div class="filter">
+      ${['全部','装修业务','门窗业务'].map(f=>`
+        <button class="chip ${state.materialFilter===f?'active':''}" onclick="setMaterialFilter('${f}')">${f}</button>
+      `).join('')}
+    </div>
+  `;
+
+  materials.forEach((m,i)=>{
+    if(state.materialFilter !== '全部' && state.materialFilter !== m.biz) return;
+    const d=state.material[i];
+    root.innerHTML += `
+      <div class="material-card ${d.open?'':'closed'}">
+        <div class="material-head" onclick="toggleMaterial(${i})">
+          <div class="index">${i+1}</div>
+          <div style="flex:1">
+            <div class="material-name">${m.name}<span class="required">*</span></div>
+            <div>
+              <span class="tag ${m.biz==='装修业务'?'tag-orange':'tag-blue'}">${m.biz}</span>
+              <span class="tag tag-red">自采必检</span>
+            </div>
+          </div>
+          <div class="expand">›</div>
+        </div>
+        <div class="material-body">
+          <div class="standard"><b>公司规格要求：</b><br>${m.spec}</div>
+
+          <div class="form-item">
+            <div class="form-label">上传图片<span class="required">*</span></div>
+            ${renderUpload('material',i,d.imgs,5,m.name)}
+            <div class="help">
+              必须按照示例标准上传图片。
+              <span class="sample-link" onclick="event.stopPropagation();openSample(${i})">查看示例标准 ›</span>
+            </div>
+          </div>
+
+          <div class="form-item">
+            <div class="form-label">选择<span class="required">*</span></div>
+            <div class="result-group">
+              <button class="pass ${d.result==='合格'?'active':''}" onclick="event.stopPropagation();setMaterialResult(${i},'合格')">合格</button>
+              <button class="fail ${d.result==='不合格'?'active':''}" onclick="event.stopPropagation();setMaterialResult(${i},'不合格')">不合格</button>
+            </div>
+          </div>
+
+          <div class="form-item">
+            <div class="form-label">备注</div>
+            <textarea maxlength="150" placeholder="请输入品牌、规格、异常说明等" oninput="state.material[${i}].remark=this.value">${d.remark}</textarea>
+            <div class="counter">${d.remark.length}/150</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function toggleMaterial(i){
+  state.material[i].open = !state.material[i].open;
+  renderMaterial();
+}
+function setMaterialFilter(f){
+  state.materialFilter=f;
+  renderMaterial();
+}
+function setMaterialResult(i,r){
+  state.material[i].result=r;
+  renderMaterial();
+}
+
+function openSample(i){
+  const m=materials[i];
+  document.getElementById('sampleTitle').innerText = `${m.name}｜示例标准`;
+  document.getElementById('sampleSpec').innerHTML = `<b>本材料规格要求：</b><br>${m.spec}`;
+  document.getElementById('sampleModal').classList.add('show');
+}
+function closeSample(){
+  document.getElementById('sampleModal').classList.remove('show');
+}
+function hideSample(e){
+  if(e.target.id === 'sampleModal') closeSample();
+}
+
+function saveDraft(){
+  toast('已暂存，可稍后继续填写');
+}
+
+function fillDemo(){
+  craftSections.forEach(sec=>{
+    sec.items.forEach(it=>{
+      if(it.type === 'image'){
+        state.craft[it.key].imgs = [imgSvg(it.label,'#2f80ed'), imgSvg(it.label,'#2f80ed')];
+      }
+      if(it.type === 'text'){
+        state.craft[it.key] = '现场已按标准完成，暂无异常。';
+      }
+      if(it.type === 'radio'){
+        state.craft[it.key] = '是';
+      }
+    });
+  });
+  state.acceptance='基本合格';
+  materials.forEach((m,i)=>{
+    state.material[i].imgs = [imgSvg(m.name,'#ff6a00')];
+    state.material[i].result = i === 0 || i === 16 ? '不合格' : '合格';
+    state.material[i].remark = i === 0 || i === 16 ? '现场材料与公司规格要求存在偏差，需整改后复核。' : '';
+  });
+  renderAll();
+  toast('已一键填充演示数据');
+}
+
+function validate(){
+  if(!state.acceptance){
+    switchFormTab('craft');
+    toast('请选择验收结果');
+    return false;
+  }
+  for(let i=0;i<materials.length;i++){
+    const d=state.material[i];
+    if(d.imgs.length < 1){
+      state.materialFilter='全部';
+      state.material[i].open=true;
+      switchFormTab('material');
+      renderMaterial();
+      toast(`请上传「${materials[i].name}」材料图片`);
+      return false;
+    }
+    if(!d.result){
+      state.materialFilter='全部';
+      state.material[i].open=true;
+      switchFormTab('material');
+      renderMaterial();
+      toast(`请选择「${materials[i].name}」合格/不合格`);
+      return false;
+    }
+  }
+  return true;
+}
+
+function submitReport(){
+  if(!validate()) return;
+  state.hasReport=true;
+  renderDetailReport();
+  document.getElementById('projectStatus').innerText='已巡检';
+  document.getElementById('projectStatus').style.color='#16b364';
+  document.getElementById('projectStatus').style.borderColor='#bdebd0';
+  document.getElementById('projectStatus').style.background='#effff5';
+  document.getElementById('workHour').innerText='1小时20分';
+  document.getElementById('uploadBtn').innerText='修改报告';
+  backToDetail();
+  toast('提交成功，已返回巡检详情页');
+}
+
+function renderDetailReport(){
+  const empty=document.getElementById('emptyBlock');
+  const block=document.getElementById('reportDetailBlock');
+  empty.classList.add('hidden');
+  block.classList.remove('hidden');
+
+  const finalResult = state.acceptance || '基本合格';
+  const hasFail = materials.some((m,i)=>state.material[i].result === '不合格') || finalResult === '不合格';
+
+  block.innerHTML = `
+    <div class="detail-section">
+      <h3>巡检总览</h3>
+      <div class="detail-row"><div class="k">巡检时间</div><div class="v">2026-09-16 11:49</div></div>
+      <div class="detail-row"><div class="k">验收结果</div><div class="v ${finalResult==='不合格'?'fail-text':'pass-text'}">${finalResult}</div></div>
+      <div class="detail-item">
+        <div class="detail-label">未按时巡检原因</div>
+        <div class="detail-value">${state.delayReason || '—'}</div>
+      </div>
+    </div>
+
+    <div class="tabbar" style="position:static">
+      <button class="active" id="detailCraftBtn" onclick="switchDetailTab('craft')">工艺标准</button>
+      <button id="detailMaterialBtn" onclick="switchDetailTab('material')">工程材料（自采）</button>
+    </div>
+
+    <div id="detailCraftContent"></div>
+    <div id="detailMaterialContent" class="hidden"></div>
+  `;
+
+  renderDetailCraft();
+  renderDetailMaterial();
+}
+
+function switchDetailTab(tab){
+  document.getElementById('detailCraftBtn').classList.toggle('active',tab==='craft');
+  document.getElementById('detailMaterialBtn').classList.toggle('active',tab==='material');
+  document.getElementById('detailCraftContent').classList.toggle('hidden',tab!=='craft');
+  document.getElementById('detailMaterialContent').classList.toggle('hidden',tab!=='material');
+}
+
+function renderDetailCraft(){
+  const root=document.getElementById('detailCraftContent');
+  let html='';
+  craftSections.forEach(sec=>{
+    html += `<div class="detail-section"><h3>${sec.title}</h3>`;
+    sec.items.forEach(it=>{
+      if(it.type === 'image'){
+        const imgs = state.craft[it.key].imgs.length ? state.craft[it.key].imgs : [imgSvg(it.label,'#2f80ed')];
+        html += `
+          <div class="detail-item">
+            <div class="detail-label">${it.label}</div>
+            <div class="detail-imgs">${imgs.slice(0,5).map(src=>`<img class="detail-img" src="${src}">`).join('')}</div>
+          </div>
+        `;
+      }
+      if(it.type === 'text'){
+        html += `
+          <div class="detail-item">
+            <div class="detail-label">${it.label}</div>
+            <div class="detail-value">${state.craft[it.key] || '—'}</div>
+          </div>
+        `;
+      }
+      if(it.type === 'radio'){
+        html += `
+          <div class="detail-row">
+            <div class="k">${it.label}</div>
+            <div class="v">${state.craft[it.key] || '—'}</div>
+          </div>
+        `;
+      }
+    });
+    html += `</div>`;
+  });
+  root.innerHTML=html;
+}
+
+function renderDetailMaterial(){
+  const root=document.getElementById('detailMaterialContent');
+  let html=`
+    <div class="detail-section">
+      <h3>工程材料（自采）</h3>
+      <div class="detail-value">本次新增工程材料自采巡检项共 ${materials.length} 项，每项均需按照示例标准上传图片。</div>
+    </div>
+  `;
+  materials.forEach((m,i)=>{
+    const d=state.material[i];
+    const imgs=d.imgs.length ? d.imgs : [imgSvg(m.name,'#ff6a00')];
+    html += `
+      <div class="detail-section">
+        <h3>${i+1}.${m.name}</h3>
+        <div class="detail-item">
+          <div class="detail-label">类目</div>
+          <div>
+            <span class="tag ${m.biz==='装修业务'?'tag-orange':'tag-blue'}">${m.biz}</span>
+            <span class="tag tag-red">工程材料（自采）</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">公司规格要求</div>
+          <div class="detail-value">${m.spec}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">上传图片</div>
+          <div class="detail-imgs">${imgs.slice(0,5).map(src=>`<img class="detail-img" src="${src}">`).join('')}</div>
+        </div>
+        <div class="detail-row">
+          <div class="k">选择</div>
+          <div class="v ${d.result==='不合格'?'fail-text':'pass-text'}">${d.result || '—'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">备注</div>
+          <div class="detail-value">${d.remark || '—'}</div>
+        </div>
+      </div>
+    `;
+  });
+  root.innerHTML=html;
+}
+
+function renderAll(){
+  renderCraft();
+  renderMaterial();
+}
+
+renderAll();
+</script>
+</body>
+</html>
