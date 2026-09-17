@@ -800,7 +800,7 @@
 
       <div class="tabbar">
         <button id="craftTabBtn" class="active" onclick="switchFormTab('craft')">工艺标准</button>
-        <button id="materialTabBtn" onclick="switchFormTab('material')">工程材料（自采）</button>
+        <button id="materialTabBtn" onclick="switchFormTab('material')">工程材料</button>
       </div>
 
       <div id="craftPanel"></div>
@@ -1068,7 +1068,7 @@ function renderMaterial(){
   const root=document.getElementById('materialPanel');
   root.innerHTML=`
     <div class="section-title">
-      <div class="left">工程材料（自采）</div>
+      <div class="left">工程材料</div>
       <div style="font-size:12px;color:#999;font-weight:400">每项至少1张，最多5张</div>
     </div>
     <div class="filter">
@@ -1243,7 +1243,7 @@ function renderDetailReport(){
 
     <div class="tabbar" style="position:static">
       <button class="active" id="detailCraftBtn" onclick="switchDetailTab('craft')">工艺标准</button>
-      <button id="detailMaterialBtn" onclick="switchDetailTab('material')">工程材料（自采）</button>
+      <button id="detailMaterialBtn" onclick="switchDetailTab('material')">工程材料</button>
     </div>
 
     <div id="detailCraftContent"></div>
@@ -1302,7 +1302,7 @@ function renderDetailMaterial(){
   const root=document.getElementById('detailMaterialContent');
   let html=`
     <div class="detail-section">
-      <h3>工程材料（自采）</h3>
+      <h3>工程材料</h3>
       <div class="detail-value">本次新增工程材料自采巡检项共 ${materials.length} 项，每项均需按照示例标准上传图片。</div>
     </div>
   `;
@@ -1316,7 +1316,7 @@ function renderDetailMaterial(){
           <div class="detail-label">类目</div>
           <div>
             <span class="tag ${m.biz==='装修业务'?'tag-orange':'tag-blue'}">${m.biz}</span>
-            <span class="tag tag-red">工程材料（自采）</span>
+            <span class="tag tag-red">工程材料</span>
           </div>
         </div>
         <div class="detail-item">
