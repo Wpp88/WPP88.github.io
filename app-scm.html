@@ -2254,6 +2254,17 @@
                         <div class="upload-section"><div class="upload-title"><span class="required">*</span>上传店外照片<span class="upload-tip">（最少2张，最多10张）</span></div><div class="upload-grid" id="uploadOuter"><div class="upload-item"><img src="https://picsum.photos/seed/outer1/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer2/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer3/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-item"><img src="https://picsum.photos/seed/outer4/200/200" alt="店外照片" onclick="previewImage(this.src, 'uploadOuter')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadOuter','outer')"><i class="fa fa-close"></i></div></div><div class="upload-btn" onclick="addUpload('uploadOuter','outer')"><i class="fa fa-camera"></i><span>4/10</span></div></div></div>
                         <!-- 收据 -->
                         <div class="upload-section"><div class="upload-title"><span class="required">*</span>上传收据<span class="upload-tip">（最少1张，最多5张）</span></div><div class="upload-grid" id="uploadReceipt"><div class="upload-item"><img src="https://picsum.photos/seed/receipt1/200/200" alt="收据" onclick="previewImage(this.src, 'uploadReceipt')"><div class="del-btn" onclick="event.stopPropagation();delUpload(this,'uploadReceipt','receipt')"><i class="fa fa-close"></i></div></div><div class="upload-btn" onclick="addUpload('uploadReceipt','receipt')"><i class="fa fa-plus"></i><span>1/5</span></div></div></div>
+
+                        <!-- 加盟商欠第三方费用已结清 -->
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <div class="form-item" style="border-bottom:none;">
+                                <div class="form-label" style="width:168px;line-height:1.35;"><span class="required">*</span>加盟商欠第三方费用已结清</div>
+                                <div class="radio-group" id="feeSettleRadioGroup" style="flex:1;justify-content:flex-end;">
+                                    <div class="radio-item" id="feeSettleYes" onclick="switchFeeSettle('yes')"><div class="radio-circle"></div><span>是</span></div>
+                                    <div class="radio-item" id="feeSettleNo" onclick="switchFeeSettle('no')"><div class="radio-circle"></div><span>否</span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="bottom-bar"><button class="btn-default" onclick="showToast('取消')">取消</button><button class="btn-primary" onclick="submitFinish()">提交</button></div>
                 </div>
@@ -2567,6 +2578,19 @@
         // ========== 完成拆除 ==========
         function updateCounter(el, id) { document.getElementById(id).textContent = el.value.length; }
 
+        // 加盟商欠第三方费用已结清 - 单选
+        function switchFeeSettle(type) {
+            const y = document.getElementById('feeSettleYes');
+            const n = document.getElementById('feeSettleNo');
+            if (type === 'yes') {
+                y.classList.add('checked');
+                n.classList.remove('checked');
+            } else {
+                y.classList.remove('checked');
+                n.classList.add('checked');
+            }
+        }
+
         function delUpload(el, containerId, type) {
             el.parentElement.remove();
             updateUploadCount(containerId, type);
@@ -2602,11 +2626,14 @@
             const inner = document.querySelectorAll('#uploadInner .upload-item').length;
             const outer = document.querySelectorAll('#uploadOuter .upload-item').length;
             const receipt = document.querySelectorAll('#uploadReceipt .upload-item').length;
+            const feeChecked = document.querySelector('#feeSettleRadioGroup .radio-item.checked');
             if (!time) { showToast('请选择拆除完成时间'); return; }
             if (inner < 2) { showToast('请至少上传2张店内照片'); return; }
             if (outer < 4) { showToast('请至少上传4张店外照片'); return; }
             if (receipt < 1) { showToast('请至少上传1张收据'); return; }
-            showToast('拆除完成提交成功！项目已流转至"待分配成控专员"');
+            if (!feeChecked) { showToast('请选择加盟商欠第三方费用是否已结清'); return; }
+            const feeText = feeChecked.id === 'feeSettleYes' ? '已结清' : '未结清';
+            showToast('拆除完成提交成功！费用状态：' + feeText + '，项目已流转至"待分配成控专员"');
         }
 
         // ========== 全局图片预览 Lightbox ==========
