@@ -372,6 +372,20 @@
   .tact button:hover{background:#eceff3;color:var(--blue)}
   .tact button.del:hover{color:var(--red)}
   .tact svg{width:12px;height:12px}
+  .cat-type-tag{font-size:9.5px;line-height:15px;padding:0 5px;border-radius:4px;flex-shrink:0;font-weight:600;letter-spacing:.2px}
+  .cat-type-tag.doc{background:#fff3e6;color:#c76a12}
+  .cat-type-tag.video{background:#f0ebff;color:#6b46c1}
+  .ctype-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .ctype-opt{border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s}
+  .ctype-opt:hover{border-color:#a9c4f7}
+  .ctype-opt.on{border-color:var(--blue);background:var(--blue-light);box-shadow:inset 0 0 0 1px var(--blue)}
+  .ctype-opt .ct-h{display:flex;align-items:center;gap:7px;font-size:12.8px;color:#3f4753}
+  .ctype-opt.on .ct-h{color:var(--blue)}
+  .ctype-opt .ct-radio{width:13px;height:13px;border:1.5px solid #c3cad6;border-radius:50%;flex-shrink:0;background:#fff}
+  .ctype-opt.on .ct-radio{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 0 3px,#fff 3.2px)}
+  .ctype-opt p{margin:5px 0 0 20px;font-size:11.5px;color:#8a919f;line-height:1.55}
+  .ctype-lock{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;background:#f6f8fc;border:1px dashed #d8dee8;font-size:12px;color:#667085;line-height:1.6}
+  .ctype-lock svg{width:14px;height:14px;flex-shrink:0;color:#9aa2ae;margin-top:2px}
   .tree-children{margin-left:22px}
   .cat-detail{padding:18px 20px}
   .form-row{display:flex;gap:12px;margin-bottom:14px}
@@ -1626,7 +1640,7 @@
                   <a class="op-link" onclick="addRootCat()"><svg style="width:11px;height:11px;vertical-align:-1px"><use href="#i-plus"/></svg> 一级分类</a>
                 </div>
                 <div id="catTree"></div>
-                <div class="tip-note" style="margin-top:14px"><svg><use href="#i-info"/></svg><span>目录分类为三级结构（一级篇章 / 二级专业 / 三级节点，来源于；改名与删除会级联同步到已归类资料与视频。）</span></div>
+                <div class="tip-note" style="margin-top:14px"><svg><use href="#i-info"/></svg><span>目录分类为三级结构（一级篇章 / 二级专业 / 三级节点）；分类可设置「资料+视频 / 仅资料 / 仅视频」，用户端资料中心与视频学堂按设置分别展示。改名与删除会级联同步到已归类资料与视频。</span></div>
               </div>
               <div class="card cat-detail" id="catDetail"></div>
             </div>
@@ -1753,6 +1767,7 @@
             <select class="tb-select" id="upCat3" style="width:100%;height:34px"></select>
           </div>
         </div>
+        <div style="font-size:11.5px;color:#9aa2ae;margin:-6px 0 14px">仅展示支持资料分类（资料+视频 / 仅资料）；「仅视频」分类不会出现在资料上传下拉中。</div>
         <div class="pick-group">
           <label><em>*</em>上传文件 <span class="hint">支持 PDF、PPT、EXCEL、图片，可多份，单个不超过 50MB</span></label>
           <input type="file" id="upFileInput" accept=".pdf,.ppt,.pptx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.webp" multiple style="display:none" onchange="handleUpFiles(this.files)">
@@ -1883,6 +1898,7 @@
             <select class="tb-select" id="vdCat3" style="width:100%;height:34px"></select>
           </div>
         </div>
+        <div style="font-size:11.5px;color:#9aa2ae;margin:-6px 0 14px">仅展示支持视频分类（资料+视频 / 仅视频）；「仅资料」分类不会出现在视频上传下拉中。</div>
         <div class="pick-group">
           <label><em>*</em>上传视频文件 <span class="hint">仅支持 1 个视频文件，MP4 / MOV，不超过 2GB，时长自动读取</span></label>
           <input type="file" id="vdFileInput" accept=".mp4,.mov" style="display:none" onchange="handleVdFile(this.files)">
@@ -2404,7 +2420,7 @@ var CATALOG = [
   { n: '门店设计篇', ic: 'i-pen', c: 'linear-gradient(135deg,#3d8bff,#1f6bf1)', children: [
     { n: '新店设计标准', children: ['初尺、复尺标准','灯具设计标准','货架布局设计'] },
     { n: '门店利旧标准', children: ['设备类利旧标准','货架类利旧标准'] }]},
-  { n: '门店造价篇', ic: 'i-calc', c: 'linear-gradient(135deg,#42d392,#12a150)', children: [
+  { n: '门店造价篇', ic: 'i-calc', c: 'linear-gradient(135deg,#42d392,#12a150)', t: 'doc', children: [
     { n: '新店造价标准', children: ['基础建店费用申报标准','建店材料要求','易错报价提示'] },
     { n: '增项标准', children: ['增项参考价格'] }]},
   { n: '门店施工篇', ic: 'i-scan', c: 'linear-gradient(135deg,#ffb066,#ff7d1a)', children: [
@@ -2415,7 +2431,7 @@ var CATALOG = [
     { n: '广告篇', children: ['室外招牌施工','发光字招牌施工','副招牌施工','门上灯箱施工','橱窗灯箱施工','透明背景墙施工','室内货架灯箱施工','其他物料施工'] },
     { n: '差异化篇', children: ['北方差异化施工项目','沿海大风区域施工项目'] },
     { n: '易错篇', children: ['收银台背景天花灯箱尺寸匹配','不同层高货架灯箱怎么施工'] },
-    { n: '培训课件篇', children: ['电工专项课件','木工专项课件','月度培训课件'] }]},
+    { n: '培训课件篇', t: 'video', children: ['电工专项课件','木工专项课件','月度培训课件'] }]},
   { n: '门店验收篇', ic: 'i-check-clip', c: 'linear-gradient(135deg,#9575cd,#5e35b1)', children: [
     { n: '装修篇', children: ['基础装修验收篇（木）','基础装修验收篇（油）','基础装修验收篇（电）','基础装修验收篇（泥）'] },
     { n: '广告篇', children: ['招牌灯箱验收篇','其他灯箱验收篇'] },
@@ -2433,6 +2449,36 @@ function jq(s){ return "'" + String(s).replace(/([\\'])/g, '\\$1') + "'" }
 function catNode(c1){ return CATALOG.filter(function(c){ return c.n === c1 })[0] }
 function catL2(c1){ var n = catNode(c1); return n ? n.children.map(function(c){ return c.n }) : [] }
 function catL3(c1, c2){ var n = catNode(c1); if(!n) return []; var s = n.children.filter(function(c){ return c.n === c2 })[0]; return s ? s.children : [] }
+/* 分类内容类型：all 资料+视频 / doc 仅资料 / video 仅视频；父级限制优先，子级只能跟随 */
+var CAT_TYPE_LAB = { all: '资料+视频', doc: '仅资料', video: '仅视频' };
+function catNodeType(node){ return (node && typeof node === 'object' && node.t) || 'all' }
+function catEffType(c1, c2, c3){
+  var n = catNode(c1);
+  if(!n) return 'all';
+  var t = catNodeType(n);
+  if(c2){
+    var s = (n.children || []).filter(function(x){ return x.n === c2 })[0];
+    if(s && t === 'all') t = catNodeType(s);
+  }
+  return t;
+}
+function catAllow(kind, type){ return !type || type === 'all' || type === kind }
+function catKindOk(kind, c1, c2, c3){ return !!c1 && !!c2 && catAllow(kind, catEffType(c1, c2, c3)) }
+function catL1For(kind){ return CATALOG.filter(function(c){ return catAllow(kind, catEffType(c.n)) }).map(function(c){ return c.n }) }
+function catL2For(kind, c1){
+  var n = catNode(c1);
+  return n ? n.children.filter(function(c){ return catAllow(kind, catEffType(c1, c.n)) }).map(function(c){ return c.n }) : [];
+}
+function catL3For(kind, c1, c2){ return catAllow(kind, catEffType(c1, c2)) ? catL3(c1, c2) : [] }
+function firstKindCat(kind, preferC1){
+  var l1s = catL1For(kind);
+  var c1 = preferC1 && l1s.indexOf(preferC1) >= 0 ? preferC1 : (l1s[0] || '');
+  if(!c1) return null;
+  var c2 = (catL2For(kind, c1))[0] || '';
+  var l3 = c2 ? catL3For(kind, c1, c2) : [];
+  var c3 = l3.length ? (typeof l3[0] === 'string' ? l3[0] : l3[0].n) : '';
+  return { c1: c1, c2: c2, c3: c3 };
+}
 /* 标签分类（附件标签表）：门店类型 / 门店版本 / 施工节点 */
 var TAG_GROUPS = [
   { name: '门店类型', color: 'c-cyan', tags: ['零食很忙5代店','零食很忙旗舰店','零食很忙6代店','零食很忙6.5代店','赵一鸣2.0版本','赵一鸣3.0版本','赵一鸣3.5版本'] },
@@ -3009,17 +3055,33 @@ function docCatMatch(d){
   }
   return true;
 }
-function treeCatDefaults(){
+function treeCatDefaults(kind){
   if(!docCatSel.length) return null;
   var n1 = CATALOG[docCatSel[0]];
   if(!n1) return null;
-  var c2 = docCatSel.length > 1 && n1.children ? n1.children[docCatSel[1]] : (n1.children && n1.children[0]);
-  var c3 = '';
-  if(c2 && c2.children && c2.children.length){
-    var v3 = docCatSel.length > 2 ? c2.children[docCatSel[2]] : c2.children[0];
-    if(v3 != null) c3 = typeof v3 === 'string' ? v3 : v3.n;
+  var c2 = docCatSel.length > 1 && n1.children ? n1.children[docCatSel[1]] : null;
+  var c3 = c2 && c2.children && docCatSel.length > 2 ? c2.children[docCatSel[2]] : null;
+  var picked = { c1: n1.n, c2: c2 ? c2.n : '', c3: c3 ? (typeof c3 === 'string' ? c3 : c3.n) : '' };
+  var pickedPath = [picked.c1, picked.c2, picked.c3].filter(function(s){ return s }).join(' / ');
+  function fallback(){
+    var fb = firstKindCat(kind, picked.c1);
+    if(fb){ fb.fallback = true; fb.from = pickedPath }
+    return fb;
   }
-  return { c1: n1.n, c2: c2 ? c2.n : '', c3: c3 };
+  if(c3){
+    return catKindOk(kind, picked.c1, picked.c2, picked.c3) ? picked : fallback();
+  }
+  if(c2){
+    if(!catAllow(kind, catEffType(picked.c1, picked.c2))) return fallback();
+    var l3 = catL3For(kind, picked.c1, picked.c2);
+    return { c1: picked.c1, c2: picked.c2, c3: l3.length ? (typeof l3[0] === 'string' ? l3[0] : l3[0].n) : '' };
+  }
+  if(!catAllow(kind, catEffType(picked.c1))) return fallback();
+  var l2 = catL2For(kind, picked.c1);
+  if(!l2.length) return fallback();
+  var c2n = l2[0];
+  var l3n = catL3For(kind, picked.c1, c2n);
+  return { c1: picked.c1, c2: c2n, c3: l3n.length ? (typeof l3n[0] === 'string' ? l3n[0] : l3n[0].n) : '' };
 }
 function setSelectVal(sel, val){
   if(!sel || !val) return;
@@ -3031,7 +3093,12 @@ function setTreeCatTip(prefix, cat){
   if(!tip) return;
   if(!cat){ tip.style.display = 'none'; return }
   var path = [cat.c1, cat.c2, cat.c3].filter(function(s){ return s }).join(' / ');
-  $('#' + prefix + 'TreeTipTxt').innerHTML = (prefix === 'vd' ? '视频' : '') + '已按左侧分类树带入末级分类「<b>' + path + '</b>」，下拉可修改。';
+  var kindTxt = prefix === 'vd' ? '视频' : '资料';
+  if(cat.fallback){
+    $('#' + prefix + 'TreeTipTxt').innerHTML = '左侧选中的分类「' + cat.from + '」不支持' + kindTxt + '上传，已自动回退到可用分类「<b>' + path + '</b>」，下拉可修改。';
+  } else {
+    $('#' + prefix + 'TreeTipTxt').innerHTML = (prefix === 'vd' ? '视频' : '') + '已按左侧分类树带入末级分类「<b>' + path + '</b>」，下拉可修改。';
+  }
   tip.style.display = 'flex';
 }
 function renderDocCatTree(){
@@ -3063,10 +3130,14 @@ function docTreeNode(node, path, depth){
   var hasKids = !!(kids && kids.length);
   var open = hasKids && docCatOpen[key] === true;
   var sel = docCatSel.join('-') === key;
-  var cnt = catCount(CATALOG[path[0]].n, path.length > 1 ? CATALOG[path[0]].children[path[1]].n : '', depth === 2 ? name : null);
+  var c1n = CATALOG[path[0]].n;
+  var c2n = path.length > 1 ? CATALOG[path[0]].children[path[1]].n : '';
+  var cnt = catCount(c1n, c2n, depth === 2 ? name : null);
+  var effType = catEffType(c1n, c2n, depth === 2 ? name : null);
+  var typeTag = effType !== 'all' ? '<span class="cat-type-tag ' + effType + '" style="font-size:9px">' + CAT_TYPE_LAB[effType] + '</span>' : '';
   var h = '<div class="dt-item' + (open ? ' open' : '') + (sel ? ' sel' : '') + '" style="padding-left:' + (7 + depth * 16) + 'px" onclick="pickDocCat(\'' + key + '\',' + (hasKids ? 1 : 0) + ')">' +
     '<svg class="dt-caret' + (hasKids ? '' : ' blank') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>' +
-    '<svg class="dt-fold"><use href="#i-folder"/></svg><span>' + name + '</span><span class="dt-cnt">' + (cnt.d + cnt.v) + '</span></div>';
+    '<svg class="dt-fold"><use href="#i-folder"/></svg><span>' + name + '</span>' + typeTag + '<span class="dt-cnt">' + (cnt.d + cnt.v) + '</span></div>';
   if(open) h += kids.map(function(c, j){ return docTreeNode(c, path.concat(j), depth + 1) }).join('');
   return h;
 }
@@ -4253,12 +4324,12 @@ function renderUpFiles(){
 }
 function upCatSync(){
   var c1 = $('#upCat1').value;
-  $('#upCat2').innerHTML = catL2(c1).map(function(c){ return '<option>' + c + '</option>' }).join('');
+  $('#upCat2').innerHTML = catL2For('doc', c1).map(function(c){ return '<option>' + c + '</option>' }).join('');
   upCat3Sync();
 }
-function fillCat3(sel, c1, c2){
+function fillCat3(sel, c1, c2, kind){
   if(!sel) return;
-  var l3 = catL3(c1, c2);
+  var l3 = catL3For(kind || 'doc', c1, c2);
   sel.innerHTML = l3.length ? l3.map(function(c){ return '<option>' + c + '</option>' }).join('') : '<option value="">二级即末级</option>';
   sel.disabled = !l3.length;
 }
@@ -4271,16 +4342,16 @@ function catLeafNames(c1, c2, c3){
 }
 function upCat3Sync(){
   var c1 = $('#upCat1').value, c2 = $('#upCat2').value;
-  fillCat3($('#upCat3'), c1, c2);
+  fillCat3($('#upCat3'), c1, c2, 'doc');
 }
 function vdCatSync(){
   var c1 = $('#vdCat1').value;
-  $('#vdCat2').innerHTML = catL2(c1).map(function(c){ return '<option>' + c + '</option>' }).join('');
+  $('#vdCat2').innerHTML = catL2For('video', c1).map(function(c){ return '<option>' + c + '</option>' }).join('');
   vdCat3Sync();
 }
 function vdCat3Sync(){
   var c1 = $('#vdCat1').value, c2 = $('#vdCat2').value;
-  fillCat3($('#vdCat3'), c1, c2);
+  fillCat3($('#vdCat3'), c1, c2, 'video');
 }
 function applyTagSel(container, tags, store, isVd){
   (tags || []).forEach(function(t){
@@ -4341,7 +4412,8 @@ function openUpload(editId){
   upVis = { roles: [], staff: [], positions: [], people: [] };
   $('#upName').value = ''; $('#upSummary').value = '';
   $('#upTitleTxt').textContent = '上传资料';
-  var treeCat = treeCatDefaults(), ed = null;
+  $('#upCat1').innerHTML = catL1For('doc').map(function(x){ return '<option>' + x + '</option>' }).join('');
+  var treeCat = treeCatDefaults('doc'), ed = null;
   if(editId) ed = docs.filter(function(x){ return x.id === editId })[0];
   if(ed && (ed.status === 'published' || ed.status === 'review')){
     toast(ed.status === 'published' ? '已上架内容不允许编辑，请先下架后再编辑' : '审核中的内容不可编辑，请等待审核结果');
@@ -4407,6 +4479,7 @@ function showUpStep(n){
 function upStep(dir){
   if(dir === 1 && upStepNo === 1){
     if(!$('#upName').value.trim()){ toast('请填写资料名称'); return }
+    if(!catKindOk('doc', $('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('所选分类不支持资料，请重新选择资料分类'); return }
     if(!catLeafOk($('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('资料只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
     if(!upFiles.length){ toast('请先上传至少 1 个资料文件'); return }
   }
@@ -4447,6 +4520,7 @@ function row(k, v){ return '<div class="sum-row"><span class="k">' + k + '</span
 function submitUpload(status){
   var nm = $('#upName').value.trim();
   if(!nm){ toast('请填写资料名称'); return }
+  if(!catKindOk('doc', $('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('所选分类不支持资料，请重新选择资料分类'); return }
   if(!catLeafOk($('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('资料只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
   if(!upFiles.length){ toast('请先上传至少 1 个资料文件'); return }
   if(status === 'review' && visEmpty(upVis)){ toast('请至少配置一项可见范围后再提交审核'); return }
@@ -4550,10 +4624,12 @@ function treeNode(node, path, depth){
   var c1 = CATALOG[path[0]].n;
   var c2 = depth >= 1 ? CATALOG[path[0]].children[path[1]].n : '';
   var cnt = catCount(c1, c2, depth === 2 ? nodeName : null);
+  var effType = catEffType(c1, c2, depth === 2 ? nodeName : null);
+  var typeTag = effType !== 'all' ? '<span class="cat-type-tag ' + effType + '">' + CAT_TYPE_LAB[effType] + '</span>' : '';
   var hasKids = node.children && node.children.length;
   var h = '<div class="tree-item' + (open ? ' open' : '') + (sel ? ' sel' : '') + '" style="margin-left:' + (depth * 20) + 'px" onclick="selectCat(\'' + key + '\')">' +
     '<svg class="arw' + (hasKids ? '' : ' blank') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>' +
-    '<svg class="fold"><use href="#i-folder"/></svg><span>' + nodeName + '</span><span class="cnt">' + cnt.d + (cnt.v ? ' / ' + cnt.v : '') + '</span>' +
+    '<svg class="fold"><use href="#i-folder"/></svg><span>' + nodeName + '</span>' + typeTag + '<span class="cnt" title="资料 ' + cnt.d + ' 份 / 视频 ' + cnt.v + ' 个">' + cnt.d + (cnt.v ? ' / ' + cnt.v : '') + '</span>' +
     '<span class="tact">' + (depth < 2 ? '<button title="新建子分类" onclick="event.stopPropagation();addChildCat(\'' + key + '\')"><svg><use href="#i-plus"/></svg></button>' : '') +
     '<button title="删除" class="del" onclick="event.stopPropagation();delCat(\'' + key + '\')"><svg><use href="#i-trash"/></svg></button></span></div>';
   if(open && hasKids){
@@ -4576,7 +4652,25 @@ function selectCat(p){
     catOpen[key] = !catOpen[key];
   }
   catSel = ns;
+  catTypeDraft = null;
   buildTree();
+}
+var catTypeDraft = null;
+function catRelItems(names){
+  var rows = [];
+  docs.forEach(function(d){
+    if(names[0] && d.cat1 !== names[0]) return;
+    if(names[1] && d.cat2 !== names[1]) return;
+    if(names[2] && d.cat3 !== names[2]) return;
+    if(isEffective(d)) rows.push({ kind: 'doc', it: d });
+  });
+  videos.forEach(function(v){
+    if(names[0] && v.cat1 !== names[0]) return;
+    if(names[1] && v.cat2 !== names[1]) return;
+    if(names[2] && v.cat3 !== names[2]) return;
+    if(isEffective(v)) rows.push({ kind: 'video', it: v });
+  });
+  return rows.sort(function(a, b){ return String(b.it.updated).localeCompare(String(a.it.updated)) }).slice(0, 3);
 }
 function renderCatDetail(){
   if(!catSel) return;
@@ -4588,28 +4682,59 @@ function renderCatDetail(){
   if(catSel.length > 1 && n1 && n1.children[catSel[1]]) names.push(n1.children[catSel[1]].n);
   if(catSel.length > 2) names.push(typeof node === 'string' ? node : node.n);
   var parentPath = names.slice(0, -1).join(' / ') || '工程中心知识库（根目录）';
+  var depth = names.length - 1;
   var cnt = catCount(names[0], names[1], names[2]);
-  var rel = docs.filter(function(x){
-    if(x.cat1 !== names[0]) return false;
-    if(names[1] && x.cat2 !== names[1]) return false;
-    if(names[2] && x.cat3 !== names[2]) return false;
-    return isEffective(x);
-  }).slice(0, 3);
+  var effType = catEffType(names[0], names[1], names[2]);
+  var parentType = depth === 1 ? catEffType(names[0]) : (depth === 2 ? catEffType(names[0], names[1]) : 'all');
+  var editable = depth < 2 && (depth === 0 || parentType === 'all');
+  if(catTypeDraft == null) catTypeDraft = catNodeType(node);
+  if(!editable) catTypeDraft = effType;
+  var typeBlock = '';
+  if(editable){
+    typeBlock = '<div class="form-item" style="margin-bottom:14px"><label>内容类型</label><div class="ctype-pick">' +
+      [['all','资料+视频','资料中心与视频学堂均展示，可挂载资料和视频'],
+       ['doc','仅资料','只在资料中心展示，视频学堂与视频上传不展示该分类'],
+       ['video','仅视频','只在视频学堂展示，资料中心与资料上传不展示该分类']].map(function(x){
+        return '<div class="ctype-opt' + (catTypeDraft === x[0] ? ' on' : '') + '" data-t="' + x[0] + '" onclick="pickCatType(\'' + x[0] + '\')">' +
+          '<div class="ct-h"><span class="ct-radio"></span><b>' + x[1] + '</b></div><p>' + x[2] + '</p></div>';
+      }).join('') + '</div>' +
+      '<div style="font-size:11.5px;color:#9aa2ae;margin-top:7px">内容类型对全部子分类生效；切换为专属类型时，分类下不符合的内容将自动移入「未分类」。</div></div>';
+  } else {
+    var lockTxt = depth === 2 ? '三级节点跟随所属二级分类的内容类型' : '跟随上级分类的内容类型';
+    typeBlock = '<div class="form-item" style="margin-bottom:14px"><label>内容类型</label><div class="ctype-lock">' +
+      '<svg><use href="#i-info"/></svg><span>' + lockTxt + '：<b style="color:' + (effType === 'video' ? '#6b46c1' : (effType === 'doc' ? '#c76a12' : '#3f4753')) + '">' + CAT_TYPE_LAB[effType] + '</b>。如需调整，请在' +
+      (depth === 2 ? '所属二级分类' : '上级分类') + '中修改。</span></div></div>';
+  }
+  var rel = catRelItems(names);
   $('#catDetail').innerHTML =
-    '<div class="pane-head"><h3>分类详情</h3><span>三级目录 · 支持子分类新建与级联改名</span></div>' +
+    '<div class="pane-head"><h3>分类详情</h3><span>' + ['一级目录','二级目录','三级目录'][depth] + ' · 支持内容类型、子分类新建与级联改名</span></div>' +
     '<div class="form-row">' +
       '<div class="form-item"><label>分类名称</label><input class="input" id="catName" value="' + (typeof node === 'string' ? node : node.n) + '"></div>' +
       '<div class="form-item"><label>上级分类</label><input class="input" value="' + parentPath + '" disabled style="background:#f7f9fc;color:#8a919f"></div>' +
     '</div>' +
+    typeBlock +
     '<div class="form-row">' +
-      '<div class="form-item"><label>内容数量</label><div style="height:34px;display:flex;align-items:center;color:#3f4753">资料 ' + cnt.d + ' 份 · 视频 ' + cnt.v + ' 个</div></div>' +
+      '<div class="form-item"><label>内容数量</label><div style="height:34px;display:flex;align-items:center;gap:8px;color:#3f4753">' +
+        '<span>资料 <b>' + cnt.d + '</b> 份 · 视频 <b>' + cnt.v + '</b> 个</span>' +
+        (effType !== 'all' ? '<span class="cat-type-tag ' + effType + '">' + CAT_TYPE_LAB[effType] + '</span>' : '') +
+      '</div></div>' +
     '</div>' +
     '<div style="display:flex;gap:10px"><button class="btn primary" onclick="saveCatName()">保存修改</button></div>' +
     '<div class="detail-sub"><h4>该分类下最近更新</h4>' +
-      (rel.length ? rel.map(function(d){
-        return '<div class="mini-doc"><span class="ftype ' + FTYPE_CLS[d.type] + '">' + FTYPE_TXT[d.type] + '</span><span>' + d.name + ' ' + d.ver + '</span><span class="t">' + d.updated.slice(5, 10) + '</span></div>';
-      }).join('') : '<div style="color:#9aa2ae;font-size:12.5px;padding:4px 0">该分类下暂无已发布资料</div>') +
+      (rel.length ? rel.map(function(r){
+        return '<div class="mini-doc"><span class="mini-chip" style="' + (r.kind === 'video' ? 'background:#f0ebff;color:#6b46c1' : 'background:#eaf2ff;color:#1f6bf1') + '">' + (r.kind === 'video' ? '视频' : '资料') + '</span><span>' + r.it.name + ' ' + r.it.ver + '</span><span class="t">' + r.it.updated.slice(5, 10) + '</span></div>';
+      }).join('') : '<div style="color:#9aa2ae;font-size:12.5px;padding:4px 0">该分类下暂无已发布内容</div>') +
     '</div>';
+}
+function pickCatType(t){
+  catTypeDraft = t === 'doc' || t === 'video' ? t : 'all';
+  $$('#catDetail .ctype-opt').forEach(function(el){ el.classList.toggle('on', el.dataset.t === catTypeDraft) });
+}
+function catInPath(it, names){
+  if(names[0] && it.cat1 !== names[0]) return false;
+  if(names[1] && it.cat2 !== names[1]) return false;
+  if(names[2] && it.cat3 !== names[2]) return false;
+  return true;
 }
 function saveCatName(){
   var node = getCatByPath(catSel.join('-'));
@@ -4617,23 +4742,53 @@ function saveCatName(){
   if(!v){ toast('分类名称不能为空'); return }
   var old = typeof node === 'string' ? node : node.n;
   var lv = catSel.length;
-  if(typeof node === 'string') CATALOG[catSel[0]].children[catSel[1]].children[catSel[2]] = v;
-  else node.n = v;
-  docs.forEach(function(d){
-    if(lv === 1 && d.cat1 === old) d.cat1 = v;
-    else if(lv === 2 && d.cat2 === old) d.cat2 = v;
-    else if(lv === 3 && d.cat3 === old) d.cat3 = v;
-  });
-  videos.forEach(function(x){
-    if(lv === 1 && x.cat1 === old) x.cat1 = v;
-    else if(lv === 2 && x.cat2 === old) x.cat2 = v;
-  });
-  buildTree(); renderDocs(); renderVideoList(); renderCatFilters(); refreshOverview();
-  toast('分类已保存，关联内容同步更新', 1);
+  var names = [];
+  var n1 = CATALOG[catSel[0]];
+  if(n1) names.push(n1.n);
+  if(lv > 1 && n1 && n1.children[catSel[1]]) names.push(n1.children[catSel[1]].n);
+  if(lv > 2) names.push(old);
+  var parentType = lv === 2 ? catEffType(names[0]) : (lv === 3 ? catEffType(names[0], names[1]) : 'all');
+  var typeEditable = lv === 1 || (lv === 2 && parentType === 'all');
+  var curType = typeof node === 'object' ? catNodeType(node) : 'all';
+  var newType = typeEditable ? (catTypeDraft || curType) : curType;
+  var conflicts = [];
+  if(typeEditable && newType !== curType){
+    if(newType === 'doc') conflicts = videos.filter(function(x){ return catInPath(x, names) });
+    else if(newType === 'video') conflicts = docs.filter(function(x){ return catInPath(x, names) });
+  }
+  function applySave(){
+    if(typeof node === 'string') CATALOG[catSel[0]].children[catSel[1]].children[catSel[2]] = v;
+    else {
+      node.n = v;
+      if(typeEditable && newType !== curType){
+        node.t = newType;
+        if(lv === 1 && node.children){
+          node.children.forEach(function(c){ if(c && typeof c === 'object') c.t = 'all' });
+        }
+      }
+    }
+    docs.forEach(function(d){
+      if(lv === 1 && d.cat1 === old) d.cat1 = v;
+      else if(lv === 2 && d.cat1 === names[0] && d.cat2 === old) d.cat2 = v;
+      else if(lv === 3 && d.cat1 === names[0] && d.cat2 === names[1] && d.cat3 === old) d.cat3 = v;
+    });
+    videos.forEach(function(x){
+      if(lv === 1 && x.cat1 === old) x.cat1 = v;
+      else if(lv === 2 && x.cat1 === names[0] && x.cat2 === old) x.cat2 = v;
+      else if(lv === 3 && x.cat1 === names[0] && x.cat2 === names[1] && x.cat3 === old) x.cat3 = v;
+    });
+    conflicts.forEach(function(it){ it.cat1 = ''; it.cat2 = ''; it.cat3 = '' });
+    catTypeDraft = null;
+    buildTree(); renderDocs(); renderVideoList(); renderCatFilters(); refreshOverview();
+    toast('分类已保存' + (conflicts.length ? '，' + conflicts.length + ' 项不符合类型的内容已移入「未分类」' : ''), 1);
+  }
+  if(conflicts.length){
+    confirmBox('调整分类内容类型', '「' + names.join(' / ') + '」下已有 <b>' + conflicts.length + '</b> 项' + (newType === 'doc' ? '视频' : '资料') + '，切换为「' + CAT_TYPE_LAB[newType] + '」后这些内容将移入「未分类」。确定继续？', true, applySave, '确认调整');
+  } else applySave();
 }
 function addRootCat(){
   inputBox('新增一级分类', '新篇章', function(ns){
-    CATALOG.push({ n: ns, ic: 'i-book', c: 'linear-gradient(135deg,#3d8bff,#1f6bf1)', children: [] });
+    CATALOG.push({ n: ns, ic: 'i-book', c: 'linear-gradient(135deg,#3d8bff,#1f6bf1)', t: 'all', children: [] });
     buildTree(); renderCatFilters();
     toast('已新增一级分类「' + ns + '」', 1);
   }, '一级分类为大篇章，将与门店设计 / 造价 / 施工 / 验收 / 维保并列展示');
@@ -4646,11 +4801,11 @@ function addChildCat(p){
   var pname = typeof node === 'string' ? node : node.n;
   inputBox('新增「' + pname + '」下的' + (lv === 1 ? '二级分类' : '三级分类'), lv === 1 ? '新子分类' : '新三级分类', function(ns){
     node.children = node.children || [];
-    node.children.push({ n: ns, children: lv === 1 ? [] : undefined });
+    node.children.push({ n: ns, t: 'all', children: lv === 1 ? [] : undefined });
     catOpen[p] = true;
     buildTree(); renderCatFilters();
-    toast('已新增子分类「' + ns + '」', 1);
-  }, '新增后可在左侧树中选择该分类，并上传归类资料与视频');
+    toast('已新增子分类「' + ns + '」，可在右侧设置内容类型', 1);
+  }, '新增后可在左侧树中选择该分类，设置内容类型并上传归类资料与视频');
 }
 function delCat(p){
   var ns = p.split('-').map(Number);
@@ -5095,8 +5250,8 @@ function openVideoUpload(editId){
     return;
   }
   vdEff = { mode: 'now', at: '' };
-  var treeCat = treeCatDefaults();
-  $('#vdCat1').innerHTML = catL1().map(function(x){ return '<option>' + x + '</option>' }).join('');
+  var treeCat = treeCatDefaults('video');
+  $('#vdCat1').innerHTML = catL1For('video').map(function(x){ return '<option>' + x + '</option>' }).join('');
   if(ed){
     vdEditId = ed.id;
     vdVis = cloneVis(visOf(ed));
@@ -5153,6 +5308,7 @@ function showVdStep(n){
 function vdStep(dir){
   if(dir === 1 && vdStepNo === 1){
     if(!$('#vdName').value.trim()){ toast('请填写视频名称'); return }
+    if(!catKindOk('video', $('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('所选分类不支持视频，请重新选择视频分类'); return }
     if(!catLeafOk($('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('视频只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
     if(!vdFiles.length){ toast('请先上传视频文件（仅支持 1 个）'); return }
   }
@@ -5191,6 +5347,7 @@ function buildVdSummary(){
 function submitVideo(status){
   var nm = $('#vdName').value.trim();
   if(!nm){ toast('请填写视频名称'); return }
+  if(!catKindOk('video', $('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('所选分类不支持视频，请重新选择视频分类'); return }
   if(!catLeafOk($('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('视频只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
   if(!vdFiles.length){ toast('请先上传视频文件（仅支持 1 个）'); return }
   if(status === 'review' && visEmpty(vdVis)){ toast('请至少配置一项可见范围后再提交审核'); return }
@@ -5955,7 +6112,11 @@ function pTFBar(scope){
 }
 function pDocsPageList(tagSel){
   var cur = pArg || '全部';
-  if(cur !== '全部' && catL1().indexOf(cur.split('|')[0]) < 0) cur = '全部';
+  if(cur !== '全部'){
+    var seg = cur.split('|');
+    if(catL1For('doc').indexOf(seg[0]) < 0) cur = '全部';
+    else if(seg[1] && catL2For('doc', seg[0]).indexOf(seg[1]) < 0) cur = seg[0];
+  }
   var c1 = cur !== '全部' ? cur.split('|')[0] : '', c2 = cur !== '全部' ? (cur.split('|')[1] || '') : '';
   return pDocs().filter(function(d){
     if(!tagSelMatch(tagSel, d.tags)) return false;
@@ -5967,7 +6128,7 @@ function pDocsPageList(tagSel){
 }
 function pVideosPageList(tagSel){
   var cur = pArg || '全部';
-  if(cur !== '全部' && catL1().indexOf(cur) < 0) cur = '全部';
+  if(cur !== '全部' && catL1For('video').indexOf(cur) < 0) cur = '全部';
   return pVideos().filter(function(v){
     if(!tagSelMatch(tagSel, v.tags || [])) return false;
     return cur === '全部' || v.cat1 === cur;
@@ -5979,22 +6140,34 @@ function pCatPage(){
   var c1 = segs[0] || CATALOG[0].n, c2 = segs[1] || '', c3 = segs[2] || '';
   var node = catNode(c1);
   if(!node) return '<div class="p-empty">分类不存在</div>';
-  var l2 = catL2(c1);
-  var docsF = pDocs().filter(function(d){ return d.cat1 === c1 && (!c2 || d.cat2 === c2) && (!c3 || d.cat3 === c3) });
-  var vidsF = pVideos().filter(function(v){ return v.cat1 === c1 && (!c2 || v.cat2 === c2) });
+  if(c2 && catL2(c1).indexOf(c2) < 0){ c2 = ''; c3 = '' }
+  if(c3 && catL3(c1, c2).indexOf(c3) < 0) c3 = '';
+  var effType = catEffType(c1, c2, c3);
+  var allowDocs = catAllow('doc', effType), allowVideos = catAllow('video', effType);
+  if(!allowDocs) c3 = '';
+  var docsF = allowDocs ? pDocs().filter(function(d){ return d.cat1 === c1 && (!c2 || d.cat2 === c2) && (!c3 || d.cat3 === c3) }) : [];
+  var vidsF = allowVideos ? pVideos().filter(function(v){ return v.cat1 === c1 && (!c2 || v.cat2 === c2) }) : [];
+  var typeTag = effType !== 'all' ? '<span class="cat-type-tag ' + effType + '">' + CAT_TYPE_LAB[effType] + '</span>' : '';
+  var typeNote = effType === 'doc' ? '仅资料分类 · 视频学堂不展示' : (effType === 'video' ? '仅视频分类 · 资料中心不展示' : '');
   var crumbs = '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span>' +
     (c2 ? '<a onclick="pGo(\'cat\',\'' + c1 + '\')">' + c1 + '</a><span>/</span>' : '分类视图<span>/</span>') +
     (c2 ? (c3 ? '<a onclick="pGo(\'cat\',' + jq(c1 + '|' + c2) + ')">' + c2 + '</a><span>/</span>' + c3 : c2) : c1) + '</div>';
   var q1 = jq(c1);
+  var headTitle = c3 || c2 || c1;
   var html = crumbs +
-    '<div class="p-sec-h"><h2><i></i>' + c1 + ' <span style="font-size:12px;font-weight:400;color:#9aa2ae">共 ' + docsF.length + ' 份资料 · ' + vidsF.length + ' 个视频</span></h2></div>' +
+    '<div class="p-sec-h"><h2><i></i>' + headTitle + typeTag + ' <span style="font-size:12px;font-weight:400;color:#9aa2ae">' +
+      (effType === 'video' ? '共 ' + vidsF.length + ' 个视频' : (effType === 'doc' ? '共 ' + docsF.length + ' 份资料' : '共 ' + docsF.length + ' 份资料 · ' + vidsF.length + ' 个视频')) +
+      (typeNote ? ' · ' + typeNote : '') + '</span></h2></div>' +
     '<div class="chips" style="margin-bottom:12px">' +
       '<span class="pchip' + (!c2 ? ' on' : '') + '" onclick="pGo(\'cat\',' + q1 + ')">全部</span>' +
-      l2.map(function(x){
-        var n = pDocs().filter(function(d){ return d.cat1 === c1 && d.cat2 === x }).length + pVideos().filter(function(v){ return v.cat1 === c1 && v.cat2 === x }).length;
-        return '<span class="pchip' + (c2 === x ? ' on' : '') + '" onclick="pGo(\'cat\',' + jq(c1 + '|' + x) + ')">' + x + '（' + n + '）</span>';
+      catL2(c1).map(function(x){
+        var dn = allowDocs ? pDocs().filter(function(d){ return d.cat1 === c1 && d.cat2 === x }).length : 0;
+        var vn = allowVideos ? pVideos().filter(function(v){ return v.cat1 === c1 && v.cat2 === x }).length : 0;
+        var lt = catEffType(c1, x);
+        var tag = lt !== 'all' ? ' · ' + (lt === 'doc' ? '仅资料' : '仅视频') : '';
+        return '<span class="pchip' + (c2 === x ? ' on' : '') + '" onclick="pGo(\'cat\',' + jq(c1 + '|' + x) + ')">' + x + '（' + (dn + vn) + '）' + tag + '</span>';
       }).join('') + '</div>';
-  var l3 = catL3(c1, c2);
+  var l3 = allowDocs ? catL3(c1, c2) : [];
   if(l3 && l3.length){
     html += '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;padding:10px 12px;background:#f7f9fd;border-radius:10px">' +
       '<span style="font-size:12px;color:#8a919f;line-height:26px">三级节点：</span>' +
@@ -6004,11 +6177,13 @@ function pCatPage(){
         return '<span class="pchip' + (c3 === x ? ' on' : '') + '" style="background:' + (c3 === x ? '' : '#fff') + '" onclick="pGo(\'cat\',' + jq(c1 + '|' + c2 + '|' + x) + ')">' + x + '（' + n + '）</span>';
       }).join('') + '</div>';
   }
-  html += '<div class="p-sec-h"><h2><i></i>资料（' + docsF.length + '）</h2></div>' +
-    '<div class="p-list">' + (docsF.map(pDocRow).join('') || '<div class="p-empty">该分类下暂无资料</div>') + '</div>';
-  if(vidsF.length){
+  if(allowDocs){
+    html += '<div class="p-sec-h"><h2><i></i>资料（' + docsF.length + '）</h2></div>' +
+      '<div class="p-list">' + (docsF.map(pDocRow).join('') || '<div class="p-empty">该分类下暂无资料</div>') + '</div>';
+  }
+  if(allowVideos && (vidsF.length || !allowDocs)){
     html += '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>视频（' + vidsF.length + '）</h2></div>' +
-      '<div class="p-vgrid">' + vidsF.map(pVideoCard).join('') + '</div>';
+      '<div class="p-vgrid">' + (vidsF.map(pVideoCard).join('') || '<div class="p-empty">该分类下暂无视频</div>') + '</div>';
   }
   return html;
 }
@@ -6059,7 +6234,12 @@ function pDocRow(d){
 }
 function pDocsPage(){
   var cur = pArg || '全部';
-  if(cur !== '全部' && catL1().indexOf(cur.split('|')[0]) < 0) cur = '全部';
+  var docL1 = catL1For('doc');
+  if(cur !== '全部'){
+    var seg0 = cur.split('|');
+    if(docL1.indexOf(seg0[0]) < 0) cur = '全部';
+    else if(seg0[1] && catL2For('doc', seg0[0]).indexOf(seg0[1]) < 0) cur = seg0[0];
+  }
   var curC1 = cur !== '全部' ? cur.split('|')[0] : '';
   var curC2 = cur.split('|')[1] || '';
   var list = pDocs().filter(function(d){
@@ -6070,14 +6250,14 @@ function pDocsPage(){
     return true;
   });
   var sb = '<a class="' + (cur === '全部' ? 'on' : '') + '" onclick="pGo(\'docs\',\'全部\')">全部资料<em>' + pDocs().length + '</em></a>' +
-    CATALOG.map(function(c){
+    CATALOG.filter(function(c){ return docL1.indexOf(c.n) >= 0 }).map(function(c){
       var n = pDocs().filter(function(d){ return d.cat1 === c.n }).length;
       var on = curC1 === c.n;
       var sub = '';
       if(on){
-        sub = '<div class="p-sbsub">' + c.children.map(function(x){
-          var m = pDocs().filter(function(d){ return d.cat1 === c.n && d.cat2 === x.n }).length;
-          return '<a class="' + (curC2 === x.n ? 'on' : '') + '" onclick="pGo(\'docs\',' + jq(c.n + '|' + x.n) + ')">' + x.n + '<em>' + m + '</em></a>';
+        sub = '<div class="p-sbsub">' + catL2For('doc', c.n).map(function(x){
+          var m = pDocs().filter(function(d){ return d.cat1 === c.n && d.cat2 === x }).length;
+          return '<a class="' + (curC2 === x ? 'on' : '') + '" onclick="pGo(\'docs\',' + jq(c.n + '|' + x) + ')">' + x + '<em>' + m + '</em></a>';
         }).join('') + '</div>';
       }
       return '<a class="' + (on ? 'on' : '') + '" onclick="pGo(\'docs\',' + jq(c.n) + ')">' + c.n + '<em>' + n + '</em></a>' + sub;
@@ -6087,7 +6267,7 @@ function pDocsPage(){
     '<div class="p-doclay"><div class="p-sb">' + sb + '</div><div class="p-main">' +
     '<div class="p-ptool"><b style="font-size:14px">' + title + '</b><span style="font-size:12px;color:#9aa2ae">资料 ' + list.length + ' 份 · 按更新时间排序</span><span style="flex:1"></span><span style="font-size:12px;color:#9aa2ae">受控内容默认仅在线预览 · 下载需申请</span></div>' +
     pTFBar('d') +
-    (curC1 && !curC2 ? '<div class="chips" style="margin-bottom:12px">' + (catL2(curC1).map(function(x){
+    (curC1 && !curC2 ? '<div class="chips" style="margin-bottom:12px">' + (catL2For('doc', curC1).map(function(x){
       return '<span class="pchip" onclick="pGo(\'docs\',' + jq(curC1 + '|' + x) + ')">' + x + '</span>';
     }).join('')) + '</div>' : '') +
     '<div class="p-list">' + (list.map(pDocRow).join('') || '<div class="p-empty">暂无符合筛选条件的资料，可清除标签或切换分类后重试</div>') + '</div></div></div>';
@@ -6155,12 +6335,13 @@ function openPApply(name){
 }
 function pVideosPage(){
   var cur = pArg || '全部';
-  if(cur !== '全部' && catL1().indexOf(cur) < 0) cur = '全部';
+  var vidL1 = catL1For('video');
+  if(cur !== '全部' && vidL1.indexOf(cur) < 0) cur = '全部';
   var list = pVideos().filter(function(v){
     if(!pTagMatch(pVidTags, v.tags)) return false;
     return cur === '全部' || v.cat1 === cur;
   });
-  var chips = ['全部'].concat(catL1()).map(function(c){
+  var chips = ['全部'].concat(vidL1).map(function(c){
     return '<span class="pchip' + (cur === c ? ' on' : '') + '" onclick="pGo(\'videos\',\'' + c + '\')">' + c + '</span>';
   }).join('');
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span>视频学堂' + (cur !== '全部' ? '<span>/</span>' + cur : '') + '</div>' +
@@ -6344,9 +6525,9 @@ function kbTabTo(t){
 }
 
 /* ---------- 初始化 ---------- */
-$('#upCat1').innerHTML = catL1().map(function(x){ return '<option>' + x + '</option>' }).join('');
+$('#upCat1').innerHTML = catL1For('doc').map(function(x){ return '<option>' + x + '</option>' }).join('');
 upCatSync();
-$('#vdCat1').innerHTML = catL1().map(function(x){ return '<option>' + x + '</option>' }).join('');
+$('#vdCat1').innerHTML = catL1For('video').map(function(x){ return '<option>' + x + '</option>' }).join('');
 vdCatSync();
 renderCatFilters();
 renderDocs();
