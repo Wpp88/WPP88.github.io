@@ -412,17 +412,28 @@
   .tag-card .th{display:flex;align-items:center;gap:8px;margin-bottom:12px}
   .tag-card .th h4{font-size:13.5px;font-weight:600}
   .tag-card .th .cnt{font-size:11.5px;color:#9aa2ae}
-  .tag-card .th .add{margin-left:auto;color:var(--blue);font-size:12.5px;display:flex;align-items:center;gap:3px;cursor:pointer}
+  .tag-card .th .ops{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .tag-card .th .add{color:var(--blue);font-size:12.5px;display:flex;align-items:center;gap:3px;cursor:pointer}
   .tag-card .th .add:hover{text-decoration:underline}
   .tag-card .th .add svg{width:12px;height:12px}
+  .tag-card .th .ren{color:#9aa2ae;font-size:12.5px;cursor:pointer}
+  .tag-card .th .ren:hover{color:var(--blue)}
+  .tag-card .th .delg{color:#9aa2ae;font-size:12.5px;cursor:pointer}
+  .tag-card .th .delg:hover{color:var(--red)}
   .tag-list{display:flex;flex-wrap:wrap;gap:8px}
   .tchip{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 9px;font-size:12.5px;position:relative;cursor:default}
   .tchip .n{font-size:11px;opacity:.65}
-  .tchip .x{display:none;width:14px;height:14px;border-radius:4px;align-items:center;justify-content:center;font-size:12px;line-height:1;cursor:pointer;opacity:.7}
-  .tchip .x:hover{opacity:1;background:rgba(0,0,0,.08)}
-  .tchip:hover .x{display:inline-flex}
-  .tchip .x{display:none !important}
-  .tchip:hover .x{display:inline-flex !important}
+  .tchip .more{display:none;width:14px;height:14px;border-radius:4px;align-items:center;justify-content:center;cursor:pointer;opacity:.7}
+  .tchip .more:hover{opacity:1;background:rgba(0,0,0,.08)}
+  .tchip .more svg{width:12px;height:12px}
+  .tchip:hover .more{display:inline-flex}
+  .mg-list{max-height:320px;overflow:auto;border:1px solid var(--border-2);border-radius:8px;padding:6px}
+  .mg-dim{font-size:11.5px;color:#9aa2ae;padding:8px 8px 4px}
+  .mg-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.8px;cursor:pointer;color:#3f4753}
+  .mg-item:hover{background:#f5f7fa}
+  .mg-item.on{background:#eaf1ff;color:#1f6bf1}
+  .mg-item .n{margin-left:auto;font-size:11px;color:#9aa2ae}
+  .mg-item.on .n{color:#1f6bf1}
   .tchip.c-blue{background:#eaf1ff;color:#1f6bf1}
   .tchip.c-purple{background:#f4ecff;color:#722ed1}
   .tchip.c-green{background:#e9f9f0;color:#0f8a44}
@@ -597,6 +608,10 @@
   .popmenu button:hover{background:#f5f7fa}
   .popmenu button.danger{color:var(--red)}
   .popmenu button.danger:hover{background:#fff1f0}
+  .popmenu button.muted{color:#aab1bd;cursor:not-allowed}
+  .popmenu button.muted:hover{background:transparent}
+  .popmenu button.muted svg{color:#c4cad4}
+  .popmenu button .mt{margin-left:auto;font-size:10.5px;color:#aab1bd}
   .popmenu svg{width:14px;height:14px;color:#8a919f}
   .popmenu button.danger svg{color:var(--red)}
 
@@ -2320,6 +2335,26 @@
 
 <!-- ================= 行更多菜单 ================= -->
 <div class="popmenu" id="rowMenu"></div>
+<!-- ================= 标签操作菜单 ================= -->
+<div class="popmenu" id="tagMenu"></div>
+
+<!-- ================= 合并标签弹窗 ================= -->
+<div class="mask" id="tagMergeMask" style="z-index:250">
+  <div class="dialog" style="width:520px">
+    <div class="dlg-head"><h3>合并标签</h3><button class="dlg-close" onclick="closeTagMerge()"><svg style="width:15px;height:15px"><use href="#i-x"/></svg></button></div>
+    <div class="dlg-body">
+      <div id="tagMergeTip" style="font-size:12.5px;color:#5a6270;line-height:1.75;margin-bottom:12px"></div>
+      <div class="tagf-search" style="margin-bottom:10px"><svg><use href="#i-search"/></svg><input id="tagMergeKw" placeholder="搜索目标标签名称" oninput="filterTagMerge(this.value)"></div>
+      <div class="mg-list" id="tagMergeList"></div>
+    </div>
+    <div class="dlg-foot">
+      <span class="tagf-sum" id="tagMergeSel">未选择目标标签</span>
+      <span style="flex:1"></span>
+      <button class="btn ghost" onclick="closeTagMerge()">取消</button>
+      <button class="btn primary" onclick="confirmMerge()">确认合并</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -3412,7 +3447,7 @@ function openRowMenu(e, kind, id){
   if(top + h > window.innerHeight) top = Math.max(8, r.top - h - 6);
   m.style.top = top + 'px'; m.style.left = left + 'px';
 }
-document.addEventListener('click', function(){ $('#rowMenu').classList.remove('show') });
+document.addEventListener('click', function(){ $('#rowMenu').classList.remove('show'); $('#tagMenu').classList.remove('show') });
 function menuAct(act){
   var isVd = curMenuKind === 'video';
   var it = (isVd ? videos : docs).filter(function(x){ return x.id === curMenuId })[0];
@@ -4854,11 +4889,14 @@ function tagUseCount(t){
 function renderTags(){
   $('#tagGrid').innerHTML = TAG_GROUPS.map(function(g, gi){
     return '<div class="card tag-card"><div class="th"><h4>' + g.name + '</h4><span class="cnt">共 ' + g.tags.length + ' 个</span>' +
-      '<span class="add" onclick="toggleTagInput(' + gi + ')"><svg><use href="#i-plus"/></svg>添加</span></div>' +
-      '<div class="tag-list">' + g.tags.map(function(t, ti){
-        return '<span class="tchip ' + g.color + '">' + t + ' <span class="n">' + tagUseCount(t) + '</span><span class="x" onclick="delTag(' + gi + ',' + ti + ')">×</span></span>';
-      }).join('') + '</div>' +
-      '<div class="tag-input" id="tagInput' + gi + '"><input id="tagInputVal' + gi + '" placeholder="标签名称，回车确认" onkeydown="if(event.key===\'Enter\')addTag(' + gi + ')"><button class="btn primary sm" onclick="addTag(' + gi + ')">添加</button></div>' +
+      '<span class="ops"><span class="ren" onclick="renameTagGroup(' + gi + ')">改名</span>' +
+      '<span class="add" onclick="toggleTagInput(' + gi + ')"><svg><use href="#i-plus"/></svg>添加</span>' +
+      '<span class="delg" onclick="delTagGroup(' + gi + ')">删除维度</span></span></div>' +
+      '<div class="tag-list">' + (g.tags.length ? g.tags.map(function(t, ti){
+        return '<span class="tchip ' + g.color + '">' + t + ' <span class="n">' + tagUseCount(t) + '</span>' +
+          '<span class="more" onclick="openTagMenu(event,' + gi + ',' + ti + ')"><svg><use href="#i-more"/></svg></span></span>';
+      }).join('') : '<span style="font-size:12.5px;color:#aab1bd">暂无标签，可添加或直接删除该维度</span>') + '</div>' +
+      '<div class="tag-input" id="tagInput' + gi + '"><input id="tagInputVal' + gi + '" maxlength="12" placeholder="标签名称，回车确认" onkeydown="if(event.key===\'Enter\')addTag(' + gi + ')"><button class="btn primary sm" onclick="addTag(' + gi + ')">添加</button></div>' +
     '</div>';
   }).join('') +
   '<div class="card tag-card" style="display:flex;align-items:center;justify-content:center;min-height:120px;border-style:dashed;color:#8a919f;cursor:pointer" onclick="addTagGroup()">' +
@@ -4868,26 +4906,214 @@ function toggleTagInput(gi){ $('#tagInput' + gi).classList.toggle('show'); $('#t
 function addTag(gi){
   var v = $('#tagInputVal' + gi).value.trim();
   if(!v){ toast('请输入标签名称'); return }
-  if(TAG_GROUPS[gi].tags.indexOf(v) >= 0){ toast('标签已存在'); return }
+  if(v.length > 12){ toast('标签名称最多 12 个字'); return }
+  if(TAG_GROUPS[gi].tags.indexOf(v) >= 0){ toast('该维度下已存在同名标签'); return }
   TAG_GROUPS[gi].tags.push(v);
   $('#tagInputVal' + gi).value = '';
   renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
   toast('标签「' + v + '」已添加', 1);
 }
+function tagRefReplace(oldName, newName){
+  var n = 0;
+  docs.concat(videos).forEach(function(x){
+    var tags = x.tags || [], i = tags.indexOf(oldName);
+    if(i < 0) return;
+    tags.splice(i, 1);
+    if(newName && tags.indexOf(newName) < 0) tags.push(newName);
+    n++;
+  });
+  return n;
+}
+function tagSelRename(gi, oldName, newName){
+  [docTagSel, vdTagSel, tagfDraft].forEach(function(m){
+    var k = gi + '-' + oldName;
+    if(m[k] !== undefined){ m[gi + '-' + newName] = m[k]; delete m[k] }
+  });
+  [pDocTags, pVidTags].forEach(function(map){
+    var dim = TAG_GROUPS[gi] ? TAG_GROUPS[gi].name : '', arr = map[dim];
+    if(!arr) return;
+    var i = arr.indexOf(oldName);
+    if(i < 0) return;
+    if(arr.indexOf(newName) < 0) arr[i] = newName; else arr.splice(i, 1);
+  });
+}
+function tagSelMerge(sgi, sname, tgi, tname){
+  [docTagSel, vdTagSel, tagfDraft].forEach(function(m){
+    var k = sgi + '-' + sname, val = m[k];
+    if(val === undefined) return;
+    delete m[k];
+    m[tgi + '-' + tname] = (val && typeof val === 'object') ? { g: tgi, v: tname } : tname;
+  });
+  [pDocTags, pVidTags].forEach(function(map){
+    var sd = TAG_GROUPS[sgi] ? TAG_GROUPS[sgi].name : '', td = TAG_GROUPS[tgi] ? TAG_GROUPS[tgi].name : '';
+    var arr = map[sd];
+    if(arr && arr.indexOf(sname) >= 0){
+      arr.splice(arr.indexOf(sname), 1);
+      if(!arr.length) delete map[sd];
+      map[td] = map[td] || [];
+      if(map[td].indexOf(tname) < 0) map[td].push(tname);
+    }
+  });
+}
+function tagSelDrop(gi, name){
+  [docTagSel, vdTagSel, tagfDraft].forEach(function(m){ delete m[gi + '-' + name] });
+  [pDocTags, pVidTags].forEach(function(map){
+    var dim = TAG_GROUPS[gi] ? TAG_GROUPS[gi].name : '', arr = map[dim];
+    if(!arr) return;
+    var i = arr.indexOf(name);
+    if(i >= 0) arr.splice(i, 1);
+    if(!arr.length) delete map[dim];
+  });
+}
+function shiftTagKeys(m, gi){
+  var out = {};
+  Object.keys(m).forEach(function(k){
+    var cut = k.indexOf('-'), g = +k.slice(0, cut);
+    if(g === gi) return;
+    var ng = g > gi ? g - 1 : g, val = m[k];
+    out[ng + k.slice(cut)] = (val && typeof val === 'object') ? { g: ng, v: val.v } : val;
+  });
+  return out;
+}
+function openTagMenu(e, gi, ti){
+  e.stopPropagation();
+  var m = $('#tagMenu'), r = e.currentTarget.getBoundingClientRect();
+  var used = tagUseCount(TAG_GROUPS[gi].tags[ti]);
+  m.innerHTML =
+    '<button onclick="renameTag(' + gi + ',' + ti + ')"><svg><use href="#i-edit"/></svg>标签改名</button>' +
+    '<button onclick="mergeTag(' + gi + ',' + ti + ')"><svg><use href="#i-link"/></svg>合并到其他标签</button>' +
+    (used > 0
+      ? '<button class="muted" onclick="delTag(' + gi + ',' + ti + ')"><svg><use href="#i-trash"/></svg>删除标签<span class="mt">已被 ' + used + ' 项引用</span></button>'
+      : '<button class="danger" onclick="delTag(' + gi + ',' + ti + ')"><svg><use href="#i-trash"/></svg>删除标签</button>');
+  m.classList.add('show');
+  var top = r.bottom + 6, left = Math.max(8, Math.min(r.right - 180, window.innerWidth - 190)), h = m.offsetHeight;
+  if(top + h > window.innerHeight) top = Math.max(8, r.top - h - 6);
+  m.style.top = top + 'px'; m.style.left = left + 'px';
+}
+function renameTag(gi, ti){
+  $('#tagMenu').classList.remove('show');
+  var old = TAG_GROUPS[gi].tags[ti];
+  var ask = function(def){
+    inputBox('标签改名', def, function(v){
+      if(v.length > 12){ toast('标签名称最多 12 个字'); ask(v); return }
+      if(v === old) return;
+      if(TAG_GROUPS[gi].tags.indexOf(v) >= 0){ toast('该维度下已存在同名标签，可使用「合并」'); ask(v); return }
+      var n = tagRefReplace(old, v);
+      TAG_GROUPS[gi].tags[TI_AT(gi, old)] = v;
+      tagSelRename(gi, old, v);
+      renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
+      toast('标签已改名为「' + v + '」，同步更新 ' + n + ' 项内容', 1);
+    }, '标签名称 1–12 个字；改名后自动同步已引用内容与筛选条件', '请输入新的标签名称');
+  };
+  ask(old);
+}
+function TI_AT(gi, name){
+  var arr = TAG_GROUPS[gi].tags;
+  for(var i = 0; i < arr.length; i++){ if(arr[i] === name) return i }
+  return -1;
+}
+var mergeSrc = null, mergeTarget = null, mergeKw = '';
+function mergeTag(gi, ti){
+  $('#tagMenu').classList.remove('show');
+  var src = TAG_GROUPS[gi].tags[ti];
+  mergeSrc = { gi: gi, ti: ti, name: src };
+  mergeTarget = null; mergeKw = '';
+  $('#tagMergeKw').value = '';
+  $('#tagMergeTip').innerHTML = '将标签「<b>' + src + '</b>」（' + TAG_GROUPS[gi].name + '）合并到目标标签：原标签从维度中移除，已引用内容改为目标标签，筛选条件同步切换。';
+  $('#tagMergeSel').textContent = '未选择目标标签';
+  renderMergeList();
+  $('#tagMergeMask').classList.add('show');
+}
+function renderMergeList(){
+  var kw = mergeKw.trim(), html = '';
+  TAG_GROUPS.forEach(function(g, gi){
+    var rows = g.tags.filter(function(t){
+      if(mergeSrc && gi === mergeSrc.gi && t === mergeSrc.name) return false;
+      return !kw || t.indexOf(kw) >= 0 || g.name.indexOf(kw) >= 0;
+    });
+    if(!rows.length) return;
+    html += '<div class="mg-dim">' + g.name + '</div>' + rows.map(function(t){
+      var on = mergeTarget && mergeTarget.gi === gi && mergeTarget.name === t;
+      return '<div class="mg-item' + (on ? ' on' : '') + '" onclick="pickMergeTarget(' + gi + ',' + jq(t) + ')">' +
+        '<span>' + t + '</span><span class="n">' + tagUseCount(t) + ' 项内容</span></div>';
+    }).join('');
+  });
+  $('#tagMergeList').innerHTML = html || '<div style="padding:24px;text-align:center;color:#aab1bd;font-size:12.5px">没有匹配的目标标签</div>';
+}
+function filterTagMerge(v){ mergeKw = v; renderMergeList() }
+function pickMergeTarget(gi, name){
+  mergeTarget = { gi: gi, name: name };
+  renderMergeList();
+  $('#tagMergeSel').textContent = '将合并到「' + name + '」';
+}
+function closeTagMerge(){ $('#tagMergeMask').classList.remove('show') }
+function confirmMerge(){
+  if(!mergeSrc) return;
+  if(!mergeTarget){ toast('请选择目标标签'); return }
+  var src = mergeSrc, tg = mergeTarget;
+  $('#tagMergeMask').classList.remove('show');
+  var n = tagRefReplace(src.name, tg.name);
+  var si = TI_AT(src.gi, src.name);
+  if(si >= 0) TAG_GROUPS[src.gi].tags.splice(si, 1);
+  if(TAG_GROUPS[tg.gi].tags.indexOf(tg.name) < 0) TAG_GROUPS[tg.gi].tags.push(tg.name);
+  tagSelMerge(src.gi, src.name, tg.gi, tg.name);
+  mergeSrc = null; mergeTarget = null;
+  renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
+  toast('已合并为「' + tg.name + '」，同步更新 ' + n + ' 项内容', 1);
+}
 function delTag(gi, ti){
-  var name = TAG_GROUPS[gi].tags[ti];
-  confirmBox('删除标签', '删除标签「' + name + '」后，已使用该标签的资料将不再按此筛选，确定删除？', true, function(){
+  var name = TAG_GROUPS[gi].tags[ti], used = tagUseCount(name);
+  if(used > 0){
+    toast('标签「' + name + '」已被 ' + used + ' 项内容引用，不可删除；请先合并到其他标签');
+    return;
+  }
+  confirmBox('删除标签', '删除标签「' + name + '」后不可恢复，上传向导与筛选面板同步移除，确定删除？', true, function(){
     TAG_GROUPS[gi].tags.splice(ti, 1);
+    tagSelDrop(gi, name);
     renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
     toast('标签「' + name + '」已删除', 1);
   });
 }
+function renameTagGroup(gi){
+  var old = TAG_GROUPS[gi].name;
+  var ask = function(def){
+    inputBox('维度改名', def, function(v){
+      if(v.length > 8){ toast('维度名称最多 8 个字'); ask(v); return }
+      if(v === old) return;
+      if(TAG_GROUPS.some(function(g){ return g.name === v })){ toast('该维度已存在'); ask(v); return }
+      TAG_GROUPS[gi].name = v;
+      [pDocTags, pVidTags].forEach(function(map){
+        if(map[old] === undefined) return;
+        map[v] = map[old]; delete map[old];
+      });
+      renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
+      toast('维度已改名为「' + v + '」，筛选条件同步更新', 1);
+    }, '维度名称 1–8 个字；改名后上传向导、列表筛选与门户筛选同步更新', '请输入新的维度名称');
+  };
+  ask(old);
+}
+function delTagGroup(gi){
+  var g = TAG_GROUPS[gi], dim = g.name;
+  if(g.tags.length){ toast('仅可删除空维度，请先合并或删除该维度下的 ' + g.tags.length + ' 个标签（被引用标签需先合并）'); return }
+  confirmBox('删除标签维度', '删除维度「' + dim + '」后，上传向导与筛选面板将不再展示该维度，确定删除？', true, function(){
+    TAG_GROUPS.splice(gi, 1);
+    docTagSel = shiftTagKeys(docTagSel, gi); vdTagSel = shiftTagKeys(vdTagSel, gi); tagfDraft = shiftTagKeys(tagfDraft, gi);
+    delete pDocTags[dim]; delete pVidTags[dim];
+    renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
+    toast('标签维度「' + dim + '」已删除', 1);
+  });
+}
 function addTagGroup(){
-  inputBox('新建标签维度', '品牌线', function(v){
-    TAG_GROUPS.push({ name: v, color: tagColors[TAG_GROUPS.length % tagColors.length], tags: [] });
-    renderTags();
-    toast('标签维度「' + v + '」已创建', 1);
-  }, '新维度将同步出现在上传向导与列表筛选面板中');
+  var ask = function(def){
+    inputBox('新建标签维度', def || '品牌线', function(v){
+      if(v.length > 8){ toast('维度名称最多 8 个字'); ask(v); return }
+      if(TAG_GROUPS.some(function(g){ return g.name === v })){ toast('该维度已存在'); ask(v); return }
+      TAG_GROUPS.push({ name: v, color: tagColors[TAG_GROUPS.length % tagColors.length], tags: [] });
+      renderTags(); refreshTagFilterUI('Doc'); refreshTagFilterUI('Vd');
+      toast('标签维度「' + v + '」已创建', 1);
+    }, '维度名称 1–8 个字；新维度将同步出现在上传向导与列表筛选面板中', '请输入维度名称');
+  };
+  ask('');
 }
 
 /* ---------- 已读记录 ---------- */
@@ -4932,24 +5158,24 @@ var playData = {
     { u: '王鹏', color: '#4f7df2', sub: '工程中心内部 · 工程中心', video: '隐蔽工程验收标准解读 V1.1', prog: 100, watched: '15:20', src: 'app', t: '2026-10-07 16:12' }
   ],
   doc: [
-    { video: '室内天花造型施工工艺演示 V1.2', cat: '门店施工篇 / 木工篇', players: 212, plays: 486, rate: 72, avg: '10:12', last: '今天 15:02' },
-    { video: '初尺、复尺标准操作演示 V1.0', cat: '门店设计篇 / 新店设计标准', players: 158, plays: 301, rate: 66, avg: '06:40', last: '今天 12:18' },
-    { video: '隐蔽工程验收标准解读 V1.1', cat: '门店验收篇 / 装修篇', players: 142, plays: 268, rate: 61, avg: '11:05', last: '今天 13:47' },
-    { video: '沿海大风区域招牌加固演示 V1.0', cat: '门店施工篇 / 差异化篇', players: 126, plays: 214, rate: 58, avg: '04:36', last: '昨天 17:41' },
-    { video: '泥工室内施工工艺演示 V1.1', cat: '门店施工篇 / 泥工篇', players: 98, plays: 167, rate: 54, avg: '03:52', last: '昨天 16:12' },
-    { video: '新施工方入场安全培训 V2.0', cat: '门店施工篇 / 培训课件篇', players: 86, plays: 142, rate: 49, avg: '12:31', last: '昨天 10:05' }
+    { video: '室内天花造型施工工艺演示 V1.2', cat: '门店施工篇 / 木工篇', players: 212, unplayed: 96, plays: 486, rate: 72, avg: '10:12', last: '今天 15:02' },
+    { video: '初尺、复尺标准操作演示 V1.0', cat: '门店设计篇 / 新店设计标准', players: 158, unplayed: 74, plays: 301, rate: 66, avg: '06:40', last: '今天 12:18' },
+    { video: '隐蔽工程验收标准解读 V1.1', cat: '门店验收篇 / 装修篇', players: 142, unplayed: 88, plays: 268, rate: 61, avg: '11:05', last: '今天 13:47' },
+    { video: '沿海大风区域招牌加固演示 V1.0', cat: '门店施工篇 / 差异化篇', players: 126, unplayed: 102, plays: 214, rate: 58, avg: '04:36', last: '昨天 17:41' },
+    { video: '泥工室内施工工艺演示 V1.1', cat: '门店施工篇 / 泥工篇', players: 98, unplayed: 84, plays: 167, rate: 54, avg: '03:52', last: '昨天 16:12' },
+    { video: '新施工方入场安全培训 V2.0', cat: '门店施工篇 / 培训课件篇', players: 86, unplayed: 71, plays: 142, rate: 49, avg: '12:31', last: '昨天 10:05' }
   ],
   user: [
-    { u: '王鹏', color: '#4f7df2', sub: '工程中心内部 · 工程中心', watched: 9, done: 6, time: '1 小时 24 分', last: '今天 15:02' },
-    { u: '李思远', color: '#4f7df2', sub: '其他中心部门 · 工程中心', watched: 6, done: 3, time: '58 分', last: '今天 14:41' },
-    { u: '刘嘉琪', color: '#ff8f3d', sub: '第三方装修负责人 · 上海鸣装装饰', watched: 5, done: 2, time: '42 分', last: '今天 14:20' },
-    { u: '陈晓', color: '#4f7df2', sub: '工程中心内部 · 工程中心', watched: 7, done: 4, time: '1 小时 06 分', last: '今天 13:47' },
-    { u: '周婷', color: '#4f7df2', sub: '其他中心部门 · 工程中心', watched: 4, done: 3, time: '35 分', last: '今天 12:18' },
-    { u: '张伟', color: '#ff8f3d', sub: '第三方广告负责人 · 杭州明筑施工队', watched: 3, done: 1, time: '21 分', last: '今天 11:26' }
+    { u: '王鹏', color: '#4f7df2', sub: '工程中心内部 · 工程中心', watched: 9, done: 6, mins: 84, last: '今天 15:02' },
+    { u: '李思远', color: '#4f7df2', sub: '其他中心部门 · 工程中心', watched: 6, done: 3, mins: 58, last: '今天 14:41' },
+    { u: '刘嘉琪', color: '#ff8f3d', sub: '第三方装修负责人 · 上海鸣装装饰', watched: 5, done: 2, mins: 42, last: '今天 14:20' },
+    { u: '陈晓', color: '#4f7df2', sub: '工程中心内部 · 工程中心', watched: 7, done: 4, mins: 66, last: '今天 13:47' },
+    { u: '周婷', color: '#4f7df2', sub: '其他中心部门 · 工程中心', watched: 4, done: 3, mins: 35, last: '今天 12:18' },
+    { u: '张伟', color: '#ff8f3d', sub: '第三方广告负责人 · 杭州明筑施工队', watched: 3, done: 1, mins: 21, last: '今天 11:26' }
   ]
 };
 var readCur = 'memo', readMode = 'doc';
-var readSort = 'read_desc', drillDoc = null;
+var readSort = 'read_desc', drillDoc = null, drillVid = null;
 var UNREAD_POOL = [
   { u: '孙浩', color: '#4f7df2', sub: '工程中心内部 · 工程中心', src: 'app', last: '昨天 18:20' },
   { u: '周婷', color: '#4f7df2', sub: '其他中心部门 · 工程中心', src: 'app', last: '今天 09:12' },
@@ -4962,7 +5188,20 @@ var UNREAD_POOL = [
   { u: '林芳', color: '#4f7df2', sub: '培训联络人 · 培训中心', src: 'app', last: '今天 08:26' },
   { u: '黄磊', color: '#ff8f3d', sub: '第三方装修负责人 · 无锡盛世装饰', src: 'mp', last: '09-30 15:12' }
 ];
+var UNPLAYED_POOL = [
+  { u: '孙浩', color: '#4f7df2', sub: '工程中心内部 · 工程中心', src: 'app', last: '今天 10:42' },
+  { u: '陈晓', color: '#4f7df2', sub: '工程中心内部 · 工程中心', src: 'app', last: '今天 13:47' },
+  { u: '吴强', color: '#ff8f3d', sub: '第三方装修负责人 · 苏州匠心装饰', src: 'mp', last: '昨天 16:05' },
+  { u: '郑凯', color: '#ff8f3d', sub: '第三方装修文员 · 杭州明筑施工队', src: 'mp', last: '10-06 09:18' },
+  { u: '何俊', color: '#ff8f3d', sub: '第三方广告负责人 · 上海鸣装装饰', src: 'mp', last: '10-05 14:26' },
+  { u: '马超', color: '#4f7df2', sub: '其他中心部门 · 营运中心', src: 'app', last: '昨天 10:02' },
+  { u: '许敏', color: '#ff8f3d', sub: '第三方货架负责人 · 南京展柜制作', src: 'mp', last: '10-04 11:45' },
+  { u: '高翔', color: '#ff8f3d', sub: '第三方监控负责人 · 合肥安防工程', src: 'mp', last: '10-03 17:30' },
+  { u: '林芳', color: '#4f7df2', sub: '培训联络人 · 培训中心', src: 'app', last: '今天 08:26' },
+  { u: '黄磊', color: '#ff8f3d', sub: '第三方装修负责人 · 无锡盛世装饰', src: 'mp', last: '09-30 15:12' }
+];
 function setReadSort(v){ readSort = v; renderReads() }
+function readSortDefault(m){ return m === 'video' ? 'vwatched_desc' : 'read_desc' }
 function openUnreadDrill(name){ drillDoc = name; renderReads() }
 function closeUnreadDrill(){ drillDoc = null; renderReads() }
 function exportReads(){
@@ -4976,16 +5215,24 @@ function exportUnreadDrill(){
 function renderReadToolbar(){
   var tb = $('#readToolbar');
   if(!tb) return;
-  if(readMode === 'doc' && readCur === 'user'){
-    var opts = [['read_desc', '已读资料 ↓'], ['read_asc', '已读资料 ↑'], ['mins_desc', '总时长 ↓'], ['mins_asc', '总时长 ↑'], ['times_desc', '阅读总次数 ↓'], ['times_asc', '阅读总次数 ↑']];
-    tb.style.display = 'flex';
-    tb.innerHTML = '<div class="read-sort"><span>自定义排序</span><select onchange="setReadSort(this.value)">' +
-      opts.map(function(o){ return '<option value="' + o[0] + '"' + (readSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>' }).join('') +
-      '</select></div><span style="font-size:12px;color:#9aa2ae">已读、总时长、阅读总次数均支持升序 / 降序</span>';
-  } else {
+  if(readCur !== 'user'){
     tb.style.display = 'none';
     tb.innerHTML = '';
+    return;
   }
+  var isV = readMode === 'video';
+  var valid = isV
+    ? ['vwatched_desc', 'vwatched_asc', 'vdone_desc', 'vdone_asc', 'vmins_desc', 'vmins_asc']
+    : ['read_desc', 'read_asc', 'mins_desc', 'mins_asc', 'times_desc', 'times_asc'];
+  if(valid.indexOf(readSort) < 0) readSort = readSortDefault(readMode);
+  var opts = isV
+    ? [['vwatched_desc', '观看视频数 ↓'], ['vwatched_asc', '观看视频数 ↑'], ['vdone_desc', '完播数 ↓'], ['vdone_asc', '完播数 ↑'], ['vmins_desc', '观看总时长 ↓'], ['vmins_asc', '观看总时长 ↑']]
+    : [['read_desc', '已读资料数 ↓'], ['read_asc', '已读资料数 ↑'], ['mins_desc', '总时长 ↓'], ['mins_asc', '总时长 ↑'], ['times_desc', '阅读总次数 ↓'], ['times_asc', '阅读总次数 ↑']];
+  tb.style.display = 'flex';
+  tb.innerHTML = '<div class="read-sort"><span>自定义排序</span><select onchange="setReadSort(this.value)">' +
+    opts.map(function(o){ return '<option value="' + o[0] + '"' + (readSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>' }).join('') +
+    '</select></div><span style="font-size:12px;color:#9aa2ae">' +
+    (isV ? '观看视频数、完播数、观看总时长均支持升序 / 降序' : '已读资料数、总时长、阅读总次数均支持升序 / 降序') + '</span>';
 }
 function readTimeTxt(mins){
   if(mins >= 60) return Math.floor(mins / 60) + ' 小时 ' + (mins % 60 ? (mins % 60) + ' 分' : '');
@@ -5017,9 +5264,44 @@ function unreadDrillHtml(){
     }).join('') + '</tbody></table>' +
     (r.unread > rows.length ? '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">当前展示前 ' + rows.length + ' 位未读用户，其余 ' + (r.unread - rows.length) + ' 位请导出完整明细查看。</div>' : '');
 }
+function openUnplayedDrill(name){ drillVid = name; renderReads() }
+function closeUnplayedDrill(){ drillVid = null; renderReads() }
+function exportUnplayedDrill(){
+  var r = playData.doc.filter(function(x){ return x.video === drillVid })[0];
+  toast('导出任务已创建：' + (r ? r.video : '未播放明细') + '_未播放明细_2026-10-20.xlsx（已附带筛选参数）', 1);
+}
+function unplayedDrillHtml(){
+  var r = playData.doc.filter(function(x){ return x.video === drillVid })[0];
+  if(!r){ drillVid = null; return '' }
+  var range = $('#readRange') ? $('#readRange').value : '近 7 日';
+  var src = $('#readSrc') ? $('#readSrc').value : '';
+  var srcTxt = src === 'app' ? '内部 APP' : (src === 'mp' ? '鸣忙营造小程序' : '全部来源端');
+  var auth = r.players + r.unplayed;
+  var playRate = Math.round(r.players * 100 / auth);
+  var rows = UNPLAYED_POOL.slice(0, Math.min(10, r.unplayed));
+  return '<div class="drill-bar">' +
+      '<span class="back" onclick="closeUnplayedDrill()"><svg><use href="#i-left"/></svg>返回按视频统计</span>' +
+      '<div class="drill-params">' +
+        '<div>视频：<b>' + r.video + '</b> · 分类：<b>' + r.cat + '</b></div>' +
+        '<div>筛选参数：时间范围 <b>' + range + '</b> · 来源端 <b>' + srcTxt + '</b> · 状态 <b>未播放用户</b></div>' +
+        '<div>已播放 <b>' + r.players + '</b> 人 · 未播放 <b style="color:#e5484d">' + r.unplayed + '</b> 人 · 播放覆盖率 <b>' + playRate + '%</b></div>' +
+      '</div>' +
+      '<button class="btn ghost sm" onclick="exportUnplayedDrill()"><svg><use href="#i-export"/></svg>导出未播放明细</button>' +
+    '</div>' +
+    '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>授权来源端</th><th>最近活跃</th><th style="width:120px">操作</th></tr></thead><tbody>' +
+    rows.map(function(x){
+      return '<tr><td><div class="u-cell"><span class="avatar-sm" style="background:' + x.color + '">' + x.u[0] + '</span><span style="font-weight:500">' + x.u + '</span></div></td>' +
+        '<td style="color:#8a919f;font-size:12.5px">' + x.sub + '</td>' +
+        '<td><span class="src-chip ' + x.src + '"><i></i>' + (x.src === 'app' ? '内部 APP' : '鸣忙营造小程序') + '</span></td>' +
+        '<td style="color:#8a919f">' + x.last + '</td>' +
+        '<td><a class="op-link" onclick="toast(\'已向 ' + x.u + ' 推送观看提醒（原型演示）\',1)">提醒观看</a></td></tr>';
+    }).join('') + '</tbody></table>' +
+    (r.unplayed > rows.length ? '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">当前展示前 ' + rows.length + ' 位未播放用户，其余 ' + (r.unplayed - rows.length) + ' 位请导出完整明细查看。</div>' : '');
+}
 function readTab(t){
   readCur = t;
   drillDoc = null;
+  drillVid = null;
   $$('#readDims button').forEach(function(b){ b.classList.toggle('active', b.dataset.r === t) });
   $('#readFilters').style.display = t === 'memo' ? 'flex' : 'none';
   renderReads();
@@ -5027,6 +5309,8 @@ function readTab(t){
 function readModeTo(m){
   readMode = m;
   drillDoc = null;
+  drillVid = null;
+  readSort = readSortDefault(m);
   $$('#readModes button').forEach(function(b){ b.classList.toggle('active', b.dataset.m === m) });
   $('#readStatsDoc').style.display = m === 'video' ? 'none' : '';
   $('#readStatsVideo').style.display = m === 'video' ? '' : 'none';
@@ -5062,23 +5346,38 @@ function renderReads(){
         }).join('') + '</tbody></table>';
       if(!list.length) html = '<div style="text-align:center;color:#9aa2ae;padding:40px 0">暂无符合条件的播放记录</div>';
     } else if(readCur === 'doc'){
-      html = '<table class="dtable"><thead><tr><th>视频名称</th><th>分类</th><th>播放人数</th><th>播放次数</th><th>完播率</th><th>平均观看</th><th>最近播放</th></tr></thead><tbody>' +
-        playData.doc.map(function(r){
-          return '<tr><td style="color:#2b313b;font-weight:500">' + r.video + '</td>' +
-          '<td style="color:#5a6270">' + r.cat + '</td>' +
-          '<td>' + r.players + ' 人</td><td>' + r.plays + ' 次</td>' +
-          '<td><span class="progress' + (r.rate >= 65 ? ' g' : '') + '"><i style="width:' + r.rate + '%"></i></span><span class="rate-txt">' + r.rate + '%</span></td>' +
-          '<td style="color:#5a6270">' + r.avg + '</td>' +
-          '<td style="color:#8a919f">' + r.last + '</td></tr>';
-        }).join('') + '</tbody></table>';
+      if(drillVid){
+        html = unplayedDrillHtml();
+      } else {
+        html = '<table class="dtable"><thead><tr><th>视频名称</th><th>分类</th><th>播放人数</th><th>未播放人数</th><th>播放次数</th><th>完播率</th><th>平均观看</th><th>最近播放</th></tr></thead><tbody>' +
+          playData.doc.map(function(r){
+            return '<tr><td style="color:#2b313b;font-weight:500">' + r.video + '</td>' +
+            '<td style="color:#5a6270">' + r.cat + '</td>' +
+            '<td>' + r.players + ' 人</td>' +
+            '<td><span class="unread-link" onclick="openUnplayedDrill(\'' + r.video + '\')">' + r.unplayed + ' 人</span></td>' +
+            '<td>' + r.plays + ' 次</td>' +
+            '<td><span class="progress' + (r.rate >= 65 ? ' g' : '') + '"><i style="width:' + r.rate + '%"></i></span><span class="rate-txt">' + r.rate + '%</span></td>' +
+            '<td style="color:#5a6270">' + r.avg + '</td>' +
+            '<td style="color:#8a919f">' + r.last + '</td></tr>';
+          }).join('') + '</tbody></table>' +
+          '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">点击「未播放人数」可下钻查看未播放用户明细，明细页支持带参展示与导出。</div>';
+      }
     } else {
+      var vlist = playData.user.slice();
+      var vsk = readSort.split('_')[0], vdir = readSort.split('_')[1];
+      vlist.sort(function(a, b){
+        var va = vsk === 'vwatched' ? a.watched : (vsk === 'vdone' ? a.done : a.mins);
+        var vb = vsk === 'vwatched' ? b.watched : (vsk === 'vdone' ? b.done : b.mins);
+        return vdir === 'asc' ? va - vb : vb - va;
+      });
       html = '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>观看视频</th><th>完播</th><th>观看总时长</th><th>最近播放</th></tr></thead><tbody>' +
-        playData.user.map(function(r){
+        vlist.map(function(r){
           return '<tr><td><div class="u-cell"><span class="avatar-sm" style="background:' + r.color + '">' + r.u[0] + '</span><span style="font-weight:500">' + r.u + '</span></div></td>' +
           '<td style="color:#8a919f;font-size:12.5px">' + r.sub + '</td><td>' + r.watched + ' 个</td><td>' + r.done + ' 个</td>' +
-          '<td style="color:#5a6270">' + r.time + '</td>' +
+          '<td style="color:#5a6270">' + readTimeTxt(r.mins) + '</td>' +
           '<td style="color:#8a919f">' + r.last + '</td></tr>';
-        }).join('') + '</tbody></table>';
+        }).join('') + '</tbody></table>' +
+        '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">可按观看视频数、完播数、观看总时长切换升序 / 降序；排序仅作用于当前筛选结果。</div>';
     }
     $('#readTableWrap').innerHTML = html;
     return;
