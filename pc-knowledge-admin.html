@@ -1107,6 +1107,21 @@
   .read-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
   .read-sort{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#5a6270}
   .read-sort select{height:30px;border:1px solid #dfe3ea;border-radius:7px;padding:0 8px;font-size:12.5px;color:#3f4753;background:#fff;outline:none}
+  .read-name{position:relative;width:280px}
+  .read-name input{width:100%;height:32px;border:1px solid #dfe3ea;border-radius:7px;padding:0 56px 0 32px;font-size:12.8px;color:#3f4753;background:#fff;outline:none}
+  .read-name input:focus{border-color:#1f6bf1;box-shadow:0 0 0 2px rgba(31,107,241,.1)}
+  .read-name>svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#9aa2ae}
+  .read-name .clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#9aa2ae;cursor:pointer;line-height:1}
+  .read-name .clr:hover{color:#1f6bf1}
+  .tb-hint{font-size:12px;color:#9aa2ae}
+  .read-hit{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5a6270;margin:14px 0 0}
+  .read-hit b{color:#1f6bf1}
+  .read-hit a{color:#8a919f;cursor:pointer}
+  .read-hit a:hover{color:#1f6bf1}
+  .read-empty{text-align:center;color:#9aa2ae;padding:40px 0;font-size:13px}
+  .read-empty button{margin-left:8px;color:#1f6bf1;background:none;border:none;font-size:13px;cursor:pointer}
+  .read-empty button:hover{text-decoration:underline}
+  mark.kw{background:#fff2c2;color:#8a5a00;border-radius:3px;padding:0 2px}
   .unread-link{color:#e5484d;font-weight:600;cursor:pointer;white-space:nowrap}
   .unread-link:hover{text-decoration:underline}
   .drill-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#f6f9ff;border:1px solid #dbe7ff;border-radius:10px;padding:10px 12px;margin:12px 0}
@@ -5176,6 +5191,7 @@ var playData = {
 };
 var readCur = 'memo', readMode = 'doc';
 var readSort = 'read_desc', drillDoc = null, drillVid = null;
+var readNameKw = { doc: '', video: '' };
 var UNREAD_POOL = [
   { u: '孙浩', color: '#4f7df2', sub: '工程中心内部 · 工程中心', src: 'app', last: '昨天 18:20' },
   { u: '周婷', color: '#4f7df2', sub: '其他中心部门 · 工程中心', src: 'app', last: '今天 09:12' },
@@ -5205,16 +5221,62 @@ function readSortDefault(m){ return m === 'video' ? 'vwatched_desc' : 'read_desc
 function openUnreadDrill(name){ drillDoc = name; renderReads() }
 function closeUnreadDrill(){ drillDoc = null; renderReads() }
 function exportReads(){
-  var label = readCur === 'user' ? '按用户统计' : (readCur === 'doc' ? '按资料统计' : '明细记录');
-  toast('导出任务已创建：' + (readMode === 'video' ? '视频播放' : '图文阅读') + '_' + label + '_2026-10-20.xlsx', 1);
+  var label = readCur === 'user' ? '按用户统计' : (readCur === 'doc' ? (readMode === 'video' ? '按视频统计' : '按资料统计') : '明细记录');
+  var nkw = readCur === 'doc' ? (readNameKw[readMode] || '').trim() : '';
+  toast('导出任务已创建：' + (readMode === 'video' ? '视频播放' : '图文阅读') + '_' + label + '_2026-10-20.xlsx' + (nkw ? '（含名称筛选「' + nkw + '」）' : ''), 1);
 }
 function exportUnreadDrill(){
   var r = readData.doc.filter(function(x){ return x.doc === drillDoc })[0];
   toast('导出任务已创建：' + (r ? r.doc : '未读明细') + '_未读明细_2026-10-20.xlsx（已附带筛选参数）', 1);
 }
+function kwEsc(s){
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function nameHit(name, kw){
+  if(!kw) return true;
+  return String(name || '').toLowerCase().indexOf(String(kw).toLowerCase()) >= 0;
+}
+function hlName(name, kw){
+  if(!kw) return kwEsc(name);
+  var i = String(name).toLowerCase().indexOf(String(kw).toLowerCase());
+  if(i < 0) return kwEsc(name);
+  return kwEsc(name.slice(0, i)) + '<mark class="kw">' + kwEsc(name.slice(i, i + kw.length)) + '</mark>' + kwEsc(name.slice(i + kw.length));
+}
+function nameHitBar(n, kw, noun){
+  return '<div class="read-hit">' +
+    (n ? '找到 <b>' + n + '</b> ' + (noun === '视频' ? '个' : '份') + noun + '匹配「' + kwEsc(kw) + '」'
+       : '没有名称匹配「' + kwEsc(kw) + '」的' + noun) +
+    '<a onclick="clearReadNameKw()">清除筛选</a></div>';
+}
+function setReadNameKw(v){
+  readNameKw[readMode] = v;
+  drillDoc = null; drillVid = null;
+  var c = $('#readToolbar') ? $('#readToolbar').querySelector('.read-name .clr') : null;
+  if(c) c.style.display = String(v || '').trim() ? 'inline' : 'none';
+  renderReadTable();
+}
+function clearReadNameKw(){
+  readNameKw[readMode] = '';
+  var el = $('#readNameKw');
+  if(el){ el.value = ''; el.focus() }
+  var c = $('#readToolbar') ? $('#readToolbar').querySelector('.read-name .clr') : null;
+  if(c) c.style.display = 'none';
+  renderReadTable();
+}
 function renderReadToolbar(){
   var tb = $('#readToolbar');
   if(!tb) return;
+  if(readCur === 'doc'){
+    var dv = readMode === 'video';
+    var nk = readNameKw[readMode] || '';
+    tb.style.display = 'flex';
+    tb.innerHTML =
+      '<div class="read-name"><svg><use href="#i-search"/></svg>' +
+      '<input id="readNameKw" placeholder="' + (dv ? '输入视频名称，模糊查询' : '输入资料名称，模糊查询') + '" value="' + kwEsc(nk) + '" oninput="setReadNameKw(this.value)">' +
+      '<span class="clr" style="display:' + (nk ? 'inline' : 'none') + '" onclick="clearReadNameKw()">清空</span></div>' +
+      '<span class="tb-hint">' + (dv ? '按视频名称模糊匹配，实时过滤列表；顶部统计卡不受影响' : '按资料名称模糊匹配，实时过滤列表；顶部统计卡不受影响') + '</span>';
+    return;
+  }
   if(readCur !== 'user'){
     tb.style.display = 'none';
     tb.innerHTML = '';
@@ -5249,7 +5311,7 @@ function unreadDrillHtml(){
       '<span class="back" onclick="closeUnreadDrill()"><svg><use href="#i-left"/></svg>返回按资料统计</span>' +
       '<div class="drill-params">' +
         '<div>资料：<b>' + r.doc + '</b> · 分类：<b>' + r.cat + '</b></div>' +
-        '<div>筛选参数：时间范围 <b>' + range + '</b> · 来源端 <b>' + srcTxt + '</b> · 状态 <b>未读用户</b></div>' +
+        '<div>筛选参数：时间范围 <b>' + range + '</b> · 来源端 <b>' + srcTxt + '</b> · 状态 <b>未读用户</b>' + (readNameKw.doc ? ' · 名称筛选 <b>' + kwEsc(readNameKw.doc) + '</b>' : '') + '</div>' +
         '<div>已读 <b>' + r.readers + '</b> 人 · 未读 <b style="color:#e5484d">' + r.unread + '</b> 人 · 已读率 <b>' + r.rate + '%</b></div>' +
       '</div>' +
       '<button class="btn ghost sm" onclick="exportUnreadDrill()"><svg><use href="#i-export"/></svg>导出未读明细</button>' +
@@ -5283,7 +5345,7 @@ function unplayedDrillHtml(){
       '<span class="back" onclick="closeUnplayedDrill()"><svg><use href="#i-left"/></svg>返回按视频统计</span>' +
       '<div class="drill-params">' +
         '<div>视频：<b>' + r.video + '</b> · 分类：<b>' + r.cat + '</b></div>' +
-        '<div>筛选参数：时间范围 <b>' + range + '</b> · 来源端 <b>' + srcTxt + '</b> · 状态 <b>未播放用户</b></div>' +
+        '<div>筛选参数：时间范围 <b>' + range + '</b> · 来源端 <b>' + srcTxt + '</b> · 状态 <b>未播放用户</b>' + (readNameKw.video ? ' · 名称筛选 <b>' + kwEsc(readNameKw.video) + '</b>' : '') + '</div>' +
         '<div>已播放 <b>' + r.players + '</b> 人 · 未播放 <b style="color:#e5484d">' + r.unplayed + '</b> 人 · 播放覆盖率 <b>' + playRate + '%</b></div>' +
       '</div>' +
       '<button class="btn ghost sm" onclick="exportUnplayedDrill()"><svg><use href="#i-export"/></svg>导出未播放明细</button>' +
@@ -5322,6 +5384,9 @@ function readModeTo(m){
 }
 function renderReads(){
   renderReadToolbar();
+  renderReadTable();
+}
+function renderReadTable(){
   var kw = ($('#readKw') ? $('#readKw').value.trim() : ''), src = ($('#readSrc') ? $('#readSrc').value : '');
   var doneF = ($('#readDone') ? $('#readDone').value : '');
   if(readMode === 'video'){
@@ -5349,9 +5414,12 @@ function renderReads(){
       if(drillVid){
         html = unplayedDrillHtml();
       } else {
-        html = '<table class="dtable"><thead><tr><th>视频名称</th><th>分类</th><th>播放人数</th><th>未播放人数</th><th>播放次数</th><th>完播率</th><th>平均观看</th><th>最近播放</th></tr></thead><tbody>' +
-          playData.doc.map(function(r){
-            return '<tr><td style="color:#2b313b;font-weight:500">' + r.video + '</td>' +
+        var vkw = readNameKw.video.trim();
+        var vrows = playData.doc.filter(function(r){ return nameHit(r.video, vkw) });
+        html = (vkw ? nameHitBar(vrows.length, vkw, '视频') : '') +
+          (vrows.length ? '<table class="dtable"><thead><tr><th>视频名称</th><th>分类</th><th>播放人数</th><th>未播放人数</th><th>播放次数</th><th>完播率</th><th>平均观看</th><th>最近播放</th></tr></thead><tbody>' +
+          vrows.map(function(r){
+            return '<tr><td style="color:#2b313b;font-weight:500">' + hlName(r.video, vkw) + '</td>' +
             '<td style="color:#5a6270">' + r.cat + '</td>' +
             '<td>' + r.players + ' 人</td>' +
             '<td><span class="unread-link" onclick="openUnplayedDrill(\'' + r.video + '\')">' + r.unplayed + ' 人</span></td>' +
@@ -5360,7 +5428,8 @@ function renderReads(){
             '<td style="color:#5a6270">' + r.avg + '</td>' +
             '<td style="color:#8a919f">' + r.last + '</td></tr>';
           }).join('') + '</tbody></table>' +
-          '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">点击「未播放人数」可下钻查看未播放用户明细，明细页支持带参展示与导出。</div>';
+          '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">点击「未播放人数」可下钻查看未播放用户明细，明细页支持带参展示与导出。</div>'
+          : '<div class="read-empty">没有名称包含「' + kwEsc(vkw) + '」的视频<button onclick="clearReadNameKw()">清除筛选</button></div>');
       }
     } else {
       var vlist = playData.user.slice();
@@ -5406,16 +5475,20 @@ function renderReads(){
     if(drillDoc){
       html = unreadDrillHtml();
     } else {
-      html = '<table class="dtable"><thead><tr><th>资料名称</th><th>分类</th><th>已读人数</th><th>未读人数</th><th>阅读次数</th><th>已读率</th><th>最近阅读</th></tr></thead><tbody>' +
-        readData.doc.map(function(r){
-          return '<tr><td style="color:#2b313b;font-weight:500">' + r.doc + '</td>' +
+      var dkw = readNameKw.doc.trim();
+      var drows = readData.doc.filter(function(r){ return nameHit(r.doc, dkw) });
+      html = (dkw ? nameHitBar(drows.length, dkw, '资料') : '') +
+        (drows.length ? '<table class="dtable"><thead><tr><th>资料名称</th><th>分类</th><th>已读人数</th><th>未读人数</th><th>阅读次数</th><th>已读率</th><th>最近阅读</th></tr></thead><tbody>' +
+        drows.map(function(r){
+          return '<tr><td style="color:#2b313b;font-weight:500">' + hlName(r.doc, dkw) + '</td>' +
           '<td style="color:#5a6270">' + r.cat + '</td><td>' + r.readers + ' 人</td>' +
           '<td><span class="unread-link" onclick="openUnreadDrill(\'' + r.doc + '\')">' + r.unread + ' 人</span></td>' +
           '<td>' + r.times + ' 次</td>' +
           '<td><span class="progress' + (r.rate >= 70 ? ' g' : '') + '"><i style="width:' + r.rate + '%"></i></span><span class="rate-txt">' + r.rate + '%</span></td>' +
           '<td style="color:#8a919f">' + r.last + '</td></tr>';
         }).join('') + '</tbody></table>' +
-        '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">点击「未读人数」可下钻查看未读用户明细，明细页支持带参展示与导出。</div>';
+        '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">点击「未读人数」可下钻查看未读用户明细，明细页支持带参展示与导出。</div>'
+        : '<div class="read-empty">没有名称包含「' + kwEsc(dkw) + '」的资料<button onclick="clearReadNameKw()">清除筛选</button></div>');
     }
   } else {
     var ulist = readData.user.slice();
