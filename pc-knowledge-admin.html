@@ -733,6 +733,8 @@
   .p-ptrack{height:6px;border-radius:3px;background:#eef1f5;margin-top:12px;overflow:hidden;max-width:420px}
   .p-ptrack i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#3d8bff,#1f6bf1)}
   .p-vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .p-vgrid.hot5{grid-template-columns:repeat(5,1fr)}
+  .p-sec-tip{margin-left:auto;margin-right:14px;font-size:11.5px;color:#9aa2ae}
   .p-vcard{background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s;box-shadow:0 1px 3px rgba(15,23,42,.04)}
   .p-vcard:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,.1)}
   .p-vcover{height:118px;position:relative;display:flex;align-items:center;justify-content:center}
@@ -793,6 +795,28 @@
   .p-rel-item .ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
   .p-rel-item .ic svg{width:13px;height:13px}
   .p-rel-item .mt{margin-left:auto;font-size:11px;color:#aab1bd;flex-shrink:0}
+  /* 关联内容无可见范围权限（关联不扩大访问权限） */
+  .p-rel-item.locked{background:#fbfbfc;cursor:pointer}
+  .p-rel-item.locked:hover{background:#f4f5f8}
+  .p-rel-item.locked .ic{background:#e8eaf0;color:#9aa2ae}
+  .p-rel-item.locked .nm{color:#8a919f}
+  .p-rel-item .lk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#8a919f;background:#f0f2f6;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+  .p-rel-note{display:flex;align-items:flex-start;gap:6px;margin-top:8px;font-size:11.5px;color:#9aa2ae;line-height:1.6}
+  .p-rel-note svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
+  .kb-deny{display:flex;gap:12px}
+  .kb-deny .ic{width:38px;height:38px;border-radius:11px;background:#fdf1f0;color:#d93026;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .kb-deny .ic svg{width:19px;height:19px}
+  .kb-deny .tx{flex:1;min-width:0}
+  .kb-deny .tx b{display:block;font-size:13.5px;color:#23262d;line-height:1.6;word-break:break-all}
+  .kb-deny .tx p{font-size:12.5px;color:#5a6270;line-height:1.75;margin-top:6px}
+  .kb-deny .scope{margin-top:10px;background:#f7f9fc;border:1px solid #eef1f6;border-radius:9px;padding:9px 11px;font-size:12px;color:#3f4753;line-height:1.8}
+  .kb-deny .scope em{font-style:normal;color:#8a919f}
+  .kb-deny-page{max-width:560px;margin:60px auto;background:#fff;border-radius:14px;padding:36px 32px;text-align:center;box-shadow:0 2px 16px rgba(15,23,42,.06)}
+  .kb-deny-page .ic{width:52px;height:52px;border-radius:16px;background:#fdf1f0;color:#d93026;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .kb-deny-page .ic svg{width:26px;height:26px}
+  .kb-deny-page h3{font-size:16px;color:#23262d}
+  .kb-deny-page p{font-size:12.8px;color:#8a919f;line-height:1.85;margin-top:10px}
+  .kb-deny-page .btns{display:flex;gap:10px;justify-content:center;margin-top:20px}
   .p-player{background:#101318;border-radius:14px;position:relative;overflow:hidden;aspect-ratio:16/9;max-height:540px}
   .p-player .wm{position:absolute;inset:0;pointer-events:none;display:flex;flex-wrap:wrap;gap:14px;align-content:flex-start;padding:12px;overflow:hidden}
   .p-player .wm span{transform:rotate(-22deg);font-size:11px;color:rgba(255,255,255,.13);white-space:nowrap;font-weight:600;letter-spacing:1px}
@@ -838,6 +862,7 @@
   @media (max-width:1280px){
     .p-cats,.p-cats.c5{grid-template-columns:repeat(4,1fr)}
     .p-vgrid{grid-template-columns:repeat(3,1fr)}
+    .p-vgrid.hot5{grid-template-columns:repeat(3,1fr)}
     .p-dimwrap{grid-template-columns:1fr}
   }
   @media (max-width:1080px){
@@ -859,6 +884,7 @@
     .p-hub,.p-hub-sq{grid-template-columns:1fr}
     .p-cats,.p-cats.c5{grid-template-columns:repeat(2,1fr)}
     .p-vgrid{grid-template-columns:repeat(2,1fr)}
+    .p-vgrid.hot5{grid-template-columns:repeat(2,1fr)}
     .p-docrow .rt{display:none}
     .p-hero{padding:22px;flex-direction:column;align-items:flex-start}
     .p-stat-row{grid-template-columns:1fr}
@@ -867,6 +893,7 @@
   @media (max-width:620px){
     .krt-title .ro,.krt-user{display:none}
     .p-vgrid{grid-template-columns:1fr}
+    .p-vgrid.hot5{grid-template-columns:1fr}
     .p-docrow{padding:12px;gap:10px}
     .p-vcover{height:150px}
   }
@@ -2092,6 +2119,27 @@
   </div>
 </div>
 
+<!-- ================= 关联内容无权限提示 ================= -->
+<div class="mask" id="kbDenyMask">
+  <div class="dialog" style="width:480px">
+    <div class="dlg-head"><h3>该内容未向您开放</h3><button class="dlg-close" onclick="closeKbDeny()"><svg style="width:15px;height:15px"><use href="#i-x"/></svg></button></div>
+    <div class="dlg-body">
+      <div class="kb-deny">
+        <span class="ic"><svg><use href="#i-lock"/></svg></span>
+        <div class="tx">
+          <b id="kdName">—</b>
+          <p id="kdDesc">该内容为当前内容的关联内容，但其可见范围未包含您的账号（王鹏 · 工程系统-项目管理员）。关联关系<b>不扩大</b>访问权限，因此不加载正文与文件。</p>
+          <div class="scope" id="kdScope"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn ghost" onclick="closeKbDeny()">知道了</button>
+      <button class="btn primary" onclick="kbAskAccess()">申请查看权限</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= 职能组织选择 ================= -->
 <div class="mask" id="orgMask" style="z-index:250">
   <div class="dialog org-dlg">
@@ -2710,7 +2758,7 @@ var docs = [
 ];
 /* 资料 ↔ 视频关联（双向）：doc.rv ⇄ video.rd */
 docs[0].rv = [103]; docs[1].rv = [102]; docs[2].rv = [104]; docs[3].rv = [101];
-docs[5].rv = [103]; docs[7].rv = [105];
+docs[5].rv = [103]; docs[7].rv = [104];
 /* 资料 ↔ 资料关联（配套图文） */
 docs[0].rl = [13]; docs[2].rl = [9]; docs[14].rl = [16];
 var STATUS = {
@@ -4152,7 +4200,7 @@ function statModGo(k){
 }
 
 /* ---------- 下载申请审批（PC / APP 共用 localStorage，模拟服务端闭环） ---------- */
-var DL_KEY = 'kb_dl_apps_v1', DL_SEED_KEY = 'kb_dl_seed_v3';
+var DL_KEY = 'kb_dl_apps_v1', DL_SEED_KEY = 'kb_dl_seed_v4';
 var DL_CH = { pc: 'PC 用户端', app: '内部 APP' };
 var DL_ST = { pending: { t: '待审批', c: 'review' }, approved: { t: '已通过', c: 'pub' }, rejected: { t: '已驳回', c: 'off' } };
 function dlLoad(){ try{ return JSON.parse(localStorage.getItem(DL_KEY) || '[]') }catch(e){ return [] } }
@@ -4201,7 +4249,16 @@ function dlEnsureSeed(){
     { id: 'DL20261019-021', name: '门店水电施工标准手册', ver: 'V2.1', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '新店筹建交底前需打印纸质版用于线下培训，需受控水印版留档。', time: '2026-10-19 09:12', status: 'approved', approver: '张敏（工程中心）', handleTime: '2026-10-19 09:40', remark: '工程中心审批通过 · 已生成受控水印版', downloaded: 1, lastDownload: '2026-10-19 10:05', ts: new Date(2026, 9, 19, 9, 12).getTime() },
     { id: 'DL20261020-032', name: '室内天花造型施工工艺演示', ver: 'V1.2', kind: 'video', channel: 'app', user: '王鹏', org: '工程中心', reason: '项目宣贯会上需离线播放给施工班组，现场网络不稳定。', time: '2026-10-20 10:24', status: 'pending', approver: '', remark: '', ts: new Date(2026, 9, 20, 10, 24).getTime() },
     { id: 'DL20261020-047', name: '沿海大风区域门店施工手册', ver: 'V1.2', kind: 'doc', channel: 'pc', user: '李静', org: '工程中心 · 预结算', reason: '沿海区域项目结算核对工程量，需打印后与现场签证单比对。', time: '2026-10-20 11:08', status: 'pending', approver: '', remark: '', ts: new Date(2026, 9, 20, 11, 8).getTime() },
-    { id: 'DL20261018-015', name: '泥工室内施工工艺演示', ver: 'V1.1', kind: 'video', channel: 'app', user: '周婷', org: '工程中心 · 项目管理', reason: '周会培训使用。', time: '2026-10-18 15:40', status: 'rejected', approver: '李强（工程中心）', handleTime: '2026-10-18 16:20', remark: '申请原因过于笼统，请补充具体培训场次与使用场景后重新申请', ts: new Date(2026, 9, 18, 15, 40).getTime() }
+    { id: 'DL20261018-015', name: '泥工室内施工工艺演示', ver: 'V1.1', kind: 'video', channel: 'app', user: '周婷', org: '工程中心 · 项目管理', reason: '周会培训使用。', time: '2026-10-18 15:40', status: 'rejected', approver: '李强（工程中心）', handleTime: '2026-10-18 16:20', remark: '申请原因过于笼统，请补充具体培训场次与使用场景后重新申请', ts: new Date(2026, 9, 18, 15, 40).getTime() },
+    { id: 'DL20261027-040', name: '泥工室内施工工艺演示', ver: 'V1.1', kind: 'video', channel: 'pc', user: '王鹏', org: '工程中心', reason: '新进场泥工班组交底培训，现场需离线播放演示视频。', time: '2026-10-27 14:22', status: 'pending', ts: new Date(2026, 9, 27, 14, 22).getTime() },
+    { id: 'DL20261025-036', name: '沿海大风区域招牌加固演示', ver: 'V1.0', kind: 'video', channel: 'pc', user: '王鹏', org: '工程中心', reason: '台风季前区域巡检，需要带着视频到门店现场核对加固做法。', time: '2026-10-25 10:05', status: 'rejected', approver: '李强（工程中心）', handleTime: '2026-10-25 11:12', remark: '巡检场景建议在线播放即可，如需线下培训请补充场次与参与人员清单', ts: new Date(2026, 9, 25, 10, 5).getTime() },
+    { id: 'DL20261023-031', name: '初尺、复尺标准作业指引', ver: 'V3.0', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '外部设计单位对接交底会需分发受控纸质版，会后天际回收。', time: '2026-10-23 09:30', status: 'approved', approver: '张敏（工程中心）', handleTime: '2026-10-23 10:02', downloaded: 1, lastDownload: '2026-10-23 10:20', ts: new Date(2026, 9, 23, 9, 30).getTime() },
+    { id: 'DL20261021-023', name: '门店水电施工标准手册', ver: 'V2.1', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '打印用。', time: '2026-10-21 16:44', status: 'rejected', approver: '李强（工程中心）', handleTime: '2026-10-21 17:05', remark: '申请原因过于笼统，请说明具体项目、使用场景与时间要求后重新申请', ts: new Date(2026, 9, 21, 16, 44).getTime() },
+    { id: 'DL20261018-006', name: '隐蔽工程验收标准解读', ver: 'V1.1', kind: 'video', channel: 'pc', user: '王鹏', org: '工程中心', reason: '监理周例会用大屏离线播放，会议室网络受限。', time: '2026-10-18 09:12', status: 'approved', approver: '张敏（工程中心）', handleTime: '2026-10-18 09:35', downloaded: 2, lastDownload: '2026-10-18 10:00', ts: new Date(2026, 9, 18, 9, 12).getTime() },
+    { id: 'DL20261016-018', name: '基础装修验收篇（木）图文标准', ver: 'V1.3', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '下周门店验收前需打印核对表随行使用。', time: '2026-10-16 11:28', status: 'pending', ts: new Date(2026, 9, 16, 11, 28).getTime() },
+    { id: 'DL20261015-014', name: '货架安装验收标准', ver: 'V1.1', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '货架供应商驻场沟通会需提供受控纸质版核对条款。', time: '2026-10-15 15:50', status: 'approved', approver: '张敏（工程中心）', handleTime: '2026-10-15 16:10', downloaded: 1, lastDownload: '2026-10-15 16:40', ts: new Date(2026, 9, 15, 15, 50).getTime() },
+    { id: 'DL20261013-009', name: '收银区水电施工标准图集', ver: 'V1.2', kind: 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: '自用学习。', time: '2026-10-13 10:36', status: 'rejected', approver: '李强（工程中心）', handleTime: '2026-10-13 11:00', remark: '学习场景请在线预览，下载需说明线下使用场景', ts: new Date(2026, 9, 13, 10, 36).getTime() },
+    { id: 'DL20261012-005', name: '室内天花造型施工工艺演示', ver: 'V1.2', kind: 'video', channel: 'pc', user: '王鹏', org: '工程中心', reason: '木工班组进场培训，工地现场无稳定网络需离线播放。', time: '2026-10-12 13:08', status: 'approved', approver: '张敏（工程中心）', handleTime: '2026-10-12 13:30', downloaded: 3, lastDownload: '2026-10-12 14:15', ts: new Date(2026, 9, 12, 13, 8).getTime() }
   ].forEach(function(r){ if(!ids[r.id]) l.push(r) });
   l.sort(function(a, b){ return (b.ts || 0) - (a.ts || 0) });
   dlSave(l);
@@ -5511,14 +5568,14 @@ function renderReadTable(){
 
 /* ---------- 标准视频库 ---------- */
 var videos = [
-  { id: 101, name: '室内天花造型施工工艺演示', ver: 'V1.2', code: 'KB-VD-2026-005', cat1: '门店施工篇', cat2: '木工篇', cat3: '室内天花造型施工', dur: '12:35', size: '268MB', cover: 'linear-gradient(135deg,#ffb066,#ff7d1a)', plays: 1286, done: 68, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','第三方装修负责人','通用区域','木工节点'], rd: [4], status: 'published', updated: '2026-10-06 10:30' },
-  { id: 102, name: '初尺、复尺标准操作演示', ver: 'V1.0', code: 'KB-VD-2026-004', cat1: '门店设计篇', cat2: '新店设计标准', cat3: '初尺、复尺标准', dur: '08:20', size: '164MB', cover: 'linear-gradient(135deg,#3d8bff,#1f6bf1)', plays: 864, done: 64, scope: ['内部','施工方'], tags: ['零食很忙6.5代店','标准版','第三方装修文员','通用区域','初尺复尺节点'], rd: [2], status: 'published', updated: '2026-10-04 15:12' },
-  { id: 103, name: '隐蔽工程验收标准解读', ver: 'V1.1', code: 'KB-VD-2026-003', cat1: '门店验收篇', cat2: '装修篇', cat3: '基础装修验收篇（木）', dur: '15:20', size: '312MB', cover: 'linear-gradient(135deg,#9575cd,#5e35b1)', plays: 742, done: 61, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','工程中心内部','第三方装修负责人','通用区域','竣工验收节点'], rd: [1, 6], status: 'published', updated: '2026-10-02 09:40' },
-  { id: 104, name: '沿海大风区域招牌加固演示', ver: 'V1.0', code: 'KB-VD-2026-002', cat1: '门店施工篇', cat2: '差异化篇', cat3: '沿海大风区域施工项目', dur: '06:15', size: '118MB', cover: 'linear-gradient(135deg,#66bb6a,#2e7d32)', plays: 615, done: 58, scope: ['内部','施工方'], tags: ['赵一鸣3.0版本','标准版','第三方广告负责人','沿海区域（大风）','广告安装节点'], rd: [3], status: 'published', updated: '2026-09-30 16:05' },
-  { id: 105, name: '泥工室内施工工艺演示', ver: 'V1.1', code: 'KB-VD-2026-001', cat1: '门店施工篇', cat2: '泥工篇', cat3: '室内施工', dur: '05:42', size: '96MB', cover: 'linear-gradient(135deg,#ffb020,#fa8c16)', plays: 531, done: 55, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','第三方装修负责人','通用区域','泥工节点'], rd: [8], status: 'published', updated: '2026-09-28 11:26' },
-  { id: 106, name: '新施工方入场安全培训', ver: 'V2.0', code: 'KB-VD-2025-012', cat1: '门店施工篇', cat2: '培训课件篇', cat3: '月度培训课件', dur: '25:40', size: '486MB', cover: 'linear-gradient(135deg,#ff8a65,#f4511e)', plays: 428, done: 52, scope: ['内部','施工方'], tags: ['标准版','第三方装修负责人','第三方广告负责人','第三方货架负责人','第三方监控负责人','通用区域'], rd: [7], status: 'published', updated: '2026-09-25 10:18' },
-  { id: 107, name: '水电开槽施工规范培训', ver: 'V1.0', code: 'KB-VD-2026-006', cat1: '门店施工篇', cat2: '水电篇', cat3: '室内外电路施工', dur: '18:50', size: '356MB', cover: 'linear-gradient(135deg,#5b8def,#2f4bd8)', plays: 0, done: 0, scope: ['内部'], tags: ['标准版','工程中心内部','第三方装修负责人','通用区域','水电节点'], rd: [1], status: 'review', updated: '2026-10-07 17:30' },
-  { id: 108, name: '开业物料验收流程培训', ver: 'V1.0', code: 'KB-VD-2026-007', cat1: '门店验收篇', cat2: '物料篇', cat3: '开业物料验收', dur: '22:10', size: '402MB', cover: 'linear-gradient(135deg,#26c6da,#00838f)', plays: 0, done: 0, scope: ['内部'], tags: ['赵一鸣3.0版本','标准版','第三方装修负责人','通用区域','竣工验收节点'], rd: [14], status: 'draft', updated: '2026-10-08 09:12' }
+  { id: 101, name: '室内天花造型施工工艺演示', ver: 'V1.2', code: 'KB-VD-2026-005', cat1: '门店施工篇', cat2: '木工篇', cat3: '室内天花造型施工', dur: '12:35', size: '268MB', cover: 'linear-gradient(135deg,#ffb066,#ff7d1a)', plays: 1286, p30: 412, done: 68, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','第三方装修负责人','通用区域','木工节点'], rd: [4], status: 'published', updated: '2026-10-06 10:30' },
+  { id: 102, name: '初尺、复尺标准操作演示', ver: 'V1.0', code: 'KB-VD-2026-004', cat1: '门店设计篇', cat2: '新店设计标准', cat3: '初尺、复尺标准', dur: '08:20', size: '164MB', cover: 'linear-gradient(135deg,#3d8bff,#1f6bf1)', plays: 864, p30: 356, done: 64, scope: ['内部','施工方'], tags: ['零食很忙6.5代店','标准版','第三方装修文员','通用区域','初尺复尺节点'], rd: [2], status: 'published', updated: '2026-10-04 15:12' },
+  { id: 103, name: '隐蔽工程验收标准解读', ver: 'V1.1', code: 'KB-VD-2026-003', cat1: '门店验收篇', cat2: '装修篇', cat3: '基础装修验收篇（木）', dur: '15:20', size: '312MB', cover: 'linear-gradient(135deg,#9575cd,#5e35b1)', plays: 742, p30: 298, done: 61, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','工程中心内部','第三方装修负责人','通用区域','竣工验收节点'], rd: [1, 6], status: 'published', updated: '2026-10-02 09:40' },
+  { id: 104, name: '沿海大风区域招牌加固演示', ver: 'V1.0', code: 'KB-VD-2026-002', cat1: '门店施工篇', cat2: '差异化篇', cat3: '沿海大风区域施工项目', dur: '06:15', size: '118MB', cover: 'linear-gradient(135deg,#66bb6a,#2e7d32)', plays: 615, p30: 322, done: 58, scope: ['内部','施工方'], tags: ['赵一鸣3.0版本','标准版','第三方广告负责人','沿海区域（大风）','广告安装节点'], rd: [3, 7], status: 'published', updated: '2026-09-30 16:05' },
+  { id: 105, name: '泥工室内施工工艺演示', ver: 'V1.1', code: 'KB-VD-2026-001', cat1: '门店施工篇', cat2: '泥工篇', cat3: '室内施工', dur: '05:42', size: '96MB', cover: 'linear-gradient(135deg,#ffb020,#fa8c16)', plays: 531, p30: 241, done: 55, scope: ['内部','施工方'], tags: ['零食很忙6代店','标准版','第三方装修负责人','通用区域','泥工节点'], rd: [8], status: 'published', updated: '2026-09-28 11:26' },
+  { id: 106, name: '新施工方入场安全培训', ver: 'V2.0', code: 'KB-VD-2025-012', cat1: '门店施工篇', cat2: '培训课件篇', cat3: '月度培训课件', dur: '25:40', size: '486MB', cover: 'linear-gradient(135deg,#ff8a65,#f4511e)', plays: 428, p30: 88, done: 52, scope: ['内部','施工方'], tags: ['标准版','第三方装修负责人','第三方广告负责人','第三方货架负责人','第三方监控负责人','通用区域'], rd: [7], status: 'published', updated: '2026-09-25 10:18' },
+  { id: 107, name: '水电开槽施工规范培训', ver: 'V1.0', code: 'KB-VD-2026-006', cat1: '门店施工篇', cat2: '水电篇', cat3: '室内外电路施工', dur: '18:50', size: '356MB', cover: 'linear-gradient(135deg,#5b8def,#2f4bd8)', plays: 0, p30: 0, done: 0, scope: ['内部'], tags: ['标准版','工程中心内部','第三方装修负责人','通用区域','水电节点'], rd: [1], status: 'review', updated: '2026-10-07 17:30' },
+  { id: 108, name: '开业物料验收流程培训', ver: 'V1.0', code: 'KB-VD-2026-007', cat1: '门店验收篇', cat2: '物料篇', cat3: '开业物料验收', dur: '22:10', size: '402MB', cover: 'linear-gradient(135deg,#26c6da,#00838f)', plays: 0, p30: 0, done: 0, scope: ['内部'], tags: ['赵一鸣3.0版本','标准版','第三方装修负责人','通用区域','竣工验收节点'], rd: [14], status: 'draft', updated: '2026-10-08 09:12' }
 ];
 /* ===== V1.7 数据迁移：固化可见范围 → 清理旧标签 → 统一类型 / 多文件 / 下载权限 ===== */
 (function migrateV17(){
@@ -6386,14 +6443,81 @@ function verConfirmOk(){
 
 /* ================= 工程知识库（管理端内嵌只读视图） ================= */
 var pPg = 'home', pArg = '', pDocId = null, pVideoId = null, pDocN = 1;
-var pFav = { v101: 1 };
-var pWatch = { 104: { prog: 45, pos: 169 }, 101: { prog: 100, pos: 755 } };
+var pFav = { v101: 1, d1: 1, d3: 1, v105: 1, d6: 1, d13: 1, d2: 1, v102: 1, d11: 1 };
+var pWatch = {
+  104: { prog: 45, pos: 169, t: '10-30 21:14' },
+  101: { prog: 100, pos: 755, t: '10-28 20:02' },
+  102: { prog: 72, pos: 358, t: '10-26 11:40' },
+  103: { prog: 100, pos: 920, t: '10-24 16:20' },
+  105: { prog: 30, pos: 102, t: '10-21 09:31' },
+  106: { prog: 88, pos: 1351, t: '10-18 14:05' }
+};
+/* 资料阅读记录（原型演示数据）：t = 最近查阅时间，ok = 已读完；id=11 为已下架内容（已失效态演示） */
+var pDocHist = [
+  { id: 1, t: '今天 14:32', ok: true },
+  { id: 6, t: '昨天 17:41', ok: true },
+  { id: 3, t: '10-28 09:15', ok: true },
+  { id: 13, t: '10-26 11:20', ok: true },
+  { id: 2, t: '10-24 16:05', ok: true },
+  { id: 8, t: '10-21 10:48', ok: true },
+  { id: 15, t: '10-18 14:30', ok: true },
+  { id: 19, t: '10-15 09:22', ok: true },
+  { id: 12, t: '10-12 15:10', ok: true },
+  { id: 4, t: '10-10 11:35', ok: false },
+  { id: 16, t: '10-08 10:05', ok: false },
+  { id: 11, t: '10-06 10:54', ok: false }
+];
+/* 我的学习四个「查看全部」子页的筛选与分页状态：v 视频 / d 资料 / f 收藏 / l 下载申请 */
+var mSubF = { v: 'all', d: 'all', f: 'all', l: 'all' }, mSubP = { v: 1, d: 1, f: 1, l: 1 };
 var pDocTags = {}, pVidTags = {};
 var pvTimer = null, pvPos = 0, pvDur = 0, pvPlaying = false, pvCur = null, pvSpeed = 1, ppSpeedIdx = 0;
 var ppSpeedLabs = ['1.0x', '1.25x', '1.5x', '2.0x'];
 function durSec(v){ var p = v.dur.split(':'); return (+p[0]) * 60 + (+p[1]) }
-function pDocs(){ return docs.filter(isEffective) }
-function pVideos(){ return videos.filter(isEffective) }
+function pNowT(){ var d = new Date(); return dlP2(d.getMonth() + 1) + '-' + dlP2(d.getDate()) + ' ' + dlP2(d.getHours()) + ':' + dlP2(d.getMinutes()) }
+/* ---------- 门户当前登录人与其可见范围（关联内容各自按自身可见范围校验） ---------- */
+var KBP_ME = { name: '王鹏', dept: '工程系统 / 工程管理部', role: '工程系统-项目管理员' };
+function kbCanView(it){
+  if(!it) return false;
+  var v = visOf(it);
+  if((v.staff || []).indexOf(KBP_ME.name) >= 0) return true;
+  return (v.roles || []).indexOf(KBP_ME.role) >= 0;
+}
+function kbScopeBrief(it){
+  var v = visOf(it), out = [];
+  if((v.roles || []).length) out.push('内部角色 ' + v.roles.length + ' 个');
+  if((v.staff || []).length) out.push('内部指定 ' + v.staff.length + ' 人');
+  if((v.positions || []).length) out.push('外部岗位 ' + v.positions.length + ' 个');
+  if((v.people || []).length) out.push('指定三方 ' + v.people.length + ' 人');
+  return out.length ? out.join(' · ') : '未配置';
+}
+function pDocs(){ return docs.filter(isEffective).filter(kbCanView) }
+function pVideos(){ return videos.filter(isEffective).filter(kbCanView) }
+var kbDenyCtx = null;
+function kbDenyDlg(kind, id){
+  var it = (kind === 'video' ? videos : docs).filter(function(x){ return x.id === id })[0];
+  if(!it) return;
+  kbDenyCtx = { kind: kind, id: id, name: it.name };
+  $('#kdName').textContent = '《' + it.name + '》' + (kind === 'video' ? '视频' : '资料');
+  $('#kdScope').innerHTML =
+    '<div><em>该内容可见范围：</em>' + kbScopeBrief(it) + '</div>' +
+    '<div><em>您的账号：</em>' + KBP_ME.name + ' · ' + KBP_ME.role + '</div>' +
+    '<div><em>校验结果：</em>未命中任何可见范围，内容与文件均不下发</div>' +
+    '<div><em>关联关系：</em>仅继承自身可见范围，' + (kind === 'video' ? '视频' : '资料') + '关联不扩大访问权限</div>';
+  $('#kbDenyMask').classList.add('show');
+}
+function closeKbDeny(){ $('#kbDenyMask').classList.remove('show') }
+function kbAskAccess(){
+  if(!kbDenyCtx) return;
+  $('#kbDenyMask').classList.remove('show');
+  toast('查看权限申请已提交：' + kbDenyCtx.name + '（工程中心审批通过后可见）', 1);
+}
+function kbDenyPage(kind){
+  return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span>' + (kind === 'video' ? '视频学堂' : '资料中心') + '</div>' +
+    '<div class="kb-deny-page"><div class="ic"><svg><use href="#i-lock"/></svg></div>' +
+    '<h3>该内容未向您开放</h3>' +
+    '<p>当前账号（' + KBP_ME.name + ' · ' + KBP_ME.role + '）不在该内容的可见范围内，正文、文件与关联内容均不下发。<br>如需查看，可向工程中心申请查看权限。</p>' +
+    '<div class="btns"><button class="btn ghost" onclick="pGo(\'' + (kind === 'video' ? 'videos' : 'docs') + '\')">返回' + (kind === 'video' ? '视频学堂' : '资料中心') + '</button><button class="btn primary" onclick="toast(\'查看权限申请已提交给工程中心（原型演示）\', 1)">申请查看权限</button></div></div>';
+}
 function openPortal(pg, arg){
   switchPage('portal');
   $$('#kbSubMenu .side-sub-item').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === 'portal') });
@@ -6403,7 +6527,7 @@ function pGo(pg, arg){
   if(pg !== 'videodetail') stopPP();
   pPg = pg;
   if(arg !== undefined) pArg = arg || '';
-  else if(pg === 'home' || pg === 'docs' || pg === 'videos' || pg === 'mine') pArg = '';
+  else if(pg === 'home' || pg === 'docs' || pg === 'videos' || pg === 'mine' || pg === 'minev' || pg === 'mined' || pg === 'minef' || pg === 'minel') pArg = '';
   if(pg === 'docdetail' && arg !== undefined) pDocId = +arg;
   if(pg === 'videodetail' && arg !== undefined) pVideoId = +arg;
   $('#pBody').scrollTop = 0;
@@ -6420,12 +6544,22 @@ function pRender(){
   else if(pPg === 'videos') h = pVideosPage();
   else if(pPg === 'videodetail') h = pVideoDetail();
   else if(pPg === 'mine') h = pMine();
+  else if(pPg === 'minev') h = pMineSub('v');
+  else if(pPg === 'mined') h = pMineSub('d');
+  else if(pPg === 'minef') h = pMineSub('f');
+  else if(pPg === 'minel') h = pMineSub('l');
   else if(pPg === 'search') h = pSearchPage();
   $('#pBody').innerHTML = '<div class="pt-wrap">' + h + '</div>';
   if(pPg === 'videodetail') setTimeout(function(){ if(pPg === 'videodetail' && pvCur === pVideoId && !pvPlaying) ppToggle() }, 450);
 }
 function pSearch(){ pArg = $('#pKw').value.trim(); pGo('search') }
+function pHotVideos(){
+  return pVideos().slice().sort(function(a, b){
+    return (b.p30 || 0) - (a.p30 || 0) || b.id - a.id;
+  }).slice(0, 5);
+}
 function pHome(){
+  var hotV = pHotVideos();
   var contV = videos.filter(function(v){ return v.id === 104 })[0] || pVideos()[0];
   var w = pWatch[contV.id] || { prog: 0 };
   var contSec = '<div class="p-sec"><div class="p-sec-h"><h2><i></i>继续学习</h2><a onclick="pGo(\'mine\')">我的学习 <svg><use href="#i-right"/></svg></a></div>' +
@@ -6448,7 +6582,7 @@ function pHome(){
     '</div></div>';
   return modSec +
     contSec +
-    '<div class="p-sec"><div class="p-sec-h"><h2><i></i>热门视频</h2><a onclick="pGo(\'videos\')">前往视频学堂 <svg><use href="#i-right"/></svg></a></div><div class="p-vgrid">' + pVideos().slice(0, 4).map(pVideoCard).join('') + '</div></div>' +
+    (hotV.length ? '<div class="p-sec"><div class="p-sec-h"><h2><i></i>热门视频</h2><span class="p-sec-tip">近 30 天播放量 TOP5</span><a onclick="pGo(\'videos\')">前往视频学堂 <svg><use href="#i-right"/></svg></a></div><div class="p-vgrid hot5">' + hotV.map(function(v){ return pVideoCard(v, true) }).join('') + '</div></div>' : '') +
     '<div class="p-sec"><div class="p-sec-h"><h2><i></i>最新资料</h2><a onclick="pGo(\'docs\')">资料中心 <svg><use href="#i-right"/></svg></a></div><div class="p-list">' + pDocs().slice(0, 5).map(pDocRow).join('') + '</div></div>';
 }
 function pTagCount(t){
@@ -6587,13 +6721,16 @@ function pDimValPage(){
     '<div class="p-list">' + (docsF.map(pDocRow).join('') || '<div class="p-empty">该标签下暂无资料</div>') + '</div>' +
     (vidsF.length ? '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>视频（' + vidsF.length + '）</h2></div><div class="p-vgrid">' + vidsF.map(pVideoCard).join('') + '</div>' : '');
 }
-function pVideoCard(v){
+function pVideoCard(v, hot){
   var w = pWatch[v.id];
   var badge = w ? (w.prog >= 100 ? '<span class="p-done-chip">已学完</span>' : '<span class="p-half-chip">学习中 ' + w.prog + '%</span>') : '';
   var bar = w && w.prog < 100 ? '<div class="pprog' + (w.prog < 60 ? ' half' : '') + '"><i style="width:' + w.prog + '%"></i></div>' : '';
+  var mt = hot === true
+    ? '<span title="近 30 天有效播放次数">近 30 天 ' + (v.p30 || 0).toLocaleString() + ' 播放</span>'
+    : (badge + bar + '<span>' + v.plays.toLocaleString() + ' 播放</span>');
   return '<div class="p-vcard" onclick="pGo(\'videodetail\',' + v.id + ')">' +
     '<div class="p-vcover" style="background:' + v.cover + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
-    '<div class="p-vbody"><div class="nm">' + v.name + '</div><div class="mt">' + badge + bar + '<span>' + v.plays.toLocaleString() + ' 播放</span></div></div></div>';
+    '<div class="p-vbody"><div class="nm">' + v.name + '</div><div class="mt">' + mt + '</div></div></div>';
 }
 function pDocRow(d){
   var t = primaryType(d);
@@ -6647,8 +6784,10 @@ function pDocsPage(){
 function pDocDetail(){
   var d = docs.filter(function(x){ return x.id === pDocId })[0];
   if(!d) return '<div class="p-empty">资料不存在</div>';
+  if(!isEffective(d) || !kbCanView(d)) return kbDenyPage('doc');
   var pages = docPageHtml(d, pDocN, pDocN === 1 ? 'cover' : (pDocN === 2 ? 'img' : 'text'));
-  var relV = (d.rv || []).map(function(id){ return videos.filter(function(v){ return v.id === id })[0] }).filter(isEffective);
+  var relVAll = (d.rv || []).map(function(id){ return videos.filter(function(v){ return v.id === id })[0] }).filter(isEffective);
+  var relV = relVAll.filter(kbCanView), relVLock = relVAll.filter(function(v){ return !kbCanView(v) });
   var fav = pFav['d' + d.id];
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'docs\')">资料中心</a><span>/</span>' + d.cat1 + '</div>' +
     '<div class="p-detail"><div class="p-dmain">' +
@@ -6667,10 +6806,18 @@ function pDocDetail(){
       '</div>' +
       '<div class="p-act"><button class="btn ' + (fav ? 'ghost' : 'primary') + '" onclick="pToggleFav(\'d' + d.id + '\')"><svg><use href="#i-star"/></svg>' + (fav ? '已收藏' : '收藏') + '</button>' +
       pApplyBtn(d.name) + '</div>' +
-      (relV.length ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>配套视频（点击播放）</h4>' +
+      ((relV.length || relVLock.length) ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>配套视频（点击播放）</h4>' +
         relV.map(function(v){
           return '<div class="p-rel-item" onclick="pGo(\'videodetail\',' + v.id + ')"><span class="ic" style="background:' + v.cover + '"><svg><use href="#i-play"/></svg></span><span>' + v.name + ' <span style="color:#9aa2ae">' + v.ver + '</span></span><span class="mt">' + v.dur + '</span></div>';
-        }).join('') + '</div>' : '') +
+        }).join('') +
+        relVLock.map(function(v){
+          return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'video\',' + v.id + ')" title="未向您开放 · 点击查看原因">' +
+            '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
+            '<span class="nm">' + v.name + ' <span style="color:#c1c6cf">' + v.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span></span>' +
+            '<span class="mt">' + v.dur + '</span></div>';
+        }).join('') +
+        (relVLock.length ? '<div class="p-rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因或申请权限。</span></div>' : '') +
+        '</div>' : '') +
       '<div class="tip-note" style="margin-top:12px"><svg><use href="#i-info"/></svg><span>浏览行为将写入学习记录，工程中心可查看已读情况。</span></div>' +
     '</div></div>';
 }
@@ -6687,8 +6834,9 @@ function pApplyBtn(name){
   if(a && a.status === 'rejected') return '<button class="btn ghost" style="color:#f5222d;border-color:#ffd5d2" onclick="openPApply(\'' + name + '\')"><svg><use href="#i-warn"/></svg>重新申请</button>';
   return '<button class="btn ghost" onclick="openPApply(\'' + name + '\')"><svg><use href="#i-download"/></svg>申请下载</button>';
 }
-function openPApply(name){
-  var a = dlLatest(name, 'pc');
+function openPApply(name, aid){
+  /* aid：下载申请列表行内按钮按该行对应申请处理；详情页不传 aid，按同名最新一条 */
+  var a = aid ? dlLoad().filter(function(x){ return x.id === aid })[0] : dlLatest(name, 'pc');
   if(a && a.status === 'pending'){ toast('该下载申请正在审批中，请等待工程中心处理'); return }
   if(a && a.status === 'approved'){
     var approvedVideo = !!videos.filter(function(x){ return x.name === name })[0];
@@ -6702,7 +6850,7 @@ function openPApply(name){
   inputBox((a && a.status === 'rejected') ? '重新申请下载' : '申请下载', '', function(reason){
     dlAdd({ id: dlNewId(), name: name, ver: c.ver || '', kind: isVideo ? 'video' : 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: reason, time: dlTime(), status: 'pending', remark: '', ts: Date.now() });
     toast('下载申请已提交，审批通过后可在「我的学习 - 下载申请」查看', 1);
-    if(pPg === 'mine' || pPg === 'docdetail' || pPg === 'videodetail') pRender();
+    if(pPg === 'mine' || pPg === 'minev' || pPg === 'minel' || pPg === 'docdetail' || pPg === 'videodetail') pRender();
   }, rejTip + '《' + name + '》为受控' + (isVideo ? '视频' : '资料') + '，默认不可下载。请填写申请原因（必填），审批通过后将获得带水印的受控版本。', '请输入申请原因（必填），回车提交');
 }
 function pVideosPage(){
@@ -6725,6 +6873,7 @@ function pVideosPage(){
 function pVideoDetail(){
   var v = videos.filter(function(x){ return x.id === pVideoId })[0];
   if(!v) return '<div class="p-empty">视频不存在</div>';
+  if(!isEffective(v) || !kbCanView(v)) return kbDenyPage('video');
   stopPP();
   pvCur = v.id; pvDur = durSec(v);
   var w = pWatch[v.id];
@@ -6732,7 +6881,8 @@ function pVideoDetail(){
   pvPlaying = false;
   var wm = '';
   for(var i = 0; i < 15; i++) wm += '<span>工程中心知识库 · 王鹏 · 仅供学习使用</span>';
-  var relD = (v.rd || []).map(function(id){ return docs.filter(function(x){ return x.id === id })[0] }).filter(isEffective);
+  var relDAll = (v.rd || []).map(function(id){ return docs.filter(function(x){ return x.id === id })[0] }).filter(isEffective);
+  var relD = relDAll.filter(kbCanView), relDLock = relDAll.filter(function(d){ return !kbCanView(d) });
   var related = pVideos().filter(function(x){ return (x.cat2 === v.cat2 || x.cat1 === v.cat1) && x.id !== v.id }).slice(0, 3);
   var fav = pFav['v' + v.id];
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'videos\')">视频学堂</a><span>/</span>' + catPathTxt(v) + '</div>' +
@@ -6759,10 +6909,18 @@ function pVideoDetail(){
       '</div>' +
       '<div class="p-act"><button class="btn ' + (fav ? 'ghost' : 'primary') + '" onclick="pToggleFav(\'v' + v.id + '\')"><svg><use href="#i-star"/></svg>' + (fav ? '已收藏' : '收藏') + '</button>' +
       pApplyBtn(v.name) + '</div>' +
-      (relD.length ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#1f6bf1"><use href="#i-book"/></svg>配套资料（点击查看）</h4>' +
+      ((relD.length || relDLock.length) ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#1f6bf1"><use href="#i-book"/></svg>配套资料（点击查看）</h4>' +
         relD.map(function(d){
           return '<div class="p-rel-item" onclick="pGo(\'docdetail\',' + d.id + ')"><span class="ic" style="background:linear-gradient(135deg,#3d8bff,#1f6bf1)"><svg><use href="#i-book"/></svg></span><span>' + d.name + ' <span style="color:#9aa2ae">' + d.ver + '</span></span><span class="mt">' + d.type + '</span></div>';
-        }).join('') + '</div>' : '') +
+        }).join('') +
+        relDLock.map(function(d){
+          return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'doc\',' + d.id + ')" title="未向您开放 · 点击查看原因">' +
+            '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
+            '<span class="nm">' + d.name + ' <span style="color:#c1c6cf">' + d.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span></span>' +
+            '<span class="mt">' + d.type + '</span></div>';
+        }).join('') +
+        (relDLock.length ? '<div class="p-rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因或申请权限。</span></div>' : '') +
+        '</div>' : '') +
       (related.length ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>相关视频</h4>' +
         related.map(function(r){
           return '<div class="p-rel-item" onclick="pGo(\'videodetail\',' + r.id + ')"><span class="ic" style="background:' + r.cover + '"><svg><use href="#i-play"/></svg></span><span>' + r.name + '</span><span class="mt">' + r.dur + '</span></div>';
@@ -6790,7 +6948,7 @@ function ppPauseBtn(){
 }
 function ppFinish(){
   if(!pvCur) return;
-  pWatch[pvCur] = { prog: 100, pos: pvDur };
+  pWatch[pvCur] = { prog: 100, pos: pvDur, t: pNowT() };
   toast('已完成学习：完播记录已自动回传工程中心', 1);
 }
 function ppUpdate(){
@@ -6816,59 +6974,146 @@ function ppSpeed(){
 function pvSyncWatch(){
   if(!pvCur || !pvDur) return;
   var prog = Math.min(100, Math.round(pvPos / pvDur * 100));
-  if(prog > 0) pWatch[pvCur] = { prog: prog, pos: pvPos };
+  /* 进度取历史最高不回退，时间更新为最近一次播放 */
+  if(prog > 0){
+    var prev = pWatch[pvCur] || {};
+    pWatch[pvCur] = { prog: Math.max(prev.prog || 0, prog), pos: pvPos, t: pNowT() };
+  }
 }
 function stopPP(){
   ppPauseBtn(); pvSyncWatch();
   pvCur = null; pvPos = 0; pvDur = 0; pvPlaying = false;
 }
+/* ---------- 我的学习：统计卡 ×3 + 四区块（快照 5 条 · 共 n 条 · 查看全部子页） ---------- */
+var M_SUB = { v: '视频学习记录', d: '资料阅读记录', f: '我的收藏', l: '下载申请' };
+function pWatchList(){
+  return Object.keys(pWatch).map(function(id){
+    var v = videos.filter(function(x){ return x.id === +id })[0];
+    return v ? { v: v, w: pWatch[id] } : null;
+  }).filter(Boolean).sort(function(a, b){ return String(b.w.t || '').localeCompare(String(a.w.t || '')) });
+}
+function pMineVideoRow(r){
+  var v = r.v, w = r.w, done = w.prog >= 100, invalid = !isEffective(v) || !kbCanView(v);
+  return '<div class="p-cont" style="padding:14px 16px;' + (invalid ? 'opacity:.55;filter:grayscale(.6)' : 'cursor:pointer') + '" onclick="' + (invalid ? 'toast(\'该内容已下架或不在授权范围\')' : 'pGo(\'videodetail\',' + v.id + ')') + '">' +
+    '<div class="cov" style="width:112px;height:63px;background:' + v.cover + '"><svg style="width:22px;height:22px"><use href="#i-play"/></svg><span class="dur">' + v.dur + '</span></div>' +
+    '<div class="info"><b style="font-size:13.5px">' + v.name + ' <span style="font-size:11px;color:#5a6270">' + v.ver + '</span>' + (invalid ? ' <span class="p-half-chip" style="background:#f1f2f4;color:#9aa2ae">已失效</span>' : '') + '</b>' +
+    '<div class="mt">' + catPathTxt(v) + ' · ' + (done ? '已学完' : '学习中 ' + w.prog + '%') + ' · 最近播放 ' + (w.t || '—') + '</div>' +
+    '<div class="p-ptrack" style="margin-top:8px;height:5px"><i style="width:' + w.prog + '%' + (done ? ';background:#12a150' : '') + '"></i></div></div>' +
+    (invalid ? '' : '<button class="btn ' + (done ? 'ghost' : 'primary') + ' sm">' + (done ? '重新观看' : '继续观看') + '</button>') + '</div>';
+}
+function pMineDocRow(r){
+  var d = docs.filter(function(x){ return x.id === r.id })[0];
+  if(!d) return '';
+  var invalid = !isEffective(d) || !kbCanView(d), t = primaryType(d);
+  return '<div class="p-docrow" style="' + (invalid ? 'opacity:.55;filter:grayscale(.6)' : 'cursor:pointer') + '" onclick="' + (invalid ? 'toast(\'该内容已下架或不在授权范围\')' : 'pGo(\'docdetail\',' + d.id + ')') + '">' +
+    '<span class="ftype ' + (FTYPE_CLS[t] || 'pdf') + '">' + (FTYPE_TXT[t] || 'FILE') + '</span>' +
+    '<div class="tt"><b>' + d.name + '<span class="ver">' + d.ver + '</span>' + (invalid ? ' <span style="font-size:11.5px;color:#9aa2ae">（已失效）</span>' : '') + '</b><div class="mt"><span>' + catPathTxt(d) + ' · ' + r.t + '</span></div></div>' +
+    (invalid ? '<span class="p-half-chip" style="background:#f1f2f4;color:#9aa2ae">已失效</span>' : (r.ok ? '<span class="p-done-chip">已读完</span>' : '<span class="p-half-chip">阅读中</span>')) + '</div>';
+}
+function pMineFavRow(k){
+  var isDoc = k[0] === 'd';
+  var it = (isDoc ? docs : videos).filter(function(x){ return x.id === +k.slice(1) })[0];
+  if(!it) return '';
+  var invalid = !isEffective(it) || !kbCanView(it);
+  var ic = isDoc
+    ? '<span class="ic" style="background:linear-gradient(135deg,#3d8bff,#1f6bf1)"><svg><use href="#i-book"/></svg></span>'
+    : '<span class="ic" style="background:' + it.cover + '"><svg><use href="#i-play"/></svg></span>';
+  return '<div class="p-rel-item" style="background:#f8fafd;margin-bottom:6px;' + (invalid ? 'opacity:.55;filter:grayscale(.6)' : '') + '" onclick="' + (invalid ? 'toast(\'该内容已下架或不在授权范围\')' : 'pGo(\'' + (isDoc ? 'docdetail' : 'videodetail') + '\',' + it.id + ')') + '">' + ic +
+    '<span class="nm">' + it.name + ' <span style="color:#c1c6cf">' + it.ver + '</span>' + (invalid ? '<span class="lk"><svg style="width:11px;height:11px"><use href="#i-warn"/></svg>已失效</span>' : '') + '</span>' +
+    '<span class="mt">' + (isDoc ? '资料' : '视频 · ' + it.dur) + '</span>' +
+    '<span title="取消收藏" style="cursor:pointer;color:#ff9d2e;flex-shrink:0;padding:0 6px" onclick="event.stopPropagation();pToggleFav(\'' + k + '\')"><svg style="width:15px;height:15px"><use href="#i-star"/></svg></span></div>';
+}
+function pMineApplyRow(a){
+  var ok = a.status === 'approved', rej = a.status === 'rejected';
+  var chip = ok ? '<span class="p-done-chip">已通过 · 可下载</span>' : (rej ? '<span class="p-half-chip" style="background:#fdecec;color:#d93026">已驳回 · 可重新申请</span>' : '<span class="p-half-chip">审批中</span>');
+  var btn = ok
+    ? '<button class="btn ghost sm" style="margin-left:10px" onclick="event.stopPropagation();openPApply(\'' + a.name + '\',\'' + a.id + '\')">下载受控版本</button>'
+    : (rej ? '<button class="btn ghost sm" style="margin-left:10px;color:#f5222d;border-color:#ffd5d2" onclick="event.stopPropagation();openPApply(\'' + a.name + '\',\'' + a.id + '\')">重新申请</button>' : '');
+  var reason = a.reason || '';
+  var meta = a.id + ' · 申请时间 ' + (a.time || '').slice(5) + ' · 原因：' + reason.slice(0, 16) + (reason.length > 16 ? '…' : '');
+  if(ok || rej) meta += ' · ' + (rej ? '驳回' : '审批') + '：' + (a.approver || '—') + ' ' + ((a.handleTime || a.time || '')).slice(5);
+  return '<div class="p-docrow" style="cursor:default"><span class="ftype ' + (a.kind === 'video' ? 'vid' : 'pdf') + '">' + (a.kind === 'video' ? 'VID' : 'DL') + '</span>' +
+    '<div class="tt"><b>' + a.name + ' <span class="ver">' + (a.ver || '') + '</span>' + (rej ? ' <span style="font-size:11.5px;color:#d93026">驳回理由：' + (a.remark || '—') + '</span>' : '') + '</b>' +
+    '<div class="mt"><span>' + meta + '</span></div></div>' + chip + btn + '</div>';
+}
+function mFilter(k, v){ mSubF[k] = v; mSubP[k] = 1; pRender() }
+function mPageN(k, d){ mSubP[k] = Math.max(1, mSubP[k] + d); pRender() }
+function mChipBar(k, defs, counts){
+  return '<div class="chips" style="margin-bottom:12px">' + defs.map(function(d){
+    return '<span class="pchip' + (mSubF[k] === d[0] ? ' on' : '') + '" onclick="mFilter(\'' + k + '\',\'' + d[0] + '\')">' + d[1] + ' <em style="font-style:normal;font-size:11px;margin-left:2px">' + (counts[d[0]] || 0) + '</em></span>';
+  }).join('') + '</div>';
+}
+function mPager(k, total){
+  var pages = Math.ceil(total / 10);
+  return '<div class="p-pager"><button ' + (mSubP[k] === 1 ? 'disabled' : '') + ' onclick="mPageN(\'' + k + '\',-1)">上一页</button><span>第 ' + mSubP[k] + ' / ' + pages + ' 页 · 共 ' + total + ' 条</span><button ' + (mSubP[k] === pages ? 'disabled' : '') + ' onclick="mPageN(\'' + k + '\',1)">下一页</button></div>';
+}
+function pMineSub(k){
+  var chips = '', rows = [], total = 0, sub = '';
+  var emptyMap = {
+    v: '暂无视频学习记录，去视频学堂开始学习',
+    d: '暂无阅读记录，去资料中心查阅标准',
+    f: '暂无收藏，在资料 / 视频详情页点击收藏',
+    l: '暂无下载申请，在资料 / 视频详情页提交后在此查看进度'
+  };
+  if(k === 'v'){
+    var all = pWatchList(), f = mSubF.v;
+    var cDone = all.filter(function(r){ return r.w.prog >= 100 }).length;
+    chips = mChipBar(k, [['all', '全部'], ['doing', '学习中'], ['done', '已学完']], { all: all.length, doing: all.length - cDone, done: cDone });
+    var lv = all.filter(function(r){ return f === 'all' || (f === 'done' ? r.w.prog >= 100 : r.w.prog < 100) });
+    rows = lv.map(pMineVideoRow); total = lv.length;
+    sub = '点击行或按钮进入视频详情，学习中自动从断点续播；记录长期保留，同一视频仅保留一条（进度取历史最高）';
+  } else if(k === 'd'){
+    var f2 = mSubF.d, cOk = pDocHist.filter(function(r){ return r.ok }).length;
+    chips = mChipBar(k, [['all', '全部'], ['doing', '阅读中'], ['done', '已读完']], { all: pDocHist.length, doing: pDocHist.length - cOk, done: cOk });
+    var ld = pDocHist.filter(function(r){ return f2 === 'all' || (f2 === 'done' ? r.ok : !r.ok) });
+    rows = ld.map(pMineDocRow); total = ld.length;
+    sub = '已读口径：打开详情并完成至少 1 次翻页；记录长期保留，同一资料仅保留一条（时间取最近一次）';
+  } else if(k === 'f'){
+    var f3 = mSubF.f, keys = Object.keys(pFav);
+    var dk = keys.filter(function(x){ return x[0] === 'd' }), vk = keys.filter(function(x){ return x[0] === 'v' });
+    chips = mChipBar(k, [['all', '全部'], ['doc', '资料'], ['video', '视频']], { all: keys.length, doc: dk.length, video: vk.length });
+    var lf = (f3 === 'doc' ? dk : (f3 === 'video' ? vk : keys));
+    rows = lf.map(pMineFavRow); total = lf.length;
+    sub = '已收藏 ' + keys.length + ' 项 · 资料 ' + dk.length + ' / 视频 ' + vk.length + '（含已失效项）；点击星标取消收藏，即时同步列表与统计卡';
+  } else {
+    var f4 = mSubF.l, lAll = dlOf('pc');
+    var cP = lAll.filter(function(a){ return a.status === 'pending' }).length;
+    var cA = lAll.filter(function(a){ return a.status === 'approved' }).length;
+    var cR = lAll.filter(function(a){ return a.status === 'rejected' }).length;
+    chips = mChipBar(k, [['all', '全部'], ['pending', '审批中'], ['approved', '已通过'], ['rejected', '已驳回']], { all: lAll.length, pending: cP, approved: cA, rejected: cR });
+    var ll = lAll.filter(function(a){ return f4 === 'all' || a.status === f4 });
+    rows = ll.map(pMineApplyRow); total = ll.length;
+    sub = '工程中心审批后状态实时同步；审批中以服务端为准不可重复提交，重新申请生成新编号';
+  }
+  mSubP[k] = Math.min(mSubP[k], Math.max(1, Math.ceil(total / 10)));
+  var start = (mSubP[k] - 1) * 10, pgRows = rows.slice(start, start + 10);
+  return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'mine\')">我的学习</a><span>/</span>' + M_SUB[k] + '</div>' +
+    '<div class="p-sec-h"><h2><i></i>' + M_SUB[k] + '</h2><span style="font-size:12px;color:#9aa2ae">' + sub + '</span></div>' +
+    chips +
+    '<div class="p-list">' + (pgRows.join('') || '<div class="p-empty">' + emptyMap[k] + '</div>') + '</div>' +
+    (total > 10 ? mPager(k, total) : '');
+}
 function pMine(){
-  var vids = Object.keys(pWatch).map(function(id){ return videos.filter(function(x){ return x.id === +id })[0] }).filter(Boolean);
-  var doneN = vids.filter(function(v){ return pWatch[v.id].prog >= 100 }).length;
-  var learnMins = 46 + Math.round(vids.reduce(function(s, v){ return s + durSec(v) * pWatch[v.id].prog / 100 }, 0) / 60);
-  var vrows = vids.map(function(v){
-    var w = pWatch[v.id];
-    return '<div class="p-cont" style="padding:14px 16px;cursor:pointer" onclick="pGo(\'videodetail\',' + v.id + ')">' +
-      '<div class="cov" style="width:112px;height:63px;background:' + v.cover + '"><svg style="width:22px;height:22px"><use href="#i-play"/></svg><span class="dur">' + v.dur + '</span></div>' +
-      '<div class="info"><b style="font-size:13.5px">' + v.name + '</b><div class="mt">' + catPathTxt(v) + ' · ' + (w.prog >= 100 ? '已学完' : '学习中 ' + w.prog + '%') + '</div>' +
-      '<div class="p-ptrack" style="margin-top:8px;height:5px"><i style="width:' + w.prog + '%' + (w.prog >= 100 ? ';background:#12a150' : '') + '"></i></div></div>' +
-      '<button class="btn ' + (w.prog >= 100 ? 'ghost' : 'primary') + ' sm">' + (w.prog >= 100 ? '重新观看' : '继续观看') + '</button></div>';
-  }).join('');
-  var docHist = [
-    { id: 1, n: '门店水电施工标准手册', ver: 'V2.1', t: '今天 14:32', ok: true },
-    { id: 6, n: '基础装修验收篇（木）图文标准', ver: 'V1.3', t: '昨天 17:41', ok: true },
-    { id: 3, n: '沿海大风区域门店施工手册', ver: 'V1.2', t: '10-06 10:54', ok: false }
-  ];
-  var drows = docHist.map(function(r){
-    return '<div class="p-docrow" onclick="pGo(\'docdetail\',' + r.id + ')"><span class="ftype pdf">PDF</span>' +
-      '<div class="tt"><b>' + r.n + '<span class="ver">' + r.ver + '</span></b><div class="mt"><span>' + r.t + '</span></div></div>' +
-      (r.ok ? '<span class="p-done-chip">已读完</span>' : '<span class="p-half-chip">阅读中</span>') + '</div>';
-  }).join('');
-  var favItems = Object.keys(pFav).map(function(k){
-    if(k[0] === 'd'){ var d = docs.filter(function(x){ return x.id === +k.slice(1) })[0]; return d ? '<div class="p-rel-item" style="background:#f8fafd;margin-bottom:6px" onclick="pGo(\'docdetail\',' + d.id + ')"><span class="ic" style="background:linear-gradient(135deg,#3d8bff,#1f6bf1)"><svg><use href="#i-book"/></svg></span><span>' + d.name + ' ' + d.ver + '</span><span class="mt">资料</span></div>' : '' }
-    var v = videos.filter(function(x){ return x.id === +k.slice(1) })[0];
-    return v ? '<div class="p-rel-item" style="background:#f8fafd;margin-bottom:6px" onclick="pGo(\'videodetail\',' + v.id + ')"><span class="ic" style="background:' + v.cover + '"><svg><use href="#i-play"/></svg></span><span>' + v.name + ' ' + v.ver + '</span><span class="mt">视频 · ' + v.dur + '</span></div>' : '';
-  }).join('');
-  var applies = dlOf('pc').map(function(a){
-    var ok = a.status === 'approved', rej = a.status === 'rejected';
-    var chip = ok ? '<span class="p-done-chip">已通过 · 可下载</span>' : (rej ? '<span class="p-half-chip" style="background:#fdecec;color:#d93026">已驳回 · 可重新申请</span>' : '<span class="p-half-chip">审批中</span>');
-    var btn = ok ? '<button class="btn ghost sm" style="margin-left:10px" onclick="event.stopPropagation();openPApply(\'' + a.name + '\')">下载</button>' : '';
-    return '<div class="p-docrow" style="cursor:default"><span class="ftype ' + (a.kind === 'video' ? 'vid' : 'pdf') + '">' + (a.kind === 'video' ? 'VID' : 'DL') + '</span><div class="tt"><b>' + a.name + '</b><div class="mt"><span>申请时间 ' + (a.time || '').slice(5) + (rej && a.remark ? ' · ' + a.remark : '') + '</span></div></div>' + chip + btn + '</div>';
-  }).join('');
+  var vids = pWatchList();
+  var doneN = vids.filter(function(r){ return r.w.prog >= 100 }).length;
+  /* 累计学习 = Σ有效播放秒 ÷ 60 向下取整（M-54），学习中部分同样计入，不含资料阅读时长 */
+  var learnMins = Math.floor(vids.reduce(function(s, r){ return s + durSec(r.v) * r.w.prog / 100 }, 0) / 60);
+  var favKeys = Object.keys(pFav);
+  var applies = dlOf('pc');
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span>我的学习</div>' +
     '<div class="p-stat-row">' +
-      '<div class="p-stat"><div class="lbl"><svg style="color:#1f6bf1"><use href="#i-video"/></svg>视频学习</div><b>' + vids.length + ' 个</b><div class="sub">已学完 ' + doneN + ' 个 · 学习中 ' + (vids.length - doneN) + ' 个</div></div>' +
-      '<div class="p-stat"><div class="lbl"><svg style="color:#12a150"><use href="#i-clock"/></svg>累计学习</div><b>' + learnMins + ' 分钟</b><div class="sub">完播自动计入学习时长</div></div>' +
-      '<div class="p-stat"><div class="lbl"><svg style="color:#ff7d1a"><use href="#i-star"/></svg>收藏</div><b>' + Object.keys(pFav).length + ' 项</b><div class="sub">资料与视频统一收藏夹</div></div>' +
+      '<div class="p-stat" style="cursor:pointer" onclick="pGo(\'minev\')" title="查看全部视频学习记录"><div class="lbl"><svg style="color:#1f6bf1"><use href="#i-video"/></svg>视频学习</div><b>' + vids.length + ' 个</b><div class="sub">已学完 ' + doneN + ' 个 · 学习中 ' + (vids.length - doneN) + ' 个</div></div>' +
+      '<div class="p-stat"><div class="lbl"><svg style="color:#12a150"><use href="#i-clock"/></svg>累计学习</div><b>' + learnMins + ' 分钟</b><div class="sub">有效播放自动计入 · 不含资料阅读</div></div>' +
+      '<div class="p-stat" style="cursor:pointer" onclick="pGo(\'minef\')" title="查看全部收藏"><div class="lbl"><svg style="color:#ff7d1a"><use href="#i-star"/></svg>收藏</div><b>' + favKeys.length + ' 项</b><div class="sub">资料与视频统一收藏夹</div></div>' +
     '</div>' +
-    '<div class="p-sec-h"><h2><i></i>视频学习记录（点击续播）</h2><a onclick="pGo(\'docs\')">去学习 <svg><use href="#i-right"/></svg></a></div>' +
-    '<div class="p-list">' + (vrows || '<div class="p-empty">暂无学习记录</div>') + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>资料阅读记录</h2></div>' +
-    '<div class="p-list">' + drows + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>我的收藏</h2></div>' +
-    '<div class="p-list">' + (favItems || '<div class="p-empty">暂无收藏</div>') + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>下载申请</h2><span style="font-size:12px;color:#9aa2ae">工程中心审批后状态实时同步</span></div>' +
-    '<div class="p-list">' + (applies || '<div class="p-empty">暂无下载申请</div>') + '</div>';
+    '<div class="p-sec-h"><h2><i></i>视频学习记录（点击续播）</h2><a onclick="pGo(\'minev\')">共 ' + vids.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
+    '<div class="p-list">' + (vids.slice(0, 5).map(pMineVideoRow).join('') || '<div class="p-empty">暂无视频学习记录，去视频学堂开始学习</div>') + '</div>' +
+    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>资料阅读记录</h2><a onclick="pGo(\'mined\')">共 ' + pDocHist.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
+    '<div class="p-list">' + (pDocHist.slice(0, 5).map(pMineDocRow).join('') || '<div class="p-empty">暂无阅读记录</div>') + '</div>' +
+    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>我的收藏</h2><a onclick="pGo(\'minef\')">共 ' + favKeys.length + ' 项 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
+    '<div class="p-list">' + (favKeys.slice(0, 5).map(pMineFavRow).join('') || '<div class="p-empty">暂无收藏</div>') + '</div>' +
+    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>下载申请</h2><span style="font-size:12px;color:#9aa2ae">工程中心审批后状态实时同步</span><a onclick="pGo(\'minel\')">共 ' + applies.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
+    '<div class="p-list">' + (applies.slice(0, 5).map(pMineApplyRow).join('') || '<div class="p-empty">暂无下载申请</div>') + '</div>';
 }
 function pSearchPage(){
   var kw = pArg;
