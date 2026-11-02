@@ -854,9 +854,19 @@
   .p-stat b{font-size:22px;font-weight:800;color:#1f2937;display:block;margin-top:6px}
   .p-stat .sub{font-size:11.5px;color:#9aa2ae;margin-top:3px}
   .p-sectabs{display:flex;gap:22px;border-bottom:1px solid #e8ebf0;margin-bottom:14px}
-  .p-sectabs a{padding:0 2px 10px;font-size:13.5px;color:#6b7280;cursor:pointer;position:relative}
+  .p-sectabs a{padding:0 2px 10px;font-size:13.5px;color:#6b7280;cursor:pointer;position:relative;display:inline-flex;align-items:center;gap:5px}
   .p-sectabs a.on{color:#1f6bf1;font-weight:700}
   .p-sectabs a.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#1f6bf1;border-radius:2px}
+  .p-sectabs a em{font-style:normal;font-size:11px;color:#8a919f;background:#f1f3f7;border-radius:9px;padding:1px 7px;font-weight:600}
+  .p-sectabs a.on em{color:#1f6bf1;background:#e8f0ff}
+  .p-mine-flex{display:flex;gap:16px;align-items:flex-start}
+  .p-vtabs{width:200px;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(15,23,42,.04);padding:8px;flex-shrink:0}
+  .p-vtabs a{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:9px;font-size:13.5px;color:#5a6270;cursor:pointer;margin-bottom:2px;position:relative}
+  .p-vtabs a:hover{background:#f4f6fa}
+  .p-vtabs a.on{background:#e8f0ff;color:#1f6bf1;font-weight:700}
+  .p-vtabs a em{font-style:normal;font-size:11px;color:#8a919f;background:#f1f3f7;border-radius:9px;padding:1px 8px;font-weight:600}
+  .p-vtabs a.on em{color:#1f6bf1;background:#fff}
+  .p-mine-main{flex:1;min-width:0}
   .p-empty{text-align:center;color:#aab1bd;font-size:12.5px;padding:40px 0}
   /* 工程知识库只读视图 · WEB 全宽自适应 */
   @media (max-width:1280px){
@@ -6527,7 +6537,7 @@ function pGo(pg, arg){
   if(pg !== 'videodetail') stopPP();
   pPg = pg;
   if(arg !== undefined) pArg = arg || '';
-  else if(pg === 'home' || pg === 'docs' || pg === 'videos' || pg === 'mine' || pg === 'minev' || pg === 'mined' || pg === 'minef' || pg === 'minel') pArg = '';
+  else if(pg === 'home' || pg === 'docs' || pg === 'videos' || pg === 'mine') pArg = '';
   if(pg === 'docdetail' && arg !== undefined) pDocId = +arg;
   if(pg === 'videodetail' && arg !== undefined) pVideoId = +arg;
   $('#pBody').scrollTop = 0;
@@ -6544,10 +6554,6 @@ function pRender(){
   else if(pPg === 'videos') h = pVideosPage();
   else if(pPg === 'videodetail') h = pVideoDetail();
   else if(pPg === 'mine') h = pMine();
-  else if(pPg === 'minev') h = pMineSub('v');
-  else if(pPg === 'mined') h = pMineSub('d');
-  else if(pPg === 'minef') h = pMineSub('f');
-  else if(pPg === 'minel') h = pMineSub('l');
   else if(pPg === 'search') h = pSearchPage();
   $('#pBody').innerHTML = '<div class="pt-wrap">' + h + '</div>';
   if(pPg === 'videodetail') setTimeout(function(){ if(pPg === 'videodetail' && pvCur === pVideoId && !pvPlaying) ppToggle() }, 450);
@@ -6850,7 +6856,7 @@ function openPApply(name, aid){
   inputBox((a && a.status === 'rejected') ? '重新申请下载' : '申请下载', '', function(reason){
     dlAdd({ id: dlNewId(), name: name, ver: c.ver || '', kind: isVideo ? 'video' : 'doc', channel: 'pc', user: '王鹏', org: '工程中心', reason: reason, time: dlTime(), status: 'pending', remark: '', ts: Date.now() });
     toast('下载申请已提交，审批通过后可在「我的学习 - 下载申请」查看', 1);
-    if(pPg === 'mine' || pPg === 'minev' || pPg === 'minel' || pPg === 'docdetail' || pPg === 'videodetail') pRender();
+    if(pPg === 'mine' || pPg === 'docdetail' || pPg === 'videodetail') pRender();
   }, rejTip + '《' + name + '》为受控' + (isVideo ? '视频' : '资料') + '，默认不可下载。请填写申请原因（必填），审批通过后将获得带水印的受控版本。', '请输入申请原因（必填），回车提交');
 }
 function pVideosPage(){
@@ -6984,8 +6990,10 @@ function stopPP(){
   ppPauseBtn(); pvSyncWatch();
   pvCur = null; pvPos = 0; pvDur = 0; pvPlaying = false;
 }
-/* ---------- 我的学习：统计卡 ×3 + 四区块（快照 5 条 · 共 n 条 · 查看全部子页） ---------- */
+/* ---------- 我的学习：统计卡 ×3 + 四 TAB（视频记录 / 阅读记录 / 收藏 / 下载申请） ---------- */
 var M_SUB = { v: '视频学习记录', d: '资料阅读记录', f: '我的收藏', l: '下载申请' };
+var mTab = 'v';
+function mTabTo(k){ mTab = k; pRender() }
 function pWatchList(){
   return Object.keys(pWatch).map(function(id){
     var v = videos.filter(function(x){ return x.id === +id })[0];
@@ -6994,12 +7002,13 @@ function pWatchList(){
 }
 function pMineVideoRow(r){
   var v = r.v, w = r.w, done = w.prog >= 100, invalid = !isEffective(v) || !kbCanView(v);
+  var posT = fmtT(Math.round(durSec(v) * w.prog / 100));
   return '<div class="p-cont" style="padding:14px 16px;' + (invalid ? 'opacity:.55;filter:grayscale(.6)' : 'cursor:pointer') + '" onclick="' + (invalid ? 'toast(\'该内容已下架或不在授权范围\')' : 'pGo(\'videodetail\',' + v.id + ')') + '">' +
     '<div class="cov" style="width:112px;height:63px;background:' + v.cover + '"><svg style="width:22px;height:22px"><use href="#i-play"/></svg><span class="dur">' + v.dur + '</span></div>' +
     '<div class="info"><b style="font-size:13.5px">' + v.name + ' <span style="font-size:11px;color:#5a6270">' + v.ver + '</span>' + (invalid ? ' <span class="p-half-chip" style="background:#f1f2f4;color:#9aa2ae">已失效</span>' : '') + '</b>' +
-    '<div class="mt">' + catPathTxt(v) + ' · ' + (done ? '已学完' : '学习中 ' + w.prog + '%') + ' · 最近播放 ' + (w.t || '—') + '</div>' +
+    '<div class="mt">上次看到 ' + posT + ' · 已学 ' + w.prog + '% · ' + catPathTxt(v) + (done ? ' · 已学完' : '') + '</div>' +
     '<div class="p-ptrack" style="margin-top:8px;height:5px"><i style="width:' + w.prog + '%' + (done ? ';background:#12a150' : '') + '"></i></div></div>' +
-    (invalid ? '' : '<button class="btn ' + (done ? 'ghost' : 'primary') + ' sm">' + (done ? '重新观看' : '继续观看') + '</button>') + '</div>';
+    (invalid ? '' : '<button class="btn ' + (done ? 'ghost' : 'primary') + ' sm">' + (done ? '重新观看' : '继续学习') + '</button>') + '</div>';
 }
 function pMineDocRow(r){
   var d = docs.filter(function(x){ return x.id === r.id })[0];
@@ -7047,52 +7056,6 @@ function mPager(k, total){
   var pages = Math.ceil(total / 10);
   return '<div class="p-pager"><button ' + (mSubP[k] === 1 ? 'disabled' : '') + ' onclick="mPageN(\'' + k + '\',-1)">上一页</button><span>第 ' + mSubP[k] + ' / ' + pages + ' 页 · 共 ' + total + ' 条</span><button ' + (mSubP[k] === pages ? 'disabled' : '') + ' onclick="mPageN(\'' + k + '\',1)">下一页</button></div>';
 }
-function pMineSub(k){
-  var chips = '', rows = [], total = 0, sub = '';
-  var emptyMap = {
-    v: '暂无视频学习记录，去视频学堂开始学习',
-    d: '暂无阅读记录，去资料中心查阅标准',
-    f: '暂无收藏，在资料 / 视频详情页点击收藏',
-    l: '暂无下载申请，在资料 / 视频详情页提交后在此查看进度'
-  };
-  if(k === 'v'){
-    var all = pWatchList(), f = mSubF.v;
-    var cDone = all.filter(function(r){ return r.w.prog >= 100 }).length;
-    chips = mChipBar(k, [['all', '全部'], ['doing', '学习中'], ['done', '已学完']], { all: all.length, doing: all.length - cDone, done: cDone });
-    var lv = all.filter(function(r){ return f === 'all' || (f === 'done' ? r.w.prog >= 100 : r.w.prog < 100) });
-    rows = lv.map(pMineVideoRow); total = lv.length;
-    sub = '点击行或按钮进入视频详情，学习中自动从断点续播；记录长期保留，同一视频仅保留一条（进度取历史最高）';
-  } else if(k === 'd'){
-    var f2 = mSubF.d, cOk = pDocHist.filter(function(r){ return r.ok }).length;
-    chips = mChipBar(k, [['all', '全部'], ['doing', '阅读中'], ['done', '已读完']], { all: pDocHist.length, doing: pDocHist.length - cOk, done: cOk });
-    var ld = pDocHist.filter(function(r){ return f2 === 'all' || (f2 === 'done' ? r.ok : !r.ok) });
-    rows = ld.map(pMineDocRow); total = ld.length;
-    sub = '已读口径：打开详情并完成至少 1 次翻页；记录长期保留，同一资料仅保留一条（时间取最近一次）';
-  } else if(k === 'f'){
-    var f3 = mSubF.f, keys = Object.keys(pFav);
-    var dk = keys.filter(function(x){ return x[0] === 'd' }), vk = keys.filter(function(x){ return x[0] === 'v' });
-    chips = mChipBar(k, [['all', '全部'], ['doc', '资料'], ['video', '视频']], { all: keys.length, doc: dk.length, video: vk.length });
-    var lf = (f3 === 'doc' ? dk : (f3 === 'video' ? vk : keys));
-    rows = lf.map(pMineFavRow); total = lf.length;
-    sub = '已收藏 ' + keys.length + ' 项 · 资料 ' + dk.length + ' / 视频 ' + vk.length + '（含已失效项）；点击星标取消收藏，即时同步列表与统计卡';
-  } else {
-    var f4 = mSubF.l, lAll = dlOf('pc');
-    var cP = lAll.filter(function(a){ return a.status === 'pending' }).length;
-    var cA = lAll.filter(function(a){ return a.status === 'approved' }).length;
-    var cR = lAll.filter(function(a){ return a.status === 'rejected' }).length;
-    chips = mChipBar(k, [['all', '全部'], ['pending', '审批中'], ['approved', '已通过'], ['rejected', '已驳回']], { all: lAll.length, pending: cP, approved: cA, rejected: cR });
-    var ll = lAll.filter(function(a){ return f4 === 'all' || a.status === f4 });
-    rows = ll.map(pMineApplyRow); total = ll.length;
-    sub = '工程中心审批后状态实时同步；审批中以服务端为准不可重复提交，重新申请生成新编号';
-  }
-  mSubP[k] = Math.min(mSubP[k], Math.max(1, Math.ceil(total / 10)));
-  var start = (mSubP[k] - 1) * 10, pgRows = rows.slice(start, start + 10);
-  return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'mine\')">我的学习</a><span>/</span>' + M_SUB[k] + '</div>' +
-    '<div class="p-sec-h"><h2><i></i>' + M_SUB[k] + '</h2><span style="font-size:12px;color:#9aa2ae">' + sub + '</span></div>' +
-    chips +
-    '<div class="p-list">' + (pgRows.join('') || '<div class="p-empty">' + emptyMap[k] + '</div>') + '</div>' +
-    (total > 10 ? mPager(k, total) : '');
-}
 function pMine(){
   var vids = pWatchList();
   var doneN = vids.filter(function(r){ return r.w.prog >= 100 }).length;
@@ -7100,20 +7063,64 @@ function pMine(){
   var learnMins = Math.floor(vids.reduce(function(s, r){ return s + durSec(r.v) * r.w.prog / 100 }, 0) / 60);
   var favKeys = Object.keys(pFav);
   var applies = dlOf('pc');
+  var tabs = '<div class="p-vtabs">' + ['v', 'd', 'f', 'l'].map(function(k){
+    var n = k === 'v' ? vids.length : (k === 'd' ? pDocHist.length : (k === 'f' ? favKeys.length : applies.length));
+    return '<a class="' + (mTab === k ? 'on' : '') + '" onclick="mTabTo(\'' + k + '\')"><span>' + M_SUB[k] + '</span><em>' + n + '</em></a>';
+  }).join('') + '</div>';
+  var chips = '', rows = [], total = 0, sub = '';
+  var emptyMap = {
+    v: '暂无视频学习记录，去视频学堂开始学习',
+    d: '暂无阅读记录，去资料中心查阅标准',
+    f: '暂无收藏，在资料 / 视频详情页点击收藏',
+    l: '暂无下载申请，在资料 / 视频详情页提交后在此查看进度'
+  };
+  if(mTab === 'v'){
+    var f = mSubF.v;
+    var cDone = doneN;
+    chips = mChipBar('v', [['all', '全部'], ['doing', '学习中'], ['done', '已学完']], { all: vids.length, doing: vids.length - cDone, done: cDone });
+    var lv = vids.filter(function(r){ return f === 'all' || (f === 'done' ? r.w.prog >= 100 : r.w.prog < 100) });
+    rows = lv.map(pMineVideoRow); total = lv.length;
+    sub = '点击行或按钮进入视频详情，学习中自动从断点续播；记录长期保留，同一视频仅保留一条（进度取历史最高）';
+  } else if(mTab === 'd'){
+    var f2 = mSubF.d, cOk = pDocHist.filter(function(r){ return r.ok }).length;
+    chips = mChipBar('d', [['all', '全部'], ['doing', '阅读中'], ['done', '已读完']], { all: pDocHist.length, doing: pDocHist.length - cOk, done: cOk });
+    var ld = pDocHist.filter(function(r){ return f2 === 'all' || (f2 === 'done' ? r.ok : !r.ok) });
+    rows = ld.map(pMineDocRow); total = ld.length;
+    sub = '已读口径：打开详情并完成至少 1 次翻页；记录长期保留，同一资料仅保留一条（时间取最近一次）';
+  } else if(mTab === 'f'){
+    var f3 = mSubF.f;
+    var dk = favKeys.filter(function(x){ return x[0] === 'd' }), vk = favKeys.filter(function(x){ return x[0] === 'v' });
+    chips = mChipBar('f', [['all', '全部'], ['doc', '资料'], ['video', '视频']], { all: favKeys.length, doc: dk.length, video: vk.length });
+    var lf = (f3 === 'doc' ? dk : (f3 === 'video' ? vk : favKeys));
+    rows = lf.map(pMineFavRow); total = lf.length;
+    sub = '已收藏 ' + favKeys.length + ' 项 · 资料 ' + dk.length + ' / 视频 ' + vk.length + '（含已失效项）；点击星标取消收藏，即时同步列表与统计卡';
+  } else {
+    var f4 = mSubF.l;
+    var cP = applies.filter(function(a){ return a.status === 'pending' }).length;
+    var cA = applies.filter(function(a){ return a.status === 'approved' }).length;
+    var cR = applies.filter(function(a){ return a.status === 'rejected' }).length;
+    chips = mChipBar('l', [['all', '全部'], ['pending', '审批中'], ['approved', '已通过'], ['rejected', '已驳回']], { all: applies.length, pending: cP, approved: cA, rejected: cR });
+    var ll = applies.filter(function(a){ return f4 === 'all' || a.status === f4 });
+    rows = ll.map(pMineApplyRow); total = ll.length;
+    sub = '工程中心审批后状态实时同步；审批中以服务端为准不可重复提交，重新申请生成新编号';
+  }
+  mSubP[mTab] = Math.min(mSubP[mTab], Math.max(1, Math.ceil(total / 10)));
+  var start = (mSubP[mTab] - 1) * 10, pgRows = rows.slice(start, start + 10);
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span>我的学习</div>' +
     '<div class="p-stat-row">' +
-      '<div class="p-stat" style="cursor:pointer" onclick="pGo(\'minev\')" title="查看全部视频学习记录"><div class="lbl"><svg style="color:#1f6bf1"><use href="#i-video"/></svg>视频学习</div><b>' + vids.length + ' 个</b><div class="sub">已学完 ' + doneN + ' 个 · 学习中 ' + (vids.length - doneN) + ' 个</div></div>' +
+      '<div class="p-stat" style="cursor:pointer" onclick="mTabTo(\'v\')" title="查看视频学习记录"><div class="lbl"><svg style="color:#1f6bf1"><use href="#i-video"/></svg>视频学习</div><b>' + vids.length + ' 个</b><div class="sub">已学完 ' + doneN + ' 个 · 学习中 ' + (vids.length - doneN) + ' 个</div></div>' +
       '<div class="p-stat"><div class="lbl"><svg style="color:#12a150"><use href="#i-clock"/></svg>累计学习</div><b>' + learnMins + ' 分钟</b><div class="sub">有效播放自动计入 · 不含资料阅读</div></div>' +
-      '<div class="p-stat" style="cursor:pointer" onclick="pGo(\'minef\')" title="查看全部收藏"><div class="lbl"><svg style="color:#ff7d1a"><use href="#i-star"/></svg>收藏</div><b>' + favKeys.length + ' 项</b><div class="sub">资料与视频统一收藏夹</div></div>' +
+      '<div class="p-stat" style="cursor:pointer" onclick="mTabTo(\'f\')" title="查看我的收藏"><div class="lbl"><svg style="color:#ff7d1a"><use href="#i-star"/></svg>收藏</div><b>' + favKeys.length + ' 项</b><div class="sub">资料与视频统一收藏夹</div></div>' +
     '</div>' +
-    '<div class="p-sec-h"><h2><i></i>视频学习记录（点击续播）</h2><a onclick="pGo(\'minev\')">共 ' + vids.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
-    '<div class="p-list">' + (vids.slice(0, 5).map(pMineVideoRow).join('') || '<div class="p-empty">暂无视频学习记录，去视频学堂开始学习</div>') + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>资料阅读记录</h2><a onclick="pGo(\'mined\')">共 ' + pDocHist.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
-    '<div class="p-list">' + (pDocHist.slice(0, 5).map(pMineDocRow).join('') || '<div class="p-empty">暂无阅读记录</div>') + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>我的收藏</h2><a onclick="pGo(\'minef\')">共 ' + favKeys.length + ' 项 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
-    '<div class="p-list">' + (favKeys.slice(0, 5).map(pMineFavRow).join('') || '<div class="p-empty">暂无收藏</div>') + '</div>' +
-    '<div class="p-sec-h" style="margin-top:24px"><h2><i></i>下载申请</h2><span style="font-size:12px;color:#9aa2ae">工程中心审批后状态实时同步</span><a onclick="pGo(\'minel\')">共 ' + applies.length + ' 条 · 查看全部 <svg><use href="#i-right"/></svg></a></div>' +
-    '<div class="p-list">' + (applies.slice(0, 5).map(pMineApplyRow).join('') || '<div class="p-empty">暂无下载申请</div>') + '</div>';
+    '<div class="p-mine-flex">' +
+      tabs +
+      '<div class="p-mine-main">' +
+        '<div style="font-size:12px;color:#9aa2ae;margin:0 0 12px">' + sub + '</div>' +
+        chips +
+        '<div class="p-list">' + (pgRows.join('') || '<div class="p-empty">' + emptyMap[mTab] + '</div>') + '</div>' +
+        (total > 10 ? mPager(mTab, total) : '') +
+      '</div>' +
+    '</div>';
 }
 function pSearchPage(){
   var kw = pArg;
