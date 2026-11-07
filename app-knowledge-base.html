@@ -112,6 +112,70 @@
   .kb-seg span{flex:1;text-align:center;font-size:13px;font-weight:600;color:#6b7280;padding:8px 0;border-radius:9px;transition:all .15s}
   .kb-seg span.on{background:#fff;color:#ff7d1a;box-shadow:0 1px 3px rgba(16,24,40,.08)}
 
+  /* ===== V2.13 列表改版：顶部三 Tab / 一级分类图标条 / 左侧栏 + 右列表 ===== */
+  .kb3tabs{flex:1;display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+  .kb3tabs span{position:relative;font-size:15.5px;font-weight:500;color:#8a8f99;padding:12px 2px;white-space:nowrap;cursor:pointer}
+  .kb3tabs span.on{color:#1f2329;font-weight:700}
+  .kb3tabs span.on::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:5px;width:22px;height:3px;border-radius:2px;background:#ff7d1a}
+  .cat-icon-bar{display:flex;align-items:flex-start;gap:4px;padding:12px 6px 10px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+  .cat-icon-bar::-webkit-scrollbar{display:none}
+  .cicon{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+  .cicon .cico{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:box-shadow .15s}
+  .cicon .cico svg{width:23px;height:23px}
+  .cicon .clab{font-size:11px;color:#4d4d4d;white-space:nowrap}
+  .cicon.on .cico{box-shadow:0 0 0 2px #fff,0 0 0 4px #ff7d1a}
+  .cicon.on .clab{color:#ff7d1a;font-weight:700}
+  .cico.c0{background:#f0f1f4;color:#5a616c}
+  .cico.c1{background:#e8f1ff;color:#2f6bf0}
+  .cico.c2{background:#fff3e3;color:#ed8a12}
+  .cico.c3{background:#e6f8ee;color:#12a150}
+  .cico.c4{background:#f1ecff;color:#7a5af8}
+  .cico.c5{background:#e3f6fd;color:#0898c9}
+  .split-wrap{flex:1;display:flex;min-height:0}
+  .side-nav{width:106px;flex-shrink:0;background:#f6f7f9;border-right:1px solid var(--line);overflow-y:auto;scrollbar-width:none;padding:4px 0 20px}
+  .side-nav::-webkit-scrollbar{display:none}
+  .side-group{padding:11px 10px 7px 12px;font-size:12px;font-weight:600;color:#3d4147;display:flex;align-items:center;justify-content:space-between;gap:4px;cursor:pointer;position:relative}
+  .side-group svg{width:11px;height:11px;color:#a6abb5;transition:transform .18s;flex-shrink:0}
+  .side-group.open svg{transform:rotate(180deg)}
+  .side-group.on{background:#fff}
+  .side-group.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:#ff7d1a}
+  .side-sub{padding:8px 10px 8px 22px;font-size:11.5px;color:#6b7280;line-height:1.35;cursor:pointer;position:relative;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .side-sub.on{color:#ff7d1a;font-weight:600;background:#fff}
+  .side-sub.on::before{content:'';position:absolute;left:12px;top:9px;bottom:9px;width:2.5px;border-radius:2px;background:#ff7d1a}
+  .side-all{padding:12px 10px;font-size:12px;font-weight:600;color:#3d4147;cursor:pointer;position:relative}
+  .side-all.on{color:#ff7d1a;background:#fff}
+  .side-all.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:#ff7d1a}
+  .split-main{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff}
+  .list-toolbar{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0}
+  .list-toolbar .sort-seg{flex:0 0 auto}
+  .list-toolbar .tsp{flex:1}
+  .flt-btn{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#ff7d1a;padding:5px 11px;border:1px solid #ffd9b8;border-radius:14px;background:#fff8f2;flex-shrink:0;cursor:pointer}
+  .flt-btn svg{width:12px;height:12px}
+  .flt-btn .cnt{min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:#ff7d1a;color:#fff;font-size:9.5px;display:inline-flex;align-items:center;justify-content:center}
+  .flt-btn.on{background:#ff7d1a;color:#fff;border-color:#ff7d1a}
+  .flt-btn.on svg{color:#fff}
+  .split-main .doc-item{margin:0 10px 10px}
+  .split-main .result-count{padding:9px 14px 3px}
+  .type-row{display:flex;gap:7px;overflow-x:auto;padding:8px 12px 2px;background:#fff;scrollbar-width:none;flex-shrink:0}
+  .type-row::-webkit-scrollbar{display:none}
+
+  /* ===== V2.13 我的学习 ===== */
+  .ms-tabs{display:flex;align-items:center;gap:8px;padding:12px 14px 10px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0}
+  .ms-pill{padding:6px 16px;border-radius:16px;font-size:12.5px;font-weight:600;color:#6b7280;background:#f0f1f4;cursor:pointer}
+  .ms-pill.on{color:#ff7d1a;background:#fff4e8}
+  .ms-sum{font-size:11px;color:#9aa1ab;flex:1;text-align:right}
+  .ms-stats{display:flex;background:#fff;border-radius:14px;margin:12px 14px 4px;padding:14px 6px;box-shadow:0 1px 4px rgba(16,24,40,.05)}
+  .ms-stat{flex:1;text-align:center}
+  .ms-stat b{font-size:24px;font-weight:800;color:#1f2329}
+  .ms-stat b i{font-style:normal;font-size:11px;font-weight:500;color:#9aa1ab;margin-left:2px}
+  .ms-stat p{font-size:10.5px;color:#9aa1ab;margin-top:3px}
+  .ms-stat + .ms-stat{border-left:1px solid #f0f1f3}
+  .ms-sec{padding:14px 16px 4px;font-size:13px;font-weight:700;color:#1f2329}
+  .ms-star{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ffb45e;flex-shrink:0}
+  .ms-star svg{width:20px;height:20px}
+  .ms-star:active{background:#fdf3e7}
+  .ms-time{font-size:10.5px;color:#9aa1ab;margin-top:2px}
+
   .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 14px 0}
   .cat-card{border-radius:16px;padding:14px;cursor:pointer;position:relative;overflow:hidden;transition:transform .12s}
   .cat-card:active{transform:scale(.97)}
@@ -167,6 +231,9 @@
   .subchip-row::-webkit-scrollbar{display:none}
   .subchip{font-size:12px;color:#555;background:#fff;border-radius:14px;padding:6px 12px;white-space:nowrap;flex-shrink:0;box-shadow:0 1px 3px rgba(31,60,120,.05)}
   .subchip.on{background:#fff3e8;color:#e07800;font-weight:600}
+  .subchip .st{font-style:normal;font-size:9px;line-height:14px;padding:0 4px;border-radius:3px;margin-left:4px;font-weight:600;vertical-align:1px}
+  .subchip .st.d{background:#fff3e6;color:#c76a12}
+  .subchip .st.v{background:#f0ebff;color:#6b46c1}
 
   .doc-item{display:flex;gap:12px;margin:0 14px 10px;background:#fff;border-radius:14px;padding:13px 14px;cursor:pointer;transition:transform .12s}
   .doc-item:active{transform:scale(.985)}
@@ -429,6 +496,18 @@
   .dlg .btns button{flex:1;height:42px;border-radius:21px;font-size:14.5px;font-weight:600}
   .dlg .btns .cancel{background:#f5f6f8;color:#444}
   .dlg .btns .ok{background:var(--primary);color:#fff}
+  .dlg .btns .ok[disabled]{background:#ffd6ae;color:#fff}
+  /* 申请下载 · 填写原因 */
+  .dlg .field label .req{color:#e07800}
+  .dlg .field label .cnt{float:right;font-style:normal;font-weight:400;font-size:10.5px;color:#b0b7c2}
+  .dlg textarea.has-err{border-color:#f5222d}
+  .ap-tip{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#a8adb6;line-height:1.6;margin-top:7px}
+  .ap-tip svg{width:12px;height:12px;flex-shrink:0;margin-top:1.5px}
+  .ap-tip.err{color:#d93026}
+  .ap-note{display:flex;gap:8px;margin-top:12px;background:#f7f9ff;border-radius:10px;padding:9px 11px;font-size:11px;color:#41679f;line-height:1.6}
+  .ap-note svg{width:13px;height:13px;flex-shrink:0;margin-top:1.5px}
+  .ap-rej{display:flex;gap:7px;background:#fdf1f0;border-radius:10px;padding:9px 11px;font-size:11.5px;color:#d93026;line-height:1.6;margin-top:10px}
+  .ap-rej svg{width:13px;height:13px;flex-shrink:0;margin-top:1.5px}
   .pdl-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .pdl-meta span{font-size:10.5px;color:#5b6472;background:#f3f5f8;border-radius:6px;padding:3px 8px}
 
@@ -546,7 +625,7 @@
 
 <div class="page-head">
   <h1>内部用户APP · 知识库模块高保真原型</h1>
-  <p>在现有内部 APP <b>应用中心</b>新增统一的「知识库」入口，面向 <b>内部设计师、预结算、项目经理</b>：进入后分为<b>资料中心</b>与<b>视频学堂</b>，按 5 大篇章三级目录与 3 个标签维度分类展示、逐级切换，支持关键词查询、在线预览（PDF / PPT / EXCEL / 图片）、视频点播、收藏与下载申请（申请原因必填）；分享支持<b>游客链接</b>（链接 + 密码、免登录仅预览）与<b>非游客链接</b>（登录 + 可见权限校验）两种模式，分享与访问行为均留痕。查询、查看与播放行为自动写入学习记录并回传后台。</p>
+  <p>在现有内部 APP <b>应用中心</b>新增统一的「知识库」入口，面向 <b>内部设计师、预结算、项目经理</b>：进入后分为<b>资料中心</b>与<b>视频学堂</b>，按 5 大篇章三级目录与 3 个标签维度分类展示、逐级切换，支持关键词查询、在线预览（PDF / PPT / EXCEL / 图片）、视频点播；分享支持<b>游客链接</b>（链接 + 密码、免登录仅预览）与<b>非游客链接</b>（登录 + 可见权限校验）两种模式，分享与访问行为均留痕。查询、查看与播放行为自动写入学习记录并回传后台。我的页面（我的收藏 / 浏览与学习记录 / 下载申请 / 设置）<b>一期不做</b>，不在本原型范围内。</p>
 </div>
 
 <div class="jumps" id="jumps">
@@ -556,9 +635,6 @@
   <button class="jump" data-s="videocenter"><i></i>知识库·视频</button>
   <button class="jump" data-s="kbdetail"><i></i>资料详情</button>
   <button class="jump" data-s="kbvideo-detail"><i></i>视频详情</button>
-  <button class="jump" data-s="kbfav"><i></i>我的收藏</button>
-  <button class="jump" data-s="kbhist"><i></i>浏览记录</button>
-  <button class="jump" data-s="mine"><i></i>我的</button>
 </div>
 
 <div class="stage">
@@ -583,36 +659,6 @@
               <div class="app-grid" id="appGrid"></div>
             </div>
             <div style="height:110px"></div>
-          </div>
-        </div>
-
-        <!-- ============ 我的 ============ -->
-        <div class="screen" id="s-mine">
-          <div class="mine-head">
-            <div class="mine-user">
-              <div class="mine-avatar">王</div>
-              <div><b>王鹏</b><p>内部设计师 · 工程中心</p></div>
-            </div>
-          </div>
-          <div class="scroll">
-            <div class="mine-menu">
-              <div class="mine-row" onclick="jumpTo('kbfav')">
-                <span class="mi" style="background:#fff3e8;color:#ed8a12"><svg><use href="#i-star"/></svg></span>
-                <span class="nm">我的收藏</span><span class="badge" id="mineFavCount">2</span><svg class="arr"><use href="#i-right"/></svg>
-              </div>
-              <div class="mine-row" onclick="jumpTo('kbhist')">
-                <span class="mi" style="background:#e8f0ff;color:#3d7eff"><svg><use href="#i-clock"/></svg></span>
-                <span class="nm">浏览与学习记录</span><span style="font-size:11.5px;color:#b3b3b3;margin-right:4px">已读 / 完播自动回传</span><svg class="arr"><use href="#i-right"/></svg>
-              </div>
-              <div class="mine-row" onclick="jumpTo('kbapply')">
-                <span class="mi" style="background:#e6f8ee;color:#12a150"><svg><use href="#i-download"/></svg></span>
-                <span class="nm">下载申请</span><span class="badge" id="mineApplyCount" style="display:none">0</span><svg class="arr"><use href="#i-right"/></svg>
-              </div>
-              <div class="mine-row" onclick="toast('「设置」保持现有功能')">
-                <span class="mi" style="background:#f2f3f5;color:#666"><svg><use href="#i-gear"/></svg></span>
-                <span class="nm">设置</span><svg class="arr"><use href="#i-right"/></svg>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -649,31 +695,44 @@
           </div>
         </div>
 
-        <!-- ============ 分类列表 ============ -->
+        <!-- ============ 分类列表（V2.13：三 Tab + 一级分类图标条 + 左侧栏右列表） ============ -->
         <div class="screen over" id="s-kblist">
           <div class="wb-head">
             <button class="wb-back" onclick="back()"><svg><use href="#i-back"/></svg></button>
-            <span class="tt" id="listTitle">知识库</span>
+            <div class="kb3tabs">
+              <span id="segDoc" onclick="switchKind('doc')">资料中心</span>
+              <span id="segVideo" onclick="switchKind('video')">视频学堂</span>
+              <span onclick="jumpTo('kbmystudy')">我的学习</span>
+            </div>
             <button class="hact" onclick="jumpTo('kbsearch')"><svg><use href="#i-search"/></svg></button>
           </div>
-          <div class="kb-seg">
-            <span class="on" id="segDoc" onclick="switchKind('doc')">资料中心</span>
-            <span id="segVideo" onclick="switchKind('video')">视频学堂</span>
-          </div>
-          <div class="filter-row" id="listFilters"></div>
-          <div class="scroll">
-            <div id="listTagChips"></div>
-            <div id="listSubCats"></div>
-            <div class="result-count" id="listCount"></div>
-            <div id="listBody"></div>
-          </div>
-          <div class="kb-float" id="kbFloat">
-            <div class="kbf-panel">
-              <button class="kbf-btn" onclick="jumpTo('kbfav')"><span class="kbf-ic" style="background:#fff3e8;color:#ed8a12"><svg><use href="#i-star"/></svg></span><span>我的收藏</span></button>
-              <button class="kbf-btn" onclick="jumpTo('kbhist')"><span class="kbf-ic" style="background:#e8f0ff;color:#3d7eff"><svg><use href="#i-clock"/></svg></span><span>浏览记录</span></button>
+          <div class="cat-icon-bar" id="catIconBar"></div>
+          <div class="split-wrap">
+            <aside class="side-nav" id="sideNav"></aside>
+            <div class="split-main">
+              <div class="list-toolbar" id="listFilters"></div>
+              <div class="scroll">
+                <div id="listTagChips"></div>
+                <div class="result-count" id="listCount"></div>
+                <div id="listBody"></div>
+              </div>
             </div>
-            <button class="kbf-handle" title="收起 / 展开" onclick="toggleKbFloat()"><svg><use href="#i-right"/></svg></button>
           </div>
+        </div>
+
+        <!-- ============ 我的学习（V2.13：我的收藏 / 浏览记录） ============ -->
+        <div class="screen over" id="s-kbmystudy">
+          <div class="wb-head">
+            <button class="wb-back" onclick="back()"><svg><use href="#i-back"/></svg></button>
+            <span class="tt">我的学习</span>
+            <span style="width:32px;flex-shrink:0"></span>
+          </div>
+          <div class="ms-tabs">
+            <span class="ms-pill on" id="msFavTab" onclick="setMsTab('fav')">我的收藏</span>
+            <span class="ms-pill" id="msHistTab" onclick="setMsTab('hist')">浏览记录</span>
+            <span class="ms-sum" id="msSum"></span>
+          </div>
+          <div class="scroll" id="msBody"></div>
         </div>
 
         <!-- ============ 资料详情 ============ -->
@@ -685,11 +744,8 @@
           </div>
           <div class="scroll detail-scroll" id="detailBody"></div>
           <div class="action-bar">
-            <div class="act-item" id="actFav" onclick="toggleFav(curDoc.id)">
-              <svg id="actFavIcon"><use href="#i-star"/></svg><span class="lbl">收藏</span>
-            </div>
-            <div class="act-item" onclick="openShare('doc', curDoc.id)"><svg><use href="#i-share"/></svg><span class="lbl">分享</span></div>
-            <button class="act-btn" id="actDownload" onclick="openApply()"><svg><use href="#i-download"/></svg>申请下载</button>
+            <button class="act-btn outline" id="favDocBtn" onclick="toggleAppFav('doc', curDoc.id)"><svg><use href="#i-star"/></svg>收藏</button>
+            <button class="act-btn" onclick="openShare('doc', curDoc.id)"><svg><use href="#i-share"/></svg>分享</button>
           </div>
         </div>
 
@@ -702,50 +758,8 @@
           </div>
           <div class="scroll detail-scroll" id="vDetailBody"></div>
           <div class="action-bar">
-            <div class="act-item" id="vActFav" onclick="toggleFav(curVideo.id)">
-              <svg id="vActFavIcon"><use href="#i-star"/></svg><span class="lbl">收藏</span>
-            </div>
-            <div class="act-item" onclick="openShare('video', curVideo.id)"><svg><use href="#i-share"/></svg><span class="lbl">分享</span></div>
-            <button class="act-btn" id="vActDownload" onclick="openApply()"><svg><use href="#i-download"/></svg>申请下载</button>
-          </div>
-        </div>
-
-        <!-- ============ 我的收藏 ============ -->
-        <div class="screen over" id="s-kbfav">
-          <div class="wb-head">
-            <button class="wb-back" onclick="back()"><svg><use href="#i-back"/></svg></button>
-            <span class="tt">我的收藏</span>
-          </div>
-          <div class="scroll">
-            <div class="fav-head" id="favCount">已收藏 2 份资料</div>
-            <div id="favList"></div>
-            <div style="height:30px"></div>
-          </div>
-        </div>
-
-        <!-- ============ 浏览记录 ============ -->
-        <div class="screen over" id="s-kbhist">
-          <div class="wb-head">
-            <button class="wb-back" onclick="back()"><svg><use href="#i-back"/></svg></button>
-            <span class="tt">浏览记录</span>
-          </div>
-          <div class="scroll">
-            <div id="histSum"></div>
-            <div id="histList"></div>
-            <div class="hist-foot"><svg><use href="#i-info"/></svg>浏览与播放行为已自动同步至后台已读记录</div>
-          </div>
-        </div>
-
-        <!-- ============ 下载申请 ============ -->
-        <div class="screen over" id="s-kbapply">
-          <div class="wb-head">
-            <button class="wb-back" onclick="back()"><svg><use href="#i-back"/></svg></button>
-            <span class="tt">下载申请</span>
-          </div>
-          <div class="scroll">
-            <div class="list-head" style="padding:14px 18px 6px"><b style="font-size:14px">我的下载申请</b><span style="font-size:11.5px;color:#9aa0ab">审批结果实时同步</span></div>
-            <div id="applyList"></div>
-            <div style="height:30px"></div>
+            <button class="act-btn outline" id="favVideoBtn" onclick="toggleAppFav('video', curVideo.id)"><svg><use href="#i-star"/></svg>收藏</button>
+            <button class="act-btn" onclick="openShare('video', curVideo.id)"><svg><use href="#i-share"/></svg>分享</button>
           </div>
         </div>
 
@@ -756,7 +770,6 @@
         <div class="toast-zone" id="toastZone"></div>
         <div class="tabbar" id="tabbar">
           <div class="tab" data-tab="apps" onclick="tabTo('apps')"><svg><use href="#i-grid"/></svg><span>应用中心</span></div>
-          <div class="tab" data-tab="mine" onclick="tabTo('mine')"><svg><use href="#i-user"/></svg><span>我的</span></div>
         </div>
       </div>
     </div>
@@ -774,7 +787,7 @@ var CATALOG = [
   { n: '门店设计篇', ic: 'i-book-open', cls: 'c1', children: [
     { n: '新店设计标准', children: ['初尺、复尺标准','灯具设计标准','货架布局设计'] },
     { n: '门店利旧标准', children: ['设备类利旧标准','货架类利旧标准'] }]},
-  { n: '门店造价篇', ic: 'i-doc', cls: 'c2', children: [
+  { n: '门店造价篇', ic: 'i-doc', cls: 'c2', t: 'doc', children: [
     { n: '新店造价标准', children: ['基础建店费用申报标准','建店材料要求','易错报价提示'] },
     { n: '增项标准', children: ['增项参考价格'] }]},
   { n: '门店施工篇', ic: 'i-book', cls: 'c3', children: [
@@ -785,7 +798,7 @@ var CATALOG = [
     { n: '广告篇', children: ['室外招牌施工','发光字招牌施工','副招牌施工','门上灯箱施工','橱窗灯箱施工','透明背景墙施工','室内货架灯箱施工','其他物料施工'] },
     { n: '差异化篇', children: ['北方差异化施工项目','沿海大风区域施工项目'] },
     { n: '易错篇', children: ['收银台背景天花灯箱尺寸匹配','不同层高货架灯箱怎么施工'] },
-    { n: '培训课件篇', children: ['电工专项课件','木工专项课件','月度培训课件'] }]},
+    { n: '培训课件篇', t: 'video', children: ['电工专项课件','木工专项课件','月度培训课件'] }]},
   { n: '门店验收篇', ic: 'i-check', cls: 'c4', children: [
     { n: '装修篇', children: ['基础装修验收篇（木）','基础装修验收篇（油）','基础装修验收篇（电）','基础装修验收篇（泥）'] },
     { n: '广告篇', children: ['招牌灯箱验收篇','其他灯箱验收篇'] },
@@ -801,6 +814,30 @@ function catNode(c1){ return CATALOG.filter(function(c){ return c.n === c1 })[0]
 function catL1(){ return CATALOG.map(function(c){ return c.n }) }
 function catL2(c1){ var n = catNode(c1); return n ? n.children.map(function(c){ return c.n }) : [] }
 function catL3(c1, c2){ var n = catNode(c1); if(!n) return []; var s = n.children.filter(function(c){ return c.n === c2 })[0]; return s ? s.children : [] }
+var CAT_TYPE_LAB = { all: '资料+视频', doc: '仅资料', video: '仅视频' };
+function catNodeType(node){ return (node && typeof node === 'object' && node.t) || 'all' }
+function catEffType(c1, c2){
+  var n = catNode(c1);
+  if(!n) return 'all';
+  var t = catNodeType(n);
+  if(c2 && t === 'all'){
+    var s = (n.children || []).filter(function(x){ return x.n === c2 })[0];
+    if(s) t = catNodeType(s);
+  }
+  return t;
+}
+function catAllow(kind, type){ return !type || type === 'all' || type === kind }
+function catL1For(kind){ return CATALOG.filter(function(c){ return catAllow(kind, catEffType(c.n)) }).map(function(c){ return c.n }) }
+function catL2For(kind, c1){ var n = catNode(c1); return n ? n.children.filter(function(c){ return catAllow(kind, catEffType(c1, c.n)) }).map(function(c){ return c.n }) : [] }
+function catL3For(kind, c1, c2){ return catAllow(kind, catEffType(c1, c2)) ? catL3(c1, c2) : [] }
+function defaultCat1(kind){
+  var l1 = catL1For(kind);
+  var pool = kind === 'video' ? VIDEOS : DOCS;
+  for(var i = 0; i < l1.length; i++){
+    if(pool.some(function(x){ return x.cat1 === l1[i] })) return l1[i];
+  }
+  return l1[0] || null;
+}
 function catPathTxt(x){
   var p = [x.cat1, x.cat2, x.cat3].filter(function(s){ return s });
   return p.length ? p.join(' / ') : '未分类';
@@ -896,7 +933,6 @@ var VIDEOS = [
   { id: 106, name: '新施工方入场安全培训', ver: 'V2.0', cat1: '门店施工篇', cat2: '培训课件篇', dur: '25:40', plays: 428, rate: 52, updated: '2026-09-25',
     tags: ['标准版','第三方装修负责人','第三方广告负责人','第三方货架负责人','第三方监控负责人','通用区域'], summary: '新入场施工方安全规范、临电使用与应急处置的必修培训视频。' }
 ];
-var favSet = { 1: 1, 3: 1 };
 /* V1.7 标签精简 + 类型归一：移除适用对象 / 区域，图文并入图片，Excel 统一为 EXCEL */
 (function cleanTagsV17(){
   var keep = {};
@@ -917,84 +953,6 @@ var HISTORY = [
   { id: 101, group: '昨天', time: '16:20', kind: 'video', prog: 100 },
   { id: 2, group: '昨天', time: '09:41' }
 ];
-/* 下载申请：与 PC 管理后台共用 localStorage，审批结果实时回传 */
-var DL_KEY = 'kb_dl_apps_v1';
-function dlLoad(){ try{ return JSON.parse(localStorage.getItem(DL_KEY) || '[]') }catch(e){ return [] } }
-function dlSave(l){ try{ localStorage.setItem(DL_KEY, JSON.stringify(l)) }catch(e){} }
-function dlP2(n){ return (n < 10 ? '0' : '') + n }
-function dlTime(){ var d = new Date(); return d.getFullYear() + '-' + dlP2(d.getMonth() + 1) + '-' + dlP2(d.getDate()) + ' ' + dlP2(d.getHours()) + ':' + dlP2(d.getMinutes()) }
-function dlNewId(){ var d = new Date(); return 'DL' + d.getFullYear() + dlP2(d.getMonth() + 1) + dlP2(d.getDate()) + '-' + String(Math.floor(Math.random() * 900) + 100) }
-function dlAdd(rec){ var l = dlLoad(); l.unshift(rec); l.sort(function(a, b){ return (b.ts || 0) - (a.ts || 0) }); dlSave(l); syncApplyBadge(); }
-function dlLatest(name, ch){ return dlLoad().filter(function(x){ return x.name === name && x.channel === ch }).sort(function(a, b){ return (b.ts || 0) - (a.ts || 0) })[0] || null }
-function dlMarkDownload(name){
-  var l = dlLoad(), a = dlLatest(name, 'app');
-  if(!a) return;
-  l.forEach(function(x){ if(x.id === a.id){ x.downloaded = (x.downloaded || 0) + 1; x.lastDownload = dlTime() } });
-  dlSave(l);
-}
-function dlMine(){ return dlLoad().filter(function(x){ return x.channel === 'app' }).sort(function(a, b){ return (b.ts || 0) - (a.ts || 0) }) }
-function syncApplyBadge(){
-  var el = $('#mineApplyCount'); if(!el) return;
-  var n = dlMine().filter(function(x){ return x.status === 'pending' }).length;
-  el.style.display = n ? 'inline-block' : 'none';
-  el.textContent = n;
-}
-function downloadApproved(name){
-  var isVideo = !!VIDEOS.filter(function(x){ return x.name === name })[0];
-  var d = DOCS.filter(function(x){ return x.name === name })[0] || {};
-  var wm = '';
-  for(var i = 0; i < 24; i++) wm += '<span>王鹏 · 工程中心 · 2026-10-20</span>';
-  $('#maskContent').innerHTML =
-    '<div class="dlg"><h3>受控水印版预览</h3>' +
-    '<div class="desc">下载文件将带有账号、组织与日期水印，下载行为将写入日志。</div>' +
-    '<div class="docpage" style="margin-top:14px"><div class="wm">' + wm + '</div>' +
-      '<div class="pt">' + name + '</div><div class="ps">' + (d.ver || 'V1.0') + ' · 鸣鸣很忙工程中心</div>' +
-      (isVideo
-        ? '<div class="dp-img" style="height:112px;background:linear-gradient(135deg,#3c4048,#181b21)"><svg style="width:24px;height:24px;margin-right:6px"><use href="#i-play"/></svg>视频文件 · 受控水印版</div>'
-        : '<div class="dp-img" style="height:112px;background:linear-gradient(135deg,#7ea6f8,#3d7eff)">DOC · 受控水印版</div>') +
-    '</div>' +
-    '<div class="pdl-meta"><span>账号 王鹏 · 187****5650</span><span>组织 工程中心</span><span>日期 2026-10-20</span></div>' +
-    '<div class="btns"><button class="cancel" onclick="closeMask()">取消</button><button class="ok" onclick="confirmDownloadApproved(\'' + name + '\')">确认下载</button></div></div>';
-  $('#mask').className = 'phone-mask show center';
-}
-function confirmDownloadApproved(name){
-  dlMarkDownload(name);
-  closeMask();
-  toast('已开始下载《' + name + '》受控水印版（演示）', 1);
-}
-function openApplyByName(name){
-  var d = DOCS.filter(function(x){ return x.name === name })[0];
-  if(d){ openDetail(d.id); setTimeout(openApply, 320); return }
-  var v = VIDEOS.filter(function(x){ return x.name === name })[0];
-  if(v){ openVideoDetail(v.id); setTimeout(openApply, 320); return }
-  toast('该内容已下架或不可见');
-}
-function renderApply(){
-  var list = dlMine(), el = $('#applyList'); if(!el) return;
-  el.innerHTML = list.length ? list.map(function(a){
-    var ok = a.status === 'approved', rej = a.status === 'rejected';
-    var chip = ok ? '<span class="read-chip on">已通过 · 可下载</span>' : (rej ? '<span class="read-chip" style="background:#fdecec;color:#d93026">已驳回</span>' : '<span class="read-chip off">审批中</span>');
-    var btn = ok
-      ? '<button class="act-btn ok" style="margin-top:10px;height:32px;padding:0 14px" onclick="downloadApproved(\'' + a.name + '\')"><svg><use href="#i-download"/></svg>下载受控版本</button>'
-      : (rej ? '<button class="act-btn rej" style="margin-top:10px;height:32px;padding:0 14px" onclick="openApplyByName(\'' + a.name + '\')"><svg><use href="#i-download"/></svg>重新申请</button>' : '');
-    return '<div class="doc-item" style="cursor:default;display:block">' +
-      '<div style="display:flex;align-items:flex-start;gap:10px">' +
-        '<span class="thumb ' + (a.kind === 'video' ? 't-vid' : 't-pdf') + '" style="width:42px;height:50px">' + (a.kind === 'video' ? '<svg><use href="#i-play"/></svg>视频' : 'DOC') + '</span>' +
-        '<div class="doc-main" style="flex:1"><div class="doc-title" style="font-size:13.5px">' + a.name + ' <span style="font-size:10px;color:#8c8c8c">' + (a.ver || '') + '</span></div>' +
-          '<div class="doc-meta"><span>申请原因 ' + (a.reason || a.use || '-') + '</span><span class="sep"></span><span>' + (a.time || '').slice(5) + '</span><span class="sep"></span>' + chip + '</div>' +
-          (rej && a.remark ? '<div style="font-size:11px;color:#d93026;margin-top:6px">驳回原因：' + a.remark + '</div>' : '') +
-          btn +
-        '</div></div></div>';
-  }).join('') : '<div class="empty-tip"><svg><use href="#i-empty"/></svg>暂无下载申请<br>在资料 / 视频详情页提交后在此查看进度</div>';
-  syncApplyBadge();
-}
-window.addEventListener('storage', function(e){
-  if(e.key !== DL_KEY) return;
-  syncApplyBadge();
-  if($('#s-kbapply').classList.contains('active')) renderApply();
-  if($('#s-kbdetail').classList.contains('active')) renderDetail();
-  if($('#s-kbvideo-detail').classList.contains('active')) updateVDetailApply();
-});
 var searchHist = ['初尺复尺', '天花造型'];
 
 /* 资料 ↔ 视频关联（双向，详情页互跳） */
@@ -1009,6 +967,108 @@ vById(104).rd = [3]; vById(105).rd = [8]; vById(106).rd = [7];
 function videoProg(id){ var h = HISTORY.filter(function(x){ return x.kind === 'video' && x.id === id })[0]; return h ? (h.prog || 0) : 0 }
 function progChip(p){ return p >= 100 ? '<span class="read-chip on">已学完</span>' : (p > 0 ? '<span class="read-chip off">学习中 ' + p + '%</span>' : '') }
 
+/* ================= 我的学习（收藏 / 浏览记录） ================= */
+var appFav = { 'd1': 1, 'd2': 1, 'v101': 1 };
+var msTab = 'fav';
+function isFav(kind, id){ return !!appFav[kind === 'video' ? 'v' + id : 'd' + id] }
+function syncFavBtn(btnId, kind, id){
+  var b = $('#' + btnId); if(!b) return;
+  var on = isFav(kind, id);
+  b.innerHTML = '<svg><use href="#' + (on ? 'i-star-f' : 'i-star') + '"/></svg>' + (on ? '已收藏' : '收藏');
+}
+function toggleAppFav(kind, id){
+  var k = (kind === 'video' ? 'v' : 'd') + id;
+  if(appFav[k]) delete appFav[k]; else appFav[k] = 1;
+  toast(appFav[k] ? '已加入收藏' : '已取消收藏');
+  if($('#s-kbmystudy').classList.contains('active')) renderMyStudy();
+  if(kind === 'video' && $('#s-kbvideo-detail').classList.contains('active') && curVideo.id === id) renderVideoDetail();
+  if(kind === 'doc' && $('#s-kbdetail').classList.contains('active') && curDoc.id === id) renderDetail();
+}
+function favStar(kind, id){
+  return '<span class="ms-star' + (isFav(kind, id) ? ' on' : '') + '" onclick="event.stopPropagation();toggleAppFav(\'' + kind + '\',' + id + ')"><svg><use href="#' + (isFav(kind, id) ? 'i-star-f' : 'i-star') + '"/></svg></span>';
+}
+function setMsTab(t){ msTab = t; renderMyStudy() }
+function studyMinutes(){
+  var m = 0;
+  HISTORY.forEach(function(h){
+    if(h.kind === 'video'){
+      var v = vById(h.id);
+      if(v){
+        var p = (v.dur || '0:0').split(':');
+        m += ((+p[0]) + (+p[1] || 0) / 60) * (h.prog || 0) / 100;
+      }
+    } else { m += 3 }
+  });
+  return Math.round(m);
+}
+function msRow(kind, it, meta){
+  var isVideo = kind === 'video';
+  return '<div class="doc-item ms-row" onclick="' + (isVideo ? 'openVideoDetail(' + it.id + ')' : 'openDetail(' + it.id + ')') + '">' +
+    '<span class="thumb ' + (isVideo ? 't-vid' : thumbCls(it.type)) + '"><svg><use href="#' + (isVideo ? 'i-play' : 'i-doc') + '"/></svg>' + (isVideo ? '视频' : thumbTxt(it.type)) + '</span>' +
+    '<div class="doc-main"><div class="doc-title">' + it.name + '</div>' +
+    '<div class="doc-meta">' + meta + '</div></div>' + favStar(kind, it.id) + '</div>';
+}
+function renderMyStudy(){
+  $('#msFavTab').classList.toggle('on', msTab === 'fav');
+  $('#msHistTab').classList.toggle('on', msTab === 'hist');
+  var favDocs = DOCS.filter(function(d){ return isFav('doc', d.id) });
+  var favVids = VIDEOS.filter(function(v){ return isFav('video', v.id) });
+  $('#msSum').textContent = msTab === 'fav'
+    ? '已收藏 ' + (favDocs.length + favVids.length) + ' 项 · 资料 ' + favDocs.length + ' / 视频 ' + favVids.length
+    : '最近浏览 ' + HISTORY.length + ' 条记录';
+  var html = '';
+  if(msTab === 'fav'){
+    if(!favDocs.length && !favVids.length){
+      html = '<div class="empty-tip"><svg><use href="#i-empty"/></svg>暂无收藏，点击列表或详情页的星标即可收藏</div>';
+    } else {
+      if(favDocs.length) html += '<div class="ms-sec">资料 · ' + favDocs.length + '</div>' + favDocs.map(function(d){
+        return msRow('doc', d, d.cat1 + ' · ' + d.type + ' · 更新 ' + d.updated);
+      }).join('');
+      if(favVids.length) html += '<div class="ms-sec">视频 · ' + favVids.length + '</div>' + favVids.map(function(v){
+        return msRow('video', v, v.cat1 + ' · 时长 ' + v.dur + ' · 播放 ' + v.plays);
+      }).join('');
+    }
+  } else {
+    var done = HISTORY.filter(function(h){ return h.kind === 'video' && (h.prog || 0) >= 100 }).length;
+    var readDocs = HISTORY.filter(function(h){ return !h.kind }).length;
+    html += '<div class="ms-stats">' +
+      '<div class="ms-stat"><b>' + studyMinutes() + '</b><p>累计学习时长（分钟）</p></div>' +
+      '<div class="ms-stat"><b>' + done + '</b><p>已学完视频（个）</p></div>' +
+      '<div class="ms-stat"><b>' + readDocs + '</b><p>已读资料（份）</p></div>' +
+      '</div>';
+    var groups = ['今天', '昨天'];
+    var empty = true;
+    groups.forEach(function(g){
+      var rows = HISTORY.filter(function(h){ return h.group === g });
+      if(!rows.length) return;
+      empty = false;
+      html += '<div class="ms-sec">' + g + '</div>' + rows.map(function(h){
+        if(h.kind === 'video'){
+          var v = vById(h.id);
+          if(!v) return '';
+          return msRow('video', v, h.time + ' 播放 · ' + (v.dur || '') + ' ' + progChip(h.prog || 0));
+        }
+        var d = dById(h.id);
+        if(!d) return '';
+        return msRow('doc', d, h.time + ' 查阅 · ' + d.type);
+      }).join('');
+    });
+    if(empty) html += '<div class="empty-tip"><svg><use href="#i-empty"/></svg>暂无浏览记录</div>';
+    else {
+      var older = HISTORY.filter(function(h){ return groups.indexOf(h.group) < 0 });
+      if(older.length) html += '<div class="ms-sec">更早</div>' + older.map(function(h){
+        if(h.kind === 'video'){
+          var v = vById(h.id);
+          return v ? msRow('video', v, progChip(h.prog || 0)) : '';
+        }
+        var d = dById(h.id);
+        return d ? msRow('doc', d, d.type) : '';
+      }).join('');
+    }
+  }
+  $('#msBody').innerHTML = html;
+}
+
 /* ================= 导航 ================= */
 var stack = ['apps'];
 var CUR_TAB = 'apps';
@@ -1022,23 +1082,20 @@ function showScreen(id){
   $$('.screen').forEach(function(s){ s.classList.remove('active') });
   var el = $('#s-' + id);
   el.classList.add('active');
-  $('#tabbar').classList.toggle('hide', !(id === 'apps' || id === 'mine'));
-  $$('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab === CUR_TAB && (id === 'apps' || id === 'mine')) });
+  $('#tabbar').classList.toggle('hide', id !== 'apps');
+  $$('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab === CUR_TAB && id === 'apps') });
   syncJumps(id);
 }
 function tabTo(id){
   CUR_TAB = id; stack = [id];
-  if(id === 'mine') syncApplyBadge();
   showScreen(id);
 }
 function jumpTo(id){
-  if(['apps','mine'].indexOf(id) >= 0){ tabTo(id); return }
+  if(id === 'apps'){ tabTo(id); return }
   if(stack[stack.length - 1] !== id) stack.push(id);
   if(id === 'kbsearch') prepareSearch();
-  if(id === 'kbfav') renderFav();
-  if(id === 'kbhist') renderHist();
-  if(id === 'kbapply') renderApply();
   if(id === 'kblist') renderList();
+  if(id === 'kbmystudy') renderMyStudy();
   if(id === 'kbdetail') renderDetail();
   if(id === 'kbvideo-detail') renderVideoDetail();
   showScreen(id);
@@ -1048,17 +1105,8 @@ function back(){
   var prev = stack[stack.length - 1] || 'apps';
   if(prev === 'kbdetail' && !curDoc) prev = 'apps';
   if(prev === 'kblist') renderList();
-  if(prev === 'kbfav') renderFav();
-  if(prev === 'kbhist') renderHist();
-  if(prev === 'kbapply') renderApply();
+  if(prev === 'kbmystudy') renderMyStudy();
   showScreen(prev);
-}
-var kbFloatCollapsed = false;
-function toggleKbFloat(){
-  var el = $('#kbFloat');
-  if(!el) return;
-  kbFloatCollapsed = !kbFloatCollapsed;
-  el.classList.toggle('collapsed', kbFloatCollapsed);
 }
 function syncJumps(id){
   $$('#jumps .jump').forEach(function(j){
@@ -1092,7 +1140,7 @@ function openKnowledge(kind){
   stack = ['apps'];
   jumpAlias = null;
   listKind = kind === 'video' ? 'video' : 'doc';
-  listState = { mode: 'cat', title: '知识库', cat1: listKind === 'video' ? '门店施工篇' : '门店设计篇', cat2: null, cat3: null, dim: null, val: null, type: '全部', sort: '最新', items: [] };
+  listState = { mode: 'cat', title: '知识库', cat1: defaultCat1(listKind), cat2: null, cat3: null, dim: null, val: null, type: '全部', sort: '最新', items: [] };
   listTagSel = {};
   syncKindSeg();
   jumpTo('kblist');
@@ -1102,7 +1150,7 @@ function openVideoCenter(){ openKnowledge('video') }
 function switchKind(k){
   if(listKind === k) return;
   listKind = k === 'video' ? 'video' : 'doc';
-  listState = { mode: 'cat', title: '知识库', cat1: listKind === 'video' ? '门店施工篇' : '门店设计篇', cat2: null, cat3: null, dim: null, val: null, type: '全部', sort: '最新', items: [] };
+  listState = { mode: 'cat', title: '知识库', cat1: defaultCat1(listKind), cat2: null, cat3: null, dim: null, val: null, type: '全部', sort: '最新', items: [] };
   listTagSel = {};
   jumpAlias = null;
   syncKindSeg();
@@ -1115,7 +1163,6 @@ function syncKindSeg(){
 }
 function thumbCls(t){ return t === 'PDF' ? 't-pdf' : (t === '图片' ? 't-pic' : (t === 'EXCEL' ? 't-xls' : 't-web')) }
 function thumbTxt(t){ return t === 'PDF' ? 'PDF' : (t === '图片' ? 'IMG' : (t === 'EXCEL' ? 'XLS' : (t === 'PPT' ? 'PPT' : 'WEB'))) }
-function starOn(id){ return favSet[id] ? ' on' : '' }
 function docItem(d, kw){
   var name = kw ? hl(d.name, kw) : d.name;
   var tags = d.tags.slice(0, 3).map(function(t){ return '<span class="dchip">' + (kw ? hl(t, kw) : t) + '</span>' }).join('');
@@ -1126,7 +1173,6 @@ function docItem(d, kw){
     '<div class="doc-meta"><span>' + d.ver + '</span><span class="sep"></span><span>更新 ' + d.updated.slice(5) + '</span><span class="sep"></span><span>阅读 ' + d.reads + '</span>' +
     (d.vid && d.vid.length ? '<span class="sep"></span><span class="read-chip" style="background:#f1ecff;color:#7a5af8">配套视频 ' + d.vid.length + '</span>' : '') +
     '</div></div>' +
-    '<span class="doc-star' + starOn(d.id) + '" onclick="event.stopPropagation();toggleFav(' + d.id + ')"><svg><use href="#' + (favSet[d.id] ? 'i-star-f' : 'i-star') + '"/></svg></span>' +
   '</div>';
 }
 function hl(text, kw){
@@ -1301,7 +1347,7 @@ function clearTagSel(scope){
 }
 function setListFilterChips(){
   var n = Object.keys(listTagSel).length;
-  return '<button class="fbtn' + (n ? ' on' : '') + '" onclick="openTagSheet(\'doc\')"><svg><use href="#i-filter"/></svg>筛选' + (n ? '<b>' + n + '</b>' : '') + '</button>';
+  return '<button class="flt-btn' + (n ? ' on' : '') + '" onclick="openTagSheet(\'doc\')"><svg><use href="#i-filter"/></svg>筛选' + (n ? '<span class="cnt">' + n + '</span>' : '') + '</button>';
 }
 
 /* ================= 分类列表（全部 / 目录分类 / 标签分类 三态） ================= */
@@ -1312,9 +1358,9 @@ function openList(cat, title){
   listTagSel = {};
   jumpTo('kblist');
 }
-function openListByCat(c1, c2, c3){
+function openListByCat(c1, c2, c3, kind){
   jumpAlias = 'kbcat';
-  listKind = 'doc';
+  listKind = kind === 'video' ? 'video' : 'doc';
   listState = { mode: 'cat', title: '知识库', cat1: c1, cat2: c2 || null, cat3: c3 || null, dim: null, val: null, type: '全部', sort: '最新', items: [] };
   listTagSel = {};
   jumpTo('kblist');
@@ -1353,23 +1399,36 @@ function matchVideoState(v, tagSel){
 function vidsForState(tagSel){
   return VIDEOS.filter(function(v){ return matchVideoState(v, tagSel) });
 }
+function normalizeListCat(){
+  if(listState.mode !== 'cat') return;
+  var l1 = catL1For(listKind);
+  if(l1.indexOf(listState.cat1) < 0){
+    listState.cat1 = defaultCat1(listKind);
+    listState.cat2 = null; listState.cat3 = null;
+    return;
+  }
+  var l2 = catL2For(listKind, listState.cat1);
+  if(listState.cat2 && l2.indexOf(listState.cat2) < 0){ listState.cat2 = null; listState.cat3 = null }
+  var l3 = (listKind === 'doc' && listState.cat2) ? catL3For(listKind, listState.cat1, listState.cat2) : [];
+  if(listState.cat3 && l3.indexOf(listState.cat3) < 0) listState.cat3 = null;
+}
 function renderList(){
   var isVideo = listKind === 'video';
+  normalizeListCat();
   syncKindSeg();
-  $('#listTitle').textContent = '知识库';
+  renderCatIconBar();
+  renderSideNav();
   var types = ['全部', 'PDF', 'PPT', 'EXCEL', '图片'];
-  var sortHtml = '<div class="sort-seg">' +
+  var toolbar = '<div class="list-toolbar">' +
+    '<div class="sort-seg">' +
     '<span class="' + (listState.sort === '最新' ? 'on' : '') + '" onclick="setListSort(\'最新\')">最新更新</span>' +
-    '<span class="' + (listState.sort === '最热' ? 'on' : '') + '" onclick="setListSort(\'最热\')">' + (isVideo ? '播放量最高' : '阅读量最高') + '</span></div>';
-  var filters = isVideo
-    ? '<div class="sort-line"><span class="sort-lab">排序</span>' + sortHtml + '</div><div class="fscroll" style="flex:1"></div>' + setListFilterChips()
-    : '<div class="fscroll">' + types.map(function(t){
+    '<span class="' + (listState.sort === '最热' ? 'on' : '') + '" onclick="setListSort(\'最热\')">' + (isVideo ? '播放量最高' : '阅读量最高') + '</span></div>' +
+    '<span class="tsp"></span>' + setListFilterChips() + '</div>' +
+    (isVideo ? '' : '<div class="type-row">' + types.map(function(t){
         return '<span class="fchip' + (listState.type === t ? ' on' : '') + '" onclick="setListType(\'' + t + '\')">' + t + '</span>';
-      }).join('') + '</div>' + setListFilterChips() +
-      '<div class="sort-line full"><span class="sort-lab">排序</span>' + sortHtml + '</div>';
-  $('#listFilters').innerHTML = filters;
+      }).join('') + '</div>');
+  $('#listFilters').innerHTML = toolbar;
   renderTagChipBar('doc');
-  renderListSubCats();
   var tagN = Object.keys(listTagSel).length, html = '', count = '';
   if(isVideo){
     var vlist = VIDEOS.filter(function(v){ return matchVideoState(v) });
@@ -1390,48 +1449,78 @@ function renderList(){
   if(!html) html = '<div class="empty-tip"><svg><use href="#i-empty"/></svg>该筛选条件下暂无' + (isVideo ? '视频' : '资料') + '</div>';
   $('#listBody').innerHTML = html;
 }
-function renderListSubCats(){
-  var el = $('#listSubCats');
-  var isVideo = listKind === 'video';
-  if(listState.mode === 'cat'){
-    var l1 = CATALOG.map(function(c, i){
-      return '<span class="subchip' + (c.n === listState.cat1 ? ' on' : '') + '" onclick="pickSubCat(0,' + i + ')">' + c.n + '</span>';
+var sideOpen = {};
+function renderCatIconBar(){
+  var el = $('#catIconBar');
+  if(!el) return;
+  if(listState.mode === 'tag'){ el.style.display = 'none'; return }
+  el.style.display = '';
+  var l1n = catL1For(listKind);
+  var nodes = l1n.map(function(n, i){
+    var node = CATALOG[n] || {};
+    var cls = node.cls || 'c1', ic = node.ic || 'i-book-open';
+    var on = (listState.mode === 'cat' && n === listState.cat1) ? ' on' : '';
+    return '<div class="cicon' + on + '" onclick="pickCat1(' + i + ')"><div class="cico ' + cls + '"><svg><use href="#' + ic + '"/></svg></div><div class="clab">' + n.replace('篇', '') + '</div></div>';
+  });
+  el.innerHTML = '<div class="cicon' + (listState.mode === 'all' ? ' on' : '') + '" onclick="pickCatAll()"><div class="cico c0"><svg><use href="#i-grid"/></svg></div><div class="clab">全部</div></div>' + nodes.join('');
+}
+function renderSideNav(){
+  var el = $('#sideNav');
+  if(!el) return;
+  var html = '';
+  if(listState.mode === 'tag'){
+    html = TAG_GROUPS.map(function(g, gi){
+      var onG = g.name === listState.dim;
+      var open = onG || sideOpen[g.name] === true;
+      var subs = g.tags.map(function(t, ti){
+        return '<div class="side-sub' + (t === listState.val ? ' on' : '') + '" onclick="pickSideVal(' + gi + ',' + ti + ')">' + t + '</div>';
+      }).join('');
+      return '<div class="side-group' + (onG ? ' on' : '') + (open ? ' open' : '') + '" onclick="pickSideDim(' + gi + ')"><svg class="chev"><use href="#i-right"/></svg><span>' + g.name + '</span></div>' + (open ? subs : '');
     }).join('');
-    var l2n = catL2(listState.cat1);
-    var l2 = l2n.length ? '<div class="subchip-row" style="padding-top:0">' + l2n.map(function(n, i){
-      return '<span class="subchip' + (n === listState.cat2 ? ' on' : '') + '" onclick="pickSubCat(1,' + i + ')">' + n + '</span>';
-    }).join('') + '</div>' : '';
-    var l3n = (!isVideo && listState.cat2) ? catL3(listState.cat1, listState.cat2) : [];
-    var l3 = l3n.length ? '<div class="subchip-row" style="padding-top:0">' + l3n.map(function(n, i){
-      return '<span class="subchip' + (n === listState.cat3 ? ' on' : '') + '" onclick="pickSubCat(2,' + i + ')">' + n + '</span>';
-    }).join('') + '</div>' : '';
-    el.innerHTML = '<div class="subchip-row">' + l1 + '</div>' + l2 + l3;
-  } else if(listState.mode === 'tag'){
-    var dims = TAG_GROUPS.map(function(g, i){
-      return '<span class="subchip' + (g.name === listState.dim ? ' on' : '') + '" onclick="pickSubTag(0,' + i + ')">' + g.name + '</span>';
+  } else if(listState.mode === 'cat' && listState.cat1){
+    var l2n = catL2For(listKind, listState.cat1);
+    html = l2n.map(function(n, i){
+      var onG = n === listState.cat2;
+      var open = listKind === 'video' || onG || sideOpen[n] === true || (!listState.cat2 && i === 0);
+      var l3n = (!onG && listState.cat2) ? [] : (isVideoMode() ? [] : catL3For(listKind, listState.cat1, n));
+      var subs = l3n.map(function(m){
+        return '<div class="side-sub' + (m === listState.cat3 ? ' on' : '') + '" onclick="pickSideL3(\'' + m.replace(/'/g, "\\'") + '\')">' + m + '</div>';
+      }).join('');
+      return '<div class="side-group' + (onG ? ' on' : '') + (open ? ' open' : '') + '" onclick="pickSideL2(' + i + ')"><svg class="chev"><use href="#i-right"/></svg><span>' + n + '</span></div>' + (open ? subs : '');
     }).join('');
-    var g = tagGroupByName(listState.dim);
-    var valsHtml = g ? g.tags.map(function(t, i){
-      return '<span class="subchip' + (t === listState.val ? ' on' : '') + '" onclick="pickSubTag(1,' + i + ')">' + t + '</span>';
-    }).join('') : '';
-    el.innerHTML = '<div class="subchip-row">' + dims + '</div><div class="subchip-row" style="padding-top:0">' + valsHtml + '</div>';
   } else {
-    el.innerHTML = '';
+    var l1n = catL1For(listKind);
+    html = l1n.map(function(n, i){
+      var open = sideOpen[n] === true;
+      var subs = catL2For(listKind, n).map(function(m){
+        return '<div class="side-sub" onclick="pickSideL1L2(' + i + ',\'' + m.replace(/'/g, "\\'") + '\')">' + m + '</div>';
+      }).join('');
+      return '<div class="side-group' + (open ? ' open' : '') + '" onclick="toggleSideL1(' + i + ')"><svg class="chev"><use href="#i-right"/></svg><span>' + n + '</span></div>' + (open ? subs : '');
+    }).join('');
   }
+  el.innerHTML = '<div class="side-all' + (listState.mode === 'all' ? ' on' : '') + '" onclick="pickCatAll()">全部内容</div>' + html;
 }
-function pickSubCat(lv, idx){
-  if(listKind === 'video' && lv === 2) return;
-  if(lv === 0) openListByCat(catL1()[idx]);
-  else if(lv === 1) openListByCat(listState.cat1, catL2(listState.cat1)[idx]);
-  else openListByCat(listState.cat1, listState.cat2, catL3(listState.cat1, listState.cat2)[idx]);
+function isVideoMode(){ return listKind === 'video' }
+function toggleSideL1(i){
+  var n = catL1For(listKind)[i];
+  sideOpen[n] = !(sideOpen[n] === true);
+  renderSideNav();
 }
-function pickSubTag(lv, idx){
-  if(lv === 0) openListByTag(idx, 0);
-  else {
-    var g = TAG_GROUPS.filter(function(x){ return x.name === listState.dim })[0];
-    openListByTag(TAG_GROUPS.indexOf(g), idx);
-  }
+function pickSideL1L2(i, m){ openListByCat(catL1For(listKind)[i], m, null, listKind) }
+function pickCatAll(){ openList() }
+function pickCat1(i){ openListByCat(catL1For(listKind)[i], null, null, listKind) }
+function pickSideL2(i){
+  var n = catL2For(listKind, listState.cat1)[i];
+  if(listState.cat2 === n) openListByCat(listState.cat1, null, null, listKind);
+  else openListByCat(listState.cat1, n, null, listKind);
 }
+function pickSideL3(m){ openListByCat(listState.cat1, listState.cat2, m, listKind) }
+function pickSideDim(gi){
+  var g = TAG_GROUPS[gi];
+  if(listState.dim === g.name){ sideOpen[g.name] = !(sideOpen[g.name] === true); renderSideNav(); return }
+  openListByTag(gi, 0);
+}
+function pickSideVal(gi, ti){ openListByTag(gi, ti) }
 function setListType(t){ listState.type = t; renderList() }
 function setListSort(v){ listState.sort = v; renderList() }
 
@@ -1457,7 +1546,6 @@ function vRow(v, kw){
     (p > 0 ? '<span class="sep"></span>' + progChip(p) : '') +
     (v.rd && v.rd.length ? '<span class="sep"></span><span class="read-chip" style="background:#eef4ff;color:#3d7eff">配套资料 ' + v.rd.length + '</span>' : '') +
     '</div></div>' +
-    '<span class="doc-star' + starOn(v.id) + '" onclick="event.stopPropagation();toggleFav(' + v.id + ')"><svg><use href="#' + (favSet[v.id] ? 'i-star-f' : 'i-star') + '"/></svg></span>' +
   '</div>';
 }
 function nowTime(){ var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) }
@@ -1477,7 +1565,7 @@ function renderVideoDetail(){
   vvPos = (p > 0 && p < 100) ? Math.round(vvDur * p / 100) : 0;
   vvPlaying = false;
   $('#vDetailTopTitle').textContent = v.name;
-  updateVDetailFav();
+  syncFavBtn('favVideoBtn', 'video', v.id);
   var wm = '';
   for(var i = 0; i < 15; i++) wm += '<span>仅供内部使用 · 王鹏 · 2026-10-20</span>';
   var stateTxt = p >= 100 ? '<span class="done">已学完 · ' + v.dur + '</span>' : (p > 0 ? '<span class="half">学习中 ' + p + '%</span>' : '未开始');
@@ -1513,19 +1601,13 @@ function renderVideoDetail(){
         '<div class="info-row"><span class="k">更新时间</span><span class="v">' + v.updated + ' · 工程中心</span></div>' +
         '<div class="info-row"><span class="k">内容摘要</span><span class="v">' + v.summary + '</span></div>' +
       '</div>' +
-      '<div class="safe-row"><svg><use href="#i-shield"/></svg>视频仅支持在线播放；如需用于线下培训，请提交下载申请。</div>' +
+      '<div class="safe-row"><svg><use href="#i-shield"/></svg>视频仅支持在线播放、不可下载外传；播放与完播行为自动回传工程中心。</div>' +
     '</div>' +
     (relD.length ? '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">配套资料（点击查看）</div>' +
       '<div style="margin-bottom:6px">' + relD.map(function(d){ return docItem(d) }).join('') + '</div>' : '') +
     '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">相关视频</div>' +
     '<div style="margin-bottom:16px">' + rel.map(function(x){ return vRow(x) }).join('') + '</div>';
   $('#vDetailBody').scrollTop = 0;
-}
-function updateVDetailFav(){
-  if(!curVideo) return;
-  var fav = !!favSet[curVideo.id];
-  $('#vActFav').classList.toggle('on', fav);
-  $('#vActFavIcon').innerHTML = '<use href="#' + (fav ? 'i-star-f' : 'i-star') + '"/>';
 }
 var vvTimer = null, vvPos = 0, vvDur = 0, vvPlaying = false, vvCurId = null;
 var vvSpeed = 1, vvSpeedIdx = 0, vvSpeedLabs = ['1.0x', '1.25x', '1.5x', '2.0x'];
@@ -1618,15 +1700,7 @@ function openDetail(id){
 function renderDetail(){
   var d = curDoc;
   $('#detailTopTitle').textContent = d.name;
-  var fav = !!favSet[d.id];
-  $('#actFav').classList.toggle('on', fav);
-  $('#actFavIcon').innerHTML = '<use href="#' + (fav ? 'i-star-f' : 'i-star') + '"/>';
-  var a = dlLatest(d.name, 'app'), dl = $('#actDownload');
-  if(a && a.status === 'approved'){ dl.className = 'act-btn ok'; dl.innerHTML = '<svg><use href="#i-download"/></svg>下载受控版本'; }
-  else if(a && a.status === 'pending'){ dl.className = 'act-btn applied'; dl.innerHTML = '<svg><use href="#i-clock"/></svg>审批中'; }
-  else if(a && a.status === 'rejected'){ dl.className = 'act-btn rej'; dl.innerHTML = '<svg><use href="#i-download"/></svg>重新申请'; }
-  else { dl.className = 'act-btn'; dl.innerHTML = '<svg><use href="#i-download"/></svg>申请下载'; }
-
+  syncFavBtn('favDocBtn', 'doc', d.id);
   var wm = '';
   for(var i = 0; i < 12; i++) wm += '<span>仅供内部使用 · 王鹏 · 2026-10-20</span>';
   var pv = d.type === '图片'
@@ -1670,74 +1744,7 @@ function renderDetail(){
     })();
   $('#detailBody').scrollTop = 0;
 }
-function toggleFav(id){
-  if(favSet[id]){ delete favSet[id]; toast('已取消收藏') }
-  else { favSet[id] = 1; toast('已加入我的收藏') }
-  var n = Object.keys(favSet).length;
-  $('#mineFavCount').textContent = n;
-  if($('#s-kbdetail').classList.contains('active') && curDoc && curDoc.id === id) renderDetail();
-  if($('#s-kbvideo-detail').classList.contains('active') && curVideo && curVideo.id === id) updateVDetailFav();
-  if($('#s-kbfav').classList.contains('active')) renderFav();
-  if($('#s-kblist').classList.contains('active')) renderList();
-  if($('#s-kbsearch').classList.contains('active')) renderSearch();
-}
-
-/* ================= 收藏 / 历史 ================= */
-function renderFav(){
-  var items = DOCS.filter(function(d){ return favSet[d.id] });
-  var vids = VIDEOS.filter(function(v){ return favSet[v.id] });
-  var total = items.length + vids.length;
-  $('#favCount').textContent = total ? ('已收藏 ' + total + ' 项 · 资料 ' + items.length + ' / 视频 ' + vids.length) : '已收藏 0 项';
-  var html = items.map(function(d){ return docItem(d) }).join('');
-  if(vids.length) html += '<div class="fav-head" style="padding:6px 4px 8px">视频</div>' + vids.map(function(v){ return vRow(v) }).join('');
-  $('#favList').innerHTML = total ? html :
-    '<div class="empty-tip"><svg><use href="#i-empty"/></svg>暂无收藏，可在资料 / 视频详情页点击星标收藏</div>';
-}
-function renderHist(){
-  var vids = HISTORY.filter(function(h){ return h.kind === 'video' }).map(function(h){ return vById(h.id) }).filter(Boolean);
-  var doneN = HISTORY.filter(function(h){ return h.kind === 'video' && (h.prog || 0) >= 100 }).length;
-  var mins = Math.round(HISTORY.filter(function(h){ return h.kind === 'video' }).reduce(function(s, h){
-    var v = vById(h.id); return v ? s + parseDur(v.dur) * (h.prog || 0) / 100 : s;
-  }, 0) / 60);
-  var docN = HISTORY.filter(function(h){ return !h.kind }).length;
-  var sum = $('#histSum');
-  if(sum){
-    sum.innerHTML = '<div class="hist-sum">' +
-      '<div class="it"><b>' + mins + '</b><span>累计学习（分钟）</span></div><div class="sp"></div>' +
-      '<div class="it"><b>' + doneN + '</b><span>已学完视频</span></div><div class="sp"></div>' +
-      '<div class="it"><b>' + docN + '</b><span>已读资料</span></div></div>';
-  }
-  var groups = {};
-  HISTORY.forEach(function(h){ (groups[h.group] = groups[h.group] || []).push(h) });
-  var html = '';
-  Object.keys(groups).forEach(function(g){
-    html += '<div class="hist-group"><h4>' + g + '</h4>';
-    groups[g].forEach(function(h){
-      if(h.kind === 'video'){
-        var v = vById(h.id); if(!v) return;
-        var pct = h.prog || 0;
-        var act = pct >= 100 ? '已学完' : (pct > 0 ? '继续观看' : '开始学习');
-        html += '<div class="doc-item" style="margin:0 0 10px" onclick="openVideoDetail(' + v.id + ')">' +
-          '<span class="thumb t-vid" style="height:52px"><svg><use href="#i-play"/></svg>视频</span>' +
-          '<div class="doc-main"><div class="doc-title" style="font-size:13.5px">' + v.name + '</div>' +
-          '<div class="hprog"><i style="width:' + pct + '%"></i></div>' +
-          '<div class="doc-meta" style="margin-top:6px"><span>' + g + ' ' + h.time + ' 播放 ' + pct + '%</span><span class="sep"></span><span>时长 ' + v.dur + '</span><span class="sep"></span><span style="color:' + (pct >= 100 ? '#0e7a41' : '#e07800') + ';font-weight:600">' + act + '</span></div></div>' +
-          '<svg class="arr" style="width:15px;height:15px;color:#c8c8c8;align-self:center"><use href="#i-right"/></svg></div>';
-        return;
-      }
-      var d = dById(h.id); if(!d) return;
-      html += '<div class="doc-item" style="margin:0 0 10px" onclick="openDetail(' + d.id + ')">' +
-        '<span class="thumb ' + thumbCls(d.type) + '" style="height:52px"><svg><use href="#i-doc"/></svg>' + thumbTxt(d.type) + '</span>' +
-        '<div class="doc-main"><div class="doc-title" style="font-size:13.5px">' + d.name + '</div>' +
-        '<div class="doc-meta" style="margin-top:6px"><span>' + g + ' ' + h.time + ' 查看</span><span class="sep"></span><span class="read-chip on">已读</span></div></div>' +
-        '<svg class="arr" style="width:15px;height:15px;color:#c8c8c8;align-self:center"><use href="#i-right"/></svg></div>';
-    });
-    html += '</div>';
-  });
-  $('#histList').innerHTML = html || '<div class="empty-tip"><svg><use href="#i-empty"/></svg>暂无浏览记录</div>';
-}
-
-/* ================= 弹层：受控分享链接 / 下载申请 ================= */
+/* ================= 弹层：受控分享链接 ================= */
 var shareCtx = null, sharePwd = '', shareExpire = '7 天', shareLink = '', shareMode = 'guest';
 var SHARE_LOG_KEY = 'kb_share_log_v1';
 function shToken(len){
@@ -1825,33 +1832,6 @@ function finishShare(){
   toast(shareMode === 'guest'
     ? '游客分享已创建：密码 ' + sharePwd + ' · 有效期 ' + shareExpire
     : '非游客分享已创建：访问者需登录且具备可见权限 · 有效期 ' + shareExpire);
-}
-function applyTarget(){
-  return $('#s-kbvideo-detail').classList.contains('active') ? curVideo : curDoc;
-}
-function openApply(){
-  var t = applyTarget(), a = dlLatest(t.name, 'app');
-  if(a && a.status === 'pending'){ toast('申请已提交，请等待工程中心审批'); return }
-  if(a && a.status === 'approved'){ downloadApproved(t.name); return }
-  var isVideo = !!t.dur;
-  var rejTip = (a && a.status === 'rejected' && a.remark) ? '<div class="desc" style="color:#d93026;margin-top:-4px">上次驳回原因：' + a.remark + '</div>' : '';
-  $('#maskContent').innerHTML =
-    '<div class="dlg"><h3>' + (a && a.status === 'rejected' ? '重新申请下载' : '申请下载') + '</h3>' + rejTip +
-    '<div class="desc">《' + t.name + '》为受控' + (isVideo ? '视频' : '文件') + '，默认不可下载。提交申请经工程中心审批后，将获得带水印的受控' + (isVideo ? '培训版视频' : '版本') + '。</div>' +
-    '<div class="field"><label>申请原因 <span style="color:#e07800">*</span></label><textarea id="appApplyReason" rows="4" maxlength="200" placeholder="请说明申请下载的原因、使用场景与时间要求（必填）" oninput="var c=$(\'#appApplyCnt\'); if(c) c.textContent=this.value.length+\'/200\'"></textarea><div id="appApplyCnt" style="text-align:right;font-size:10.5px;color:#a8adb6;margin-top:4px">0/200</div></div>' +
-    '<div class="btns"><button class="cancel" onclick="closeMask()">取消</button><button class="ok" onclick="submitApply()">提交申请</button></div></div>';
-  $('#mask').className = 'phone-mask show center';
-}
-function submitApply(){
-  var t = applyTarget();
-  var ta = $('#appApplyReason');
-  var reason = ta ? ta.value.trim() : '';
-  if(!reason){ toast('请填写申请原因'); if(ta) ta.focus(); return }
-  dlAdd({ id: dlNewId(), name: t.name, ver: t.ver || '', kind: t.dur ? 'video' : 'doc', channel: 'app', user: '王鹏', org: '工程中心', reason: reason, time: dlTime(), status: 'pending', remark: '', ts: Date.now() });
-  closeMask();
-  if($('#s-kbvideo-detail').classList.contains('active')) updateVDetailApply(); else renderDetail();
-  syncApplyBadge();
-  toast('下载申请已提交，审批通过后可在「我的 - 下载申请」查看状态');
 }
 function closeMask(){ $('#mask').className = 'phone-mask'; }
 $('#mask').addEventListener('click', function(e){ if(e.target === this) closeMask() });
