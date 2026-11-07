@@ -284,7 +284,7 @@
   .tl-item{display:flex;gap:10px;padding:9px 0;position:relative}
   .tl-item:not(:last-child)::before{content:"";position:absolute;left:7px;top:26px;bottom:-4px;width:1px;background:var(--border-2)}
   .tl-dot{width:15px;height:15px;border-radius:50%;background:#fff;border:2px solid #c8d2e0;flex-shrink:0;margin-top:1px;z-index:1}
-  .tl-dot.b{ border-color:var(--blue)} .tl-dot.g{border-color:var(--green)} .tl-dot.o{border-color:var(--orange)}
+  .tl-dot.b{ border-color:var(--blue)} .tl-dot.g{border-color:var(--green)} .tl-dot.o{border-color:var(--orange)} .tl-dot.r{border-color:var(--red)}
   .tl-body{flex:1;min-width:0;font-size:12.8px;color:#3f4753;line-height:1.55}
   .tl-body b{color:var(--text)}
   .tl-time{display:block;color:#aab1bd;font-size:11.5px;margin-top:2px}
@@ -375,6 +375,22 @@
   .cat-type-tag{font-size:9.5px;line-height:15px;padding:0 5px;border-radius:4px;flex-shrink:0;font-weight:600;letter-spacing:.2px}
   .cat-type-tag.doc{background:#fff3e6;color:#c76a12}
   .cat-type-tag.video{background:#f0ebff;color:#6b46c1}
+  /* V2.13 一级分类图标（用户端图标条展示） */
+  .tree-item .tree-l1ic{width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+  .tree-item .tree-l1ic svg{width:11px;height:11px}
+  .tree-item .tree-l1ic img{width:14px;height:14px;border-radius:50%;object-fit:cover}
+  .cat-icon-edit{display:flex;align-items:center;gap:14px}
+  .cie-preview{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 2px 10px rgba(31,107,241,.22)}
+  .cie-preview svg{width:26px;height:26px}
+  .cie-preview img{width:34px;height:34px;border-radius:50%;object-fit:cover}
+  .cie-ops{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+  .cie-tip{font-size:11.5px;color:#9aa2ae;line-height:1.5}
+  .cie-presets{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  .cie-pset{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .cie-pset:hover{transform:translateY(-2px)}
+  .cie-pset.on{border-color:var(--blue)}
+  .cie-pset svg{width:16px;height:16px}
+  .cie-pset-lab{font-size:11px;color:#9aa2ae;margin-right:2px}
   .ctype-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .ctype-opt{border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s}
   .ctype-opt:hover{border-color:#a9c4f7}
@@ -461,6 +477,19 @@
   .read-subtabs button{padding:6px 16px;border-radius:6px;font-size:13px;color:#5a6270}
   .read-subtabs button.active{background:#fff;color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(31,43,71,.1)}
   .read-filter{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .op-type-pop{border:1px solid var(--border-2);border-radius:8px;background:#fff;padding:10px 12px;margin-top:10px;box-shadow:0 4px 14px rgba(31,43,71,.08)}
+  .op-type-pop .tp-g{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 0}
+  .op-type-pop .tp-g b{width:74px;font-size:12px;color:#5a6270;flex-shrink:0}
+  .op-type-pop label{display:inline-flex;align-items:center;gap:5px;font-size:12.3px;color:#3f4753;cursor:pointer;background:#f6f8fb;border-radius:6px;padding:4px 10px}
+  .op-type-pop label.on{background:#e8f0ff;color:#1f6bf1;font-weight:600}
+  .op-type-pop .tp-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-2)}
+  .op-stat{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f8fafc;border:1px solid var(--border-2);border-radius:8px;padding:8px 12px;margin-top:12px;font-size:12.5px;color:#5a6270}
+  .op-stat b{font-size:14px;color:var(--text)}
+  .op-stat .st-chip{background:#eef1f6;border-radius:999px;padding:2px 10px;white-space:nowrap}
+  .op-cat{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:2px 8px;font-size:11.8px;white-space:nowrap}
+  .op-cat i{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .op-sum{color:#5a6270;font-size:12.5px;line-height:1.6;white-space:normal}
+  .op-fail{color:#f5222d;font-size:12.5px;font-weight:600}
   .src-chip{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:2px 8px;font-size:11.8px;line-height:1.7;white-space:nowrap}
   .src-chip.app{background:#eaf1ff;color:#1f6bf1}
   .src-chip.mp{background:#e9f9f0;color:#0f8a44}
@@ -1486,6 +1515,7 @@
         <div class="side-sub-item" data-tab="tags" onclick="kbTabTo('tags')">标签管理</div>
         <div class="side-sub-item" data-tab="downloads" onclick="kbTabTo('downloads')">下载审批<span class="sub-badge" id="dlPendingBadge" style="display:none">0</span></div>
         <div class="side-sub-item" data-tab="reads" onclick="kbTabTo('reads')">已读记录</div>
+        <div class="side-sub-item" data-tab="oplog" onclick="kbTabTo('oplog')">操作记录</div>
         <div class="side-sub-item" data-tab="portal" onclick="openPortal('home')">工程知识库</div>
       </div>
       <div class="side-item" onclick="sideTodo('系统设置')"><svg><use href="#i-gear"/></svg><span class="lbl">系统设置</span><svg class="chev"><use href="#i-caret"/></svg></div>
@@ -1638,13 +1668,8 @@
                 <div class="latest-list" id="latestTop"></div>
               </div>
               <div class="card pane">
-                <div class="pane-head"><h3>最近操作</h3><span>近 24 小时</span></div>
-                <div class="timeline">
-                  <div class="tl-item"><span class="tl-dot b"></span><div class="tl-body"><b>王鹏</b> 发布了《门店水电施工标准手册 V2.1》，移动端即时可见<span class="tl-time">10 分钟前</span></div></div>
-                  <div class="tl-item"><span class="tl-dot o"></span><div class="tl-body"><b>陈晓</b> 上传《华南区门店施工区域化手册 V1.0》，待审核<span class="tl-time">2 小时前</span></div></div>
-                  <div class="tl-item"><span class="tl-dot g"></span><div class="tl-body">已读记录同步 <b>213</b> 条（内部 APP 132 / 鸣忙小程序 81）<span class="tl-time">今天 09:00</span></div></div>
-                  <div class="tl-item"><span class="tl-dot"></span><div class="tl-body"><b>王鹏</b> 下架《旧版水电施工手册 V1.0》，原因：已被 V2.1 替代<span class="tl-time">昨天 17:20</span></div></div>
-                </div>
+                <div class="pane-head"><h3>最近操作</h3><span style="display:flex;align-items:center;gap:10px">近 24 小时<a class="op-link" style="font-size:12px" onclick="oplogFromOverview()">查看全部 ›</a></span></div>
+                <div class="timeline" id="recentOpsTl"></div>
               </div>
             </div>
           </div>
@@ -1707,7 +1732,7 @@
                   <a class="op-link" onclick="addRootCat()"><svg style="width:11px;height:11px;vertical-align:-1px"><use href="#i-plus"/></svg> 一级分类</a>
                 </div>
                 <div id="catTree"></div>
-                <div class="tip-note" style="margin-top:14px"><svg><use href="#i-info"/></svg><span>目录分类为三级结构（一级篇章 / 二级专业 / 三级节点）；分类可设置「资料+视频 / 仅资料 / 仅视频」，用户端资料中心与视频学堂按设置分别展示。改名与删除会级联同步到已归类资料与视频。</span></div>
+                <div class="tip-note" style="margin-top:14px"><svg><use href="#i-info"/></svg><span>目录分类为三级结构（一级篇章 / 二级专业 / 三级节点）；分类可设置「资料+视频 / 仅资料 / 仅视频」，用户端资料中心与视频学堂按设置分别展示。一级分类支持配置圆形图标（上传或预设），用于用户端 APP / 小程序一级分类图标条展示。改名与删除会级联同步到已归类资料与视频。</span></div>
               </div>
               <div class="card cat-detail" id="catDetail"></div>
             </div>
@@ -1783,6 +1808,44 @@
                 <select class="tb-select" id="readDone" onchange="renderReads()"><option value="">全部完成状态</option><option value="done">已完成（读完 / 完播）</option><option value="undo">未完成（进行中）</option></select>
               </div>
               <div class="table-wrap" id="readTableWrap"></div>
+            </div>
+          </div>
+
+          <!-- 操作记录（ADM-16） -->
+          <div class="kb-panel" id="kbp-oplog">
+            <div class="card pane">
+              <div class="pane-head">
+                <h3>操作日志</h3>
+                <button class="btn ghost sm" onclick="exportOplog()"><svg><use href="#i-export"/></svg>导出</button>
+              </div>
+              <div class="read-filter" style="margin-top:10px">
+                <select class="tb-select" id="opRange" onchange="opRangeChanged()">
+                  <option value="24h">近 24 小时</option>
+                  <option value="today">今日</option>
+                  <option value="7d" selected>近 7 日</option>
+                  <option value="30d">近 30 日</option>
+                  <option value="custom">自定义</option>
+                </select>
+                <input class="tb-select" type="date" id="opFrom" style="display:none">
+                <span id="opToDate" style="display:none;color:#9aa2ae;font-size:12px">至</span>
+                <input class="tb-select" type="date" id="opTo" style="display:none">
+                <button class="btn ghost sm" onclick="toggleOpTypes(event)"><svg><use href="#i-filter"/></svg>事件类型<span class="cnt" id="opTypeCnt" style="display:none">0</span></button>
+                <div class="tb-search"><svg><use href="#i-search"/></svg><input id="opUser" placeholder="操作人姓名（含「系统」）"></div>
+                <div class="tb-search"><svg><use href="#i-search"/></svg><input id="opKw" placeholder="内容名称 / 编号"></div>
+                <button class="btn primary sm" onclick="opQuery()">查询</button>
+                <button class="btn ghost sm" onclick="opReset()">重置</button>
+              </div>
+              <div class="op-type-pop" id="opTypePop" style="display:none"></div>
+              <div class="op-stat" id="opStatBar"></div>
+              <div class="table-wrap" style="margin-top:12px">
+                <table class="dtable">
+                  <thead><tr>
+                    <th style="width:150px">操作时间</th><th style="width:100px">操作人</th><th style="width:130px">事件类型</th><th style="width:230px">内容名称 / 版本</th><th>操作摘要</th><th style="width:64px">结果</th>
+                  </tr></thead>
+                  <tbody id="opTbody"></tbody>
+                </table>
+              </div>
+              <div class="pager" id="opPager"></div>
             </div>
           </div>
         </div>
@@ -4732,6 +4795,13 @@ function buildTree(){
   $('#catTree').innerHTML = html;
   renderCatDetail();
 }
+function catTreeIcon(node, depth){
+  if(depth !== 0 || typeof node !== 'object') return '<svg class="fold"><use href="#i-folder"/></svg>';
+  var ic = node.iconUrl
+    ? '<img src="' + node.iconUrl + '">'
+    : '<svg><use href="#' + (node.ic || 'i-book') + '"/></svg>';
+  return '<span class="tree-l1ic" style="background:' + (node.c || 'linear-gradient(135deg,#3d8bff,#1f6bf1)') + '">' + ic + '</span>';
+}
 function treeNode(node, path, depth){
   var key = path.join('-');
   var open = catOpen[path[0]] === true && (depth === 0 || catOpen[path.slice(0, 2).join('-')] === true);
@@ -4746,7 +4816,7 @@ function treeNode(node, path, depth){
   var hasKids = node.children && node.children.length;
   var h = '<div class="tree-item' + (open ? ' open' : '') + (sel ? ' sel' : '') + '" style="margin-left:' + (depth * 20) + 'px" onclick="selectCat(\'' + key + '\')">' +
     '<svg class="arw' + (hasKids ? '' : ' blank') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>' +
-    '<svg class="fold"><use href="#i-folder"/></svg><span>' + nodeName + '</span>' + typeTag + '<span class="cnt" title="资料 ' + cnt.d + ' 份 / 视频 ' + cnt.v + ' 个">' + cnt.d + (cnt.v ? ' / ' + cnt.v : '') + '</span>' +
+    catTreeIcon(node, depth) + '<span>' + nodeName + '</span>' + typeTag + '<span class="cnt" title="资料 ' + cnt.d + ' 份 / 视频 ' + cnt.v + ' 个">' + cnt.d + (cnt.v ? ' / ' + cnt.v : '') + '</span>' +
     '<span class="tact">' + (depth < 2 ? '<button title="新建子分类" onclick="event.stopPropagation();addChildCat(\'' + key + '\')"><svg><use href="#i-plus"/></svg></button>' : '') +
     '<button title="删除" class="del" onclick="event.stopPropagation();delCat(\'' + key + '\')"><svg><use href="#i-trash"/></svg></button></span></div>';
   if(open && hasKids){
@@ -4823,12 +4893,44 @@ function renderCatDetail(){
       (depth === 2 ? '所属二级分类' : '上级分类') + '中修改。</span></div></div>';
   }
   var rel = catRelItems(names);
+  var iconBlock = '';
+  if(depth === 0){
+    var node0 = CATALOG[catSel[0]];
+    var CAT_ICON_PRESETS = [
+      ['i-pen', 'linear-gradient(135deg,#3d8bff,#1f6bf1)'],
+      ['i-calc', 'linear-gradient(135deg,#42d392,#12a150)'],
+      ['i-scan', 'linear-gradient(135deg,#ffb066,#ff7d1a)'],
+      ['i-check-clip', 'linear-gradient(135deg,#9575cd,#5e35b1)'],
+      ['i-stamp', 'linear-gradient(135deg,#4fc3f7,#0288d1)'],
+      ['i-book', 'linear-gradient(135deg,#f78fb3,#c44569)'],
+      ['i-video', 'linear-gradient(135deg,#ffd166,#f39c12)']
+    ];
+    var prevInner = node0.iconUrl
+      ? '<img src="' + node0.iconUrl + '">'
+      : '<svg><use href="#' + (node0.ic || 'i-book') + '"/></svg>';
+    iconBlock = '<div class="form-item" style="margin-bottom:14px"><label>一级分类图标</label>' +
+      '<div class="cat-icon-edit">' +
+        '<span class="cie-preview" style="background:' + (node0.c || CAT_ICON_PRESETS[0][1]) + '">' + prevInner + '</span>' +
+        '<div class="cie-ops">' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn ghost sm" onclick="document.getElementById(\'catIconFile\').click()"><svg><use href="#i-upload"/></svg>上传图标</button>' +
+            (node0.iconUrl ? '<button class="btn ghost sm" onclick="clearCatIcon()">移除自定义图标</button>' : '') +
+          '</div>' +
+          '<span class="cie-tip">支持 PNG / JPG / SVG，建议 96×96 以上正方形；上传后展示于用户端 APP / 小程序「资料中心 · 视频学堂」一级分类图标条，选择或上传后即时生效。</span>' +
+        '</div>' +
+        '<input type="file" id="catIconFile" accept="image/png,image/jpeg,image/svg+xml" style="display:none" onchange="onCatIconFile(this)">' +
+      '</div>' +
+      '<div class="cie-presets"><span class="cie-pset-lab">预设图标</span>' + CAT_ICON_PRESETS.map(function(p){
+        return '<span class="cie-pset' + (!node0.iconUrl && node0.ic === p[0] ? ' on' : '') + '" title="使用预设图标" style="background:' + p[1] + '" onclick="pickCatPresetIcon(' + jq(p[0]) + ',' + jq(p[1]) + ')"><svg><use href="#' + p[0] + '"/></svg></span>';
+      }).join('') + '</div></div>';
+  }
   $('#catDetail').innerHTML =
-    '<div class="pane-head"><h3>分类详情</h3><span>' + ['一级目录','二级目录','三级目录'][depth] + ' · 支持内容类型、子分类新建与级联改名</span></div>' +
+    '<div class="pane-head"><h3>分类详情</h3><span>' + ['一级目录','二级目录','三级目录'][depth] + ' · 支持内容类型、子分类新建与级联改名' + (depth === 0 ? '与图标配置' : '') + '</span></div>' +
     '<div class="form-row">' +
       '<div class="form-item"><label>分类名称</label><input class="input" id="catName" value="' + (typeof node === 'string' ? node : node.n) + '"></div>' +
       '<div class="form-item"><label>上级分类</label><input class="input" value="' + parentPath + '" disabled style="background:#f7f9fc;color:#8a919f"></div>' +
     '</div>' +
+    iconBlock +
     typeBlock +
     '<div class="form-row">' +
       '<div class="form-item"><label>内容数量</label><div style="height:34px;display:flex;align-items:center;gap:8px;color:#3f4753">' +
@@ -4846,6 +4948,36 @@ function renderCatDetail(){
 function pickCatType(t){
   catTypeDraft = t === 'doc' || t === 'video' ? t : 'all';
   $$('#catDetail .ctype-opt').forEach(function(el){ el.classList.toggle('on', el.dataset.t === catTypeDraft) });
+}
+function onCatIconFile(input){
+  var f = input.files && input.files[0];
+  if(!f) return;
+  if(f.size > 2 * 1024 * 1024){ toast('图标文件不得超过 2MB'); return }
+  var node0 = CATALOG[catSel[0]];
+  if(!node0) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    node0.iconUrl = rd.result;
+    buildTree();
+    toast('一级分类图标已更新，用户端图标条即时生效', 1);
+  };
+  rd.readAsDataURL(f);
+}
+function clearCatIcon(){
+  var node0 = CATALOG[catSel[0]];
+  if(!node0) return;
+  delete node0.iconUrl;
+  buildTree();
+  toast('已移除自定义图标，恢复预设图标');
+}
+function pickCatPresetIcon(ic, c){
+  var node0 = CATALOG[catSel[0]];
+  if(!node0) return;
+  node0.ic = ic;
+  node0.c = c;
+  delete node0.iconUrl;
+  buildTree();
+  toast('已使用预设图标');
 }
 function catInPath(it, names){
   if(names[0] && it.cat1 !== names[0]) return false;
@@ -7146,6 +7278,206 @@ function kbTabTo(t){
   $$('.kb-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'kbp-' + t) });
   $('#kbSubMenu').style.display = 'block';
   if(t === 'downloads') renderDownloads();
+  if(t === 'oplog') renderOplog();
+}
+
+/* ---------- 操作记录（ADM-16）与概览·最近操作（ADM-03） ---------- */
+var OP_NOW = new Date(2026, 10, 4, 10, 30);
+var OP_TODAY_M = OP_NOW.getHours() * 60 + OP_NOW.getMinutes();
+var OP_CATS = { '上传':'#fa8c16','编辑':'#5a6270','版本':'#722ed1','状态流转':'#1f6bf1','可见范围':'#13c2c2','关联维护':'#9254de','分享':'#2f54eb','管理员直下':'#c46a00','导出':'#8a919f' };
+var OP_USERS = { '王鹏':'#1f6bf1','陈晓':'#12a150','李敏':'#fa8c16','系统':'#8a919f' };
+var oplogData = [
+  { id:5201, m:10,   user:'王鹏', cat:'状态流转', sub:'审核通过', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'待审核 → 已发布 · 立即生效 · 三端即时可见', tl:'publish', tlTxt:'<b>王鹏</b> 发布了《门店水电施工标准手册 V2.1》，三端即时可见' },
+  { id:5200, m:42,   user:'陈晓', cat:'状态流转', sub:'提交审核', name:'华南区门店施工区域化手册', ver:'V1.0', code:'KB-SG-2026-026', sum:'草稿 → 待审核 · PDF ×1 · 提交人：陈晓', tl:'upload', tlTxt:'<b>陈晓</b> 上传《华南区门店施工区域化手册 V1.0》，待审核' },
+  { id:5199, m:90,   user:'系统', sysTl:true, tl:'sync', tlTxt:'已读记录同步 <b>213</b> 条（内部 APP 132 / 鸣忙小程序 81）' },
+  { id:5198, m:128,  user:'王鹏', cat:'管理员直下', sub:'下载当前文件', kind:'doc', did:5, name:'油漆施工标准手册', ver:'V2.0', code:'KB-SG-2026-015', sum:'下载当前文件 · PDF ×1 · 水印账号：王鹏' },
+  { id:5197, m:165,  user:'李敏', cat:'编辑', sub:'基本信息变更', kind:'doc', did:2, name:'初尺、复尺标准作业指引', ver:'V3.0', code:'KB-SJ-2026-006', sum:'变更字段：摘要、标签（新增 2 / 移除 1）' },
+  { id:5196, m:210,  user:'陈晓', cat:'版本', sub:'版本生成', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'V1.1 → V1.2 · minor · 审核通过时写入' },
+  { id:5195, m:260,  user:'王鹏', cat:'可见范围', sub:'范围变更', kind:'doc', did:4, name:'室内天花造型施工标准图集', ver:'V1.1', code:'KB-SG-2026-023', sum:'覆盖人数 186 → 240（+54 · M-19）· 内部角色 +1' },
+  { id:5194, m:300,  user:'王鹏', cat:'状态流转', sub:'审核通过（定时生效）', name:'门店货架布局设计标准', ver:'V1.2', code:'KB-SJ-2026-028', sum:'待审核 → 待生效 · 将于 2026-11-05 09:00 自动上架', tl:'schedule', tlTxt:'<b>王鹏</b> 审核通过《门店货架布局设计标准 V1.2》，将于 11-05 09:00 自动上架' },
+  { id:5193, m:340,  user:'李敏', cat:'分享', sub:'创建链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'游客链接 · 有效期 7 天 · 带密码 · 分享 ID F-2026-0211' },
+  { id:5192, m:390,  user:'李敏', cat:'状态流转', sub:'驳回', name:'广告安装施工指引', ver:'V1.1', code:'KB-SG-2026-024', del:true, sum:'待审核 → 已驳回 · 原因：图示与正文不符', tl:'reject', tlTxt:'<b>李敏</b> 驳回《广告安装施工指引 V1.1》，原因：图示与正文不符' },
+  { id:5191, m:420,  user:'陈晓', cat:'关联维护', sub:'新增关联', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'新增关联视频 1 个（KB-VD-2026-005）· 双向同步' },
+  { id:5190, m:480,  user:'王鹏', cat:'导出', sub:'内容清单导出', name:'内容清单', ver:'', code:'—', sum:'导出范围：近 30 日 · 486 行 · 知识库内容清单.xlsx' },
+  { id:5189, m:540,  user:'陈晓', cat:'上传', sub:'保存草稿', name:'门店霓虹灯招牌施工指引', ver:'V1.0', code:'KB-SG-2026-027', sum:'保存草稿 · 图片 ×3 · 不上概览时间线' },
+  { id:5188, m:610,  user:'系统', cat:'状态流转', sub:'自动上架', kind:'doc', did:8, name:'泥工室内施工标准手册', ver:'V1.4', code:'KB-SG-2026-012', sum:'待生效 → 已发布 · 到达生效时间由定时任务自动上架', tl:'publish', tlTxt:'<b>系统</b> 发布了《泥工室内施工标准手册 V1.4》，三端即时可见' },
+  { id:5187, m:700,  user:'王鹏', cat:'状态流转', sub:'批量下架', kind:'doc', did:6, name:'基础装修验收篇（木）图文标准', ver:'V1.3', code:'KB-YS-2026-019', ids:'6,15,18', sum:'已发布 → 已下架 · 批量 3 份 · 内容 id [6, 15, 18] · 原因：配合验收标准 V3.0 整体替换', tl:'offline', tlTxt:'<b>王鹏</b> 下架 3 份内容，原因：配合验收标准 V3.0 整体替换' },
+  { id:5186, m:1030, user:'王鹏', cat:'状态流转', sub:'下架', name:'旧版水电施工手册', ver:'V1.0', code:'KB-SG-2025-031', sum:'已发布 → 已下架 · 原因：已被 V2.1 替代', tl:'offline', tlTxt:'<b>王鹏</b> 下架《旧版水电施工手册 V1.0》，原因：已被 V2.1 替代' },
+  { id:5185, m:1380, user:'李敏', cat:'管理员直下', sub:'下载视频', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'下载视频 · MP4 268MB · 水印账号：李敏' },
+  { id:5184, m:1560, user:'陈晓', cat:'状态流转', sub:'下架', name:'华南旧版物料验收清单', ver:'V1.0', code:'KB-YS-2025-017', sum:'已发布 → 已下架 · 原因：版本迭代', tl:'offline', tlTxt:'<b>陈晓</b> 下架《华南旧版物料验收清单 V1.0》，原因：版本迭代' },
+  { id:5183, m:1800, user:'王鹏', cat:'编辑', sub:'文件清单变更', kind:'doc', did:13, name:'收银区水电施工标准图集', ver:'V1.2', code:'KB-SG-2026-020', sum:'文件新增 1 / 移除 1 · 图片清单' },
+  { id:5182, m:2000, user:'陈晓', cat:'状态流转', sub:'提交审核', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'草稿 → 待审核 · MP4 · 时长 12:35' },
+  { id:5181, m:2400, user:'李敏', cat:'版本', sub:'快照查看', kind:'doc', did:3, name:'沿海大风区域门店施工手册', ver:'V1.2', code:'KB-SG-2026-011', sum:'查看历史版本 V1.0 快照' },
+  { id:5180, m:2800, user:'陈晓', cat:'分享', sub:'撤销链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'撤销游客链接 · 分享 ID F-2026-0198' },
+  { id:5179, m:3200, user:'李敏', cat:'可见范围', sub:'范围变更', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'覆盖人数 240 → 198（−42 · M-19）· 移除内部人员 42' },
+  { id:5178, m:3600, user:'王鹏', cat:'关联维护', sub:'解除关联', kind:'doc', did:2, name:'初尺、复尺标准作业指引', ver:'V3.0', code:'KB-SJ-2026-006', sum:'解除关联视频 1 个（KB-VD-2026-002）' },
+  { id:5177, m:4200, user:'陈晓', cat:'上传', sub:'提交审核', name:'冷库保温施工演示视频', ver:'V1.0', code:'KB-VD-2026-006', sum:'提交审核 · MP4 · 时长 08:12' },
+  { id:5176, m:4800, user:'王鹏', cat:'管理员直下', sub:'下载全部', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'下载全部版本 · 3 个版本 × 2 文件 · 水印账号：王鹏' },
+  { id:5175, m:5400, user:'李敏', cat:'编辑', sub:'基本信息变更', kind:'doc', did:15, name:'货架安装验收标准', ver:'V1.1', code:'KB-YS-2026-014', sum:'变更字段：目录分类（木工篇 → 货架篇）' },
+  { id:5174, m:6000, user:'系统', sysTl:true, tl:'sync', tlTxt:'已读记录同步 <b>186</b> 条（内部 APP 118 / 鸣忙小程序 68）' },
+  { id:5173, m:6200, user:'王鹏', cat:'状态流转', sub:'删除', name:'广告安装施工指引', ver:'V1.0', code:'KB-SG-2025-024', del:true, sum:'已下架 → 已删除 · 软删除保留 30 天 · 不上概览时间线' },
+  { id:5172, m:6500, user:'李敏', cat:'编辑', sub:'基本信息变更', name:'广告安装施工指引', ver:'V1.1', code:'KB-SG-2026-024', del:true, sum:'变更字段：名称、版本号（历史事件保留可查）' },
+  { id:5171, m:6800, user:'陈晓', cat:'版本', sub:'快照下载', kind:'doc', did:11, name:'室内外电路施工指引（旧版）', ver:'V1.0', code:'KB-SG-2025-031', sum:'下载 V0.9 历史快照 · PDF ×1' },
+  { id:5170, m:7200, user:'王鹏', cat:'分享', sub:'创建链接', kind:'doc', did:9, name:'北方差异化施工项目清单', ver:'V1.0', code:'KB-SG-2026-013', sum:'非游客链接 · 有效期 30 天 · 不带密码 · 分享 ID F-2026-0173' },
+  { id:5169, m:7500, user:'李敏', cat:'状态流转', sub:'批量提交审核', name:'北方差异化施工项目清单等 4 份', ver:'—', code:'KB-SG-2026-013', ids:'9,10,14,20', sum:'草稿 → 待审核 · 批量 4 份 · 内容 id [9, 10, 14, 20]' },
+  { id:5168, m:7800, user:'王鹏', cat:'导出', sub:'操作记录导出', name:'操作记录', ver:'', code:'—', sum:'导出范围：近 7 日 · 312 行 · 操作记录_近7日.xlsx' },
+  { id:5167, m:8100, user:'陈晓', cat:'上传', sub:'保存草稿', kind:'doc', did:14, name:'开业物料验收清单', ver:'V1.0', code:'KB-YS-2026-008', sum:'保存草稿 · PDF ×1' },
+  { id:5166, m:8400, user:'李敏', cat:'编辑', sub:'文件清单变更', kind:'doc', did:6, name:'基础装修验收篇（木）图文标准', ver:'V1.3', code:'KB-YS-2026-019', sum:'文件新增 1（图文补充）' },
+  { id:5165, m:8700, user:'王鹏', cat:'可见范围', sub:'范围变更', kind:'doc', did:18, name:'建店材料要求清单', ver:'V1.1', code:'KB-ZJ-2026-011', sum:'新增外部岗位：造价员 · 覆盖人数 +26（M-19）' },
+  { id:5164, m:9000, user:'陈晓', cat:'关联维护', sub:'新增关联', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'新增关联资料 1 个（KB-SG-2026-018）· 双向同步' },
+  { id:5163, m:9300, user:'王鹏', cat:'版本', sub:'版本生成', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'V2.0 → V2.1 · major · 审核通过时写入' },
+  { id:5162, m:9600, user:'李敏', cat:'分享', sub:'创建链接', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', ok:false, sum:'失败：分享服务超时，请重试（分享 ID F-2026-0155 未生效）' },
+  { id:5161, m:9900, user:'陈晓', cat:'状态流转', sub:'审核通过（定时生效）', kind:'doc', did:20, name:'设备安装验收标准', ver:'V1.0', code:'KB-YS-2026-018', sum:'待审核 → 待生效 · 将于 2026-11-06 09:00 自动上架' },
+  { id:5160, m:10200, user:'王鹏', cat:'管理员直下', sub:'下载当前文件', kind:'doc', did:12, name:'门店灯具设计标准', ver:'V1.1', code:'KB-SJ-2026-021', sum:'下载当前文件 · 图文 ×1 · 水印账号：王鹏' }
+];
+function pad2(n){ return (n < 10 ? '0' : '') + n }
+function opDate(e){ return new Date(OP_NOW.getTime() - e.m * 60000) }
+function opFmt(e){ var d = opDate(e); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()) }
+function opDay(e){ var d = opDate(e); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) }
+function opRel(e){
+  if(e.m < 1) return '刚刚';
+  if(e.m < 60) return e.m + ' 分钟前';
+  var d = opDate(e), hh = pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  if(d.toDateString() === OP_NOW.toDateString()) return '今天 ' + hh;
+  if(e.m <= 1440) return '昨天 ' + hh;
+  return pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + hh;
+}
+function opUserBadge(u){ return '<span class="avatar-sm" style="background:' + (OP_USERS[u] || '#5a6270') + '">' + u[0] + '</span>' }
+
+/* 概览 · 最近操作时间线（近 24 小时 · 倒序 · 最新 20 条） */
+function renderRecentOps(){
+  var list = oplogData.filter(function(e){ return e.tl && e.m <= 1440 }).sort(function(a, b){ return b.id - a.id }).slice(0, 20);
+  var html = list.map(function(e){
+    var dot = e.tl === 'upload' ? 'o' : (e.tl === 'publish' ? 'b' : (e.tl === 'schedule' ? 'g' : 'r'));
+    var click = e.did ? ' style="cursor:pointer" onclick="' + (e.kind === 'video' ? 'openVideoPreview(' : 'openPreview(') + e.did + ')" title="点击打开受控预览"' : '';
+    return '<div class="tl-item"' + click + '><span class="tl-dot ' + dot + '"></span><div class="tl-body">' + e.tlTxt + '<span class="tl-time">' + opRel(e) + '</span></div></div>';
+  }).join('');
+  $('#recentOpsTl').innerHTML = html || '<div style="text-align:center;color:#9aa2ae;padding:36px 0;font-size:12.5px">近 24 小时暂无操作</div>';
+}
+
+/* 操作记录 · 查询页 */
+var opApplied = { range:'7d', from:'', to:'', types:[], user:'', kw:'' };
+var opSelTypes = [];
+var opPage = 1;
+function opRangeChanged(){
+  var custom = $('#opRange').value === 'custom';
+  $('#opFrom').style.display = custom ? '' : 'none';
+  $('#opTo').style.display = custom ? '' : 'none';
+  $('#opToDate').style.display = custom ? '' : 'none';
+}
+function toggleOpTypes(ev){
+  if(ev) ev.stopPropagation();
+  var pop = $('#opTypePop');
+  if(pop.style.display === 'none'){ buildOpTypePop(); pop.style.display = '' } else pop.style.display = 'none';
+}
+function buildOpTypePop(){
+  var chips = Object.keys(OP_CATS).map(function(c){
+    var on = opSelTypes.indexOf(c) >= 0;
+    return '<label class="' + (on ? 'on' : '') + '" onclick="event.stopPropagation();opTypeToggle(\'' + c + '\')"><input type="checkbox" ' + (on ? 'checked' : '') + ' onclick="event.stopPropagation()">' + c + '</label>';
+  }).join('');
+  $('#opTypePop').innerHTML = '<div class="tp-g"><b>事件大类</b><span style="font-size:11.5px;color:#9aa2ae">多选 · 不选 = 全部</span></div>' +
+    '<div class="tp-g" style="padding:2px 0 4px">' + chips + '</div>' +
+    '<div class="tp-foot"><button class="btn ghost sm" onclick="event.stopPropagation();opTypesClear()">清空</button><button class="btn primary sm" onclick="event.stopPropagation();$(\'#opTypePop\').style.display=\'none\'">确定</button></div>';
+}
+function opTypeToggle(c){
+  var i = opSelTypes.indexOf(c);
+  if(i >= 0) opSelTypes.splice(i, 1); else opSelTypes.push(c);
+  var n = opSelTypes.length;
+  var cnt = $('#opTypeCnt');
+  cnt.style.display = n ? '' : 'none';
+  cnt.textContent = n;
+  buildOpTypePop();
+}
+function opTypesClear(){
+  opSelTypes = [];
+  $('#opTypeCnt').style.display = 'none';
+  buildOpTypePop();
+}
+function opFiltered(){
+  var a = opApplied;
+  return oplogData.filter(function(e){
+    if(e.sysTl) return false;
+    if(a.range === 'custom'){
+      var ds = opDay(e);
+      if(a.from && ds < a.from) return false;
+      if(a.to && ds > a.to) return false;
+    } else {
+      var lim = a.range === '24h' ? 1440 : (a.range === 'today' ? OP_TODAY_M : (a.range === '7d' ? 10080 : 43200));
+      if(e.m > lim) return false;
+    }
+    if(a.types.length && a.types.indexOf(e.cat) < 0) return false;
+    if(a.user && e.user.indexOf(a.user.trim()) < 0) return false;
+    if(a.kw){
+      var k = a.kw.trim();
+      if((e.name || '').indexOf(k) < 0 && (e.code || '').indexOf(k) < 0 && (e.ids || '').indexOf(k) < 0) return false;
+    }
+    return true;
+  }).sort(function(x, y){ return y.id - x.id });
+}
+function renderOplog(){
+  var list = opFiltered();
+  var pages = Math.max(1, Math.ceil(list.length / 20));
+  if(opPage > pages) opPage = pages;
+  var slice = list.slice((opPage - 1) * 20, opPage * 20);
+  var html = slice.map(function(e){
+    var color = OP_CATS[e.cat] || '#5a6270';
+    var catCell = '<span class="op-cat" style="color:' + color + ';background:' + color + '1a"><i></i>' + e.cat + '</span><div style="font-size:11.5px;color:#9aa2ae;margin-top:3px">' + e.sub + '</div>';
+    var nameTxt = e.ver ? '《' + e.name + ' ' + e.ver + '》' : e.name;
+    if(e.del) nameTxt += '<span style="color:#9aa2ae">（已删除）</span>';
+    var nameCell = (e.did
+      ? '<a class="op-link" style="font-size:12.5px" onclick="' + (e.kind === 'video' ? 'openVideoPreview(' : 'openPreview(') + e.did + ')">' + nameTxt + '</a>'
+      : '<span style="font-size:12.5px;color:#3f4753">' + nameTxt + '</span>') +
+      '<div style="font-size:11.5px;color:#9aa2ae;margin-top:2px">' + e.code + '</div>';
+    var resCell = e.ok === false ? '<span class="op-fail">失败</span>' : '<span style="color:#12a150;font-size:12.5px;font-weight:600">成功</span>';
+    return '<tr><td style="color:#5a6270;white-space:nowrap;font-size:12.5px">' + opFmt(e) + '</td>' +
+      '<td><div class="u-cell">' + opUserBadge(e.user) + '<span style="font-weight:500">' + e.user + '</span></div></td>' +
+      '<td>' + catCell + '</td><td>' + nameCell + '</td>' +
+      '<td><div class="op-sum">' + e.sum + '</div></td><td>' + resCell + '</td></tr>';
+  }).join('');
+  if(!slice.length) html = '<tr><td colspan="6" style="text-align:center;color:#9aa2ae;padding:40px 0">暂无操作记录</td></tr>';
+  $('#opTbody').innerHTML = html;
+  var st = {};
+  list.forEach(function(e){ st[e.cat] = (st[e.cat] || 0) + 1 });
+  var stHtml = '<b>' + list.length + '</b> 条事件';
+  Object.keys(OP_CATS).forEach(function(c){ if(st[c]) stHtml += '<span class="st-chip">' + c + ' ' + st[c] + '</span>' });
+  stHtml += '<span style="flex:1"></span><span style="font-size:11.5px;color:#9aa2ae">append-only · 保留 ≥ 1 年 · 默认按操作时间倒序</span>';
+  $('#opStatBar').innerHTML = stHtml;
+  var pg = '<span>共 ' + list.length + ' 条</span>';
+  pg += '<button class="pg-btn" ' + (opPage === 1 ? 'disabled' : '') + ' onclick="opGo(' + (opPage - 1) + ')">‹</button>';
+  for(var i = 1; i <= pages; i++) pg += '<button class="pg-btn ' + (i === opPage ? 'active' : '') + '" onclick="opGo(' + i + ')">' + i + '</button>';
+  pg += '<button class="pg-btn" ' + (opPage === pages ? 'disabled' : '') + ' onclick="opGo(' + (opPage + 1) + ')">›</button>';
+  pg += '<span>每页 20 条</span>';
+  $('#opPager').innerHTML = pg;
+}
+function opGo(p){ opPage = p; renderOplog() }
+function opQuery(){
+  opApplied = { range:$('#opRange').value, from:$('#opFrom').value, to:$('#opTo').value, types:opSelTypes.slice(), user:$('#opUser').value, kw:$('#opKw').value };
+  opPage = 1;
+  $('#opTypePop').style.display = 'none';
+  renderOplog();
+}
+function opReset(){
+  $('#opRange').value = '7d';
+  opRangeChanged();
+  $('#opFrom').value = ''; $('#opTo').value = '';
+  $('#opUser').value = ''; $('#opKw').value = '';
+  opTypesClear();
+  $('#opTypePop').style.display = 'none';
+  opQuery();
+}
+function oplogFromOverview(){
+  $('#opRange').value = '24h';
+  opRangeChanged();
+  $('#opFrom').value = ''; $('#opTo').value = '';
+  $('#opUser').value = ''; $('#opKw').value = '';
+  opTypesClear();
+  $('#opTypePop').style.display = 'none';
+  opQuery();
+  kbTabTo('oplog');
+}
+function exportOplog(){
+  var names = { '24h':'近24小时', 'today':'今日', '7d':'近7日', '30d':'近30日', 'custom':'自定义' };
+  toast('导出任务已创建：操作记录_' + (names[opApplied.range] || '近7日') + '_2026-11-04.xlsx（导出动作已写入操作日志）', 1);
 }
 
 /* ---------- 初始化 ---------- */
@@ -7161,6 +7493,9 @@ renderDownloads();
 buildTree();
 paintTagApplied('Doc');
 refreshOverview();
+renderRecentOps();
+opRangeChanged();
+opQuery();
 </script>
 </body>
 </html>
