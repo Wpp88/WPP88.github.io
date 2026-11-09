@@ -832,6 +832,11 @@
   .p-rel-item .lk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#8a919f;background:#f0f2f6;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
   .p-rel-note{display:flex;align-items:flex-start;gap:6px;margin-top:8px;font-size:11.5px;color:#9aa2ae;line-height:1.6}
   .p-rel-note svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
+  .p-rel h4 em{font-style:normal;font-weight:400;font-size:11px;color:#9aa2ae;margin-left:6px}
+  .via-tag{font-size:10.5px;color:#a8adb6;margin-left:4px}
+  .p-rel-more{margin-top:6px;text-align:center;font-size:11.5px;color:#3d7eff;padding:6px;border-radius:8px;background:#f0f5ff;font-weight:600;cursor:pointer}
+  .p-rel-more:hover{background:#e3edff}
+  .p-rel-more.off{color:#b3bcc9;background:#f7f8fa;font-weight:400;cursor:default}
   .kb-deny{display:flex;gap:12px}
   .kb-deny .ic{width:38px;height:38px;border-radius:11px;background:#fdf1f0;color:#d93026;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .kb-deny .ic svg{width:19px;height:19px}
@@ -2830,8 +2835,9 @@ var docs = [
   { id: 20, name: '设备安装验收标准', ver: 'V1.0', code: 'KB-YS-2026-018', cat1: '门店验收篇', cat2: '监控（弱电）篇', cat3: '设备安装验收', type: 'PDF', tags: ['零食很忙6代店','标准版','第三方监控负责人','设备安装节点'], scope: ['内部','施工方'], status: 'review', reads: 0, updated: '2026-10-07 16:44' }
 ];
 /* 资料 ↔ 视频关联（双向）：doc.rv ⇄ video.rd */
-docs[0].rv = [103]; docs[1].rv = [102]; docs[2].rv = [104]; docs[3].rv = [101];
+docs[0].rv = [103, 106]; docs[1].rv = [102]; docs[2].rv = [104]; docs[3].rv = [101];
 docs[5].rv = [103]; docs[7].rv = [104];
+docs[17].rv = [101];
 /* 资料 ↔ 资料关联（配套图文） */
 docs[0].rl = [13]; docs[2].rl = [9]; docs[14].rl = [16];
 var STATUS = {
@@ -3743,20 +3749,27 @@ function renderPvFooter(files, kind, it){
       '<button class="btn primary sm" onclick="adminDownloadFile(' + jq(cur ? cur.name : it.name) + ',\'' + kind + '\')"><svg><use href="#i-download"/></svg>下载' + (kind === 'video' ? '视频' : '当前文件') + '</button>' +
     '</div>';
 }
-function pvVideoCard(v){
+function pvVideoCard(v, via){
   var plays = v.plays || 0;
   return '<div class="p-vcard" onclick="openVideoPreview(' + v.id + ')">' +
     '<div class="p-vcover" style="background:' + (v.cover || 'linear-gradient(135deg,#3d8bff,#1f6bf1)') + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
-    '<div class="p-vbody"><div class="nm">' + v.name + '</div><div class="mt"><span>' + plays.toLocaleString() + ' 播放</span></div></div></div>';
+    '<div class="p-vbody"><div class="nm">' + v.name + (via ? '<span class="via-tag">经《' + via.name + '》</span>' : '') + '</div><div class="mt"><span>' + plays.toLocaleString() + ' 播放</span></div></div></div>';
 }
-function pvDocRow(d){
+function pvDocRow(d, via){
   var t = primaryType(d), reads = d.reads || 0;
   return '<div class="p-docrow" onclick="openPreview(' + d.id + ')">' +
     '<span class="ftype ' + (FTYPE_CLS[t] || 'pdf') + '">' + (FTYPE_TXT[t] || 'FILE') + '</span>' +
-    '<div class="tt"><b>' + d.name + '<span class="ver">' + d.ver + '</span></b>' +
+    '<div class="tt"><b>' + d.name + '<span class="ver">' + d.ver + '</span>' + (via ? '<span class="via-tag">经《' + via.name + '》</span>' : '') + '</b>' +
     '<div class="mt"><span>' + catPathTxt(d) + ' · ' + fileTypesOf(d).join(' / ') + '</span><span>' + (d.tags || []).slice(0, 3).join(' · ') + '</span></div></div>' +
     (d.rv && d.rv.length ? '<span class="p-half-chip" style="flex-shrink:0">配套视频 ' + d.rv.length + '</span>' : '') +
     '<div class="rt">阅读 ' + reads.toLocaleString() + '<br>' + String(d.updated || '').slice(5, 10) + ' 更新</div></div>';
+}
+function pvExtHtml(ext){
+  var vs = ext.filter(function(e){ return e.it.plays !== undefined }), ds = ext.filter(function(e){ return e.it.plays === undefined });
+  var html = '';
+  if(vs.length) html += '<div class="pv-vgrid">' + vs.map(function(e){ return pvVideoCard(e.it, e.via) }).join('') + '</div>';
+  if(ds.length) html += '<div class="pv-doclist">' + ds.map(function(e){ return pvDocRow(e.it, e.via) }).join('') + '</div>';
+  return html;
 }
 function pvRelBlock(title, sub, body){
   return '<div class="pv-rel"><div class="pv-rel-h"><b>' + title + '</b><span>' + sub + '</span></div>' + body + '</div>';
@@ -3778,11 +3791,11 @@ function renderDocPreview(){
             '<tr><td>1</td><td>轻钢龙骨隔墙</td><td>¥ 86 / ㎡</td><td>含辅材</td></tr><tr><td>2</td><td>石膏板吊顶</td><td>¥ 105 / ㎡</td><td>双层</td></tr><tr><td>3</td><td>乳胶漆</td><td>¥ 28 / ㎡</td><td>两底两面</td></tr><tr><td>4</td><td>LED 灯带</td><td>¥ 18 / m</td><td>含安装</td></tr>' +
             '</tbody></table><div class="p-cap">Excel 表格预览 · 第 1 个工作表</div></div>';
   else pages = docPageHtml(d, 1, 'cover') + docPageHtml(d, 2, 'text');
-  var relV = (d.rv || []).map(function(id){ return videos.filter(function(v){ return v.id === id })[0] }).filter(isEffective);
-  var relD = (d.rl || []).map(function(id){ return docs.filter(function(x){ return x.id === id })[0] }).filter(isEffective);
+  var relV = pRelVideosOf(d), relD = pRelDocsOf(d), ext = pExtOf(d);
   $('#pvBody').innerHTML = pages +
-    (relV.length ? pvRelBlock('关联视频', '与用户端一致的视频卡片 · 含封面与播放次数', '<div class="pv-vgrid">' + relV.map(pvVideoCard).join('') + '</div>') : '') +
-    (relD.length ? pvRelBlock('关联资料', '与用户端一致的资料卡片 · 含阅读量与更新时间', '<div class="pv-doclist">' + relD.map(pvDocRow).join('') + '</div>') : '');
+    (relV.length ? pvRelBlock('配套视频', '与用户端一致的视频卡片 · 含封面与播放次数', '<div class="pv-vgrid">' + relV.map(pvVideoCard).join('') + '</div>') : '') +
+    (relD.length ? pvRelBlock('关联资料', '与用户端一致的资料卡片 · 含阅读量与更新时间', '<div class="pv-doclist">' + relD.map(pvDocRow).join('') + '</div>') : '') +
+    (ext.length ? pvRelBlock('延伸内容', '经直接关联一跳拓展 · ' + ext.length + ' 条 · 不再递归 · 与用户端一致', pvExtHtml(ext)) : '');
   renderPvFooter(files, 'doc', d);
 }
 function openPreview(id){
@@ -5719,6 +5732,13 @@ var videos = [
   { id: 107, name: '水电开槽施工规范培训', ver: 'V1.0', code: 'KB-VD-2026-006', cat1: '门店施工篇', cat2: '水电篇', cat3: '室内外电路施工', dur: '18:50', size: '356MB', cover: 'linear-gradient(135deg,#5b8def,#2f4bd8)', plays: 0, p30: 0, done: 0, scope: ['内部'], tags: ['标准版','工程中心内部','第三方装修负责人','通用区域','水电节点'], rd: [1], status: 'review', updated: '2026-10-07 17:30' },
   { id: 108, name: '开业物料验收流程培训', ver: 'V1.0', code: 'KB-VD-2026-007', cat1: '门店验收篇', cat2: '物料篇', cat3: '开业物料验收', dur: '22:10', size: '402MB', cover: 'linear-gradient(135deg,#26c6da,#00838f)', plays: 0, p30: 0, done: 0, scope: ['内部'], tags: ['赵一鸣3.0版本','标准版','第三方装修负责人','通用区域','竣工验收节点'], rd: [14], status: 'draft', updated: '2026-10-08 09:12' }
 ];
+/* 互链演示（V2.14）：视频↔视频关联 v103→105；v101 补关联资料 18；v106 补关联资料 doc1 */
+videos[2].rv = [105];
+videos[0].rd = [4, 18];
+videos[5].rd = [7, 1];
+/* 灰显演示：106 指定给设计师、18 指定给成控组长，门户账号（项目管理员）不可见，用于关联卡片灰显 */
+videos[5].vis = { roles: ['工程系统-设计师'], staff: [], positions: [], people: [] };
+docs[17].vis = { roles: ['工程系统-成控组长'], staff: [], positions: [], people: [] };
 /* ===== V1.7 数据迁移：固化可见范围 → 清理旧标签 → 统一类型 / 多文件 / 下载权限 ===== */
 (function migrateV17(){
   var keep = {};
@@ -6009,12 +6029,7 @@ function openVideoPreview(id){
       '<span class="st">' + (r.prog >= 95 ? '完播' : '已看 ' + r.prog + '% · ' + r.watched) + '</span>' +
       '<span class="t">' + r.t.slice(5) + '</span></div>';
   }).join('') : '<div style="color:#9aa2ae;font-size:12.5px;padding:6px 0">暂无播放记录</div>';
-  var relD = (v.rd || []).map(function(id){ return docs.filter(function(x){ return x.id === id })[0] }).filter(isEffective);
-  var rvExp = (v.rv || []).map(function(id){ return videos.filter(function(x){ return x.id === id })[0] }).filter(function(x){ return x && x.id !== v.id && isEffective(x) });
-  var rvIds = rvExp.map(function(x){ return x.id });
-  var relV = pVideos().filter(function(x){
-    return x.id !== v.id && rvIds.indexOf(x.id) < 0 && (x.cat2 === v.cat2 || x.cat1 === v.cat1);
-  }).slice(0, 4);
+  var relD = pRelDocsOf(v), relV = pRelVideosOf(v), ext = pExtOf(v);
   $('#pvBody').innerHTML =
     '<div class="pv-vdetail">' +
       '<div class="vplayer" id="vpBox">' +
@@ -6041,9 +6056,9 @@ function openVideoPreview(id){
         '<div class="row"><span class="k">下载权限</span><span class="v">' + dlLabel(v.dl) + '</span></div>' +
         '<div class="row"><span class="k">视频规格</span><span class="v">' + (v.size || '—') + ' · MP4 · 1080P</span></div>' +
       '</div>' +
-      (rvExp.length ? pvRelBlock('关联视频', '与用户端一致的视频卡片 · 含封面与播放次数', '<div class="pv-vgrid">' + rvExp.map(pvVideoCard).join('') + '</div>') : '') +
+      (relV.length ? pvRelBlock('配套视频', '与用户端一致的视频卡片 · 含封面与播放次数', '<div class="pv-vgrid">' + relV.map(pvVideoCard).join('') + '</div>') : '') +
       (relD.length ? pvRelBlock('配套资料', '与用户端一致的资料卡片 · 含阅读量与更新时间', '<div class="pv-doclist">' + relD.map(pvDocRow).join('') + '</div>') : '') +
-      (relV.length ? pvRelBlock('相关视频', '同篇章推荐 · 含封面与播放次数', '<div class="pv-vgrid">' + relV.map(pvVideoCard).join('') + '</div>') : '') +
+      (ext.length ? pvRelBlock('延伸内容', '经直接关联一跳拓展 · ' + ext.length + ' 条 · 不再递归 · 与用户端一致', pvExtHtml(ext)) : '') +
       pvRelBlock('最近播放记录', '用户端播放行为自动回传', recHtml) +
     '</div>';
   renderPvFooter(filesOf(v), 'video', v);
@@ -6919,13 +6934,65 @@ function pDocsPage(){
     }).join('')) + '</div>' : '') +
     '<div class="p-list">' + (list.map(pDocRow).join('') || '<div class="p-empty">暂无符合筛选条件的资料，可清除标签或切换分类后重试</div>') + '</div></div></div>';
 }
+/* ---------- 关联展示与互链（V2.14 三端统一）：直接关联 + 延伸关联（一跳，不递归） ---------- */
+var pRelExpanded = {};
+function pRelVideosOf(it){
+  return (it.rv || []).map(function(id){ return videos.filter(function(v){ return v.id === id })[0] })
+    .filter(function(v){ return v && v.id !== it.id && isEffective(v) });
+}
+function pRelDocsOf(it){
+  var ids = videos.indexOf(it) >= 0 ? (it.rd || []) : (it.rl || []);
+  return ids.map(function(id){ return docs.filter(function(d){ return d.id === id })[0] })
+    .filter(function(d){ return d && d.id !== it.id && isEffective(d) });
+}
+function pExtOf(it){
+  var direct = pRelVideosOf(it).concat(pRelDocsOf(it)), seen = {}, out = [];
+  direct.forEach(function(a){
+    pRelVideosOf(a).concat(pRelDocsOf(a)).forEach(function(x){
+      if(x.id === it.id || seen[x.id]) return;
+      if(direct.some(function(y){ return y.id === x.id })) return;
+      seen[x.id] = 1;
+      out.push({ it: x, via: a });
+    });
+  });
+  return out;
+}
+function pViaTag(via){ return via ? '<span class="via-tag">经《' + via.name + '》</span>' : '' }
+function pRelVCard(v, via){
+  if(kbCanView(v)) return '<div class="p-rel-item" onclick="pGo(\'videodetail\',' + v.id + ')"><span class="ic" style="background:' + v.cover + '"><svg><use href="#i-play"/></svg></span><span class="nm">' + v.name + ' <span style="color:#9aa2ae">' + v.ver + '</span>' + pViaTag(via) + '</span><span class="mt">时长 ' + v.dur + ' · 播放 ' + v.plays.toLocaleString() + ' 次</span></div>';
+  return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'video\',' + v.id + ')" title="未向您开放 · 点击查看原因">' +
+    '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
+    '<span class="nm">' + v.name + ' <span style="color:#c1c6cf">' + v.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span>' + pViaTag(via) + '</span>' +
+    '<span class="mt">时长 ' + v.dur + '</span></div>';
+}
+function pRelDCard(d, via){
+  var mt = (d.type || '') + ' · 阅读 ' + (d.reads || 0).toLocaleString() + ' 次 · ' + String(d.updated || '').slice(5, 10) + ' 更新';
+  if(kbCanView(d)) return '<div class="p-rel-item" onclick="pGo(\'docdetail\',' + d.id + ')"><span class="ic" style="background:linear-gradient(135deg,#3d8bff,#1f6bf1)"><svg><use href="#i-book"/></svg></span><span class="nm">' + d.name + ' <span style="color:#9aa2ae">' + d.ver + '</span>' + pViaTag(via) + '</span><span class="mt">' + mt + '</span></div>';
+  return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'doc\',' + d.id + ')" title="未向您开放 · 点击查看原因">' +
+    '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
+    '<span class="nm">' + d.name + ' <span style="color:#c1c6cf">' + d.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span>' + pViaTag(via) + '</span>' +
+    '<span class="mt">' + mt + '</span></div>';
+}
+function pRelGroup(key, title, sub, cards){
+  if(!cards.length) return '';
+  var exp = !!pRelExpanded[key];
+  var show = exp ? cards : cards.slice(0, 3);
+  var foot = '';
+  if(cards.length > 3) foot = '<div class="p-rel-more" onclick="pRelToggle(\'' + key + '\')">' + (exp ? '收起' : '查看全部 ' + cards.length + ' 条') + '</div>';
+  else if(exp) foot = '<div class="p-rel-more off">已展示全部</div>';
+  return '<div class="p-rel"><h4>' + title + '<em>' + sub + '</em></h4>' + show.join('') + foot + '</div>';
+}
+function pRelToggle(key){ pRelExpanded[key] = !pRelExpanded[key]; pRender() }
+function pRelLockNote(){
+  return '<div class="p-rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因或申请权限。</span></div>';
+}
+function pRelLockAny(items){ return items.some(function(x){ return !kbCanView(x) }) }
 function pDocDetail(){
   var d = docs.filter(function(x){ return x.id === pDocId })[0];
   if(!d) return '<div class="p-empty">资料不存在</div>';
   if(!isEffective(d) || !kbCanView(d)) return kbDenyPage('doc');
   var pages = docPageHtml(d, pDocN, pDocN === 1 ? 'cover' : (pDocN === 2 ? 'img' : 'text'));
-  var relVAll = (d.rv || []).map(function(id){ return videos.filter(function(v){ return v.id === id })[0] }).filter(isEffective);
-  var relV = relVAll.filter(kbCanView), relVLock = relVAll.filter(function(v){ return !kbCanView(v) });
+  var relV = pRelVideosOf(d), relD = pRelDocsOf(d), ext = pExtOf(d);
   var fav = pFav['d' + d.id];
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'docs\')">资料中心</a><span>/</span>' + d.cat1 + '</div>' +
     '<div class="p-detail"><div class="p-dmain">' +
@@ -6944,18 +7011,10 @@ function pDocDetail(){
       '</div>' +
       '<div class="p-act"><button class="btn ' + (fav ? 'ghost' : 'primary') + '" onclick="pToggleFav(\'d' + d.id + '\')"><svg><use href="#i-star"/></svg>' + (fav ? '已收藏' : '收藏') + '</button>' +
       pApplyBtn(d.name) + '</div>' +
-      ((relV.length || relVLock.length) ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>配套视频（点击播放）</h4>' +
-        relV.map(function(v){
-          return '<div class="p-rel-item" onclick="pGo(\'videodetail\',' + v.id + ')"><span class="ic" style="background:' + v.cover + '"><svg><use href="#i-play"/></svg></span><span>' + v.name + ' <span style="color:#9aa2ae">' + v.ver + '</span></span><span class="mt">' + v.dur + '</span></div>';
-        }).join('') +
-        relVLock.map(function(v){
-          return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'video\',' + v.id + ')" title="未向您开放 · 点击查看原因">' +
-            '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
-            '<span class="nm">' + v.name + ' <span style="color:#c1c6cf">' + v.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span></span>' +
-            '<span class="mt">' + v.dur + '</span></div>';
-        }).join('') +
-        (relVLock.length ? '<div class="p-rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因或申请权限。</span></div>' : '') +
-        '</div>' : '') +
+      pRelGroup('pd-v', '<svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>配套视频（点击播放）', '共 ' + relV.length + ' 个 · 关联向导配置', relV.map(function(v){ return pRelVCard(v) })) +
+      pRelGroup('pd-d', '<svg style="width:14px;height:14px;color:#1f6bf1"><use href="#i-book"/></svg>关联资料（点击查看）', '共 ' + relD.length + ' 份 · 关联向导配置', relD.map(function(dd){ return pRelDCard(dd) })) +
+      pRelGroup('pd-e', '<svg style="width:14px;height:14px;color:#9575cd"><use href="#i-link"/></svg>延伸内容', '经直接关联一跳拓展 · ' + ext.length + ' 条 · 不再递归', ext.map(function(e){ return e.it.plays !== undefined ? pRelVCard(e.it, e.via) : pRelDCard(e.it, e.via) })) +
+      (pRelLockAny(relV.concat(relD, ext.map(function(e){ return e.it }))) ? pRelLockNote() : '') +
       '<div class="tip-note" style="margin-top:12px"><svg><use href="#i-info"/></svg><span>浏览行为将写入学习记录，工程中心可查看已读情况。</span></div>' +
     '</div></div>';
 }
@@ -7019,9 +7078,7 @@ function pVideoDetail(){
   pvPlaying = false;
   var wm = '';
   for(var i = 0; i < 15; i++) wm += '<span>工程中心知识库 · 王鹏 · 仅供学习使用</span>';
-  var relDAll = (v.rd || []).map(function(id){ return docs.filter(function(x){ return x.id === id })[0] }).filter(isEffective);
-  var relD = relDAll.filter(kbCanView), relDLock = relDAll.filter(function(d){ return !kbCanView(d) });
-  var related = pVideos().filter(function(x){ return (x.cat2 === v.cat2 || x.cat1 === v.cat1) && x.id !== v.id }).slice(0, 3);
+  var relD = pRelDocsOf(v), relV = pRelVideosOf(v), ext = pExtOf(v);
   var fav = pFav['v' + v.id];
   return '<div class="p-crumb"><a onclick="pGo(\'home\')">首页</a><span>/</span><a onclick="pGo(\'videos\')">视频学堂</a><span>/</span>' + catPathTxt(v) + '</div>' +
     '<div class="p-detail"><div class="p-dmain">' +
@@ -7047,22 +7104,10 @@ function pVideoDetail(){
       '</div>' +
       '<div class="p-act"><button class="btn ' + (fav ? 'ghost' : 'primary') + '" onclick="pToggleFav(\'v' + v.id + '\')"><svg><use href="#i-star"/></svg>' + (fav ? '已收藏' : '收藏') + '</button>' +
       pApplyBtn(v.name) + '</div>' +
-      ((relD.length || relDLock.length) ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#1f6bf1"><use href="#i-book"/></svg>配套资料（点击查看）</h4>' +
-        relD.map(function(d){
-          return '<div class="p-rel-item" onclick="pGo(\'docdetail\',' + d.id + ')"><span class="ic" style="background:linear-gradient(135deg,#3d8bff,#1f6bf1)"><svg><use href="#i-book"/></svg></span><span>' + d.name + ' <span style="color:#9aa2ae">' + d.ver + '</span></span><span class="mt">' + d.type + '</span></div>';
-        }).join('') +
-        relDLock.map(function(d){
-          return '<div class="p-rel-item locked" onclick="kbDenyDlg(\'doc\',' + d.id + ')" title="未向您开放 · 点击查看原因">' +
-            '<span class="ic"><svg><use href="#i-lock"/></svg></span>' +
-            '<span class="nm">' + d.name + ' <span style="color:#c1c6cf">' + d.ver + '</span><span class="lk"><svg style="width:11px;height:11px"><use href="#i-lock"/></svg>无查看权限</span></span>' +
-            '<span class="mt">' + d.type + '</span></div>';
-        }).join('') +
-        (relDLock.length ? '<div class="p-rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因或申请权限。</span></div>' : '') +
-        '</div>' : '') +
-      (related.length ? '<div class="p-rel"><h4><svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>相关视频</h4>' +
-        related.map(function(r){
-          return '<div class="p-rel-item" onclick="pGo(\'videodetail\',' + r.id + ')"><span class="ic" style="background:' + r.cover + '"><svg><use href="#i-play"/></svg></span><span>' + r.name + '</span><span class="mt">' + r.dur + '</span></div>';
-        }).join('') + '</div>' : '') +
+      pRelGroup('vd-d', '<svg style="width:14px;height:14px;color:#1f6bf1"><use href="#i-book"/></svg>配套资料（点击查看）', '共 ' + relD.length + ' 份 · 关联向导配置', relD.map(function(dd){ return pRelDCard(dd) })) +
+      pRelGroup('vd-v', '<svg style="width:14px;height:14px;color:#ff7d1a"><use href="#i-video"/></svg>配套视频（点击播放）', '共 ' + relV.length + ' 个 · 关联向导配置', relV.map(function(vv){ return pRelVCard(vv) })) +
+      pRelGroup('vd-e', '<svg style="width:14px;height:14px;color:#9575cd"><use href="#i-link"/></svg>延伸内容', '经直接关联一跳拓展 · ' + ext.length + ' 条 · 不再递归', ext.map(function(e){ return e.it.plays !== undefined ? pRelVCard(e.it, e.via) : pRelDCard(e.it, e.via) })) +
+      (pRelLockAny(relD.concat(relV, ext.map(function(e){ return e.it }))) ? pRelLockNote() : '') +
     '</div></div>';
 }
 function ppToggle(){
