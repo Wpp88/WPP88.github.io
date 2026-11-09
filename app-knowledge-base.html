@@ -258,6 +258,18 @@
   /* 视频库 */
   .thumb.t-vid{background:linear-gradient(150deg,#ffb066,#ff7d1a)}
   .thumb.t-vid svg{width:19px;height:19px}
+  /* V2.14 关联卡片（直接 + 延伸互链） */
+  .doc-item.rel{margin:0 6px 8px;padding:11px 12px}
+  .doc-item.rel .thumb{width:64px;height:40px;flex-direction:row;border-radius:8px}
+  .doc-item.rel .thumb svg{width:16px;height:16px}
+  .doc-item.locked{opacity:.62;filter:grayscale(.85)}
+  .lock-tag{display:inline-flex;align-items:center;gap:2px;font-size:9.5px;color:#9aa0ab;background:#eef0f4;border-radius:5px;padding:1px 6px;font-weight:600}
+  .lock-tag svg{width:10px;height:10px}
+  .via-tag{font-size:10px;color:#a8adb6}
+  .rel-note{margin:4px 6px 12px;background:#f7f8fa;border-radius:10px;padding:8px 10px;font-size:10.5px;color:#9aa0ab;display:flex;gap:6px;align-items:flex-start;line-height:1.5}
+  .rel-note svg{width:12px;height:12px;flex-shrink:0;margin-top:1px}
+  .rel-more{margin:0 6px 12px;text-align:center;font-size:11.5px;color:#3d7eff;padding:8px;border-radius:10px;background:#f0f5ff;font-weight:600}
+  .rel-more.off{color:#b3bcc9;background:#f7f8fa;font-weight:400}
   .vc-chip{font-size:10px;border-radius:5px;padding:2px 6px;line-height:1.4}
   .vc-chip.std{background:#e8f0ff;color:#3d7eff}
   .vc-chip.train{background:#e6f8ee;color:#0e7a41}
@@ -958,10 +970,77 @@ var searchHist = ['初尺复尺', '天花造型'];
 /* 资料 ↔ 视频关联（双向，详情页互跳） */
 function dById(id){ return DOCS.filter(function(d){ return d.id === id })[0] }
 function vById(id){ return VIDEOS.filter(function(v){ return v.id === id })[0] }
-dById(1).vid = [103]; dById(2).vid = [102]; dById(3).vid = [104]; dById(4).vid = [101];
+dById(1).vid = [103, 106]; dById(2).vid = [102]; dById(3).vid = [104]; dById(4).vid = [101];
 dById(6).vid = [103]; dById(8).vid = [105];
-vById(101).rd = [4]; vById(102).rd = [2]; vById(103).rd = [1, 6];
+vById(101).rd = [4, 18]; vById(102).rd = [2]; vById(103).rd = [1, 6];
+vById(103).vid = [105];
 vById(104).rd = [3]; vById(105).rd = [8]; vById(106).rd = [7];
+/* 视频 ↔ 视频关联（相关视频，双向生效）：DEC-ZS-034 取消同二级/同篇章算法推荐，改为人工关联 v.rv */
+vById(101).rv = [105]; vById(105).rv = [101];
+vById(103).rv = [106]; vById(106).rv = [103];
+
+/* V2.14 互链：NO_VIEW 模拟「已发布且已生效但不在本人可见范围」的关联内容（仅关联卡片灰显演示用） */
+var NO_VIEW = { 106: 1, 18: 1 };
+var relExpanded = {};
+function isLocked(x){ return !!NO_VIEW[x.id] }
+function relDeny(){ toast('该内容未对你开放，请联系内容管理员') }
+function assocOf(item){
+  var out = [];
+  (item.vid || []).forEach(function(id){ var v = vById(id); if(v) out.push(v) });
+  (item.rd || []).forEach(function(id){ var d = dById(id); if(d) out.push(d) });
+  return out;
+}
+/* 延伸关联（一跳不递归）：直接关联内容自身的关联内容，去重并记录来源 */
+function extOf(item){
+  var seen = {}; seen[item.id] = 1;
+  assocOf(item).forEach(function(x){ seen[x.id] = 1 });
+  var out = [];
+  assocOf(item).forEach(function(x){
+    assocOf(x).forEach(function(y){
+      if(seen[y.id]) return;
+      seen[y.id] = 1;
+      out.push({ it: y, via: x });
+    });
+  });
+  return out;
+}
+function viaTxt(via){ return ' <span class="via-tag">经《' + via.name + '》</span>' }
+function relVideoCard(v, via){
+  var locked = isLocked(v);
+  return '<div class="doc-item rel' + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="relDeny()"' : ' onclick="openVideoDetail(' + v.id + ')"') + '>' +
+    '<span class="thumb t-vid"><svg><use href="#i-play"/></svg>' + v.dur + '</span>' +
+    '<div class="doc-main"><div class="doc-title">' + v.name + (locked ? ' <span class="lock-tag"><svg><use href="#i-lock"/></svg>无查看权限</span>' : '') + '</div>' +
+    '<div class="doc-meta"><span>' + v.ver + '</span><span class="sep"></span><span>播放 ' + v.plays + ' 次</span>' + (via ? '<span class="sep"></span>' : '') + (via ? viaTxt(via) : '') + '</div></div>' +
+  '</div>';
+}
+function relDocCard(d, via){
+  var locked = isLocked(d);
+  return '<div class="doc-item rel' + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="relDeny()"' : ' onclick="openDetail(' + d.id + ')"') + '>' +
+    '<span class="thumb ' + thumbCls(d.type) + '"><svg><use href="#i-doc"/></svg>' + thumbTxt(d.type) + '</span>' +
+    '<div class="doc-main"><div class="doc-title">' + d.name + (locked ? ' <span class="lock-tag"><svg><use href="#i-lock"/></svg>无查看权限</span>' : '') + '</div>' +
+    '<div class="doc-meta"><span>' + d.ver + '</span><span class="sep"></span><span>阅读 ' + d.reads + ' 次</span><span class="sep"></span><span>更新 ' + d.updated.slice(5) + '</span>' + (via ? '<span class="sep"></span>' : '') + (via ? viaTxt(via) : '') + '</div></div>' +
+  '</div>';
+}
+/* 关联分组渲染：items 卡片数组 + 分组标题；默认 3 条，「查看全部 n 条」就地展开 */
+function relGroup(key, title, sub, cards){
+  if(!cards.length) return '';
+  var exp = !!relExpanded[key];
+  var shown = exp ? cards : cards.slice(0, 3);
+  var more = cards.length > 3
+    ? '<div class="rel-more" onclick="relToggle(\'' + key + '\')">' + (exp ? '收起' : '查看全部 ' + cards.length + ' 条') + '</div>'
+    : (exp ? '<div class="rel-more off">已展示全部</div>' : '');
+  return '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">' + title +
+    (sub ? '<span style="font-size:11px;color:#a8adb6;font-weight:400">' + sub + '</span>' : '') + '</div>' +
+    '<div style="margin-bottom:6px">' + shown.join('') + '</div>' + more;
+}
+function relToggle(key){
+  relExpanded[key] = !relExpanded[key];
+  if($('#s-kbdetail').classList.contains('active') && curDoc) renderDetail();
+  if($('#s-kbvideo-detail').classList.contains('active') && curVideo) renderVideoDetail();
+}
+function relLockNote(hasLock){
+  return hasLock ? '<div class="rel-note"><svg><use href="#i-info"/></svg><span>关联内容各自按自身可见范围授权，关联不扩大访问权限；灰色内容仅展示关联关系，点击可查看原因。</span></div>' : '';
+}
 
 /* 学习进度助手 */
 function videoProg(id){ var h = HISTORY.filter(function(x){ return x.kind === 'video' && x.id === id })[0]; return h ? (h.prog || 0) : 0 }
@@ -1570,9 +1649,13 @@ function renderVideoDetail(){
   for(var i = 0; i < 15; i++) wm += '<span>仅供内部使用 · 王鹏 · 2026-10-20</span>';
   var stateTxt = p >= 100 ? '<span class="done">已学完 · ' + v.dur + '</span>' : (p > 0 ? '<span class="half">学习中 ' + p + '%</span>' : '未开始');
   var relD = (v.rd || []).map(dById).filter(Boolean);
-  var rel = VIDEOS.filter(function(x){ return x.id !== v.id && x.cat2 === v.cat2 })
-    .concat(VIDEOS.filter(function(x){ return x.id !== v.id && x.cat1 === v.cat1 && x.cat2 !== v.cat2 }))
-    .concat(VIDEOS.filter(function(x){ return x.id !== v.id && x.cat1 !== v.cat1 })).slice(0, 3);
+<<<<<<< HEAD
+  var relV = (v.vid || []).map(vById).filter(Boolean);
+  var ext = extOf(v);
+  var hasLock = relD.some(isLocked) || relV.some(isLocked) || ext.some(function(e){ return isLocked(e.it) });
+=======
+  var rel = (v.rv || []).map(vById).filter(function(x){ return x && x.id !== v.id });
+>>>>>>> origin/main
   $('#vDetailBody').innerHTML =
     '<div class="preview-box">' +
       '<div class="vplayer">' +
@@ -1603,10 +1686,17 @@ function renderVideoDetail(){
       '</div>' +
       '<div class="safe-row"><svg><use href="#i-shield"/></svg>视频仅支持在线播放、不可下载外传；播放与完播行为自动回传工程中心。</div>' +
     '</div>' +
+<<<<<<< HEAD
+    relGroup('vd-d', '配套资料（点击查看）', '共 ' + relD.length + ' 份', relD.map(function(x){ return relDocCard(x) })) +
+    relGroup('vd-v', '配套视频（点击播放）', '共 ' + relV.length + ' 个', relV.map(function(x){ return relVideoCard(x) })) +
+    relGroup('vd-e', '延伸内容', '经关联内容拓展 · ' + ext.length + ' 条 · 不再递归', ext.map(function(e){ return e.it.plays !== undefined ? relVideoCard(e.it, e.via) : relDocCard(e.it, e.via) })) +
+    relLockNote(hasLock);
+=======
     (relD.length ? '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">配套资料（点击查看）</div>' +
       '<div style="margin-bottom:6px">' + relD.map(function(d){ return docItem(d) }).join('') + '</div>' : '') +
-    '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">相关视频</div>' +
-    '<div style="margin-bottom:16px">' + rel.map(function(x){ return vRow(x) }).join('') + '</div>';
+    (rel.length ? '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">相关视频</div>' +
+      '<div style="margin-bottom:16px">' + rel.map(function(x){ return vRow(x) }).join('') + '</div>' : '');
+>>>>>>> origin/main
   $('#vDetailBody').scrollTop = 0;
 }
 var vvTimer = null, vvPos = 0, vvDur = 0, vvPlaying = false, vvCurId = null;
@@ -1737,10 +1827,17 @@ function renderDetail(){
       '<div class="safe-row"><svg><use href="#i-shield"/></svg>在线预览仅限本人账号；对外分享可选游客链接（密码 + 有效期）或非游客链接（登录 + 可见权限），访客均不可下载、转存。</div>' +
     '</div>' +
     (function(){
+      /* V2.14 关联区：配套视频（直接）+ 关联资料（直接）+ 延伸内容（一跳互链），无关联整区不展示 */
+      var d = curDoc;
       var relV = (d.vid || []).map(vById).filter(Boolean);
-      if(!relV.length) return '';
-      return '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">配套视频（点击播放）</div>' +
-        '<div style="margin-bottom:16px">' + relV.map(function(v){ return vRow(v) }).join('') + '</div>';
+      var relD = (d.rd || []).map(dById).filter(Boolean);
+      var ext = extOf(d);
+      if(!relV.length && !relD.length && !ext.length) return '';
+      var hasLock = relV.some(isLocked) || relD.some(isLocked) || ext.some(function(e){ return isLocked(e.it) });
+      return relGroup('doc-v', '配套视频（点击播放）', '共 ' + relV.length + ' 个', relV.map(function(v){ return relVideoCard(v) })) +
+        relGroup('doc-d', '关联资料（点击查看）', '共 ' + relD.length + ' 份', relD.map(function(x){ return relDocCard(x) })) +
+        relGroup('doc-e', '延伸内容', '经关联内容拓展 · ' + ext.length + ' 条 · 不再递归', ext.map(function(e){ return e.it.plays !== undefined ? relVideoCard(e.it, e.via) : relDocCard(e.it, e.via) })) +
+        relLockNote(hasLock);
     })();
   $('#detailBody').scrollTop = 0;
 }
