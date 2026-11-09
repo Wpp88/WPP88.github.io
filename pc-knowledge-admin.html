@@ -5528,13 +5528,12 @@ function unreadDrillHtml(){
       '</div>' +
       '<button class="btn ghost sm" onclick="exportUnreadDrill()"><svg><use href="#i-export"/></svg>导出未读明细</button>' +
     '</div>' +
-    '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>授权来源端</th><th>最近活跃</th><th style="width:120px">操作</th></tr></thead><tbody>' +
+    '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>授权来源端</th><th>最近活跃</th></tr></thead><tbody>' +
     rows.map(function(x){
       return '<tr><td><div class="u-cell"><span class="avatar-sm" style="background:' + x.color + '">' + x.u[0] + '</span><span style="font-weight:500">' + x.u + '</span></div></td>' +
         '<td style="color:#8a919f;font-size:12.5px">' + x.sub + '</td>' +
         '<td><span class="src-chip ' + x.src + '"><i></i>' + (x.src === 'app' ? '内部 APP' : '鸣忙营造小程序') + '</span></td>' +
-        '<td style="color:#8a919f">' + x.last + '</td>' +
-        '<td><a class="op-link" onclick="toast(\'已向 ' + x.u + ' 推送阅读提醒（原型演示）\',1)">提醒阅读</a></td></tr>';
+        '<td style="color:#8a919f">' + x.last + '</td></tr>';
     }).join('') + '</tbody></table>' +
     (r.unread > rows.length ? '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">当前展示前 ' + rows.length + ' 位未读用户，其余 ' + (r.unread - rows.length) + ' 位请导出完整明细查看。</div>' : '');
 }
@@ -5562,13 +5561,12 @@ function unplayedDrillHtml(){
       '</div>' +
       '<button class="btn ghost sm" onclick="exportUnplayedDrill()"><svg><use href="#i-export"/></svg>导出未播放明细</button>' +
     '</div>' +
-    '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>授权来源端</th><th>最近活跃</th><th style="width:120px">操作</th></tr></thead><tbody>' +
+    '<table class="dtable"><thead><tr><th>用户</th><th>角色 / 组织</th><th>授权来源端</th><th>最近活跃</th></tr></thead><tbody>' +
     rows.map(function(x){
       return '<tr><td><div class="u-cell"><span class="avatar-sm" style="background:' + x.color + '">' + x.u[0] + '</span><span style="font-weight:500">' + x.u + '</span></div></td>' +
         '<td style="color:#8a919f;font-size:12.5px">' + x.sub + '</td>' +
         '<td><span class="src-chip ' + x.src + '"><i></i>' + (x.src === 'app' ? '内部 APP' : '鸣忙营造小程序') + '</span></td>' +
-        '<td style="color:#8a919f">' + x.last + '</td>' +
-        '<td><a class="op-link" onclick="toast(\'已向 ' + x.u + ' 推送观看提醒（原型演示）\',1)">提醒观看</a></td></tr>';
+        '<td style="color:#8a919f">' + x.last + '</td></tr>';
     }).join('') + '</tbody></table>' +
     (r.unplayed > rows.length ? '<div style="font-size:12px;color:#9aa2ae;padding:10px 2px">当前展示前 ' + rows.length + ' 位未播放用户，其余 ' + (r.unplayed - rows.length) + ' 位请导出完整明细查看。</div>' : '');
 }
