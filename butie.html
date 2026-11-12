@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>审核中心 R16–R22 迭代需求合并版（原型 + PRD）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f6f7;color:#26282c;line-height:1.7}
+.doc{max-width:1440px;margin:0 auto;padding:32px 24px 80px}
+h1{font-size:26px;margin-bottom:8px}
+.sub{color:#8a8f99;font-size:13px;margin-bottom:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:2px 12px;font-size:12px;color:#4b5563}
+.chip b{color:#26282c;font-weight:600}
+h2{font-size:20px;margin:36px 0 12px;padding-left:10px;border-left:4px solid #ff7d00}
+h3{font-size:16px;margin:24px 0 8px;padding-left:8px;border-left:3px solid #2f6bff}
+p{margin:8px 0;font-size:14px}
+ol,ul{padding-left:22px;font-size:14px}
+li{margin:6px 0}
+table{border-collapse:collapse;width:100%;background:#fff;font-size:13px;margin:10px 0}
+th,td{border:1px solid #e5e7eb;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f9fafb;font-weight:600}
+code{background:#f1f2f4;border-radius:4px;padding:1px 6px;font-size:12px;color:#c2410c}
+.note{background:#fff8ea;border-left:3px solid #ffb340;padding:8px 12px;font-size:12px;color:#8a6116;margin:10px 0}
+.tag{display:inline-block;border-radius:4px;padding:1px 8px;font-size:11px;white-space:nowrap}
+.tag.gray{background:#f1f2f4;color:#6b7280}
+.tag.orange{background:#fff3e6;color:#c56a1d}
+.tag.red{background:#fdecec;color:#c8352f}
+.tag.green{background:#e8f7ee;color:#0a7c3f}
+.tag.blue{background:#eef4ff;color:#2f6bff}
+/* 需求编号标签：合并原型中标注迭代点归属 */
+.rt{display:inline-block;background:#ff7d00;color:#fff;border-radius:8px;padding:0 7px;font-size:9px;font-weight:600;margin-left:4px;vertical-align:1px;white-space:nowrap}
+/* ===== 统一服务平台外壳（按截图还原） ===== */
+.shell{border:1px solid #d7dae0;border-radius:8px;overflow:hidden;font-size:12px;background:#f5f6f7;margin:12px 0}
+.top{display:flex;align-items:center;gap:14px;background:#fff;padding:0 14px;height:42px;border-bottom:1px solid #e5e7eb}
+.logo{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
+.logo i{display:inline-block;width:16px;height:16px;background:#2f6bff;border-radius:4px}
+.nav{display:flex;gap:2px}
+.nav span{padding:5px 12px;border-radius:6px;color:#4b5563}
+.nav span.on{color:#2f6bff;background:#eef4ff;font-weight:600}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:10px;color:#8a8f99}
+.top-r .ic{width:14px;height:14px;border:1.5px solid #8a8f99;border-radius:50%;display:inline-block}
+.top-r .bell{border:none;position:relative}
+.top-r .bell::after{content:"";position:absolute;top:-2px;right:-4px;width:7px;height:7px;background:#f24141;border-radius:50%}
+.avatar{width:22px;height:22px;border-radius:50%;background:#2f6bff;color:#fff;text-align:center;line-height:22px;font-size:10px}
+.top-r b{color:#26282c;font-weight:500;font-size:12px}
+.wrap{display:flex;align-items:stretch}
+.side{width:168px;background:#fff;border-right:1px solid #e5e7eb;padding:8px 0;flex:none}
+.side a{display:block;padding:6px 14px;color:#4b5563}
+.side a.on{background:#eef4ff;color:#2f6bff;font-weight:600}
+.side a.child{padding-left:30px}
+.side a.expand{font-weight:600;color:#26282c}
+.main{flex:1;padding:12px 14px;min-width:0}
+.ptabs{display:flex;gap:4px;margin-bottom:10px}
+.ptabs span{padding:4px 12px;color:#6b7280;border-radius:6px}
+.ptabs span.on{color:#2f6bff;font-weight:600;background:#eef4ff}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:10px}
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 14px;font-size:12px}
+.filters label{display:flex;align-items:center;gap:6px;color:#4b5563;white-space:nowrap}
+.filters input,.filters select{flex:1;min-width:0;border:1px solid #d7dae0;border-radius:4px;padding:3px 6px;font-size:11px;color:#6b7280;min-height:24px}
+.fbtns{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.btn{display:inline-block;border-radius:4px;padding:3px 14px;font-size:12px;cursor:pointer}
+.btn.ghost{border:1px solid #d7dae0;color:#4b5563;background:#fff}
+.btn.primary{border:1px solid #2f6bff;color:#fff;background:#2f6bff}
+.stabs{display:flex;flex-wrap:wrap;gap:18px;border-bottom:1px solid #e5e7eb;margin-bottom:8px;font-size:12px}
+.stabs span{padding:6px 2px;color:#4b5563;border-bottom:2px solid transparent}
+.stabs span.on{color:#2f6bff;font-weight:600;border-bottom-color:#2f6bff}
+.stabs .cnt{color:#8a8f99;font-weight:400;font-style:normal}
+.tbwrap{overflow-x:auto}
+.tbwrap table{margin:0;font-size:11px}
+.tbwrap th,.tbwrap td{padding:6px 8px;white-space:nowrap}
+.tbwrap th.new-col{background:#fff7ec;color:#c56a1d}
+.link{color:#2f6bff;cursor:pointer}
+.brand{display:inline-flex;align-items:center;gap:4px}
+.brand i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.pager{display:flex;justify-content:space-between;align-items:center;padding-top:8px;font-size:11px;color:#8a8f99}
+.pgn{display:flex;gap:4px;align-items:center}
+.pgn i{min-width:18px;height:18px;border:1px solid #d7dae0;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;background:#fff}
+.pgn i.on{border-color:#2f6bff;color:#2f6bff}
+/* 详情页样式 */
+.layout{display:flex;gap:10px;align-items:flex-start}
+.content{flex:1;min-width:0}
+.dcard{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:14px;margin-bottom:10px}
+.dhead{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#0a7c3f}
+.dhead.blue{color:#2f6bff}
+.dhead .ok{width:26px;height:26px;border-radius:50%;background:#0a7c3f;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.dhead.blue .ok{background:#2f6bff;font-size:13px}
+.store{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:13px;font-weight:600}
+.store .prj{color:#8a8f99;font-weight:400}
+.kv{display:flex;gap:24px;flex-wrap:wrap;font-size:12px;color:#4b5563}
+.kv b{color:#26282c}
+.sect{font-size:13px;font-weight:600;margin-bottom:8px}
+.cond{display:flex;gap:12px;flex-wrap:wrap}
+.cond .m{flex:1;min-width:120px;background:#f9fafb;border-radius:6px;padding:8px 12px;font-size:12px;position:relative}
+.cond .m b{display:block;font-size:16px;margin-top:2px;color:#26282c}
+.mats{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.mat{width:110px;flex:none;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;font-size:10px}
+.mat .thumb{height:64px;display:flex;align-items:center;justify-content:center;position:relative;background:#f1f2f4;color:#8a8f99;font-size:20px}
+.mat .badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);color:#fff;border-radius:8px;padding:0 6px;font-size:9px}
+.mat .info{padding:5px 7px}
+.mat .info b{display:block;font-size:11px;color:#26282c;font-weight:600}
+.mat .info span{color:#8a8f99}
+.mat .info .bt{display:inline-block;margin-top:3px;background:#f1f2f4;border-radius:3px;padding:0 5px;color:#4b5563}
+.bpm{width:330px;flex:none;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px}
+.bpm h4{font-size:13px;margin-bottom:10px}
+.node{padding:0 0 12px 18px;border-left:2px solid #e5e7eb;position:relative;font-size:11px}
+.node:last-child{border-left-color:transparent}
+.node::before{content:"";position:absolute;left:-7px;top:2px;width:12px;height:12px;border-radius:50%;background:#0a7c3f}
+.node.gray::before{background:#c9ccd2}
+.node.red::before{background:#c8352f}
+.node.blue::before{background:#2f6bff}
+.node .nm{font-weight:600;font-size:12px}
+.node .act{margin-top:3px;color:#4b5563}
+.node .tm{color:#8a8f99;font-size:10px;margin-top:1px}
+.node .cmt{margin-top:4px;background:#f9fafb;border-radius:4px;padding:4px 8px;color:#4b5563}
+.node .cxl{color:#8a8f99;font-size:10px;margin-top:2px}
+/* 角色分工栏 R21 */
+.rolebar{display:flex;gap:10px;flex-wrap:wrap}
+.role{flex:1;min-width:200px;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-size:12px;background:#fff}
+.role .rl{font-weight:600;margin-bottom:4px}
+.role.done{border-color:#bfe8cd;background:#f4fcf7}
+.role.cur{border-color:#2f6bff;background:#eef4ff;box-shadow:0 0 0 2px rgba(47,107,255,.15)}
+.role.cur .rl{color:#2f6bff}
+.role .step{float:right;font-size:10px;color:#8a8f99}
+/* 驳回记录/版本文件 R18 */
+.sumline{display:flex;gap:14px;align-items:center;font-size:12px;margin-bottom:6px}
+.sumline b.big{font-size:18px;color:#c8352f}
+.rc-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+.rc-table th,.rc-table td{border:1px solid #e5e7eb;padding:5px 8px;text-align:left}
+.rc-table th{background:#f9fafb}
+.vtabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.vtabs span{padding:4px 14px;border:1px solid #e5e7eb;border-radius:4px;color:#4b5563;background:#fff;font-size:12px}
+.vtabs span.on{border-color:#2f6bff;color:#2f6bff;font-weight:600;background:#eef4ff}
+.ver{border:1px solid #e5e7eb;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;background:#fff;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ver .vn{font-weight:700;color:#2f6bff}
+.files{display:flex;gap:6px;flex-wrap:wrap}
+.file{border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;color:#4b5563;background:#f9fafb}
+/* 新旧对比 R19 */
+.summary{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#eef4ff;border-radius:6px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.summary b{color:#2f6bff}
+.diff{width:100%;border-collapse:collapse;font-size:12px}
+.diff th,.diff td{border:1px solid #e5e7eb;padding:6px 10px;text-align:left}
+.diff th{background:#f9fafb;font-weight:600}
+.diff .fld{font-weight:600;color:#4b5563;white-space:nowrap}
+.ins{background:#e8f7ee;color:#0a7c3f}
+.del{background:#fdecec;color:#c8352f;text-decoration:line-through}
+.mod{background:#fff3e6;color:#c56a1d;font-weight:600}
+.chg{display:inline-block;min-width:44px;text-align:center;border-radius:3px;font-size:10px;padding:0 6px}
+.chg.g{background:#e8f7ee;color:#0a7c3f}
+.chg.o{background:#fff3e6;color:#c56a1d}
+.chg.r{background:#fdecec;color:#c8352f}
+.arr{color:#8a8f99;padding:0 4px}
+/* 招牌明细 R20 */
+.det{margin-top:8px;background:#fffdf7;border:1px solid #ffd9a0;border-radius:6px;padding:10px}
+.det .dt-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;font-weight:600;color:#c56a1d}
+.det table{width:100%;border-collapse:collapse;font-size:11px}
+.det th,.det td{border:1px solid #f0e2cc;padding:4px 8px;text-align:left}
+.det th{background:#fff6e9;font-weight:600}
+/* 档案更新 R22 */
+.banner{background:#eef4ff;border:1px solid #b8d2ff;border-radius:6px;padding:10px 12px;font-size:12px;color:#2f4a80;margin-bottom:10px}
+.rel{display:flex;gap:10px;flex-wrap:wrap}
+.rel .r{flex:1;min-width:220px;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-size:12px;background:#fff}
+.rel .r .rh{font-weight:600;margin-bottom:4px}
+.rel .r.src{background:#f9fafb}
+.rel .r.newflow{background:#fffdf7;border-color:#ffd9a0}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;margin:10px 0}
+.fbox{border:1px solid #d7dae0;border-radius:6px;padding:6px 12px;background:#fff;font-size:12px}
+.fbox.hl{border-color:#ff7d00;background:#fffdf7}
+/* 导出/提醒面板 R16 */
+.exp-box{border:1px solid #e5e7eb;border-radius:6px;background:#fff;max-width:460px;font-size:12px}
+.exp-box .h{padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:600}
+.exp-box .b{padding:10px 14px}
+.exp-box .grp{color:#8a8f99;font-size:11px;margin:8px 0 4px}
+.exp-box .row{padding:3px 0}
+.new{outline:1.5px dashed #ff7d00;outline-offset:2px;position:relative;background:#fffdf7}
+.new::before{content:"新增";background:#ff7d00;color:#fff;font-size:9px;padding:0 5px;border-radius:6px;margin-right:4px;font-weight:400}
+.footer-note{font-size:11px;color:#8a8f99;margin-top:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#8a8f99;margin:6px 0 12px;align-items:center}
+/* ===== 响应式自适应 ===== */
+@media (max-width:1100px){
+  .layout{flex-direction:column}
+  .bpm{width:100%}
+  .exp-box{max-width:100%}
+}
+@media (max-width:900px){
+  .side{display:none}
+  .wrap{display:block}
+  .main{padding:10px}
+  .filters label{flex-direction:column;align-items:flex-start;gap:2px}
+  .filters input,.filters select{width:100%;flex:none}
+  .stabs{gap:8px 14px}
+  .rolebar{flex-direction:column}
+  .cond .m{flex:1 1 calc(50% - 12px);min-width:0}
+  .rel{flex-direction:column}
+  .summary{flex-direction:column;align-items:flex-start;gap:6px}
+  .kv{flex-direction:column;gap:4px}
+  .flow{flex-direction:column;align-items:flex-start}
+  .ver{flex-direction:column;align-items:flex-start;gap:4px}
+  .ptabs{flex-wrap:wrap}
+  .pager{flex-direction:column;gap:4px;align-items:flex-start}
+  .tbwrap th,.tbwrap td{padding:5px 6px}
+  table.diff th,table.diff td{padding:5px 8px}
+}
+</style>
+</head>
+<body>
+<div class="doc">
+<h1>审核中心 · R16–R22 迭代需求合并版</h1>
+<div class="sub">【工程】【V2.2.2】产品需求池迭代 · 工程补贴审核专项 · 原型基于当前系统真实 UI（统一服务平台 审核列表 / 工程补贴审核详情 / 档案更新审核详情）+ 全量迭代点标注</div>
+<div class="chips">
+<span class="chip">业务模块：<b>审核中心（工程补贴审核）</b></span>
+<span class="chip">需求编号：<b>R16 – R22 共 7 项</b></span>
+<span class="chip">涉及端：<b>PC 端 + APP（鸣鸣工作台）</b></span>
+<span class="chip">取数基线：<b>public-platform-front + store-engineer-service 代码盘点</b></span>
+<span class="chip">编制日期：<b>2026-11-11</b></span>
+</div>
+
+<h2>零、迭代全景</h2>
+<table>
+<tr><th style="width:56px">编号</th><th>需求</th><th style="width:64px">类型</th><th style="width:88px">涉及端</th><th>依赖关系</th></tr>
+<tr><td><b>R16</b></td><td>工程补贴审核 10 天闭环时效提醒与导出</td><td>优化</td><td>PC + APP</td><td>独立；close_time 口径与 R21 协同（复审不阻塞，完成时间以审核人通过为准）</td></tr>
+<tr><td><b>R17</b></td><td>工程补贴审核筛选维度扩展</td><td>优化</td><td>PC</td><td>「流程审核完成时间」筛选依赖 R16 的 close_time 字段</td></tr>
+<tr><td><b>R18</b></td><td>驳回次数统计与版本文件查询</td><td>新功能</td><td>PC</td><td>版本快照是 R19 对比视图的前置</td></tr>
+<tr><td><b>R19</b></td><td>新旧申报数据对比展示</td><td>新功能</td><td>PC</td><td>依赖 R18 的申报版本序列</td></tr>
+<tr><td><b>R20</b></td><td>招牌面积明细前置展示</td><td>优化</td><td>PC</td><td>独立</td></tr>
+<tr><td><b>R21</b></td><td>任务节点角色显示 + 招商复审不阻塞主流程</td><td>新功能</td><td>PC</td><td>与 R16 闭环口径协同；列表「复审人」列与 R17 取数同源</td></tr>
+<tr><td><b>R22</b></td><td>档案更新关联补贴：单独发起补贴审核流程</td><td>新功能</td><td>PC</td><td>新流程自动享受 R16/R17/R18 全部能力；驳回次数口径与 R18 衔接</td></tr>
+</table>
+<p>七项需求共同指向一个目标：<b>把「工程补贴审核」从「能审完」升级为「可考核、可追溯、可分析」</b>——时效可考核（R16/R17），驳回可追溯（R18/R19），关键数据前置（R20），流程角色清晰且不被非关键节点阻塞（R21），工作量可统计（R22 拆独立流程）。</p>
+
+<h2>一、业务背景与痛点（合并）</h2>
+<ol>
+<li><b>时效无数据：</b>补贴审核要求新接收流程 10 天内闭环，由特定人全权负责并关联月底绩效，但系统无时效提醒、无超时标记，考核无数据支撑（R16）。</li>
+<li><b>筛选不足以统计：</b>补贴审核量大，现有筛选维度无法按审核人、大区、部门做绩效统计与分流查询（R17）。</li>
+<li><b>驳回不可追溯：</b>无法统计整体被驳回多少次、按口径拆分（设计/预结算/其他），也无法查询每轮申报的版本文件，返工分析缺数据（R18）；审核时只能人工翻两份文件对比本轮调整了什么，效率低且易漏（R19）。</li>
+<li><b>关键信息藏得深：</b>招牌面积的明细（组成部分、规格、面积拆分）藏在弹窗里，审核需逐个点开（R20）。</li>
+<li><b>流程角色不清、被非关键节点阻塞：</b>补贴流程要流转到招商复核，但未显示审核人/复审人角色分工，且前序流程不应被招商节点阻塞（R21）。</li>
+<li><b>工作量统计缺口径：</b>档案更新中涉及补贴的部分在档案流程里直接审批完，补贴审核月度工作量无法体现（R22）。</li>
+</ol>
+
+<h2>二、现状（代码盘点，合并基线）</h2>
+<h3>2.1 审核列表（PC · 统一服务平台 · 工程系统 · 审核中心 · 审核列表）</h3>
+<ul>
+<li>页面 <code>apps/engineering/src/views/engineering/AuditCenter/AuditList/index.vue</code>；数据接口 <code>POST /engineer/audit/list</code>（AuditController.java:45），页签计数接口 <code>POST /engineer/audit/statistics</code>（动态下发固定 4 态：审核中/审核完成/已驳回/已取消）。</li>
+<li>现有筛选 10 项（<code>AuditPageRequestVO.java:23-106</code>）：项目信息 prjInfo、门店信息 storeInfo、工程类型 prjTypes、所属品牌 storeBrands、审核类型 auditTypes、当前任务状态 taskStatus（仅异常监控有效）、提交人 createName、创建时间区间、开业日期区间、当前处理人 currentHandlerName；另有隐含参数 <code>onlyYou</code>（仅看待我审批）。</li>
+<li>现有列：项目编码/项目名称（链接跳详情）/所属品牌/审核类型/审核内容/审核状态/当前任务状态/提交人/审核人/复审人/创建时间/门店编码/开业时间。<b>审核人 auditorName、复审人 reAuditorName 字段虽在 VO 中，补贴类型 SQL 恒为空串</b>（来源 engineer_audit_operation 的 first_audit/re_audit 仅异常监控审核写入，AnomalyAuditRecordMapper.xml:805-808）。</li>
+<li>跳转分流（index.vue:301-336）：ARCHIVE_CHANGE_AUDIT → 档案更新审核详情；<b>ENGINEER_SUBSIDY_AUDIT → 补贴审核详情（subsidy-index.vue）</b>；MONITOR_AUDITED → 异常监控审核详情。</li>
+<li>导出走异步导出中心（<code>POST /export/submitExportTask</code>，bizTypeCode AUDIT_EXPORT 绑定 /engineer/audit/list），列配置在 <code>ExportConfigCenter.initAuditExportConfig</code>（审核信息组+门店信息组+空间与设施组）。<b>无时效、无驳回次数、无大区/审核人字段。</b></li>
+</ul>
+<h3>2.2 工程补贴审核详情（PC）</h3>
+<ul>
+<li>页面 <code>Detail/subsidy-index.vue</code>（路由 AuditSubsidyDetails）：状态头（SubsidyAuditDetailHeader，通过/驳回/更新档案按钮显隐由后端 showXxxBtn 字段控制）+ 项目信息卡 + 补贴条件信息（营业面积 businessArea / 开间长度 indoorBay / 招牌面积 signboardArea / 是否拐角 isCorner）+ 工程相关资料（平面图/下单/招牌/字体/户外招牌五组文件卡，无版本概念）+ 右侧 340px 审批流程时间线。</li>
+<li>取数口径（AuditService.subsidyInfoDetail:3229-3248）：营业面积/开间=DESIGN 版、拐角=ACCEPTANCE 版、招牌面积=SETTLEMENT_INFO 版且=主招牌+副招牌合计，<b>明细不单独输出</b>；招牌明细弹窗数据来自结算接口 getSettlementDetail(prjCode)，与补贴卡双数据源。</li>
+<li>审批流时间线数据驱动（<code>POST /bpm/workflow/approvals</code>）：节点名/参与人/动作/意见/驳回附件全部来自 BPM，前端仅写死「或签」标签与 25 种动作文案；「内部稽核」「工程设计负责人审核」等节点名不在前端代码中。</li>
+<li>驳回实现（AuditService.subsidyReject:3309-3379）：不改审核单状态、不生成新记录/新版本，仅 BPM 内部退回（按驳回节点路由设计/验收/结算负责人），驳回附件按 workItemId 存（SUBSIDY_REJECT_ATTACHMENT 模块）。<b>驳回次数、版本文件、新旧对比均无实现</b>；可复用资产为通用对比表组件 <code>co-diff-table</code>（档案更新审核详情已有先例）。</li>
+</ul>
+<h3>2.3 后端流程与数据模型</h3>
+<ul>
+<li>补贴流程模板 <code>gong_cheng_bu_tie</code>（BPM/authine 平台配置，代码中只有发起变量）；节点角色识别靠<b>名称匹配</b>：配置 AUDIT_BPM_SUBSIDY_AUDIT_ACTIVITY_NAME（默认「内部稽核;工程支持审核」）contains 匹配 + 首审编码 Activity3（AuditService.java:3466-3524）。<b>无招商复审节点、无对接招商系统迹象</b>。</li>
+<li>审核单实体 EngineerAnomalyAudit（engineer_anomaly_audit_record）无 SLA/接收时间/闭环时间/驳回次数字段；补贴审核不生成 TodoTask，XxlJob 超时扫描（TodoStatusUpdateHandler）只覆盖工程节点任务。</li>
+<li>门店维度数据 engineer_prj_store_inf 按 dataVersion 分版本留存（选址/勘场/设计/结算/验收/NEWEST），明细字段 signboardSize/subSignboardSize 等已齐备——R20 无需新增建模。</li>
+<li>档案更新流程 dang_an_geng_xin（ArchiveChangeServiceImpl）：<b>已有「涉及补贴」判定 isRelatedAllowance</b>（新店/迁址 + 开间/拐角/营业面积/招牌信息变更，1368-1407），但仅作 BPM 网关路由变量，未拆独立流程；补贴详情「更新档案信息」按钮的 <code>approveAndSave</code> 双写接口存在中间态风险。</li>
+<li>提醒仅企微一次性消息（SUBSIDY_READY/SUBSIDY_REJECT/ARCHIVE_UPDATE_AUDIT）；APP 待办角标已有数据源 <code>GET /engineer/audit/benefit/{resource}</code> 可复用。</li>
+</ul>
+
+<h2>三、功能需求详述（R16–R22）</h2>
+
+<h3>R16 工程补贴审核 10 天闭环时效提醒与导出</h3>
+<ol>
+<li><b>时效规则（审核类型 = 工程补贴审核）：</b>
+  <ul>
+  <li>进入待办后第 <b>7 天</b>未闭环 → 标记「<span class="tag orange">即将超时</span>」（橙色标签）；</li>
+  <li>超过 <b>10 天</b>未闭环 → 标记「<span class="tag red">已超时</span>」（红色标签 + 超时时长展示）；</li>
+  <li>时效起算点 = 补贴审核流程<b>接收时间</b>（流程进入当前审核人待办的时刻，取 BPM 审批记录 approvalTime，落库为补贴审核单新字段 receive_time）；闭环点 = 流程审核完成 / 驳回终态时间（close_time；R21 落地后招商复审非阻塞，close_time 以审核人通过时间为准）。</li>
+  </ul></li>
+<li><b>提醒动作：</b>第 7 天触发一次提醒（APP 待办角标——复用 <code>/engineer/audit/benefit</code> 待办数据源叠加时效标识 + PC 待办「即将超时」样式）；第 10 天触发超时提醒并抄送工程督察组负责人。</li>
+<li><b>列表展示：</b>审核列表补贴类记录新增「剩余时效 / 超时时长」列（服务端按自然日计算下发）；状态页签在现有 4 态基础上增加「即将超时」「已超时」快捷筛选（仅补贴类型生效，计数并入 statistics 接口）。</li>
+<li><b>导出：</b>AUDIT_EXPORT 导出配置新增「接收时间、闭环时间、耗时天数、时效状态（正常/即将超时/已超时）」4 个字段，支撑月底绩效核算。</li>
+<li><b>口径：</b>节假日不顺延（自然日）；流程中途被取消（CANCEL）不计时效。</li>
+</ol>
+
+<h3>R17 工程补贴审核筛选维度扩展</h3>
+<ol>
+<li><b>新增筛选项（4 项）：</b>
+  <ul>
+  <li><b>审核人（督察）</b>：人员选择器，取补贴审核流程中「审核人」角色（内部稽核/首审节点）的实际处理人（BPM 审批记录），替代现状恒空的 auditorName；</li>
+  <li><b>大区</b>：复用系统大区设置枚举（与项目所属大区一致）；</li>
+  <li><b>部门维度</b>：按审核流程参与人所属部门（工程督察/招商等组织架构）多选；</li>
+  <li><b>流程审核完成时间</b>：日期区间（起 - 止），取 close_time 终态时刻。</li>
+  </ul></li>
+<li><b>列联动：</b>列表新增「所属大区」「审核人（督察）」列；导出文件同步新增 4 项筛选对应字段。</li>
+<li><b>组合查询：</b>新增筛选与现有 10 项筛选任意叠加（AND 关系），兼容 onlyYou 开关。</li>
+</ol>
+
+<h3>R18 工程补贴审核：驳回次数统计与版本文件查询</h3>
+<ol>
+<li><b>驳回次数统计：</b>补贴详情页新增「驳回记录」区块：
+  <ul>
+  <li>汇总：累计驳回 N 次；</li>
+  <li>分口径：按申报数据类型拆分（设计数据 X 次、预结算数据 Y 次、其他口径 Z 次，分类枚举可配置；口径映射取驳回时选择的驳回节点——工程设计/项目验收/工程结算）；</li>
+  <li>明细列表：每次驳回的时间、驳回环节、驳回人、驳回原因（数据源 = BPM 审批记录解析结构化落库，不再只依赖时间线渲染）。</li>
+  </ul></li>
+<li><b>版本文件查询：</b>补贴详情新增「版本文件」TAB——每轮申报对应一个版本（V1、V2…），每版本可查看/下载该轮提交的完整文件包（六类材料文件按版本快照留存，驳回附件按 workItemId 归入对应版本）；版本与驳回记录一一关联（驳回后重新提交生成新版本）。</li>
+<li><b>列表联动：</b>审核列表新增「累计驳回次数」列；导出同步。</li>
+<li><b>统计口径：</b>同一流程内「驳回 → 重新提交」计一轮；流程级重新发起（R22 拆出的新补贴流程）不计入本流程驳回次数。</li>
+</ol>
+
+<h3>R19 工程补贴审核：新旧申报数据对比展示</h3>
+<ol>
+<li><b>对比视图：</b>补贴审核详情新增「新旧对比」视图（与补贴信息/版本文件并列）：左侧上一版本申报数据、右侧当前版本，逐字段对齐展示（复用 co-diff-table 组件）。</li>
+<li><b>差异高亮：</b>发生变化的字段（金额、面积、数量、清单项增减等）高亮标注变更（旧值 → 新值），新增项标绿、删除项标红、修改项标橙；文件字段支持新旧文件对照。</li>
+<li><b>变更摘要：</b>视图顶部生成变更摘要（变更字段数、金额合计差异 = 新 − 旧），审核人可一键确认「已核对差异」（确认动作随审批意见留痕到 BPM）。</li>
+<li><b>入口条件：</b>首轮申报（无上一版本）不显示对比视图，提示「首轮申报无对比数据」。</li>
+<li><b>权限：</b>审核人、复审人、工程督察组可查看；提交人不可见（防逆向凑数）。</li>
+</ol>
+
+<h3>R20 工程补贴审核：招牌面积明细前置展示</h3>
+<ol>
+<li><b>详情页直出：</b>「招牌面积」汇总值下方直接展开明细表（明细项名称、规格/尺寸、数量、小计面积），无需二次点击；取数统一改由补贴详情接口输出（SETTLEMENT_INFO 版明细，与汇总值同源同口径，消除补贴卡与结算弹窗双数据源不一致）。异形招牌显「面积 m²」、普通招牌显「长 m × 宽 m」（沿用现有 formatSize 口径）。</li>
+<li><b>合计校验：</b>明细小计之和与汇总值实时校验，不一致时红色提示「明细合计与汇总不符」，提交审核时拦截。</li>
+<li><b>可折叠：</b>明细区支持折叠/展开记忆（默认展开）；导出补贴审核数据时同步输出明细行。</li>
+</ol>
+
+<h3>R21 工程补贴审核：任务节点角色显示 + 招商复审不阻塞主流程</h3>
+<ol>
+<li><b>节点角色显示：</b>补贴审核详情的当前任务节点区域显示：审核人：综合稽核（督察）、复审人：督察 / 招商人员，随流程当前所处环节高亮对应角色（已完成=绿、当前=蓝、未开始=灰）。</li>
+<li><b>流程编排：</b>
+  <ul>
+  <li>审核人（综合稽核-督察）通过后，流程自动流转到招商（复审人：招商人员；BPM 模板 gong_cheng_bu_tie 增加招商复审节点）；</li>
+  <li>招商复审为<b>非阻塞节点</b>：复审结论（通过/存疑）不改变整体流程进度，流程完成时间（close_time）以审核人通过时间为准；</li>
+  <li>复审驳回仅产生「复审意见」记录并通知审核人，不回退主流程状态。</li>
+  </ul></li>
+<li><b>系统对接：</b>复审节点与招商系统对接（复审人身份、复审动作回传），对接失败时复审在工程系统内兜底完成，不阻塞流程。</li>
+<li><b>列表联动：</b>「复审人」列展示当前复审人（招商人员），复审状态在「当前任务状态」中体现为「复审中（不阻塞）」；补贴行审核人列同步输出初审实际处理人。</li>
+</ol>
+
+<h3>R22 档案更新关联补贴：单独发起补贴审核流程</h3>
+<ol>
+<li><b>拆分规则：</b>档案更新提交时，系统识别本次更新中「涉及补贴金额/补贴项」的内容（复用现有 isRelatedAllowance 判定口径：新店/迁址 + 开间/拐角/营业面积/招牌信息变更）：
+  <ul>
+  <li>涉及补贴 → 自动新发起一条独立的补贴审核流程（审核类型：<b>工程补贴审核-档案更新</b>，audited_type 新枚举值），原档案更新流程继续走档案审批本身；</li>
+  <li>不涉及补贴 → 维持现状，不生成新流程。</li>
+  </ul></li>
+<li><b>关联关系：</b>新补贴流程与源档案更新流程双向关联（详情页互跳链接 + 源单号字段），审计可追溯。</li>
+<li><b>审核口径：</b>新流程享受 R16 时效（10 天闭环）、R17 筛选、R18 驳回统计等全部补贴审核能力；绩效统计（月度补贴审核工作量）按「独立流程数」计数。</li>
+<li><b>存量：</b>上线前已在档案更新流程中审批完的关联补贴不回溯拆分；上线后存量进行中的档案更新，在下次提交涉及补贴内容时触发拆分。</li>
+</ol>
+
+<h2>四、合并 HTML 原型</h2>
+<div class="legend">
+<b>图例：</b> <span class="rt">R16</span><span class="rt">R17</span>… 为迭代点归属需求编号；黄色虚线框 = 新增元素；<span class="tag gray">灰</span>=现状保持。
+</div>
+
+<h3>原型一 · 审核列表（全迭代点叠加：R16 时效列+页签 / R17 筛选+列 / R18 驳回次数列 / R21 复审列+状态 / R22 新审核类型）</h3>
+<div class="shell">
+<div class="top">
+  <div class="logo"><i></i>统一服务平台</div>
+  <div class="nav"><span>全部</span><span>门店系统</span><span class="on">工程系统</span><span>前端发布平台</span><span>鸣鸣百宝箱</span></div>
+  <div class="top-r"><span class="ic"></span><span class="ic bell"></span><span class="ic"></span><span class="avatar">王</span><b>王鹏</b></div>
+</div>
+<div class="wrap">
+  <div class="side">
+    <a>工作台</a><a>工程大盘</a><a>项目管理</a><a>线下勘场</a><a>设计中心</a><a>工程造价</a><a>施工巡检</a><a>项目验收</a><a>工程督查</a><a>物资预报</a><a>工程回访</a><a>合作商管理</a><a>资产管理</a><a class="expand">审核中心 ▾</a><a class="child on">审核列表</a><a>系统设置</a><a style="color:#8a8f99">收起菜单</a>
+  </div>
+  <div class="main">
+    <div class="ptabs"><span>工作台</span><span class="on">审核列表</span></div>
+    <div class="card">
+      <div class="filters">
+        <label>项目信息<input placeholder="项目名称/编号"></label>
+        <label>门店信息<input placeholder="门店名称/编号"></label>
+        <label>工程类型<select><option>请选择</option></select></label>
+        <label>所属品牌<select><option>请选择</option></select></label>
+        <label>审核类型<select><option>工程补贴审核</option><option class="new">工程补贴审核-档案更新</option></select></label>
+        <label>当前任务状态<select><option>请选择</option></select></label>
+        <label>提交人<input placeholder="请输入"></label>
+        <label>创建时间<input placeholder="开始日期 ~ 结束日期"></label>
+        <label>开业日期<input placeholder="开始日期 ~ 结束日期"></label>
+        <label>当前处理人<input placeholder="请输入"></label>
+        <label class="new">审核人（督察）<select><option>周毅洁</option></select><span class="rt">R17</span></label>
+        <label class="new">大区<select><option>华东大区</option></select><span class="rt">R17</span></label>
+        <label class="new">部门维度<select><option>工程督察</option><option>招商</option></select><span class="rt">R17</span></label>
+        <label class="new">流程审核完成时间<input placeholder="开始日期 ~ 结束日期"><span class="rt">R17</span></label>
+      </div>
+      <div class="fbtns" style="margin-top:8px">
+        <button class="btn ghost">导出（含 R16/R17/R18 新字段）</button>
+        <button class="btn ghost">收起</button>
+        <button class="btn primary">搜索</button>
+        <button class="btn ghost">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stabs">
+        <span class="on">全部 <i class="cnt">197</i></span>
+        <span>审核中 <i class="cnt">115</i></span>
+        <span>审核完成 <i class="cnt">82</i></span>
+        <span>已驳回 <i class="cnt">0</i></span>
+        <span>已取消 <i class="cnt">0</i></span>
+        <span class="new" style="color:#c56a1d">即将超时 <i class="cnt">3</i><span class="rt">R16</span></span>
+        <span class="new" style="color:#c8352f">已超时 <i class="cnt">1</i><span class="rt">R16</span></span>
+      </div>
+      <div class="tbwrap">
+      <table>
+        <tr>
+          <th><input type="checkbox" disabled></th><th>项目编码</th><th>项目名称</th><th>所属品牌</th><th class="new-col">所属大区<span class="rt">R17</span></th><th>审核类型</th><th>审核内容</th><th>审核状态</th><th>当前任务状态</th><th>提交人</th><th class="new-col">审核人（督察）<span class="rt">R17</span></th><th>复审人</th><th class="new-col">累计驳回次数<span class="rt">R18</span></th><th class="new-col">剩余时效/超时时长<span class="rt">R16</span></th><th>创建时间</th><th>门店编码</th><th>开业时间</th>
+        </tr>
+        <tr>
+          <td><input type="checkbox" disabled></td><td>P20260810565</td><td class="link">【新店】新疆乌鲁木齐新疆大学博达校区店</td><td><span class="brand"><i style="background:#e02020"></i>赵一鸣</span></td><td style="background:#fffdf7">西北大区</td><td>工程补贴审核</td><td>补贴资料审核</td><td><span class="tag green">审核完成</span></td><td>复审完成（通过）<span class="rt">R21</span></td><td>胡思艳</td><td style="background:#fffdf7">周毅洁</td><td style="background:#fffdf7">罗小芳（招商）<span class="rt">R21</span></td><td style="background:#fffdf7">2</td><td style="background:#fffbe8">闭环 2026-10-19（7 天闭环）</td><td>2026-09-29 16:52</td><td>231A0015</td><td>2026-09-22</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" disabled></td><td>P20260811080</td><td class="link">【新店】怀化溆浦小横垅乡店</td><td><span class="brand"><i style="background:#ff7d00"></i>零食很忙</span></td><td style="background:#fffdf7">华中大区</td><td>工程补贴审核</td><td>补贴资料审核</td><td><span class="tag blue">审核中</span></td><td><span class="tag blue">复审中（不阻塞）</span><span class="rt">R21</span></td><td>王丽玲</td><td style="background:#fffdf7">周毅洁</td><td style="background:#fffdf7">罗小芳（招商）<span class="rt">R21</span></td><td style="background:#fffdf7">0</td><td style="background:#f4f5f7">剩 5 天 <span class="tag gray">正常</span></td><td>2026-09-29 16:33</td><td>231A0088</td><td>2026-10-08</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" disabled></td><td>P20260810055</td><td class="link">【新店】鹰潭一中店</td><td><span class="brand"><i style="background:#e02020"></i>赵一鸣</span></td><td style="background:#fffdf7">华东大区</td><td style="background:#fffdf7"><span class="tag orange">工程补贴审核-档案更新</span><span class="rt">R22</span></td><td>补贴资料审核</td><td><span class="tag blue">审核中</span></td><td>内部稽核审核中</td><td>王丽玲</td><td style="background:#fffdf7">陈敏</td><td>--</td><td style="background:#fffdf7">0</td><td style="background:#fff3e6">剩 1 天 <span class="tag orange">即将超时</span></td><td>2026-11-10 09:32</td><td>231A0063</td><td>2026-10-15</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" disabled></td><td>P20260812031</td><td class="link">【新店】北京朝阳小营北路店</td><td><span class="brand"><i style="background:#ff7d00"></i>零食很忙</span></td><td style="background:#fffdf7">华北大区</td><td>工程补贴审核</td><td>补贴资料审核</td><td><span class="tag blue">审核中</span></td><td>--</td><td>王丽玲</td><td style="background:#fffdf7">周毅洁</td><td style="background:#fffdf7">3</td><td style="background:#fdecec"><b style="color:#c8352f">已超时 3 天</b> <span class="tag red">已超时</span></td><td>2026-09-29 16:23</td><td>231A0112</td><td>2026-11-20</td>
+        </tr>
+      </table>
+      </div>
+      <div class="pager"><span>已选 0 项</span><span class="pgn">共 197 条 <i>100条/页</i> <i>&lt;</i><i class="on">1</i><i>2</i><i>&gt;</i></span></div>
+      <p class="footer-note">底纹/虚线框/编号标签均为迭代点：R16 时效列+页签、R17 所属大区+审核人列、R18 累计驳回次数列、R21 复审人列+当前任务状态、R22 新审核类型行；「即将超时/已超时」页签仅补贴类型生效。</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<h3>原型二 · 工程补贴审核详情（全迭代点叠加：R18 驳回记录+版本文件 / R19 新旧对比 / R20 招牌明细 / R21 角色栏+招商复审节点）</h3>
+<div class="shell">
+<div class="top">
+  <div class="logo"><i></i>统一服务平台</div>
+  <div class="nav"><span>全部</span><span>门店系统</span><span class="on">工程系统</span><span>前端发布平台</span><span>鸣鸣百宝箱</span></div>
+  <div class="top-r"><span class="ic"></span><span class="ic bell"></span><span class="ic"></span><span class="avatar">王</span><b>王鹏</b></div>
+</div>
+<div class="wrap">
+  <div class="side">
+    <a>工作台</a><a>工程大盘</a><a>项目管理</a><a>线下勘场</a><a>设计中心</a><a>工程造价</a><a>施工巡检</a><a>项目验收</a><a>工程督查</a><a>物资预报</a><a>工程回访</a><a>合作商管理</a><a>资产管理</a><a class="expand">审核中心 ▾</a><a class="child on">审核列表</a><a>系统设置</a><a style="color:#8a8f99">收起菜单</a>
+  </div>
+  <div class="main">
+    <div class="ptabs"><span>工作台</span><span>审核列表</span><span class="on">工程补贴审核详情</span></div>
+    <div class="layout">
+      <div class="content">
+        <div class="dcard">
+          <div class="dhead"><span class="ok">✓</span>审核完成 · 招商复审中（不阻塞）<span class="rt">R21</span></div>
+          <div class="store" style="margin-top:10px">
+            <span>【新店】新疆乌鲁木齐新疆大学博达校区店</span><span class="prj">(P20260810565)</span>
+            <span class="tag green">已开业</span>
+          </div>
+          <div class="kv"><span>门店编码：<b>231A0015</b></span><span>开业时间：<b>2026-09-22</b></span><span>详细地址：<b>新疆维吾尔自治区乌鲁木齐市…</b></span></div>
+        </div>
+        <div class="dcard new">
+          <div class="sect">当前任务节点 · 角色分工<span class="rt">R21</span></div>
+          <div class="rolebar">
+            <div class="role done"><div class="rl">审核人 <span class="step">① 已完成</span></div><div class="rv">综合稽核（督察）· 周毅洁<br>通过时间：2026-10-19 09:48:31</div></div>
+            <div class="role cur"><div class="rl">复审人 <span class="step">② 当前环节</span></div><div class="rv">招商人员 · 罗小芳（招商系统回传）<br><span class="tag blue">复审中（不阻塞）</span> 主流程已按审核人通过时间闭环</div></div>
+            <div class="role"><div class="rl">工程支持复审 <span class="step">按需</span></div><div class="rv">督察 · 王丽玲（存疑时可提复审意见，仅记录，不回退）</div></div>
+          </div>
+        </div>
+        <div class="dcard">
+          <div class="vtabs">
+            <span class="on">补贴信息（含 R20 明细）</span>
+            <span class="new">驳回记录<span class="rt">R18</span></span>
+            <span class="new">版本文件<span class="rt">R18</span></span>
+            <span class="new">新旧对比<span class="rt">R19</span></span>
+          </div>
+          <div class="sect" style="margin-top:2px">补贴条件信息</div>
+          <div class="cond">
+            <div class="m">营业面积<b>190 m²</b></div>
+            <div class="m">开间长度<b>7.04 m</b></div>
+            <div class="m" style="background:#fffdf7;outline:1.5px solid #ffd9a0">招牌面积<b>13.8 m²</b><span class="rt">R20</span>
+              <div class="det">
+                <div class="dt-h"><span>招牌面积明细（直出展示）</span><a style="color:#2f6bff;cursor:pointer">收起 ▴</a></div>
+                <table>
+                  <tr><th>明细项名称</th><th>规格/尺寸</th><th>数量</th><th>小计面积</th></tr>
+                  <tr><td>主招牌（异形）</td><td>4.80 m²</td><td>1</td><td>4.80 m²</td></tr>
+                  <tr><td>主招牌（普通）</td><td>长 5.0 m × 宽 0.8 m</td><td>2</td><td>8.00 m²</td></tr>
+                  <tr><td>副招牌（普通）</td><td>长 3.2 m × 宽 0.3125 m</td><td>1</td><td>1.00 m²</td></tr>
+                  <tr><td><b>合计</b></td><td></td><td>4</td><td><b>13.80 m²</b> <span class="tag green">与汇总一致</span></td></tr>
+                </table>
+                <div class="footer-note">明细与汇总值同源同口径（SETTLEMENT_INFO 版）；不一致时红色提示并在提交审核时拦截；折叠状态记忆。</div>
+              </div>
+            </div>
+            <div class="m">是否为拐角店<b>是</b></div>
+          </div>
+        </div>
+        <div class="dcard">
+          <div class="sect">驳回记录<span class="rt">R18</span>（TAB 展开态示意）</div>
+          <div class="sumline">
+            <span>累计驳回 <b class="big">2</b> 次</span>
+            <span class="tag orange">设计数据驳回 1 次</span>
+            <span class="tag orange">预结算数据驳回 1 次</span>
+            <span class="tag gray">其他口径驳回 0 次</span>
+          </div>
+          <table class="rc-table">
+            <tr><th>驳回时间</th><th>驳回环节（口径）</th><th>驳回人</th><th>驳回原因</th><th>版本</th></tr>
+            <tr><td>2026-10-07 17:39:09</td><td>设计数据（工程设计）</td><td>周毅洁</td><td>驳回工程补贴审核申请：开间长度与平面图不符</td><td class="link">V1</td></tr>
+            <tr><td>2026-09-15 10:22:47</td><td>预结算数据（工程结算）</td><td>周毅洁</td><td>驳回工程补贴审核申请：招牌面积明细缺失</td><td class="link">V1</td></tr>
+          </table>
+        </div>
+        <div class="dcard">
+          <div class="sect">版本文件<span class="rt">R18</span>（TAB 展开态示意）· 与驳回记录一一关联</div>
+          <div class="ver"><span><span class="vn">V3</span> 当前轮 · 2026-09-29 提交（胡思艳）</span><span class="files"><span class="file">平面图.pdf</span><span class="file">下单图.pdf</span><span class="file">招牌下单图.jpg</span><span class="file">门头招牌视频 (4)</span><span class="file">室外-店招 (3)</span></span></div>
+          <div class="ver"><span><span class="vn">V2</span> 2026-10-12 重新提交（姜正军）<span class="tag gray" style="margin-left:4px">前次驳回：设计数据</span></span><span class="files"><span class="file">平面图.pdf</span><span class="file">下单图.pdf</span><span class="file">招牌下单图.jpg</span></span></div>
+          <div class="ver"><span><span class="vn">V1</span> 2026-09-01 首次申报（胡思艳）<span class="tag gray" style="margin-left:4px">前次驳回：预结算数据</span></span><span class="files"><span class="file">平面图.pdf</span><span class="file">招牌下单图.jpg</span></span></div>
+          <p class="footer-note">每版本支持查看 / 下载完整文件包；驳回附件（SUBSIDY_REJECT_ATTACHMENT）按 workItemId 归入对应版本。</p>
+        </div>
+        <div class="dcard">
+          <div class="sect">新旧对比<span class="rt">R19</span>（TAB 展开态示意）</div>
+          <div class="summary">
+            <span><b>V2</b>（2026-10-12 申报）vs <b>V3</b>（当前）</span>
+            <span>变更字段数：<b>3</b></span>
+            <span>面积合计差异：<b>+1.5 m²</b></span>
+            <span style="margin-left:auto"><button class="btn primary">一键确认「已核对差异」</button></span>
+          </div>
+          <table class="diff">
+            <tr><th style="width:160px">字段</th><th style="width:36%">上一版本（V2）</th><th>当前版本（V3）</th><th style="width:64px">变更</th></tr>
+            <tr><td class="fld">营业面积</td><td>190 m²</td><td>190 m²</td><td><span class="tag gray">未变</span></td></tr>
+            <tr><td class="fld">开间长度</td><td><span class="del">6.80 m</span> <span class="arr">→</span> <span class="mod">7.04 m</span></td><td><span class="mod">7.04 m</span></td><td><span class="chg o">修改</span></td></tr>
+            <tr><td class="fld">招牌面积</td><td><span class="del">12.3 m²</span> <span class="arr">→</span> <span class="mod">13.8 m²</span></td><td><span class="mod">13.8 m²</span>（+1.5）</td><td><span class="chg o">修改</span></td></tr>
+            <tr><td class="fld">副招牌尺寸</td><td>--</td><td class="ins">长 3.2 m × 宽 0.8 m（新增项）</td><td><span class="chg g">新增</span></td></tr>
+            <tr><td class="fld">高空广告位画面</td><td class="del">高空广告位申报.jpg</td><td class="del">--（本轮删除）</td><td><span class="chg r">删除</span></td></tr>
+          </table>
+          <p class="footer-note">首轮申报时此 TAB 显示「首轮申报无对比数据」；权限：审核人/复审人/工程督察组可见，提交人不可见。</p>
+        </div>
+        <div class="dcard">
+          <div class="sect">工程相关资料（现状保持）</div>
+          <div class="mats">
+            <div class="mat"><div class="thumb">PDF<span class="badge">共1个</span></div><div class="info"><b>平面图</b><span>姜正军</span><br><span class="bt">工程设计</span></div></div>
+            <div class="mat"><div class="thumb" style="background:#fff3e6;color:#c56a1d">A<span class="badge">共1个</span></div><div class="info"><b>下单图</b><span>姜正军</span><br><span class="bt">工程设计</span></div></div>
+            <div class="mat"><div class="thumb" style="background:#d9e8f5">招牌<span class="badge">共1个</span></div><div class="info"><b>招牌下单图</b><span>胡思艳</span><br><span class="bt">工程结算</span></div></div>
+            <div class="mat"><div class="thumb" style="background:#e8e3d9">视频<span class="badge">共4个</span></div><div class="info"><b>门头招牌/视频</b><span>席伟</span><br><span class="bt">线下勘场</span></div></div>
+            <div class="mat"><div class="thumb" style="background:#f5dede">店招<span class="badge">共3个</span></div><div class="info"><b>室外-店招</b><span>席伟</span><br><span class="bt">项目验收</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bpm">
+        <h4>审批流程</h4>
+        <div class="node blue">
+          <div class="nm">招商复审 <span class="tag orange">非阻塞</span><span class="rt">R21</span></div>
+          <div class="act">罗小芳（招商）<span class="tag blue">复审中</span></div>
+          <div class="tm">2026-10-19 09:48 起计时 · 主流程完成时间以审核人通过为准</div>
+          <div class="cmt" style="background:#fffdf7">复审意见（若驳回）仅记录并通知审核人，不回退主流程状态</div>
+        </div>
+        <div class="node">
+          <div class="nm">内部稽核 <span class="tag blue">或签</span></div>
+          <div class="act">周毅洁 <span class="tag green">同意</span></div>
+          <div class="tm">2026-10-19 09:48:31 · 已审核</div>
+          <div class="cmt" style="background:#fffdf7">已核对差异：3 个字段<span class="rt">R19</span></div>
+        </div>
+        <div class="node gray">
+          <div class="nm">工程设计负责人审核 <span class="tag blue">或签</span></div>
+          <div class="act">郭超 <span class="tag green">同意</span></div>
+          <div class="tm">2026-10-15 16:00:04</div>
+          <div class="cxl">被取消：梅刚 2026-10-12 · 王鹏 2026-10-12 · 李国文 2026-10-12 · 王树 · 王飞 · 流程管理员 · 刘佳琪</div>
+        </div>
+        <div class="node red">
+          <div class="nm">内部稽核 <span class="tag blue">或签</span></div>
+          <div class="act">周毅洁 <span class="tag red">驳回</span></div>
+          <div class="tm">2026-10-07 17:39:09 · 计入驳回记录 V1<span class="rt">R18</span></div>
+          <div class="cmt">驳回工程补贴审核申请：开间长度与平面图不符</div>
+        </div>
+        <div class="node gray">
+          <div class="nm">填写申请单</div>
+          <div class="act">胡思艳 <span class="tag blue">提交</span></div>
+          <div class="tm">2026-09-29 16:52:13</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<h3>原型三 · 档案更新审核详情（R22：自动拆出独立补贴流程）</h3>
+<div class="shell">
+<div class="top">
+  <div class="logo"><i></i>统一服务平台</div>
+  <div class="nav"><span>全部</span><span>门店系统</span><span class="on">工程系统</span><span>前端发布平台</span><span>鸣鸣百宝箱</span></div>
+  <div class="top-r"><span class="ic"></span><span class="ic bell"></span><span class="ic"></span><span class="avatar">王</span><b>王鹏</b></div>
+</div>
+<div class="wrap">
+  <div class="side">
+    <a>工作台</a><a>工程大盘</a><a>项目管理</a><a>线下勘场</a><a>设计中心</a><a>工程造价</a><a>施工巡检</a><a>项目验收</a><a>工程督查</a><a>物资预报</a><a>工程回访</a><a>合作商管理</a><a>资产管理</a><a class="expand">审核中心 ▾</a><a class="child on">审核列表</a><a>系统设置</a><a style="color:#8a8f99">收起菜单</a>
+  </div>
+  <div class="main">
+    <div class="ptabs"><span>工作台</span><span>审核列表</span><span class="on">档案更新审核详情</span></div>
+    <div class="layout">
+      <div class="content">
+        <div class="dcard">
+          <div class="dhead"><span class="ok">✓</span>审核完成</div>
+          <div class="store" style="margin-top:10px">
+            <span>【新店】鹰潭一中店</span><span class="prj">(P20260810055 · 档案更新单 AC20261110003)</span>
+            <span class="tag gray">新店</span>
+          </div>
+          <div class="kv"><span>工程节点：工程结算</span><span>问题类型：招牌信息</span><span>提交人：<b>王丽玲</b></span><span>创建时间：<b>2026-11-10 09:32</b></span></div>
+        </div>
+        <div class="banner new">
+          本次档案更新涉及补贴项（开间长度 / 招牌面积），系统已自动发起独立补贴审核流程：<b class="link">工程补贴审核-档案更新 · BT20261110003</b>（审核中 · 剩 8 天<span class="rt">R16</span>）· 源单号：AC20261110003 —— 双向关联，详情页互跳。<span class="rt">R22</span>
+        </div>
+        <div class="dcard">
+          <div class="sect">变更内容（changeData 新旧对比 · 现有 ArchiveDiffTable）</div>
+          <table class="diff">
+            <tr><th style="width:160px">字段</th><th>原值</th><th>变更后</th><th style="width:90px">涉及补贴</th></tr>
+            <tr><td>开间长度</td><td><span class="del">7.60 m</span></td><td><span class="mod">8.10 m</span></td><td><span class="tag orange">是</span></td></tr>
+            <tr><td>招牌面积</td><td><span class="del">9.8 m²</span></td><td><span class="mod">10.2 m²</span></td><td><span class="tag orange">是</span></td></tr>
+            <tr><td>招牌材质</td><td>亚克力</td><td>亚克力</td><td><span class="tag gray">否</span></td></tr>
+            <tr><td>完成面层高</td><td>3.20 m</td><td>3.20 m</td><td><span class="tag gray">否</span></td></tr>
+          </table>
+        </div>
+        <div class="dcard new">
+          <div class="sect">关联补贴流程<span class="rt">R22</span></div>
+          <div class="rel">
+            <div class="r src">
+              <div class="rh">源流程 · 档案更新审核 <span class="tag green">审核完成</span></div>
+              AC20261110003 · 2026-11-12 闭环<br>
+              状态：本流程仅审批档案变更本身
+            </div>
+            <div class="r newflow">
+              <div class="rh"><span class="link">拆出流程 · 工程补贴审核-档案更新</span> <span class="tag blue">审核中</span></div>
+              BT20261110003 · 2026-11-10 自动发起<br>
+              受益 R16 时效：剩 8 天（正常）· 复用 R17 筛选 / R18 驳回统计<br>
+              <span style="color:#8a8f99">源单号：AC20261110003 · 双向互跳</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <span style="color:#8a8f99">流程编排：</span>
+          <span class="fbox">档案更新提交</span><span class="arr">→</span>
+          <span class="fbox">识别涉及补贴内容<br><span style="color:#8a8f99;font-size:10px">（开间/拐角/营业面积/招牌信息）</span></span><span class="arr">→</span>
+          <span class="fbox">自动发起独立补贴流程</span><span class="arr">＋</span>
+          <span class="fbox hl">原档案更新流程照常审批</span>
+        </div>
+      </div>
+      <div class="bpm">
+        <h4>审批流程（源 · 档案更新）</h4>
+        <div class="node">
+          <div class="nm">工程支持审核</div>
+          <div class="act">王鹏 <span class="tag green">同意</span></div>
+          <div class="tm">2026-11-12 10:05:33</div>
+        </div>
+        <div class="node gray">
+          <div class="nm">填写申请单</div>
+          <div class="act">王丽玲 <span class="tag blue">提交</span></div>
+          <div class="tm">2026-11-10 09:32:12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<h3>原型四 · 导出与提醒（R16 + R17 + R18 导出字段叠加）</h3>
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<div class="exp-box">
+  <div class="h">导出数据 · AUDIT_EXPORT（审核类型=工程补贴审核）</div>
+  <div class="b">
+    <div class="grp">现有字段（不变）</div>
+    <div class="row">项目编号、项目名称、所属品牌、审核类型、当前任务状态、当前处理人、提交人、创建时间</div>
+    <div class="row">门店编码、开业时间、营业面积、招牌面积、开间长度、是否拐角店</div>
+    <div class="grp new" style="display:inline-block">新增字段 · R16 时效考核</div>
+    <div class="row"><b style="color:#c56a1d">接收时间</b>（流程进入审核人待办时刻）/ <b style="color:#c56a1d">闭环时间</b> / <b style="color:#c56a1d">耗时天数</b>（自然日，取消不计）/ <b style="color:#c56a1d">时效状态</b>（正常/即将超时/已超时）</div>
+    <div class="grp new" style="display:inline-block">新增字段 · R17 筛选维度</div>
+    <div class="row"><b style="color:#c56a1d">审核人（督察）</b> / <b style="color:#c56a1d">所属大区</b> / <b style="color:#c56a1d">参与部门</b> / <b style="color:#c56a1d">流程审核完成时间</b></div>
+    <div class="grp new" style="display:inline-block">新增字段 · R18 驳回统计</div>
+    <div class="row"><b style="color:#c56a1d">累计驳回次数</b>（分口径计数）</div>
+    <div class="grp new" style="display:inline-block">新增字段 · R20 明细行</div>
+    <div class="row"><b style="color:#c56a1d">招牌面积明细行</b>（明细项名称/规格/数量/小计，按行展开）</div>
+  </div>
+</div>
+<div class="note" style="flex:1;min-width:260px">
+<b>提醒链路（R16）：</b><br>
+· 第 7 天：APP 待办角标（复用 <code>/engineer/audit/benefit</code>）+ PC 待办「即将超时」样式，提醒一次；<br>
+· 第 10 天：超时提醒，抄送工程督察组负责人（企微）；<br>
+· 口径：自然日、节假日不顺延；流程中途取消不计时效；招商复审不阻塞（R21），close_time 以审核人通过时间为准。<br>
+<b>权限（R19）：</b>新旧对比视图仅审核人/复审人/工程督察组可见，提交人不可见（前端隐藏 + 后端接口鉴权）。
+</div>
+</div>
+
+<h2>五、实现落点汇总（研发参考）</h2>
+<table>
+<tr><th style="width:64px">需求</th><th>关键改动</th></tr>
+<tr><td><b>R16</b></td><td>补贴审核单新增 <code>receive_time / close_time</code>（BPM 回调写入）→ 列表接口下发剩余时效 → statistics 增补「即将超时/已超时」计数（仅补贴类型）→ ExportConfigCenter 增配 4 列；提醒复用企微消息 + APP 待办数据源</td></tr>
+<tr><td><b>R17</b></td><td>AuditPageRequestVO 新增 auditorName/regionList/deptList/finishTimeQuery → SQL 联查 BPM 审批记录（初审实际审批人）与项目所属大区；列表 VO 新增 regionName/subsidyAuditorName；导出增配 4 列</td></tr>
+<tr><td><b>R18</b></td><td>新增补贴驳回记录表（audit_id/时间/环节/驳回人/原因/版本号），subsidyReject 同步写入；材料文件按版本快照（version_no），驳回附件按 workItemId 归入版本；列表新增 rejectCount 列 + 导出</td></tr>
+<tr><td><b>R19</b></td><td>依赖 R18 版本快照；前端复用 co-diff-table（DiffRow 支持 oldValue/newValue/文件/差值），参照档案更新 changeData 渲染先例；「一键确认已核对差异」写入审批意见随 BPM 留痕</td></tr>
+<tr><td><b>R20</b></td><td>补贴详情接口新增 signboardDetailList（SETTLEMENT_INFO 版 signboardSize/subSignboardSize 解析）与汇总值同源；前端明细表直出 + 实时合计校验（不符拦截提交）；导出明细行</td></tr>
+<tr><td><b>R21</b></td><td>BPM 模板 gong_cheng_bu_tie 尾部增加「招商复审」非阻塞节点；角色识别由节点名 contains 匹配升级为节点角色配置；招商系统对接（复审人身份同步 + 动作回传，失败兜底工程系统内）；列表 auditorName/reAuditorName 改由 BPM 取数</td></tr>
+<tr><td><b>R22</b></td><td>新增审核类型枚举 ENGINEER_SUBSIDY_ARCHIVE_AUDIT（工程补贴审核-档案更新）；档案更新 create 中复用 isRelatedAllowance 判定，命中即发起 gong_cheng_bu_tie 流程并创建补贴审核单，写入 source_audit_id 双向关联；同步评估收敛 approveAndSave 双写接口</td></tr>
+</table>
+<div class="note"><b>上线顺序建议：</b>R16 → R17（共用时效字段）与 R20、R21 可并行 → R18（版本基建）→ R19（依赖 R18）→ R22（依赖 R16/R17/R18 能力就绪后上线，绩效口径才完整）。存量规则：上线前已审批完的关联补贴不回溯拆分；驳回次数不回算历史（以结构化落库起点计）。</div>
+</div>
+</body>
+</html>
