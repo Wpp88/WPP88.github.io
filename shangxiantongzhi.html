@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>上线发布通知 · 工程系统 · 2026-11-12</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e8edf2;color:#1f2d3a;-webkit-font-smoothing:antialiased}
+#poster{max-width:900px;margin:24px auto;background:#f0f4f8;overflow:hidden}
+
+/* ===== 头部 ===== */
+header{background:linear-gradient(115deg,#0d3b34 0%,#1a5a4d 42%,#2f7d6a 100%);padding:34px 42px 30px;position:relative;overflow:hidden}
+header::after{content:'';position:absolute;right:-70px;top:-90px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.06)}
+header::before{content:'';position:absolute;right:60px;bottom:-120px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.85);letter-spacing:1px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:#5be59a;box-shadow:0 0 8px #5be59a}
+h1{font-size:34px;font-weight:800;color:#fff;margin:16px 0 10px;letter-spacing:1px}
+.hsub{font-size:15px;color:rgba(255,255,255,.88);line-height:1.7}
+.hends{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:6px;letter-spacing:.5px}
+.hright{position:absolute;right:42px;top:36px;font-size:13px;color:rgba(255,255,255,.85);text-align:right;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,#f0821e,#f5a623);color:#fff;font-size:13px;font-weight:600;padding:6px 16px;border-radius:999px;margin-top:14px;letter-spacing:1px}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:#fff}
+
+/* ===== 导航 ===== */
+nav{position:sticky;top:0;z-index:20;display:flex;background:#fff;border-bottom:1px solid #dde5e0;padding:0 18px;overflow-x:auto}
+nav a{flex:1;min-width:150px;text-align:center;padding:15px 8px;font-size:14px;color:#8a97a0;text-decoration:none;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s}
+nav a.on{color:#14332b;font-weight:700;border-bottom-color:#2f7d6a}
+nav a:hover{color:#2f7d6a}
+
+/* ===== 分区 ===== */
+section{padding:30px 42px 6px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sec-no{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff}
+.sec-no.t{background:linear-gradient(135deg,#2f7d6a,#3f9d86)}
+.sec-no.b{background:linear-gradient(135deg,#2f6d9e,#4a8fc2)}
+.sec-no.p{background:linear-gradient(135deg,#6b5bd2,#8a7ce6)}
+.sec-title{font-size:20px;font-weight:800;color:#1f2d3a;letter-spacing:.5px}
+.sec-tag{margin-left:auto;font-size:12.5px;font-weight:600;letter-spacing:.5px}
+.sec-tag.t{color:#2f7d6a;background:#e3f0ec;padding:5px 12px;border-radius:999px}
+.sec-tag.b{color:#2f6d9e;background:#e4eef6;padding:5px 12px;border-radius:999px}
+.sec-tag.p{color:#6b5bd2;background:#ecebf8;padding:5px 12px;border-radius:999px}
+
+/* ===== 卡片 ===== */
+.card{background:#fff;border-radius:14px;padding:20px 22px;margin-bottom:14px;box-shadow:0 1px 3px rgba(31,45,58,.06);border:1px solid #e6ecf0}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.cicon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0}
+.cicon.t{background:linear-gradient(135deg,#3f9d86,#2f7d6a)}
+.cicon.b{background:linear-gradient(135deg,#4a8fc2,#2f6d9e)}
+.cicon.p{background:linear-gradient(135deg,#8a7ce6,#6b5bd2)}
+.card-title{font-size:15.5px;font-weight:700;color:#1f2d3a}
+.pill{display:inline-block;font-size:11.5px;color:#5c6b76;background:#eef2f5;border:1px solid #e0e6ea;border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+.card-badge{margin-left:auto;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;letter-spacing:1px;flex-shrink:0}
+.card-badge.opt{color:#c96a10;background:#fdf0e3;border:1px solid #f5d9bd}
+.card-badge.new{color:#1f7a4d;background:#e4f5ec;border:1px solid #bfe5d0}
+ul.pts{list-style:none}
+ul.pts li{position:relative;padding:4px 0 4px 20px;font-size:13.5px;line-height:1.85;color:#3d4c58}
+ul.pts li::before{content:'';position:absolute;left:2px;top:14px;width:7px;height:7px;border-radius:50%}
+ul.pts.t li::before{background:#3f9d86}
+ul.pts.b li::before{background:#4a8fc2}
+ul.pts.p li::before{background:#8a7ce6}
+ul.pts b{color:#1f2d3a}
+
+/* ===== 页脚 ===== */
+footer{text-align:center;padding:26px 20px 34px;font-size:12.5px;color:#8a97a0;line-height:2}
+footer b{color:#5c6b76}
+
+/* ===== 下载按钮 ===== */
+#dl{position:fixed;right:26px;bottom:26px;z-index:99;display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#f0821e,#f5a623);color:#fff;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(240,130,30,.4);transition:.2s}
+#dl:hover{transform:translateY(-2px)}
+#dl:disabled{opacity:.6;cursor:wait}
+@media print{#dl{display:none}body{background:#fff}#poster{margin:0;max-width:none}}
+</style>
+</head>
+<body>
+<div id="poster">
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>上线发布通知 · 门店发展数字化部</div>
+  <h1>工程系统</h1>
+  <div class="hsub">V26.9.5 万店调改（中改）二期 &nbsp;·&nbsp; V26.11.1 日常迭代 &nbsp;·&nbsp; V2.2.1 酷家乐设备取值优化</div>
+  <div class="hends">工程系统PC · 鸣忙营造PC · 鸣忙营造APP · 鸣忙营造小程序 · 筹建事项H5 · 下游门店接口</div>
+  <div class="hright">发布时间<br><b style="font-size:16px;font-weight:700">2026-11-12</b></div>
+  <div class="badge"><span class="dot"></span></div>
+</header>
+
+<nav id="nav">
+  <a href="#s1" class="on">01 万店调改（中改）二期</a>
+  <a href="#s2">02 日常迭代</a>
+  <a href="#s3">03 设备取值优化</a>
+</nav>
+
+<!-- ============ 01 万店调改（中改）二期 ============ -->
+<section id="s1">
+  <div class="sec-head">
+    <div class="sec-no t">01</div>
+    <div class="sec-title">万店调改（中改）二期</div>
+    <div class="sec-tag t">V26.9.5 · 流程 / 分配 / 体验</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon t">编</div>
+      <div class="card-title">流程引擎 · 施工节点判断重构<span class="pill">后端</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts t">
+      <li><b>判断规则：</b>协作标签命中「需装修施工」，且（装修一体化公司非空 或 任一业务板块装修方式 = 第三方公司）才生成施工节点；否则跳过施工，直接流转工程预算。</li>
+      <li><b>异常兜底：</b>标签未命中但维护了公司、或公司均未维护且全部加盟商自装时，均不生成施工节点，避免流程误编排。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon t">员</div>
+      <div class="card-title">人员配置 · 新增「工程类型」维度<span class="pill">PC</span></div>
+      <div class="card-badge new">新增</div>
+    </div>
+    <ul class="pts t">
+      <li><b>维度扩展：</b>查询条件、列表列、添加/编辑弹窗新增「工程类型」（必填多选）；历史已配置人员默认写入现有 7 类工程类型。</li>
+      <li><b>智能分配：</b>项目创建后按「节点 + 工程类型 + 区域 + 品牌」自动分配人员；中改项目确认节点优先且仅从工程运维组匹配。</li>
+      <li><b>待办调整：</b>中改项目「项目确认」待办接收对象由工程监理调整为工程运维，项目动态记录同步变更。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon t">物</div>
+      <div class="card-title">工程物控 · 预算 / 施工 / 结算全链路<span class="pill">PC</span></div>
+      <div class="card-badge new">新增</div>
+    </div>
+    <ul class="pts t">
+      <li><b>自动分配：</b>中改项目确认后不再自动分配工程监理；工程预算创建时按「省份 + 节点 + 工程类型 + 区域 + 品牌 + 承接数」自动分配工程物控，分配失败可手动指派。</li>
+      <li><b>全链路展示：</b>项目、预算、施工、结算的列表 / 查询 / 详情全面补充「成控专员 / 工程物控」字段，数据全流程贯通。</li>
+      <li><b>按钮动态化：</b>中改结算详情【更换成控】动态化为【更换物控】，选人数据源切换工程物控池。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon t">施</div>
+      <div class="card-title">确认进场 / 施工完成 表单精简<span class="pill">APP</span><span class="pill">PC</span><span class="pill">小程序</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts t">
+      <li><b>确认进场：</b>表单精简为 3 项——施工日期（必填）、施工说明（0-200 字）、货架利旧（默认否）；PC 端新增提交入口。</li>
+      <li><b>施工完成：</b>完工表单 3 项——完工时间（必填）、完工说明（0-200 字）、完工照片 1-10 张（原「门头远景照」改为「完工照片」）；PC 端新增提交入口。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon t">优</div>
+      <div class="card-title">体验优化<span class="pill">PC</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts t">
+      <li><b>待办修复：</b>修复非中改项目设计退回后、重提勘场定稿选「否」时错误生成「待定稿」待办的问题。</li>
+      <li><b>差异化展示：</b>中改项目详情隐藏「闭店结论」、菜单隐藏「勘场信息」；设计详情处于「待确认调改清单」时自动定位「调改项清单」Tab。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 02 日常迭代 ============ -->
+<section id="s2">
+  <div class="sec-head">
+    <div class="sec-no b">02</div>
+    <div class="sec-title">日常迭代P0级优化需求</div>
+    <div class="sec-tag b">V26.11.1 · 横幅 / 回访 / 设计节点</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon b">横</div>
+      <div class="card-title">新增「横幅信息收集」独立事项<span class="pill">鸣忙营造PC</span></div>
+      <div class="card-badge new">新增</div>
+    </div>
+    <ul class="pts b">
+      <li><b>自动触发：</b>项目进入「施工中」即生成第三张事项卡片「横幅信息收集」；提交截止日 = 预计完工时间前 2 天，完工时间变更自动联动重算。</li>
+      <li><b>表单与逾期：</b>是否安装悬挂装置（必填）+ 悬挂装置长度（条件必填，米）；逾期提醒精确到分钟且不阻断填写；支持修改截止日（需填写推迟原因）。</li>
+      <li><b>联动推送：</b>提报保存后实时推送门店系统；「增补物料提报」新增横幅信息修改入口，再次提报覆盖更新。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon b">访</div>
+      <div class="card-title">开业回访问卷新增「监理关键节点跟进」题<span class="pill">筹建事项H5</span><span class="pill">PC</span></div>
+      <div class="card-badge new">新增</div>
+    </div>
+    <ul class="pts b">
+      <li><b>新增第 10 题：</b>「集团工程中心的监理是否完成 3 次（勘场、中途、验收）关键节点跟进？」必答是非题，问题反馈顺延为第 11 题。</li>
+      <li><b>条件交互：</b>选「否」须勾选未完成节点（勘场 / 中途 / 验收），可补充说明（200 字内）。</li>
+      <li><b>列表导出：</b>加盟商回访列表与导出新增「监理节点跟进」列，固定插在「问题反馈」列之前。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon b">图</div>
+      <div class="card-title">上传下单图与编辑门店合并<span class="pill">统一门户工程PC</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts b">
+      <li><b>单页合并：</b>「上传下单图」「编辑门店」两个入口合并为「上传下单图并编辑门店」：先传图（传图前门店信息区置灰），再完善门店信息（营业面积置空由设计师填写），两项完成后才可提交审核。</li>
+      <li><b>状态不变：</b>「待传下单图」「待补全门店信息」仍为两个独立状态依次流转；万店调改（中改）默认新版本。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon b">条</div>
+      <div class="card-title">监理看板 · 进度条渲染兜底<span class="pill">PC</span><span class="pill">APP</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts b">
+      <li><b>最低比例兜底：</b>进度条渲染增加兜底逻辑——任一状态（进行中 / 即将超期 / 已超期）数量 &gt; 0 时，其最小视觉宽度占比不低于 1%，避免色块被压缩不可见。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 03 设备取值优化 ============ -->
+<section id="s3">
+  <div class="sec-head">
+    <div class="sec-no p">03</div>
+    <div class="sec-title">酷家乐同步设备外形尺寸取值优化</div>
+    <div class="sec-tag p">V2.2.1 · 含历史数据修复</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon p">设</div>
+      <div class="card-title">设备信息实时取商品档案值<span class="pill">PC</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts p">
+      <li><b>实时查询：</b>门店编辑、设计详情、项目详情及项目列表 / 设计列表导出，设备商品属性（名称、分类、单位、规格型号、产地、品牌、外形尺寸）按商品 ID 实时查询商品档案；档案维护后无需任何同步操作即时生效。</li>
+      <li><b>历史数据修复：</b>存量被酷家乐返回值覆盖的错误数据自动失效，无需历史刷数；匹配不到档案（未分类明细）时以落库值兜底展示。</li>
+      <li><b>字段范围：</b>仅商品属性字段改取值口径；设备数量等门店侧维护字段、门店货架不受影响。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="cicon p">接</div>
+      <div class="card-title">下游门店接口同步修改取值口径<span class="pill">接口</span></div>
+      <div class="card-badge opt">优化</div>
+    </div>
+    <ul class="pts p">
+      <li><b>口径一致：</b>下游门店设备信息接口同样按商品 ID 实时取档案值；接口字段结构不变，仅取值口径变更，上下游同步上线，避免页面与接口出现两种口径。</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  如有疑问请联系<b>门店发展数字化部</b><br>
+  发布时间：2026-11-12
+</footer>
+
+</div>
+
+<button id="dl">⬇ 下载海报图片</button>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const navLinks=[...document.querySelectorAll('#nav a')];
+const secs=navLinks.map(a=>document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll',()=>{
+  let idx=0;
+  secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<160)idx=i;});
+  navLinks.forEach((a,i)=>a.classList.toggle('on',i===idx));
+},{passive:true});
+
+document.getElementById('dl').onclick=async function(){
+  const btn=this;btn.disabled=true;const old=btn.textContent;btn.textContent='生成中…';
+  try{
+    const canvas=await html2canvas(document.getElementById('poster'),{scale:2,backgroundColor:'#e8edf2',useCORS:true});
+    const a=document.createElement('a');
+    a.download='工程系统上线发布海报-20261112.png';
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+    btn.textContent='已保存 ✓';
+  }catch(e){
+    alert('生成失败：'+e.message+'\n（若为网络原因，请检查 html2canvas CDN 是否可访问）');
+    btn.textContent=old;
+  }
+  setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2500);
+};
+</script>
+</body>
+</html>
