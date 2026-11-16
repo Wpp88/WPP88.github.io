@@ -637,7 +637,7 @@
 
 <div class="page-head">
   <h1>内部用户APP · 知识库模块高保真原型</h1>
-  <p>在现有内部 APP <b>应用中心</b>新增统一的「知识库」入口，面向 <b>内部设计师、预结算、项目经理</b>：进入后分为<b>资料中心</b>与<b>视频学堂</b>，按 5 大篇章三级目录与 3 个标签维度分类展示、逐级切换，支持关键词查询、在线预览（PDF / PPT / EXCEL / 图片）、视频点播；分享支持<b>游客链接</b>（链接 + 密码、免登录仅预览）与<b>非游客链接</b>（登录 + 可见权限校验）两种模式，分享与访问行为均留痕。查询、查看与播放行为自动写入学习记录并回传后台。我的页面（我的收藏 / 浏览与学习记录 / 下载申请 / 设置）<b>一期不做</b>，不在本原型范围内。</p>
+  <p>在现有内部 APP <b>应用中心</b>新增统一的「知识库」入口，面向 <b>内部设计师、预结算、项目经理</b>：进入后分为<b>资料中心</b>与<b>视频学堂</b>，按 5 大篇章三级目录与 3 个标签维度分类展示、逐级切换，支持关键词查询、在线预览（PDF / PPT / EXCEL / 图片）、视频点播；分享提供<b>非游客链接</b>（登录 + 可见权限校验 + 有效期），分享与访问行为均留痕。查询、查看与播放行为自动写入学习记录并回传后台。我的页面（我的收藏 / 浏览与学习记录 / 下载申请 / 设置）<b>一期不做</b>，不在本原型范围内。</p>
 </div>
 
 <div class="jumps" id="jumps">
@@ -975,9 +975,6 @@ dById(6).vid = [103]; dById(8).vid = [105];
 vById(101).rd = [4, 18]; vById(102).rd = [2]; vById(103).rd = [1, 6];
 vById(103).vid = [105];
 vById(104).rd = [3]; vById(105).rd = [8]; vById(106).rd = [7];
-/* 视频 ↔ 视频关联（相关视频，双向生效）：DEC-ZS-034 取消同二级/同篇章算法推荐，改为人工关联 v.rv */
-vById(101).rv = [105]; vById(105).rv = [101];
-vById(103).rv = [106]; vById(106).rv = [103];
 
 /* V2.14 互链：NO_VIEW 模拟「已发布且已生效但不在本人可见范围」的关联内容（仅关联卡片灰显演示用） */
 var NO_VIEW = { 106: 1, 18: 1 };
@@ -1649,13 +1646,9 @@ function renderVideoDetail(){
   for(var i = 0; i < 15; i++) wm += '<span>仅供内部使用 · 王鹏 · 2026-10-20</span>';
   var stateTxt = p >= 100 ? '<span class="done">已学完 · ' + v.dur + '</span>' : (p > 0 ? '<span class="half">学习中 ' + p + '%</span>' : '未开始');
   var relD = (v.rd || []).map(dById).filter(Boolean);
-<<<<<<< HEAD
   var relV = (v.vid || []).map(vById).filter(Boolean);
   var ext = extOf(v);
   var hasLock = relD.some(isLocked) || relV.some(isLocked) || ext.some(function(e){ return isLocked(e.it) });
-=======
-  var rel = (v.rv || []).map(vById).filter(function(x){ return x && x.id !== v.id });
->>>>>>> origin/main
   $('#vDetailBody').innerHTML =
     '<div class="preview-box">' +
       '<div class="vplayer">' +
@@ -1686,17 +1679,10 @@ function renderVideoDetail(){
       '</div>' +
       '<div class="safe-row"><svg><use href="#i-shield"/></svg>视频仅支持在线播放、不可下载外传；播放与完播行为自动回传工程中心。</div>' +
     '</div>' +
-<<<<<<< HEAD
     relGroup('vd-d', '配套资料（点击查看）', '共 ' + relD.length + ' 份', relD.map(function(x){ return relDocCard(x) })) +
     relGroup('vd-v', '配套视频（点击播放）', '共 ' + relV.length + ' 个', relV.map(function(x){ return relVideoCard(x) })) +
     relGroup('vd-e', '延伸内容', '经关联内容拓展 · ' + ext.length + ' 条 · 不再递归', ext.map(function(e){ return e.it.plays !== undefined ? relVideoCard(e.it, e.via) : relDocCard(e.it, e.via) })) +
     relLockNote(hasLock);
-=======
-    (relD.length ? '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">配套资料（点击查看）</div>' +
-      '<div style="margin-bottom:6px">' + relD.map(function(d){ return docItem(d) }).join('') + '</div>' : '') +
-    (rel.length ? '<div class="sect-title" style="padding:16px 6px 8px;font-size:14px">相关视频</div>' +
-      '<div style="margin-bottom:16px">' + rel.map(function(x){ return vRow(x) }).join('') + '</div>' : '');
->>>>>>> origin/main
   $('#vDetailBody').scrollTop = 0;
 }
 var vvTimer = null, vvPos = 0, vvDur = 0, vvPlaying = false, vvCurId = null;
@@ -1824,7 +1810,7 @@ function renderDetail(){
         '<div class="info-row"><span class="k">标签分类</span><span class="v">' + d.tags.map(function(t){ return '<span class="lchip">' + t + '</span>' }).join('') + '</span></div>' +
         '<div class="info-row"><span class="k">内容摘要</span><span class="v">' + d.summary + '</span></div>' +
       '</div>' +
-      '<div class="safe-row"><svg><use href="#i-shield"/></svg>在线预览仅限本人账号；对外分享可选游客链接（密码 + 有效期）或非游客链接（登录 + 可见权限），访客均不可下载、转存。</div>' +
+      '<div class="safe-row"><svg><use href="#i-shield"/></svg>在线预览仅限本人账号；分享请使用非游客链接（登录 + 可见权限校验 + 有效期），访问者不可下载、转存。</div>' +
     '</div>' +
     (function(){
       /* V2.14 关联区：配套视频（直接）+ 关联资料（直接）+ 延伸内容（一跳互链），无关联整区不展示 */
@@ -1841,15 +1827,15 @@ function renderDetail(){
     })();
   $('#detailBody').scrollTop = 0;
 }
-/* ================= 弹层：受控分享链接 ================= */
-var shareCtx = null, sharePwd = '', shareExpire = '7 天', shareLink = '', shareMode = 'guest';
+/* ================= 弹层：受控分享链接（非游客链接） ================= */
+var shareCtx = null, shareExpire = '7 天', shareLink = '';
 var SHARE_LOG_KEY = 'kb_share_log_v1';
 function shToken(len){
   var s = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = '';
   for(var i = 0; i < (len || 6); i++) out += s.charAt(Math.floor(Math.random() * s.length));
   return out;
 }
-function shLinkFor(mode){ return 'https://kb.mmxm.com/s/' + (mode === 'guest' ? 'g/' : 'm/') + shToken(10) }
+function shLinkFor(){ return 'https://kb.mmxm.com/s/m/' + shToken(10) }
 function logShare(rec){
   try{
     var l = JSON.parse(localStorage.getItem(SHARE_LOG_KEY) || '[]');
@@ -1861,18 +1847,15 @@ function openShare(kind, id){
   var item = kind === 'video' ? vById(id) : dById(id);
   if(!item) return;
   shareCtx = { kind: kind, id: id, name: item.name, ver: item.ver || '' };
-  shareMode = 'member';
-  sharePwd = shToken(6);
   shareExpire = '7 天';
-  shareLink = shLinkFor('member');
+  shareLink = shLinkFor();
   $('#maskContent').innerHTML =
     '<div class="sheet share-sheet">' +
       '<h3>分享' + (kind === 'video' ? '视频' : '资料') + '</h3>' +
       '<div class="sub">' + item.name + ' ' + (item.ver || '') + ' · ' + catPathTxt(item) + '</div>' +
-      '<div class="sh-sec"><label>分享方式 <em style="font-style:normal;color:#a8adb6;font-weight:400">由菜单资源授权：分享-游客 / 分享-非游客</em></label>' +
-        '<div class="sh-opts"><span class="sh-opt" id="appShModeGuest" onclick="pickShareMode(\'guest\')">游客链接</span><span class="sh-opt on" id="appShModeMember" onclick="pickShareMode(\'member\')">非游客链接</span></div></div>' +
+      '<div class="sh-sec"><label>分享方式 <em style="font-style:normal;color:#a8adb6;font-weight:400">由菜单资源授权：分享</em></label>' +
+        '<div class="sh-opts"><span class="sh-opt on">非游客链接</span></div></div>' +
       '<div class="sh-sec"><label>分享链接</label><div class="sh-row"><input id="appShLink" readonly value="' + shareLink + '"><button class="sh-btn" onclick="copyShareLink()">复制</button></div></div>' +
-      '<div class="sh-sec" id="appShPwdWrap" style="display:none"><label>访问密码</label><div class="sh-row"><input id="appShPwd" readonly maxlength="8" value="' + sharePwd + '"><button class="sh-btn" onclick="regenSharePwd()">重新生成</button></div></div>' +
       '<div class="sh-sec"><label>有效期</label><div class="sh-opts" id="appShExpireOpts">' + ['1 天', '7 天', '30 天'].map(function(e){
         return '<span class="sh-opt' + (e === shareExpire ? ' on' : '') + '" onclick="pickShareExpire(this,\'' + e + '\')">' + e + '</span>';
       }).join('') + '</div></div>' +
@@ -1882,23 +1865,9 @@ function openShare(kind, id){
   syncShareNote();
   $('#mask').className = 'phone-mask show';
 }
-function pickShareMode(m){
-  shareMode = m === 'member' ? 'member' : 'guest';
-  var g = $('#appShModeGuest'), mb = $('#appShModeMember');
-  if(g) g.classList.toggle('on', shareMode === 'guest');
-  if(mb) mb.classList.toggle('on', shareMode === 'member');
-  var wrap = $('#appShPwdWrap'); if(wrap) wrap.style.display = shareMode === 'guest' ? '' : 'none';
-  if(shareMode === 'guest' && !sharePwd) sharePwd = shToken(6);
-  shareLink = shLinkFor(shareMode);
-  var li = $('#appShLink'); if(li) li.value = shareLink;
-  var pi = $('#appShPwd'); if(pi) pi.value = sharePwd;
-  syncShareNote();
-}
 function syncShareNote(){
   var el = $('#appShNote'); if(!el) return;
-  el.textContent = shareMode === 'guest'
-    ? '游客链接：访问者须同时输入链接与 6 位访问密码，无需登录；有效期（' + shareExpire + '）内可在线预览，不可转存、下载与二次分享，过期自动失效。分享与访问行为均留痕。'
-    : '非游客链接：链接不带密码，访问者须登录内部账号并通过内容可见权限校验；无权限或链接泄露均无法打开，有效期（' + shareExpire + '）内有效。分享与访问行为均留痕。';
+  el.textContent = '非游客链接：链接不带密码，访问者须登录内部账号并通过内容可见权限校验；无权限或链接泄露均无法打开，有效期（' + shareExpire + '）内有效。分享与访问行为均留痕。';
 }
 function pickShareExpire(el, e){
   shareExpire = e;
@@ -1906,29 +1875,20 @@ function pickShareExpire(el, e){
   if(el) el.classList.add('on');
   syncShareNote();
 }
-function regenSharePwd(){
-  sharePwd = shToken(6);
-  var el = $('#appShPwd');
-  if(el) el.value = sharePwd;
-  toast('已重新生成访问密码');
-}
 function copyShareLink(){
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(shareLink).catch(function(){});
-  toast(shareMode === 'guest' ? '游客链接已复制，请连同访问密码一并发送' : '非游客链接已复制，访问者需登录且具备可见权限方可打开');
+  toast('非游客链接已复制，访问者需登录且具备可见权限方可打开');
 }
 function finishShare(){
   if(!shareCtx) return;
-  if(shareMode === 'guest' && !sharePwd){ toast('请填写或生成游客访问密码'); return }
   var rec = {
     id: 'SH' + Date.now(), kind: shareCtx.kind, contentId: shareCtx.id, name: shareCtx.name, ver: shareCtx.ver,
-    mode: shareMode, link: shareLink, pwd: shareMode === 'guest' ? sharePwd : '', expire: shareExpire,
-    by: '王鹏', at: dlTime(), visits: []
+    mode: 'member', link: shareLink, expire: shareExpire,
+    by: '王鹏', at: nowTime(), visits: []
   };
   logShare(rec);
   closeMask();
-  toast(shareMode === 'guest'
-    ? '游客分享已创建：密码 ' + sharePwd + ' · 有效期 ' + shareExpire
-    : '非游客分享已创建：访问者需登录且具备可见权限 · 有效期 ' + shareExpire);
+  toast('非游客分享已创建：访问者需登录且具备可见权限 · 有效期 ' + shareExpire);
 }
 function closeMask(){ $('#mask').className = 'phone-mask'; }
 $('#mask').addEventListener('click', function(e){ if(e.target === this) closeMask() });
