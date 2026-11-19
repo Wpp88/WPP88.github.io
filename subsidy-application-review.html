@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>审核中心合并需求 R16–R22 · 原型</title>
+<title>审核中心合并需求 R16–R22 · 高保真全交互原型（基于真实前后端代码取数重制）</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -342,10 +342,9 @@ body.bpm-fold .bpm h4::after{content:"▶";color:var(--sub);margin-left:6px;font
 </head>
 <body>
 
-<!-- 说明条 -->
+<!-- 说明 -->
 <div class="proto-bar">
-  <b>审核中心合并需求 · R16–R22 交互原型</b>
-  <!-- <span style="opacity:.75">基于真实代码取数重制：列表/详情的筛选字段、列、按钮、弹窗、BPM 时间线均对照 public-platform-front（Vue3+Element Plus+Busy UI）与 store-engineer-service 现状结构生成</span> -->
+  <b>审核中心合并需求 · R16–R22 原型</b>
   <span class="lg">迭代标注：
     <span class="rt">R16</span>时效<span class="rt">R17</span>筛选<span class="rt">R18</span>驳回/版本<span class="rt">R19</span>对比<span class="rt">R20</span>招牌明细<span class="rt">R22</span>档案触发并行补贴审核
   </span>
@@ -434,7 +433,7 @@ body.bpm-fold .bpm h4::after{content:"▶";color:var(--sub);margin-left:6px;font
           <div class="pager">
             <div class="pgn" id="pgn"></div>
           </div>
-          <div class="hint anno-only">橙色底纹 + 橙色角标为 R16–R22 迭代点（右上角可关闭标注查看纯 UI）。列表基线 = 现状真实列（项目编码/项目名称/所属品牌/审核类型/审核内容/审核状态/当前任务状态/提交人/审核人/复审人/创建时间/门店编码/开业时间，复选框多选 + 导出）；R16 新增时效列与页签、R17 新增大区列与筛选项及当前处理人列（复用现状 currentAuditors 数据）、R18 新增驳回次数（可点击下钻）与版本列、R22 档案更新命中补贴口径时同时创建一条工程补贴审核流程（档案更新流程去掉内部稽核节点）。页签计数为全量口径（/engineer/audit/statistics），「即将超时 / 已超时」仅补贴类记录生效。</div>
+          <!-- <div class="hint anno-only">橙色底纹 + 橙色角标为 R16–R22 迭代点（右上角可关闭标注查看纯 UI）。列表基线 = 现状真实列（项目编码/项目名称/所属品牌/审核类型/审核内容/审核状态/当前任务状态/提交人/审核人/复审人/创建时间/门店编码/开业时间，复选框多选 + 导出）；R16 新增时效列与页签、R17 新增大区列与筛选项及当前处理人列（复用现状 currentAuditors 数据）、R18 新增驳回次数（可点击下钻）与版本列、R22 档案更新命中补贴口径时同时创建一条工程补贴审核流程（档案更新流程去掉内部稽核节点）。页签计数为全量口径（/engineer/audit/statistics），「即将超时 / 已超时」仅补贴类记录生效。</div> -->
         </div>
       </div>
 
@@ -442,9 +441,15 @@ body.bpm-fold .bpm h4::after{content:"▶";color:var(--sub);margin-left:6px;font
       <div class="view" id="view-d5">
           <div class="card rn">
             <div class="sub-t">口径说明 · 开业 5 天未发起补贴审核流程门店<span class="rt">R16</span>
-              <span style="margin-left:auto"><button class="btn" onclick="toast('导出任务已提交：开业5天未发起补贴流程门店明细（R16）')">导出本明细</button></span>
+              <span style="margin-left:auto"><button class="btn" onclick="exportD5()">导出本明细</button></span>
             </div>
-            <div class="hint">命中口径：门店<b>已开业满第 5 天</b>（自然日，节假日不顺延；开业当日计为第 1 天，即开业后第 5 天当日命中）且<b>仍未发起工程补贴审核流程</b>；命中后持续在本列表跟踪展示，直至该项目发起补贴审核流程后自动移出。每日 00:00 刷新，命中当日通过 APP 待办 + 企微提醒工程督查组跟进催办。流程中途被取消（CANCEL）不计时效，亦不影响本命中口径。</div>
+            <div class="hint">命中口径：门店<b>已开业满第 5 天</b>（自然日，节假日不顺延；开业当日计为第 1 天，即开业后第 5 天当日命中）且<b>仍未发起工程补贴审核流程</b>；命中后持续在本列表跟踪展示，直至该项目发起补贴审核流程后自动移出。每日 00:00 刷新。流程中途被取消（CANCEL）不计时效，亦不影响本命中口径。</div>
+          </div>
+          <div class="card" style="padding:0 16px">
+            <div class="stabs" id="d5-tabs">
+              <span class="on" data-dt="track">未发起明细 <i class="cnt" id="d5-cnt-track"></i><span class="rt">R16</span></span>
+              <span data-dt="removed">移出明细（已发起补贴流程）<i class="cnt" id="d5-cnt-removed"></i><span class="rt">R16</span></span>
+            </div>
           </div>
           <div class="card" id="d5-filter-card">
             <div class="filters" id="d5-filters">
@@ -464,7 +469,7 @@ body.bpm-fold .bpm h4::after{content:"▶";color:var(--sub);margin-left:6px;font
               <button class="btn" id="btn-d5-reset">重置</button>
             </div>
           </div>
-          <div class="card">
+          <div class="card" id="d5-track-card">
             <div class="tbwrap">
               <table class="tb" style="min-width:2160px">
                 <thead><tr>
@@ -475,6 +480,20 @@ body.bpm-fold .bpm h4::after{content:"▶";color:var(--sub);margin-left:6px;font
             </div>
             <div class="pager">
               <div class="pgn" id="pgn-d5"></div>
+            </div>
+          </div>
+          <div class="card" id="d5-removed-card" style="display:none">
+            <div class="hint" style="margin:0 0 8px">发起工程补贴审核流程后自动从未发起明细移出并记入本页签留痕，随每日 00:00 刷新一并更新；菜单角标仅统计「未发起明细」。</div>
+            <div class="tbwrap">
+              <table class="tb" style="min-width:2200px">
+                <thead><tr>
+                  <th>项目编号</th><th>项目名称</th><th>工程类型</th><th>所属品牌</th><th>数据来源</th><th>省</th><th>市</th><th>区</th><th>区域地址</th><th>门店编码</th><th>门店名称</th><th>开业时间</th><th>发起补贴审核流程时间<span class="rt">R16</span></th><th>发起时已开业天数<span class="rt">R16</span></th>
+                </tr></thead>
+                <tbody id="tbody-d5r"></tbody>
+              </table>
+            </div>
+            <div class="pager">
+              <div class="pgn" id="pgn-d5r"></div>
             </div>
           </div>
       </div>
@@ -903,6 +922,9 @@ function openD5(){
   renderD5();
   switchView('d5','开业5天未发起补贴门店');
 }
+function exportD5(){
+  toast('导出任务已提交：开业5天未发起补贴门店 · '+(D5.tab==='track'?'未发起明细':'移出明细（含发起补贴审核流程时间）')+'（按当前查询条件过滤，R16）');
+}
 
 /* ================= 详情路由（getJumpObject 逻辑） ================= */
 let CURRENT_DETAIL=null;
@@ -1061,7 +1083,6 @@ function renderArchive(r){
     +changes.map(c=>'<tr><td class="fld-n">'+c.f+'</td>'
       +'<td class="nv">'+c.n+(c.d?'<span class="badge-p">'+c.d+'</span>':'')+(c.sub==='是'?' <span class="etag orange" title="涉及补贴字段">涉及补贴</span>':'')+'</td>'
       +'<td class="ov">'+c.o+'</td></tr>').join('')
-    +'</table><div class="hint">涉及补贴 = 字段命中 { 开间长度 / 是否拐角店 / 营业面积 / 招牌信息 } 且工程类型 ∈ { 新店, 迁址 }（isRelatedAllowance 识别逻辑）。</div></div>'
   +'</div><div class="bpm" style="width:320px"><h4>审批流程<span class="fold" onclick="document.body.classList.toggle(\'bpm-fold\')">收起动态 ▸</span></h4>'
     +'<div class="bn"><div class="nm">工程信息负责人审核 <span class="rt">R22</span></div><div class="bp-row"><span class="who">王鹏</span><span class="st g">同意</span><span class="tm">2026-11-12 10:05:33</span></div><div class="cmt">审批意见：同意</div><div class="cxl">内部稽核审核配置已去掉（dang_an_geng_xin）：涉及补贴的审核由并行创建的工程补贴审核流程承接</div></div>'
     +'<div class="bn gray"><div class="nm">填写申请单</div><div class="bp-row"><span class="who">'+esc(r.submitter)+'</span><span class="st o">提交</span><span class="tm">'+r.createStr+':12</span></div></div>'
@@ -1329,8 +1350,9 @@ function openModal(title,body,foot,cls){
 function closeModal(){$('mask').classList.remove('on')}
 
 /* ================= 开业5天未发起补贴流程门店明细（R16 · 侧边栏独立菜单列表页） ================= */
-const D5={page:1,pageSize:20};
-let D5_ROWS=[];
+const D5={tab:'track',page:1,pageSize:20};
+const D5R={page:1,pageSize:20};
+let D5_ROWS=[],D5R_ROWS=[];
 function genD5(){
   const rng=lcg(20261113^0xd5);
   const SUPERV=['席伟','谢春梅','丁建新','蒋团顺','罗琼'];
@@ -1368,13 +1390,43 @@ function genD5(){
   rows.sort((a,b)=>a.days-b.days);
   return rows;
 }
-function applyD5Filters(){
+function genD5Removed(){
+  const rng=lcg(20261113^0xd5f);
+  const DISTS=['月湖区','青云谱区','雨花区','东坡区','龙岗区','高新区','东湖区','武侯区','天心区','新城区'];
+  const STREETS=['先进大道','人民南路','建设路','中山路','解放东路','滨江路','胜利街','文化路'];
+  const rows=[];
+  for(let i=0;i<14;i++){
+    const prov=PROVS[Math.floor(rng()*PROVS.length)];
+    const city=prov+'市';
+    const name='【'+(rng()<.7?'新店':'迁址')+'】'+prov+TOWNS[Math.floor(rng()*TOWNS.length)]+TAILS[Math.floor(rng()*TAILS.length)];
+    const startDays=5+Math.floor(rng()*9);
+    const startTime=new Date(NOW.getTime()-(Math.floor(rng()*20))*86400000-(1+Math.floor(rng()*6))*3600000);
+    const open=new Date(startTime.getTime()-startDays*86400000);
+    rows.push({
+      id:'P2026'+pad(9+Math.floor(i/10))+pad(1)+'0'+(3100+i*7),
+      name,
+      etype:name.startsWith('【新店】')?'新店':'迁址',
+      brand:rng()<.55?'赵一鸣':'零食很忙',
+      src:['工程系统','门店系统','招商系统'][Math.floor(rng()*3)],
+      prov,city,
+      dist:DISTS[Math.floor(rng()*DISTS.length)],
+      addr:city+DISTS[Math.floor(rng()*DISTS.length)]+STREETS[Math.floor(rng()*STREETS.length)]+(1+Math.floor(rng()*200))+'号',
+      storeCode:['213A','213B','213D','231A'][Math.floor(rng()*4)]+String(3900+i*13).slice(-4),
+      openTime:fd(open),
+      subsidyTime:fdt(startTime),
+      startDays
+    });
+  }
+  rows.sort((a,b)=>b.subsidyTime.localeCompare(a.subsidyTime));
+  return rows;
+}
+function applyD5Filters(rows,daysKey){
   const prj=$('f-d5-prj').value.trim(),store=$('f-d5-store').value.trim();
   const etype=$('f-d5-etype').value,brand=$('f-d5-brand').value,src=$('f-d5-src').value;
   const node=$('f-d5-node').value,prov=$('f-d5-prov').value;
   const open=$('f-d5-open').value.trim(),days=$('f-d5-days').value;
   const inRange=(s,q)=>{if(!q)return true;const m=q.match(/(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);if(!m)return true;return s>=m[1]&&s<=m[2]+' 23:59'};
-  return D5_ROWS.filter(r=>{
+  return rows.filter(r=>{
     if(prj&&!(r.id.includes(prj)||r.name.includes(prj)))return false;
     if(store&&!(r.storeCode.includes(store)||r.name.replace(/^【[^】]*】/,'').includes(store)))return false;
     if(etype&&r.etype!==etype)return false;
@@ -1383,18 +1435,42 @@ function applyD5Filters(){
     if(node&&r.node!==node)return false;
     if(prov&&r.prov!==prov)return false;
     if(open&&!inRange(r.openTime,open))return false;
-    if(days!==''&&r.days<+days)return false;
+    if(days!==''&&r[daysKey]<+days)return false;
     return true;
   });
 }
+function renderD5Pager(pgnEl,st,filtered,renderFn){
+  const total=filtered.length;
+  const pages=Math.max(1,Math.ceil(total/st.pageSize));
+  if(st.page>pages)st.page=1;
+  const start=(st.page-1)*st.pageSize;
+  renderFn(filtered.slice(start,start+st.pageSize),total,pages);
+  let pg='<i'+(st.page===1?' class="dis"':' data-go="'+(st.page-1)+'"')+'>‹</i>';
+  const from=Math.max(1,st.page-2),to=Math.min(pages,from+4);
+  for(let p=from;p<=to;p++)pg+='<i data-go="'+p+'" class="'+(p===st.page?'on':'')+'">'+p+'</i>';
+  if(to<pages)pg+='<i class="dis">…</i>';
+  pg+='<i'+(st.page===pages?' class="dis"':' data-go="'+(st.page+1)+'"')+'>›</i>';
+  pgnEl.innerHTML='<span>共 '+total+' 条</span>'
+    +'<select>'+[20,50,100].map(s=>'<option'+(s===st.pageSize?' selected':'')+'>'+s+'条/页</option>').join('')+'</select>'
+    +pg+'<span>前往</span><input value="'+st.page+'"><span>页</span>';
+  const sel=pgnEl.querySelector('select');
+  sel.onchange=e=>{st.pageSize=+e.target.value;st.page=1;renderD5()};
+  const jump=pgnEl.querySelector('input');
+  jump.onkeydown=e=>{if(e.key==='Enter'){const p=parseInt(e.target.value);if(p>=1&&p<=pages){st.page=p;renderD5()}}};
+  pgnEl.querySelectorAll('i[data-go]').forEach(el=>el.onclick=()=>{st.page=+el.dataset.go;renderD5()});
+}
 function renderD5(){
   if(!D5_ROWS.length)D5_ROWS=genD5();
-  const filtered=applyD5Filters();
-  const total=filtered.length;
-  const pages=Math.max(1,Math.ceil(total/D5.pageSize));
-  if(D5.page>pages)D5.page=1;
-  const start=(D5.page-1)*D5.pageSize;
-  $('tbody-d5').innerHTML=filtered.slice(start,start+D5.pageSize).map(r=>
+  if(!D5R_ROWS.length)D5R_ROWS=genD5Removed();
+  $('d5-cnt-track').textContent='('+D5_ROWS.length+')';
+  $('d5-cnt-removed').textContent='('+D5R_ROWS.length+')';
+  const trackOn=D5.tab==='track';
+  $('d5-track-card').style.display=trackOn?'':'none';
+  $('d5-removed-card').style.display=trackOn?'none':'';
+  if(trackOn){
+    const filtered=applyD5Filters(D5_ROWS,'days');
+    renderD5Pager($('pgn-d5'),D5,filtered,(slice,total)=>{
+      $('tbody-d5').innerHTML=slice.map(r=>
     '<tr>'
     +'<td class="num">'+r.id+'</td>'
     +'<td><span class="link" onclick="toast(\'该项目尚未发起补贴审核流程，暂无审核详情可跳转（原型示意）\',\'warn\')">'+esc(r.name)+'</span></td>'
@@ -1412,17 +1488,27 @@ function renderD5(){
     +'<td><span class="etag orange">营业中</span></td>'
     +'<td class="num rn">'+r.openTime+' <span class="etag orange">已开业 '+r.days+' 天</span></td>'
     +'</tr>').join('')||'<tr><td colspan="17" style="text-align:center;padding:32px;color:var(--sub)">暂无数据</td></tr>';
-  let pg='<i'+(D5.page===1?' class="dis"':' data-go="'+(D5.page-1)+'"')+'>‹</i>';
-  const from=Math.max(1,D5.page-2),to=Math.min(pages,from+4);
-  for(let p=from;p<=to;p++)pg+='<i data-go="'+p+'" class="'+(p===D5.page?'on':'')+'">'+p+'</i>';
-  if(to<pages)pg+='<i class="dis">…</i>';
-  pg+='<i'+(D5.page===pages?' class="dis"':' data-go="'+(D5.page+1)+'"')+'>›</i>';
-  $('pgn-d5').innerHTML='<span>共 '+total+' 条</span>'
-    +'<select id="d5-size">'+[20,50,100].map(s=>'<option'+(s===D5.pageSize?' selected':'')+'>'+s+'条/页</option>').join('')+'</select>'
-    +pg+'<span>前往</span><input id="d5-jump"><span>页</span>';
-  $('d5-size').onchange=e=>{D5.pageSize=+e.target.value;D5.page=1;renderD5()};
-  $('d5-jump').onkeydown=e=>{if(e.key==='Enter'){const p=parseInt(e.target.value);if(p>=1&&p<=pages){D5.page=p;renderD5()}}};
-  document.querySelectorAll('#pgn-d5 i[data-go]').forEach(el=>el.onclick=()=>{D5.page=+el.dataset.go;renderD5()});
+    });
+  }else{
+    const filtered=applyD5Filters(D5R_ROWS,'startDays');
+    renderD5Pager($('pgn-d5r'),D5R,filtered,(slice,total)=>{
+      $('tbody-d5r').innerHTML=slice.map(r=>
+        '<tr>'
+        +'<td class="num">'+r.id+'</td>'
+        +'<td><span class="link" onclick="toast(\'该门店已发起工程补贴审核流程，跳转对应补贴审核详情（原型示意）\')">'+esc(r.name)+'</span></td>'
+        +'<td>'+r.etype+'</td>'
+        +'<td><span class="brand-ic"><i style="background:'+(r.brand==='赵一鸣'?'#E02020':'#FF7D00')+'"></i>'+r.brand+'</span></td>'
+        +'<td>'+r.src+'</td>'
+        +'<td>'+r.prov+'</td><td>'+r.city+'</td><td>'+r.dist+'</td>'
+        +'<td>'+esc(r.addr)+'</td>'
+        +'<td class="num">'+r.storeCode+'</td>'
+        +'<td>'+esc(r.name.replace(/^【[^】]*】/,''))+'</td>'
+        +'<td class="num">'+r.openTime+'</td>'
+        +'<td class="num rn"><span class="etag green">'+r.subsidyTime+'</span></td>'
+        +'<td class="num rn">'+r.startDays+' 天</td>'
+        +'</tr>').join('')||'<tr><td colspan="14" style="text-align:center;padding:32px;color:var(--sub)">暂无数据</td></tr>';
+    });
+  }
 }
 
 /* ================= 事件绑定 ================= */
@@ -1450,11 +1536,15 @@ document.querySelectorAll('#stabs span[data-st]').forEach(el=>el.onclick=()=>{
 document.querySelectorAll('#side a[data-nav]').forEach(el=>el.onclick=()=>{el.dataset.nav==='d5'?openD5():switchView('list','审核列表')});
 $('side-fold').onclick=()=>{document.querySelector('.side').style.display='none'};
 $('f-d5-prov').innerHTML='<option value="">全部</option>'+PROVS.map(p=>'<option>'+p+'</option>').join('');
-$('btn-d5-search').onclick=()=>{D5.page=1;renderD5();toast('已按当前条件搜索')};
+$('btn-d5-search').onclick=()=>{D5.page=1;D5R.page=1;renderD5();toast('已按当前条件搜索')};
 $('btn-d5-reset').onclick=()=>{
   document.querySelectorAll('#d5-filters input,#d5-filters select').forEach(el=>el.value='');
-  D5.page=1;renderD5();
+  D5.page=1;D5R.page=1;renderD5();
 };
+document.querySelectorAll('#d5-tabs span[data-dt]').forEach(el=>el.onclick=()=>{
+  document.querySelectorAll('#d5-tabs span[data-dt]').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');D5.tab=el.dataset.dt;D5.page=1;D5R.page=1;renderD5();
+});
 $('anno-toggle').onclick=()=>{
   const off=document.body.classList.toggle('hide-anno');
   $('anno-toggle').textContent='迭代标注：'+(off?'关':'开');
@@ -1462,7 +1552,10 @@ $('anno-toggle').onclick=()=>{
 };
 $('reset-data').onclick=()=>{
   ROWS=genRows();Object.keys(DETAIL).forEach(k=>delete DETAIL[k]);
-  LIST.page=1;LIST.selected.clear();renderList();
+  D5_ROWS=genD5();D5R_ROWS=genD5Removed();D5.tab='track';D5.page=1;D5R.page=1;
+  $('d5-cnt').textContent=D5_ROWS.length;
+  document.querySelectorAll('#d5-tabs span[data-dt]').forEach(x=>x.classList.toggle('on',x.dataset.dt==='track'));
+  LIST.page=1;LIST.selected.clear();renderList();renderD5();
   toast('演示数据已重置（列表 197 条 · 审核中 91 / 审核完成 106 / 即将超时 3 / 已超时 1）');
 };
 document.addEventListener('click',()=>{const d=document.getElementById('dd-more');if(d)d.classList.remove('open')});
@@ -1471,6 +1564,7 @@ document.addEventListener('click',()=>{const d=document.getElementById('dd-more'
 buildFilters();
 ROWS=genRows();
 D5_ROWS=genD5();
+D5R_ROWS=genD5Removed();
 $('d5-cnt').textContent=D5_ROWS.length;
 renderList();
 renderTabsBar('list');
@@ -1495,9 +1589,11 @@ window.__applyShot=function(shot){
       {sel:TH(16),t:'R16 新增列「剩余时效 / 超时时长」：剩 N 天 / 已超时 N 天',dir:'below'}]},
     'r16-d5':{state(){openD5()},anns:[
       {sel:'#side a[data-nav="d5"]',t:'R16 独立菜单入口：位于审核中心 · 审核列表下方，独立列表页（非审核列表页签）'},
-      {sel:'#view-d5 .card.rn .sub-t',t:'R16 口径说明卡：开业满第 5 天（开业当日=第 1 天，自然日不顺延）仍未发起补贴流程，每日 00:00 刷新 + APP 待办/企微提醒工程督查组'},
-      {sel:'#d5-filter-card',t:'查询条件：项目信息 / 门店信息 / 工程类型 / 所属品牌 / 数据来源 / 工程节点 / 省 / 开业时间 / 已开业天数≥，搜索后过滤列表',dir:'below'},
-      {sel:'#view-d5 table.tb thead th:nth-child(17)',t:'开业时间列附「已开业 N 天」角标；命中后持续跟踪，发起流程后自动移出',dir:'below'}]},
+      {sel:'#view-d5 .card.rn .sub-t',t:'R16 口径说明卡：开业满第 5 天（开业当日=第 1 天，自然日不顺延）仍未发起补贴流程，每日 00:00 刷新'},
+      {sel:'#d5-filter-card',t:'查询条件：项目信息 / 门店信息 / 工程类型 / 所属品牌 / 数据来源 / 工程节点 / 省 / 开业时间 / 已开业天数≥，搜索后过滤列表（两个页签共用）',dir:'below'},
+      {sel:'#d5-tabs',t:'R16 新增双页签：未发起明细（命中清单，菜单角标只统计本页签）/ 移出明细（发起补贴流程后自动移出留痕，标记发起时间）',dir:'below'},
+      {sel:'#view-d5 table.tb thead th:nth-child(17)',t:'开业时间列附「已开业 N 天」角标；命中后持续跟踪，发起流程后自动移出并转入「移出明细」页签',dir:'below'},
+      {sel:'#d5-tabs span[data-dt="removed"]',t:'点击切换到「移出明细」页签：展示每日刷新后已发起补贴流程被移出的门店，含「发起补贴审核流程时间」与「发起时已开业天数」两列，按发起时间倒序',dir:'below'}]},
     'r17':{state(){$('msel-dept').classList.add('open')},anns:[
       {sel:'#f-auditor',t:'R17 新增筛选：审核人（督察）'},
       {sel:'#f-region',t:'R17 新增筛选：大区',dy:46},
@@ -1532,7 +1628,7 @@ window.__applyShot=function(shot){
       {sel:'#view-subsidy .dhead',t:'R22：档案更新命中补贴口径时，同时创建一条工程补贴审核流程（独立审核单），非合并进既有流程',dir:'below'},
       {sel:'.store-bar .etag.gray',t:'源单号双向跳转：档案更新单 ↔ 由其触发创建的补贴审核流程'}]},
     'r22-arch':{state(){openArchive('P20260810055')},anns:[
-      {sel:'#view-archive .dhead',t:'R22：发起档案更新时判断是否涉及补贴，涉及则并行创建工程补贴审核流程',dir:'below'},
+      {sel:'#view-archive .dhead',t:'R22：档案更新经工程信息负责人审核通过后判断是否涉及补贴，涉及则并行创建工程补贴审核流程（被驳回不创建）',dir:'below'},
       {sel:'#view-archive .store-bar .etag.gray',t:'补贴单号标签（与补贴详情源单号标签对称交互）：展示并行生成的工程补贴单号，点击跳转工程补贴审核详情',dir:'below'},
       {sel:'#view-archive .diff',t:'档案记录新旧对比：涉及补贴字段（开间长度/招牌面积）带橙色「涉及补贴」标签',dir:'below'}]},
     'reject-dlg':{state(){
