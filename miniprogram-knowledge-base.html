@@ -294,6 +294,18 @@
   .thumb.t-pic{background:linear-gradient(150deg,#5cc8f7,#0277bd)}
   .thumb.t-web{background:linear-gradient(150deg,#a98af7,#5e35b1)}
   .thumb.t-xls{background:linear-gradient(150deg,#7ee2a8,#12a150)}
+  /* V2.18 封面取值规则：PDF / PPT 取文件第一页；单张图片取该图片 */
+  .thumb.t-page{background:#fff;border:1px solid #d5dde8;position:relative;overflow:hidden}
+  .thumb.t-page .ph{position:absolute;left:0;top:0;width:100%;height:9px}
+  .thumb.t-page.t-pdf .ph{background:linear-gradient(90deg,#ff8a65,#f4511e)}
+  .thumb.t-page.t-ppt .ph{background:linear-gradient(90deg,#ffb066,#f56c0a)}
+  .thumb.t-page .pl{position:absolute;left:7px;height:2px;border-radius:1px;background:#c3ccd9}
+  .thumb.t-page .pl.p1{top:20px;width:26px}
+  .thumb.t-page .pl.p2{top:26px;width:31px}
+  .thumb.t-page .pl.p3{top:32px;width:19px}
+  .thumb.t-page b{position:absolute;left:0;bottom:2px;width:100%;text-align:center;font-size:8px;font-weight:700;color:#9aa4b3;letter-spacing:.5px}
+  .thumb.t-photo{background:repeating-linear-gradient(115deg,#eaf4ff 0 8px,#d9e9fb 8px 16px);border:1px solid #c9def5;color:#2b77c2}
+  .thumb.t-photo svg{width:19px;height:19px}
   .doc-main{flex:1;min-width:0}
   .doc-title{font-size:14px;font-weight:600;color:#1f1f1f;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .doc-title mark{background:#fff0c2;color:#a35c00;border-radius:2px;padding:0 1px}
@@ -368,7 +380,9 @@
   .act-btn.rej{background:#fdecec;color:#d93026}
 
   /* 视频专区 */
-  .thumb.t-vid{background:linear-gradient(150deg,#ffb066,#ff7d1a)}
+  /* V2.18：视频列表行 / 卡片封面取视频封面（未上传封面时的兜底帧） */
+  .thumb.t-vid{position:relative;background:radial-gradient(120% 100% at 30% 15%,rgba(255,255,255,.16),rgba(10,20,35,0) 60%),linear-gradient(170deg,#4e708c,#2c415a 55%,#1a2c40)}
+  .thumb.t-vid .vdur{position:absolute;right:4px;bottom:3px;font-size:8px;line-height:1.4;background:rgba(0,0,0,.6);border-radius:3px;padding:0 3px;font-weight:600;letter-spacing:.3px}
   /* V2.14 关联卡片（直接 + 延伸互链） */
   .doc-item.rel{margin:0 12px 8px;padding:11px 12px}
   .doc-item.rel .thumb{width:64px;height:40px;flex-direction:row;border-radius:8px}
@@ -951,7 +965,7 @@ function viaTxt(via){ return ' <span class="via-tag">经《' + via.name + '》</
 function relVideoCard(v, via){
   var locked = isLocked(v);
   return '<div class="doc-item rel' + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="relDeny()"' : ' onclick="openVideoDetail(' + v.id + ')"') + '>' +
-    '<span class="thumb t-vid"><svg><use href="#i-play"/></svg>' + v.dur + '</span>' +
+    '<span class="thumb t-vid"><svg><use href="#i-play"/></svg><i class="vdur">' + v.dur + '</i></span>' +
     '<div class="doc-main"><div class="doc-title">' + v.name + (locked ? ' <span class="lock-tag"><svg><use href="#i-lock"/></svg>无查看权限</span>' : '') + '</div>' +
     '<div class="doc-meta"><span>' + v.ver + '</span><span class="sep"></span><span>播放 ' + v.plays + ' 次</span>' + (via ? '<span class="sep"></span>' : '') + (via ? viaTxt(via) : '') + '</div></div>' +
   '</div>';
@@ -959,7 +973,7 @@ function relVideoCard(v, via){
 function relDocCard(d, via){
   var locked = isLocked(d);
   return '<div class="doc-item rel' + (locked ? ' locked' : '') + '"' + (locked ? ' onclick="relDeny()"' : ' onclick="openDetail(' + d.id + ')"') + '>' +
-    '<span class="thumb ' + thumbCls(d.type) + '"><svg><use href="#i-doc"/></svg>' + thumbTxt(d.type) + '</span>' +
+    docCover(d.type) +
     '<div class="doc-main"><div class="doc-title">' + d.name + (locked ? ' <span class="lock-tag"><svg><use href="#i-lock"/></svg>无查看权限</span>' : '') + '</div>' +
     '<div class="doc-meta"><span>' + d.ver + '</span><span class="sep"></span><span>阅读 ' + d.reads + ' 次</span><span class="sep"></span><span>更新 ' + d.updated.slice(5) + '</span>' + (via ? '<span class="sep"></span>' : '') + (via ? viaTxt(via) : '') + '</div></div>' +
   '</div>';
@@ -1053,6 +1067,16 @@ function otherTab(){ toast('该模块保持现有功能') }
 /* ================= 工具 ================= */
 function thumbCls(t){ return t === 'PDF' ? 't-pdf' : (t === '图片' ? 't-pic' : (t === 'EXCEL' ? 't-xls' : 't-web')) }
 function thumbTxt(t){ return t === 'PDF' ? 'PDF' : (t === '图片' ? 'IMG' : (t === 'EXCEL' ? 'XLS' : (t === 'PPT' ? 'PPT' : 'WEB'))) }
+/* V2.18 封面取值规则：列表行封面缩略图 */
+function docCover(t){
+  if(t === 'PDF' || t === 'PPT'){
+    return '<span class="thumb t-page ' + (t === 'PDF' ? 't-pdf' : 't-ppt') + '"><i class="ph"></i><i class="pl p1"></i><i class="pl p2"></i><i class="pl p3"></i><b>' + t + '</b></span>';
+  }
+  if(t === '图片'){
+    return '<span class="thumb t-photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="17" height="13" rx="2"/><circle cx="9" cy="10.5" r="1.6"/><path d="M4.5 17l4.5-4.5 3 3 3.5-3.5 4 4"/></svg></span>';
+  }
+  return '<span class="thumb ' + thumbCls(t) + '"><svg><use href="#i-doc"/></svg>' + thumbTxt(t) + '</span>';
+}
 function hl(text, kw){
   if(!kw) return text;
   var i = text.toLowerCase().indexOf(kw.toLowerCase());
@@ -1067,7 +1091,7 @@ function docItem(d, kw){
     (nodeT.length ? '<span class="dchip area">' + nodeT[0] + '</span>' : '');
   if(d.vid && d.vid.length) chips += '<span class="read-chip sec">配套视频 ' + d.vid.length + '</span>';
   return '<div class="doc-item" onclick="openDetail(' + d.id + ')">' +
-    '<span class="thumb ' + thumbCls(d.type) + '"><svg><use href="#i-doc"/></svg>' + thumbTxt(d.type) + '</span>' +
+    docCover(d.type) +
     '<div class="doc-main"><div class="doc-title">' + name + '</div>' +
     '<div class="doc-tags">' + chips + '</div>' +
     '<div class="doc-meta"><span>' + d.ver + '</span><span class="sep"></span><span>更新 ' + d.updated.slice(5) + '</span><span class="sep"></span><span>阅读 ' + d.reads + '</span></div></div>' +
@@ -1510,7 +1534,7 @@ function vRow(v, kw){
   var chips = vTagsChips(v, kw) + progChip(p);
   if(v.rd && v.rd.length) chips += '<span class="read-chip vid">配套资料 ' + v.rd.length + '</span>';
   return '<div class="doc-item" onclick="openVideoDetail(' + v.id + ')">' +
-    '<span class="thumb t-vid"><svg><use href="#i-play"/></svg>视频</span>' +
+    '<span class="thumb t-vid"><svg><use href="#i-play"/></svg><i class="vdur">' + v.dur + '</i></span>' +
     '<div class="doc-main"><div class="doc-title">' + name + '</div>' +
     '<div class="doc-tags">' + chips + '</div>' +
     '<div class="doc-meta"><span>' + v.ver + '</span><span class="sep"></span><span>时长 ' + v.dur + '</span><span class="sep"></span><span>播放 ' + v.plays + ' · 完播 ' + v.rate + '%</span></div></div>' +
@@ -1711,7 +1735,7 @@ function renderHist(){
         var pct = h.prog || 0;
         var act = pct >= 100 ? '<span class="read-chip on">已学完</span>' : (pct > 0 ? '<span class="read-chip half">继续观看 · ' + pct + '%</span>' : '<span class="read-chip off">开始学习</span>');
         html += '<div class="doc-item" style="margin:0 0 10px" onclick="openVideoDetail(' + v.id + ')">' +
-          '<span class="thumb t-vid" style="height:50px"><svg><use href="#i-play"/></svg>视频</span>' +
+          '<span class="thumb t-vid" style="height:50px"><svg><use href="#i-play"/></svg></span>' +
           '<div class="doc-main"><div class="doc-title" style="font-size:13.5px">' + v.name + '</div>' +
           '<div class="hprog"><i style="width:' + pct + '%"></i></div>' +
           '<div class="doc-meta" style="margin-top:6px">' + act + '<span>' + g + ' ' + h.time + ' 播放 ' + pct + '%</span><span class="sep"></span><span>时长 ' + v.dur + '</span></div></div>' +
@@ -1721,7 +1745,7 @@ function renderHist(){
       var d = DOCS.filter(function(x){ return x.id === h.id })[0];
       if(!d) return;
       html += '<div class="doc-item" style="margin:0 0 10px" onclick="openDetail(' + d.id + ')">' +
-        '<span class="thumb ' + thumbCls(d.type) + '" style="height:50px"><svg><use href="#i-doc"/></svg>' + thumbTxt(d.type) + '</span>' +
+        docCover(d.type) +
         '<div class="doc-main"><div class="doc-title" style="font-size:13.5px">' + d.name + '</div>' +
         '<div class="doc-meta" style="margin-top:6px"><span class="read-chip on">已读</span><span>' + g + ' ' + h.time + ' 查阅</span><span class="sep"></span><span>' + catPathTxt(d) + '</span></div></div>' +
         '<svg style="width:15px;height:15px;color:#c8c8c8;align-self:center" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></div>';
