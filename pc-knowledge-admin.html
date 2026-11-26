@@ -315,6 +315,20 @@
   .ftype.xls{background:linear-gradient(135deg,#66bb6a,#2e7d32)}
   .ftype.ppt{background:linear-gradient(135deg,#ffb066,#f56c0a)}
   .ftype.vid{background:linear-gradient(135deg,#5cc8f7,#0277bd)}
+  /* V2.18 封面取值规则：PDF / PPT 取文件第一页；单张图片取该图片；EXCEL 及多文件沿用类型角标 */
+  .dcov{width:34px;height:42px;border-radius:5px;background:#fff;border:1px solid #dbe2ec;position:relative;flex-shrink:0;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+  .dcov .hd{position:absolute;left:0;top:0;width:100%;height:7px}
+  .dcov.pdf .hd{background:linear-gradient(90deg,#ff8a65,#f4511e)}
+  .dcov.ppt .hd{background:linear-gradient(90deg,#ffb066,#f56c0a)}
+  .dcov .ln{position:absolute;left:5px;height:2px;border-radius:1px;background:#c3ccd9}
+  .dcov .ln.p1{top:16px;width:60%}
+  .dcov .ln.p2{top:22px;width:72%}
+  .dcov .ln.p3{top:28px;width:46%}
+  .dcov b{position:absolute;left:0;bottom:1px;width:100%;text-align:center;font-size:8px;font-weight:700;color:#98a1b0;letter-spacing:.5px;line-height:1.6}
+  .dcov.dc-pic{display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(115deg,#eaf4ff 0 7px,#d9e9fb 7px 14px);border-color:#c9def5}
+  .dcov.dc-pic svg{width:18px;height:18px;color:#2b77c2}
+  .cellvcov{width:46px;height:28px;border-radius:5px;position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
+  .cellvcov svg{width:13px;height:13px;opacity:.95}
   .ftype.vid svg{width:14px;height:14px}
   .type-chip{display:inline-block;border-radius:4px;padding:1px 7px;font-size:11px;line-height:1.7;margin:1px 3px 1px 0;white-space:nowrap;font-weight:500}
   .type-chip.t-pdf{background:#fff1ec;color:#e64a19}
@@ -585,6 +599,12 @@
   .file-row .rm{cursor:pointer;color:#aab1bd;display:flex;align-items:center;flex-shrink:0}
   .file-row .rm:hover{color:var(--red)}
   .file-row .rm svg{width:14px;height:14px}
+  .file-row .prog{display:flex;align-items:center;gap:8px;flex-shrink:0;width:200px}
+  .file-row .prog-bar{flex:1;height:6px;border-radius:4px;background:#eef1f5;overflow:hidden}
+  .file-row .prog-bar i{display:block;height:100%;border-radius:4px;background:var(--orange);transition:width .25s}
+  .file-row .prog em{font-style:normal;font-size:11px;color:#9aa2ae;width:70px;text-align:right;flex-shrink:0}
+  .file-row .fstat{font-size:11.5px;flex-shrink:0}
+  .file-row .fstat.fail{color:var(--red)}
   .file-empty{border:1px dashed #dfe3ea;border-radius:8px;padding:12px;text-align:center;color:#aab1bd;font-size:12px;margin-top:10px}
   .file-chip{display:none;align-items:center;gap:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12.8px}
   .file-chip.show{display:flex;animation:fadeUp .2s}
@@ -1521,6 +1541,7 @@
         <div class="side-sub-item" data-tab="downloads" onclick="kbTabTo('downloads')">下载审批<span class="sub-badge" id="dlPendingBadge" style="display:none">0</span></div>
         <div class="side-sub-item" data-tab="reads" onclick="kbTabTo('reads')">已读记录</div>
         <div class="side-sub-item" data-tab="oplog" onclick="kbTabTo('oplog')">操作记录</div>
+        <div class="side-sub-item" data-tab="behavior" onclick="kbTabTo('behavior')">用户行为</div>
         <div class="side-sub-item" data-tab="portal" onclick="openPortal('home')">工程知识库</div>
       </div>
       <div class="side-item" onclick="sideTodo('系统设置')"><svg><use href="#i-gear"/></svg><span class="lbl">系统设置</span><svg class="chev"><use href="#i-caret"/></svg></div>
@@ -1794,7 +1815,7 @@
               <div class="card stat-card"><div class="lbl">今日播放</div><b>58</b><div class="sub"><span class="up">▲ 9</span>较昨日</div></div>
               <div class="card stat-card"><div class="lbl">本周播放</div><b>412</b><div class="sub">APP 256 / 小程序 156</div></div>
               <div class="card stat-card"><div class="lbl">完播率</div><b>64%</b><div class="sub"><span class="up">▲ 4%</span>较上周</div></div>
-              <div class="card stat-card"><div class="lbl">平均观看时长</div><b>09:40</b><div class="sub">完播 128 次</div></div>
+              <div class="card stat-card"><div class="lbl">平均观看时长</div><b>09:40</b><div class="sub">完播 128 人</div></div>
             </div>
             <div class="card pane" style="margin-top:12px">
               <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
@@ -1853,6 +1874,49 @@
               <div class="pager" id="opPager"></div>
             </div>
           </div>
+
+          <!-- 用户行为（ADM-17） -->
+          <div class="kb-panel" id="kbp-behavior">
+            <div class="card pane">
+              <div class="pane-head">
+                <h3>用户行为</h3>
+                <button class="btn ghost sm" onclick="exportBehavior()"><svg><use href="#i-export"/></svg>导出</button>
+              </div>
+              <div class="read-filter" style="margin-top:10px">
+                <select class="tb-select" id="bhRange" onchange="bhRangeChanged()">
+                  <option value="today">今日</option>
+                  <option value="7d" selected>近 7 日</option>
+                  <option value="30d">近 30 日</option>
+                  <option value="custom">自定义</option>
+                </select>
+                <input class="tb-select" type="date" id="bhFrom" style="display:none">
+                <span id="bhToDate" style="display:none;color:#9aa2ae;font-size:12px">至</span>
+                <input class="tb-select" type="date" id="bhTo" style="display:none">
+                <button class="btn ghost sm" onclick="toggleBhTypes(event)"><svg><use href="#i-filter"/></svg>事件类型<span class="cnt" id="bhTypeCnt" style="display:none">0</span></button>
+                <select class="tb-select" id="bhSrc">
+                  <option value="">来源端（全部）</option>
+                  <option value="pc">PC 用户端</option>
+                  <option value="app">内部 APP</option>
+                  <option value="mp">鸣忙营造小程序</option>
+                </select>
+                <div class="tb-search"><svg><use href="#i-search"/></svg><input id="bhUser" placeholder="用户姓名"></div>
+                <div class="tb-search"><svg><use href="#i-search"/></svg><input id="bhKw" placeholder="内容名称 / 编号"></div>
+                <button class="btn primary sm" onclick="bhQuery()">查询</button>
+                <button class="btn ghost sm" onclick="bhReset()">重置</button>
+              </div>
+              <div class="op-type-pop" id="bhTypePop" style="display:none"></div>
+              <div class="op-stat" id="bhStatBar"></div>
+              <div class="table-wrap" style="margin-top:12px">
+                <table class="dtable">
+                  <thead><tr>
+                    <th style="width:150px">行为时间</th><th style="width:170px">用户 / 角色组织</th><th style="width:120px">来源端</th><th style="width:130px">事件类型</th><th style="width:210px">关联内容</th><th>行为摘要</th>
+                  </tr></thead>
+                  <tbody id="bhTbody"></tbody>
+                </table>
+              </div>
+              <div class="pager" id="bhPager"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1909,7 +1973,7 @@
           <div class="dropzone" id="upDrop" onclick="triggerUpFiles()" ondragover="upDrag(event,1)" ondragleave="upDrag(event,0)" ondrop="dropUpFiles(event)">
             <svg><use href="#i-upload"/></svg>
             <b>点击上传</b> 或将多份文件拖拽到此区域
-            <div class="dz-sub">支持 PDF / PPT / EXCEL / 图片 · 可分批添加 · <a class="op-link" onclick="event.stopPropagation();demoUpFiles()">载入示例文件</a></div>
+            <div class="dz-sub">支持 PDF / PPT / EXCEL / 图片 · 可分批添加 · <a class="op-link" onclick="event.stopPropagation();demoUpFiles()">载入示例文件</a> · <a class="op-link" onclick="event.stopPropagation();mockFailUp()">模拟上传失败</a></div>
           </div>
           <div class="file-rows" id="upFileRows"></div>
         </div>
@@ -2040,13 +2104,13 @@
           <div class="dropzone" id="vdDrop" onclick="triggerVdFile()" ondragover="vdDrag(event,1)" ondragleave="vdDrag(event,0)" ondrop="dropVdFile(event)">
             <svg><use href="#i-video"/></svg>
             <b>点击上传</b> 或将视频拖拽到此区域
-            <div class="dz-sub">上传视频仅允许 1 个文件 · <a class="op-link" onclick="event.stopPropagation();demoVdFile()">载入示例视频</a></div>
+            <div class="dz-sub">上传视频仅允许 1 个文件 · <a class="op-link" onclick="event.stopPropagation();demoVdFile()">载入示例视频</a> · <a class="op-link" onclick="event.stopPropagation();mockFailVd()">模拟上传失败</a></div>
           </div>
           <div class="file-rows" id="vdFileRows"></div>
         </div>
         <div class="form-row">
           <div class="form-item" style="max-width:200px">
-            <label>封面图 <span class="hint">移动端列表展示</span></label>
+            <label>封面图 <span class="hint">非必填 · 未上传时取视频封面展示</span></label>
             <div class="cover-zone" id="vdCover" onclick="mockCover()"><svg><use href="#i-upload"/></svg><span>上传封面</span></div>
           </div>
           <div class="form-item"><label>视频简介</label><textarea class="input" id="vdSummary" rows="3" placeholder="一句话说明适用场景与要点，将展示在移动端详情页"></textarea></div>
@@ -2388,15 +2452,8 @@
     <div class="dlg-head"><h3 id="shTitle">分享内容</h3><button class="dlg-close" onclick="closeShare()"><svg style="width:15px;height:15px"><use href="#i-x"/></svg></button></div>
     <div class="dlg-body">
       <div id="shMeta" style="font-size:12.5px;color:#8a919f;line-height:1.75;margin-bottom:12px"></div>
-      <div class="ver-sec-t" style="margin-top:0">分享方式<span>由菜单资源授权：分享-游客 / 分享-非游客</span></div>
-      <div class="ver-opt on" id="shModeGuest" onclick="pickShareMode('guest')" style="margin-top:8px">
-        <span class="radio"></span>
-        <div style="flex:1;min-width:0">
-          <b>游客链接</b>
-          <p>链接 + 访问密码，访问者无需登录；须同时输入链接与密码，有效期内可在线预览，不可转存、不可下载。</p>
-        </div>
-      </div>
-      <div class="ver-opt" id="shModeMember" onclick="pickShareMode('member')">
+      <div class="ver-sec-t" style="margin-top:0">分享方式<span>由菜单资源授权：分享</span></div>
+      <div class="ver-opt on" id="shModeMember" style="margin-top:8px">
         <span class="radio"></span>
         <div style="flex:1;min-width:0">
           <b>非游客链接</b>
@@ -2408,11 +2465,10 @@
         <div class="share-line"><input class="input" id="shLink" readonly><button class="share-copy" onclick="copyShareLink()">复制链接</button></div>
       </div>
       <div class="form-row">
-        <div class="form-item" id="shPwdWrap"><label>访问密码</label><div class="share-line"><input class="input" id="shPwd" maxlength="8" placeholder="请输入访问密码"><button class="share-copy" onclick="regenSharePwd()">重新生成</button></div></div>
         <div class="form-item" style="max-width:190px"><label>有效期</label><select class="tb-select" id="shExpire" style="width:100%;height:34px" onchange="syncShareTip()"><option>1 天</option><option selected>7 天</option><option>30 天</option></select></div>
       </div>
       <div class="tip-note" id="shTip"><svg><use href="#i-info"/></svg><span></span></div>
-      <div class="tip-note" style="margin-top:8px"><svg><use href="#i-log"/></svg><span>分享行为（分享人、方式、有效期）与访问记录（访问人 / 游客标识、时间、IP）均留痕，可在数据中心查询审计。</span></div>
+      <div class="tip-note" style="margin-top:8px"><svg><use href="#i-log"/></svg><span>分享行为（分享人、有效期）与访问记录（访问人、时间、IP）均留痕，可在数据中心查询审计。</span></div>
     </div>
     <div class="dlg-foot">
       <button class="btn ghost" onclick="closeShare()">取消</button>
@@ -2848,6 +2904,18 @@ var STATUS = {
 var FTYPE_CLS = { 'PDF': 'pdf', 'PPT': 'ppt', 'EXCEL': 'xls', '图片': 'pic', '视频': 'vid' };
 var FTYPE_TXT = { 'PDF': 'PDF', 'PPT': 'PPT', 'EXCEL': 'XLS', '图片': 'IMG', '视频': 'VID' };
 var FILE_EXT = { 'PDF': 'pdf', 'PPT': 'pptx', 'EXCEL': 'xlsx', '图片': 'png', '视频': 'mp4' };
+/* V2.18 封面取值规则：视频封面兜底帧（未上传封面时取视频封面展示，替代原品牌渐变兜底） */
+var VFRAME = 'radial-gradient(120% 100% at 30% 15%,rgba(255,255,255,.16),rgba(12,22,38,0) 60%),linear-gradient(170deg,#4e708c,#2c415a 55%,#1a2c40)';
+function docCover(it){
+  var t = primaryType(it);
+  if(t === 'PDF' || t === 'PPT'){
+    return '<span class="dcov ' + (t === 'PDF' ? 'pdf' : 'ppt') + '"><i class="hd"></i><i class="ln p1"></i><i class="ln p2"></i><i class="ln p3"></i><b>' + t + '</b></span>';
+  }
+  if(t === '图片'){
+    return '<span class="dcov dc-pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="17" height="13" rx="2"/><circle cx="9" cy="10.5" r="1.6"/><path d="M4.5 17l4.5-4.5 3 3 3.5-3.5 4 4"/></svg></span>';
+  }
+  return '';
+}
 function typeOfFile(name){
   var ext = String(name || '').split('.').pop().toLowerCase();
   if(ext === 'pdf') return 'PDF';
@@ -3151,7 +3219,7 @@ function snapPreviewHtml(){
   if(!f) return '<div class="p-empty" style="padding:40px 0">该版本没有文件</div>';
   if(f.type === '视频'){
     return '<div class="docpage" style="padding:16px;max-width:100%">' +
-      '<div style="height:230px;border-radius:8px;background:' + (c.item.cover || 'linear-gradient(135deg,#3d8bff,#1f6bf1)') + ';display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:8px">' +
+      '<div style="height:230px;border-radius:8px;background:' + (c.item.cover || VFRAME) + ';display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:8px">' +
         '<svg style="width:38px;height:38px"><use href="#i-play"/></svg><b style="font-size:13px">' + s.name + '</b><span style="font-size:11.5px;opacity:.85">' + c.ver + ' · ' + (c.item.dur || '12:35') + '</span></div>' +
       '<div class="p-cap">' + (c.ver === c.item.ver ? '当前版本' : '历史快照') + ' · 仅支持在线预览，不提供播放进度</div></div>';
   }
@@ -3372,7 +3440,7 @@ function itemOf(kind, id){
 }
 function flowActionHtml(kind, d){
   if(d.status === 'draft' || d.status === 'rejected') return '<a class="op-link" onclick="askSubmitItem(\'' + kind + '\',' + d.id + ')">提交审核</a>';
-  if(d.status === 'review') return '<a class="op-link" onclick="approveItem(\'' + kind + '\',' + d.id + ')">审核通过</a><span class="op-sep">|</span><a class="op-link" style="color:#f5222d" onclick="rejectItem(\'' + kind + '\',' + d.id + ')">驳回</a>';
+  if(d.status === 'review') return '<a class="op-link" onclick="approveItem(\'' + kind + '\',' + d.id + ')">审核通过</a><span class="op-sep">|</span><a class="op-link" style="color:#f5222d" onclick="rejectItem(\'' + kind + '\',' + d.id + ')">驳回</a><span class="op-sep">|</span><a class="op-link" onclick="askRevokeItem(\'' + kind + '\',' + d.id + ')">撤回</a>';
   if(d.status === 'published') return '<a class="op-link" onclick="askFlow(\'' + kind + '\',' + d.id + ',\'offline\')">下架</a>';
   return '';
 }
@@ -3455,8 +3523,8 @@ function renderContentList(){
     ops += '<span class="op-sep">|</span><span class="row-more" onclick="openRowMenu(event,\'' + row.kind + '\',' + d.id + ')"><svg><use href="#i-more"/></svg></span>';
     var verN = versionsOf(row.kind, d).length;
     var cell = isVd
-      ? '<div class="doc-cell"><span class="ftype vid"><svg><use href="#i-play"/></svg></span><div><div class="doc-name">' + d.name + ' <span class="ver">' + d.ver + '</span></div><div class="doc-sub">' + d.code + ' · 标准视频 · 时长 ' + d.dur + (d.rd && d.rd.length ? ' · <span style="color:#722ed1">关联 ' + d.rd.length + ' 资料</span>' : '') + '</div></div></div>'
-      : '<div class="doc-cell"><span class="ftype ' + (FTYPE_CLS[primaryType(d)] || 'pdf') + '">' + (FTYPE_TXT[primaryType(d)] || 'FILE') + '</span><div><div class="doc-name">' + d.name + ' <span class="ver">' + d.ver + '</span></div><div class="doc-sub">' + d.code + ' · 共 ' + filesOf(d).length + ' 个文件' + (d.rv && d.rv.length ? ' · <span style="color:#1f6bf1">关联 ' + d.rv.length + ' 视频</span>' : '') + (d.rl && d.rl.length ? ' · <span style="color:#722ed1">关联 ' + d.rl.length + ' 资料</span>' : '') + '</div></div></div>';
+      ? '<div class="doc-cell"><span class="cellvcov" style="background:' + (d.cover || VFRAME) + '"><svg><use href="#i-play"/></svg></span><div><div class="doc-name">' + d.name + ' <span class="ver">' + d.ver + '</span></div><div class="doc-sub">' + d.code + ' · 标准视频 · 时长 ' + d.dur + (d.rd && d.rd.length ? ' · <span style="color:#722ed1">关联 ' + d.rd.length + ' 资料</span>' : '') + '</div></div></div>'
+      : '<div class="doc-cell">' + docCover(d) + '<span class="ftype ' + (FTYPE_CLS[primaryType(d)] || 'pdf') + '">' + (FTYPE_TXT[primaryType(d)] || 'FILE') + '</span><div><div class="doc-name">' + d.name + ' <span class="ver">' + d.ver + '</span></div><div class="doc-sub">' + d.code + ' · 共 ' + filesOf(d).length + ' 个文件' + (d.rv && d.rv.length ? ' · <span style="color:#1f6bf1">关联 ' + d.rv.length + ' 视频</span>' : '') + (d.rl && d.rl.length ? ' · <span style="color:#722ed1">关联 ' + d.rl.length + ' 资料</span>' : '') + '</div></div></div>';
     var readCell = isVd
       ? '<td style="color:#5a6270">' + (d.plays ? d.plays.toLocaleString() : '—') + (d.plays ? '<div style="font-size:11.5px;color:#9aa2ae;margin-top:2px">完播 ' + d.done + '%</div>' : '') + '</td>'
       : '<td style="color:#5a6270">' + (d.reads ? d.reads.toLocaleString() : '—') + '</td>';
@@ -3564,6 +3632,20 @@ function askFlow(kind, id, to){
   }, '确认下架');
 }
 
+function askRevokeItem(kind, id){
+  var isVd = kind === 'video';
+  var it = (isVd ? videos : docs).filter(function(x){ return x.id === id })[0];
+  if(!it || it.status !== 'review') return;
+  confirmBox('撤回' + (isVd ? '视频' : '资料'), '《' + it.name + '》撤回后回到草稿，待审版本' + (it.pendingVer ? ' ' + it.pendingVer : '') + '作废、不产生版本记录；可编辑后重新提交审核。', false, function(){
+    it.status = 'draft';
+    it.pendingVer = '';
+    it.updated = nowDT();
+    syncVerStatus(kind, it);
+    renderContentList(); refreshOverview();
+    toast('《' + it.name + '》已撤回到草稿', 1);
+  }, '确认撤回');
+}
+
 /* 行更多菜单 */
 var curMenuKind = 'doc', curMenuId = null;
 function openRowMenu(e, kind, id){
@@ -3573,17 +3655,20 @@ function openRowMenu(e, kind, id){
   if(!it) return;
   var flow = '';
   if(it.status === 'draft' || it.status === 'rejected') flow = '<button onclick="menuAct(\'review\')"><svg><use href="#i-check"/></svg>提交审核</button>';
-  else if(it.status === 'review') flow = '<button onclick="menuAct(\'approved\')"><svg><use href="#i-check"/></svg>审核通过</button><button onclick="menuAct(\'reject\')"><svg><use href="#i-edit"/></svg>驳回</button>';
-  else if(it.status === 'published') flow = '<button onclick="menuAct(\'offline\')"><svg><use href="#i-x"/></svg>下架</button>';
-  var canEdit = it.status !== 'published' && it.status !== 'review';
+  else if(it.status === 'review') flow = '<button onclick="menuAct(\'approved\')"><svg><use href="#i-check"/></svg>审核通过</button><button onclick="menuAct(\'reject\')"><svg><use href="#i-edit"/></svg>驳回</button><button onclick="menuAct(\'revoke\')"><svg><use href="#i-left"/></svg>撤回</button>';
+  else if(it.status === 'published' || it.status === 'scheduled') flow = '<button onclick="menuAct(\'offline\')"><svg><use href="#i-x"/></svg>下架</button>';
+  var canEdit = it.status === 'draft' || it.status === 'rejected' || it.status === 'offline';
+  var canShare = it.status === 'published' || it.status === 'scheduled' || it.status === 'offline';
+  var canReads = it.status === 'published' || it.status === 'offline';
+  var canDel = it.status === 'draft' || it.status === 'rejected' || it.status === 'offline';
   var m = $('#rowMenu'), r = e.currentTarget.getBoundingClientRect();
   m.innerHTML =
     '<button onclick="menuAct(\'preview\')"><svg><use href="#i-eye-badge"/></svg>预览</button>' +
     (canEdit ? '<button onclick="menuAct(\'edit\')"><svg><use href="#i-edit"/></svg>编辑</button>' : '') +
     flow +
-    '<button onclick="menuAct(\'share\')"><svg><use href="#i-share"/></svg>分享（游客 / 非游客）</button>' +
-    '<button onclick="menuAct(\'reads\')"><svg><use href="#i-eye-badge"/></svg>' + (kind === 'video' ? '播放记录' : '已读记录') + '</button>' +
-    '<button class="danger" onclick="menuAct(\'delete\')"><svg><use href="#i-trash"/></svg>删除</button>';
+    (canShare ? '<button onclick="menuAct(\'share\')"><svg><use href="#i-share"/></svg>分享</button>' : '') +
+    (canReads ? '<button onclick="menuAct(\'reads\')"><svg><use href="#i-eye-badge"/></svg>' + (kind === 'video' ? '播放记录' : '已读记录') + '</button>' : '') +
+    (canDel ? '<button class="danger" onclick="menuAct(\'delete\')"><svg><use href="#i-trash"/></svg>删除</button>' : '');
   m.classList.add('show');
   var top = r.bottom + 6, left = Math.min(r.right - 160, window.innerWidth - 170), h = m.offsetHeight;
   if(top + h > window.innerHeight) top = Math.max(8, r.top - h - 6);
@@ -3602,9 +3687,14 @@ function menuAct(act){
   else if(act === 'reject') rejectItem(curMenuKind, it.id);
   else if(act === 'offline') askFlow(curMenuKind, it.id, 'offline');
   else if(act === 'share') openShare(curMenuKind, it.id);
+  else if(act === 'revoke') askRevokeItem(curMenuKind, it.id);
   else if(act === 'reads'){
-    if(isVd) openPlayRecords(it.name);
-    else { kbTabTo('reads'); toast('已按《' + it.name + '》过滤已读记录（原型演示）', 1) }
+    readNameKw[isVd ? 'video' : 'doc'] = it.name;
+    kbTabTo('reads');
+    readModeTo(isVd ? 'video' : 'doc');
+    readTab('doc');
+    renderReads();
+    toast((it.status === 'offline' ? '内容已下架，展示历史记录；' : '') + '已带入《' + it.name + ' ' + it.ver + '》（' + (isVd ? '视频' : '资料') + ' · ID ' + it.id + '）过滤' + (isVd ? '播放' : '已读') + '记录', 1);
   }
   else if(act === 'delete'){
     confirmBox('删除' + (isVd ? '视频' : '资料'), '删除《' + it.name + '》后不可恢复，其' + (isVd ? '播放' : '已读') + '记录将一并归档。', true, function(){
@@ -3616,15 +3706,15 @@ function menuAct(act){
   }
 }
 
-/* ---------- 内容分享（游客 / 非游客双模式 + 留痕） ---------- */
-var shareCtx = null, shareMode = 'guest';
+/* ---------- 内容分享（非游客链接 + 留痕） ---------- */
+var shareCtx = null;
 var SHARE_LOG_KEY = 'kb_share_log_v1';
 function shToken(len){
   var s = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = '';
   for(var i = 0; i < len; i++) out += s[Math.floor(Math.random() * s.length)];
   return out;
 }
-function shNewLink(mode){ return 'https://kb.mmxm.com/s/' + (mode === 'guest' ? 'g/' : 'm/') + shToken(10) }
+function shNewLink(){ return 'https://kb.mmxm.com/s/m/' + shToken(10) }
 function openShare(kind, id){
   var item = (kind === 'video' ? videos : docs).filter(function(x){ return x.id === id })[0];
   if(!item) return;
@@ -3633,40 +3723,27 @@ function openShare(kind, id){
   $('#shMeta').innerHTML = '<b style="color:#1f2937">' + item.name + ' ' + (item.ver || '') + '</b> · ' + catPathTxt(item) + '<br>' +
     '内容可见范围：' + visPlainText(visOf(item)) + '<br>分享链接的访问范围不得超出内容可见范围，行为与访问记录均留痕。';
   $('#shExpire').value = '7 天';
-  pickShareMode('guest');
+  $('#shLink').value = shNewLink();
+  syncShareTip();
   $('#shareMask').classList.add('show');
 }
 function closeShare(){ $('#shareMask').classList.remove('show') }
-function pickShareMode(mode){
-  shareMode = mode === 'member' ? 'member' : 'guest';
-  $('#shModeGuest').classList.toggle('on', shareMode === 'guest');
-  $('#shModeMember').classList.toggle('on', shareMode === 'member');
-  $('#shPwdWrap').style.display = shareMode === 'guest' ? '' : 'none';
-  if(shareMode === 'guest') $('#shPwd').value = shToken(6);
-  $('#shLink').value = shNewLink(shareMode);
-  syncShareTip();
-}
 function syncShareTip(){
   var exp = $('#shExpire').value || '7 天';
-  var tip = shareMode === 'guest'
-    ? '游客链接：访问者须同时输入链接与 6 位访问密码，无需登录；有效期内可在线预览，禁止转存、下载与二次分享，过期自动失效。'
-    : '非游客链接：链接不带密码，访问者须登录内部账号且通过内容可见权限校验；无权限或链接泄露均无法打开，有效期（' + exp + '）内有效。';
-  $('#shTip').querySelector('span').textContent = tip;
+  $('#shTip').querySelector('span').textContent =
+    '非游客链接：链接不带密码，访问者须登录内部账号且通过内容可见权限校验；无权限或链接泄露均无法打开，有效期（' + exp + '）内有效。';
 }
-function regenSharePwd(){ $('#shPwd').value = shToken(6); toast('已重新生成访问密码', 1) }
 function copyShareLink(){
   var v = $('#shLink').value;
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).catch(function(){});
-  toast(shareMode === 'guest' ? '分享链接已复制，请连同密码一并发送' : '非游客链接已复制，访问者需登录且具备可见权限', 1);
+  toast('非游客链接已复制，访问者需登录且具备可见权限', 1);
 }
 function finishShare(){
   if(!shareCtx) return;
   var exp = $('#shExpire').value;
-  var pwd = shareMode === 'guest' ? $('#shPwd').value.trim() : '';
-  if(shareMode === 'guest' && !pwd){ toast('请填写或生成游客访问密码'); return }
   var rec = {
     id: 'SH' + Date.now(), kind: shareCtx.kind, contentId: shareCtx.id, name: shareCtx.name, ver: shareCtx.ver,
-    mode: shareMode, link: $('#shLink').value, pwd: pwd, expire: exp, by: '王鹏',
+    mode: 'member', link: $('#shLink').value, expire: exp, by: '王鹏',
     at: nowDT(), visits: []
   };
   try{
@@ -3675,9 +3752,7 @@ function finishShare(){
     localStorage.setItem(SHARE_LOG_KEY, JSON.stringify(l.slice(0, 100)));
   }catch(e){}
   closeShare();
-  toast(shareMode === 'guest'
-    ? '《' + shareCtx.name + '》游客链接已创建：有效期 ' + exp + '，访问需链接 + 密码'
-    : '《' + shareCtx.name + '》非游客链接已创建：有效期 ' + exp + '，访问需登录并校验可见权限', 1);
+  toast('《' + shareCtx.name + '》非游客链接已创建：有效期 ' + exp + '，访问需登录并校验可见权限', 1);
 }
 
 /* ---------- 受控水印版下载 ---------- */
@@ -3752,7 +3827,7 @@ function renderPvFooter(files, kind, it){
 function pvVideoCard(v, via){
   var plays = v.plays || 0;
   return '<div class="p-vcard" onclick="openVideoPreview(' + v.id + ')">' +
-    '<div class="p-vcover" style="background:' + (v.cover || 'linear-gradient(135deg,#3d8bff,#1f6bf1)') + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
+    '<div class="p-vcover" style="background:' + (v.cover || VFRAME) + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
     '<div class="p-vbody"><div class="nm">' + v.name + (via ? '<span class="via-tag">经《' + via.name + '》</span>' : '') + '</div><div class="mt"><span>' + plays.toLocaleString() + ' 播放</span></div></div></div>';
 }
 function pvDocRow(d, via){
@@ -4488,30 +4563,60 @@ function handleUpFiles(fileList){
   arr.forEach(function(f){
     var t = typeOfFile(f.name);
     if(!t || t === '视频'){ skipped++; return }
-    upFiles.push({ name: f.name, type: t, size: fmtSize(f.size) });
+    upFiles.push({ name: f.name, type: t, size: fmtSize(f.size), st: 'up', pct: 4 + Math.round(Math.random() * 8) });
   });
   renderUpFiles();
+  upFiles.forEach(function(f){ tickUpfile(f, renderUpFiles) });
   if(skipped) toast('已忽略 ' + skipped + ' 个不支持的文件（资料仅支持 PDF / PPT / EXCEL / 图片）');
-  else toast('已添加 ' + (arr.length - skipped) + ' 个文件', 1);
+  else toast('已添加 ' + (arr.length - skipped) + ' 个文件，上传期间可先进入下一步配置', 1);
+}
+function tickUpfile(f, render){
+  if((f.st || 'done') !== 'up') return;
+  f.pct = Math.min(100, (f.pct || 0) + 5 + Math.round(Math.random() * 7));
+  if(f.mockFail && f.pct >= 55){
+    f.st = 'fail'; f.pct = 55; render();
+    toast('上传失败（模拟）：网络中断，可点击「重试」或移除该文件');
+    return;
+  }
+  if(f.pct >= 100){ f.st = 'done'; f.pct = 100; render(); return }
+  render();
+  setTimeout(function(){ tickUpfile(f, render) }, 280);
+}
+function retryUpFile(i){
+  var f = upFiles[i]; if(!f) return;
+  f.st = 'up'; f.pct = 2; f.mockFail = false;
+  renderUpFiles(); tickUpfile(f, renderUpFiles);
+}
+function mockFailUp(){
+  upFiles.push({ name: '模拟上传失败-弱网文件.pdf', type: 'PDF', size: '38.2MB', st: 'up', pct: 6, mockFail: true });
+  renderUpFiles();
+  tickUpfile(upFiles[upFiles.length - 1], renderUpFiles);
+  toast('已添加弱网模拟文件：上传到约 55% 时将失败，可体验重试与提交拦截', 1);
 }
 function demoUpFiles(){
   var base = $('#upName').value.trim() || '示例资料';
   upFiles = [
-    { name: base + '_正文.pdf', type: 'PDF', size: '8.5MB' },
-    { name: base + '_培训课件.pptx', type: 'PPT', size: '12.6MB' },
-    { name: base + '_节点图集.png', type: '图片', size: '4.2MB' }
+    { name: base + '_正文.pdf', type: 'PDF', size: '8.5MB', st: 'done', pct: 100 },
+    { name: base + '_培训课件.pptx', type: 'PPT', size: '12.6MB', st: 'up', pct: 12 },
+    { name: base + '_节点图集.png', type: '图片', size: '4.2MB', st: 'done', pct: 100 }
   ];
   renderUpFiles();
-  toast('已载入 3 个示例文件（PDF / PPT / 图片）', 1);
+  tickUpfile(upFiles[1], renderUpFiles);
+  toast('已载入 3 个示例文件（1 个上传中）：上传中可先进入②③配置，保存 / 提交时将拦截等待', 1);
 }
 function removeUpFile(i){ upFiles.splice(i, 1); renderUpFiles(); }
 function renderUpFiles(){
   var host = $('#upFileRows');
   if(!host) return;
   host.innerHTML = upFiles.length ? upFiles.map(function(f, i){
+    var st = f.st || 'done';
+    var right = st === 'done'
+      ? '<span class="ok"><svg><use href="#i-check"/></svg>已上传</span>'
+      : st === 'fail'
+        ? '<span class="fstat fail">上传失败 · <a class="op-link" onclick="retryUpFile(' + i + ')">重试</a></span>'
+        : '<span class="prog"><span class="prog-bar"><i style="width:' + (f.pct || 0) + '%"></i></span><em>上传中 ' + (f.pct || 0) + '%</em></span>';
     return '<div class="file-row"><span class="ftype ' + (FTYPE_CLS[f.type] || 'pdf') + '">' + (FTYPE_TXT[f.type] || 'FILE') + '</span>' +
-      '<span class="fn">' + f.name + '</span><span class="fs">' + f.size + '</span>' +
-      '<span class="ok"><svg><use href="#i-check"/></svg>已上传</span>' +
+      '<span class="fn">' + f.name + '</span><span class="fs">' + f.size + '</span>' + right +
       '<span class="rm" title="移除" onclick="removeUpFile(' + i + ')"><svg><use href="#i-x"/></svg></span></div>';
   }).join('') : '<div class="file-empty">尚未添加文件 · 支持多选或分批拖拽上传</div>';
 }
@@ -4624,6 +4729,7 @@ function openUpload(editId){
     if(ed.cat3) setSelectVal($('#upCat3'), ed.cat3);
     $('#upTreeTip').style.display = 'none';
     upFiles = JSON.parse(JSON.stringify(filesOf(ed)));
+    upFiles.forEach(function(f){ f.st = 'done'; f.pct = 100 });
     upEff = { mode: ed.effMode === 'schedule' ? 'schedule' : 'now', at: ed.effAt || '' };
   } else {
     $('#upVer').value = 'V1.0';
@@ -4696,11 +4802,13 @@ function buildUpSummary(){
         ? '当前状态为「' + ((STATUS[ed.status] || {}).t || '草稿') + '」，本次提交后进入「待审核」；审核通过后按生效方式自动上架。'
         : '新建资料提交后进入「待审核」；审核通过后按生效方式自动上架，无需再次手动发布。') + '</span>';
   }
+  var uping = upFiles.filter(function(f){ return (f.st || 'done') === 'up' }).length;
+  var upFail = upFiles.filter(function(f){ return f.st === 'fail' }).length;
   $('#upSummaryBox').innerHTML =
     row('资料名称', $('#upName').value + ' ' + ($('#upVer').value || 'V1.0')) +
     row('分类', catLeafNames($('#upCat1').value, $('#upCat2').value, $('#upCat3').value).join(' / ')) +
     row('内容类型', types.join(' / ') || '—') +
-    row('文件', upFiles.length + ' 个<div style="margin-top:4px">' + upFiles.map(function(f){ return '<span class="mini-chip">' + f.name + ' · ' + f.size + '</span>' }).join('') + '</div>') +
+    row('文件', upFiles.length + ' 个' + (uping ? '（' + uping + ' 个上传中）' : '') + (upFail ? '（' + upFail + ' 个上传失败）' : '') + '<div style="margin-top:4px">' + upFiles.map(function(f){ return '<span class="mini-chip">' + f.name + ' · ' + f.size + '</span>' }).join('') + '</div>') +
     row('标签', tags.length ? tags.join('、') : '—') +
     row('关联内容', (relV.length ? '关联视频 ' + relV.length + ' 个（' + relV.join('、') + '）' : '') + (relD.length ? (relV.length ? '；' : '') + '关联资料 ' + relD.length + ' 份（' + relD.join('、') + '）' : '') || '—') +
     row('可见范围', visPlainText(upVis)) +
@@ -4715,6 +4823,9 @@ function submitUpload(status){
   if(!nm){ toast('请填写资料名称'); return }
   if(!catKindOk('doc', $('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('所选分类不支持资料，请重新选择资料分类'); return }
   if(!catLeafOk($('#upCat1').value, $('#upCat2').value, $('#upCat3').value)){ toast('资料只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
+  var tail = status === 'review' ? '再提交审核' : '再保存';
+  if(upFiles.some(function(f){ return (f.st || 'done') === 'up' })){ toast('文件上传中，请等待上传完成后' + tail); return }
+  if(upFiles.some(function(f){ return f.st === 'fail' })){ toast('存在上传失败文件，请重试或移除后' + tail); return }
   if(!upFiles.length){ toast('请先上传至少 1 个资料文件'); return }
   if(status === 'review' && visEmpty(upVis)){ toast('请至少配置一项可见范围后再提交审核'); return }
   if(status === 'review'){
@@ -5782,10 +5893,10 @@ var vdEditId = null, vdTags = {}, vdRelV = {}, vdRelD = {}, vdFiles = [], vdStep
 function openPlayRecords(vname){
   kbTabTo('reads');
   readModeTo('video');
-  readTab('memo');
-  $('#readKw').value = vname.slice(0, 4);
+  readNameKw.video = vname;
+  readTab('doc');
   renderReads();
-  toast('已按《' + vname + '》过滤播放记录（原型演示）', 1);
+  toast('已带入《' + vname + '》（视频 · 带参）过滤播放记录', 1);
 }
 
 /* 上传视频 · 单文件 */
@@ -5796,24 +5907,42 @@ function handleVdFile(fileList){
   var f = fileList && fileList[0];
   if(!f) return;
   if(!/\.(mp4|mov)$/i.test(f.name)){ toast('仅支持 MP4 / MOV 视频文件'); return }
-  vdFiles = [{ name: f.name, type: '视频', size: fmtSize(f.size), dur: '12:35' }];
+  vdFiles = [{ name: f.name, type: '视频', size: fmtSize(f.size), dur: '12:35', st: 'up', pct: 4 + Math.round(Math.random() * 8) }];
   renderVdFiles();
-  toast('视频已上传：' + f.name + '（原型模拟上传 100%，时长自动读取）', 1);
+  tickUpfile(vdFiles[0], renderVdFiles);
+  toast('视频上传中：上传期间可先进入②③配置，保存 / 提交时将拦截等待', 1);
+}
+function mockFailVd(){
+  vdFiles = [{ name: '模拟上传失败-弱网视频.mp4', type: '视频', size: '268MB', dur: '12:35', st: 'up', pct: 6, mockFail: true }];
+  renderVdFiles();
+  tickUpfile(vdFiles[0], renderVdFiles);
+  toast('已载入弱网模拟视频：上传到约 55% 时将失败，可体验重试与提交拦截', 1);
+}
+function retryVdFile(){
+  var f = vdFiles[0]; if(!f) return;
+  f.st = 'up'; f.pct = 2; f.mockFail = false;
+  renderVdFiles(); tickUpfile(f, renderVdFiles);
 }
 function demoVdFile(){
   var base = $('#vdName').value.trim() || ('标准工艺演示_' + ($('#vdCat2').value || '施工').replace(/篇/g, ''));
-  vdFiles = [{ name: base + '.mp4', type: '视频', size: '268MB', dur: '12:35' }];
+  vdFiles = [{ name: base + '.mp4', type: '视频', size: '268MB', dur: '12:35', st: 'up', pct: 10 }];
   renderVdFiles();
-  toast('已载入示例视频（模拟上传 100%）', 1);
+  tickUpfile(vdFiles[0], renderVdFiles);
+  toast('视频上传中（模拟进度）：上传期间可先完成②③配置，保存 / 提交时将拦截等待', 1);
 }
 function removeVdFile(){ vdFiles = []; renderVdFiles() }
 function renderVdFiles(){
   var host = $('#vdFileRows');
   if(!host) return;
   host.innerHTML = vdFiles.length ? vdFiles.map(function(f){
+    var st = f.st || 'done';
+    var right = st === 'done'
+      ? '<span class="ok"><svg><use href="#i-check"/></svg>已上传</span>'
+      : st === 'fail'
+        ? '<span class="fstat fail">上传失败 · <a class="op-link" onclick="retryVdFile()">重试</a></span>'
+        : '<span class="prog"><span class="prog-bar"><i style="width:' + (f.pct || 0) + '%"></i></span><em>上传中 ' + (f.pct || 0) + '%</em></span>';
     return '<div class="file-row"><span class="ftype ' + (FTYPE_CLS[f.type] || 'vid') + '">' + (FTYPE_TXT[f.type] || 'VID') + '</span>' +
-      '<span class="fn">' + f.name + '</span><span class="fs">' + f.size + (f.dur ? ' · ' + f.dur : '') + '</span>' +
-      '<span class="ok"><svg><use href="#i-check"/></svg>已上传</span>' +
+      '<span class="fn">' + f.name + '</span><span class="fs">' + f.size + (f.dur ? ' · ' + f.dur : '') + '</span>' + right +
       '<span class="rm" title="移除" onclick="removeVdFile()"><svg><use href="#i-x"/></svg></span></div>';
   }).join('') : '<div class="file-empty">尚未添加视频文件 · 仅允许 1 个文件，重新上传将替换当前文件</div>';
   var dz = $('#vdDrop');
@@ -5852,8 +5981,9 @@ function openVideoUpload(editId){
     if(ed.cat3) setSelectVal($('#vdCat3'), ed.cat3);
     $('#vdTreeTip').style.display = 'none';
     vdFiles = JSON.parse(JSON.stringify(filesOf(ed).slice(0, 1)));
+    vdFiles.forEach(function(f){ f.st = 'done'; f.pct = 100 });
     if(vdFiles[0] && !vdFiles[0].dur) vdFiles[0].dur = ed.dur;
-    c.classList.add('got'); c.style.background = ed.cover || 'linear-gradient(135deg,#3d8bff,#1f6bf1)';
+    c.classList.add('got'); c.style.background = ed.cover || VFRAME;
     c.innerHTML = '<svg><use href="#i-play"/></svg><span style="position:relative">当前封面</span>';
     vdEff = { mode: ed.effMode === 'schedule' ? 'schedule' : 'now', at: ed.effAt || '' };
   } else {
@@ -5911,6 +6041,7 @@ function buildVdSummary(){
   var relV = Object.keys(vdRelV).map(function(k){ return videos.filter(function(v){ return v.id === +k.slice(1) })[0] }).filter(Boolean).map(function(v){ return v.name });
   var relD = Object.keys(vdRelD).map(function(k){ return docs.filter(function(d){ return d.id === +k.slice(1) })[0] }).filter(Boolean).map(function(d){ return d.name });
   var f = vdFiles[0];
+  var fState = f ? ((f.st || 'done') === 'up' ? ' · 上传中 ' + (f.pct || 0) + '%' : (f.st === 'fail' ? ' · 上传失败' : '')) : '';
   var ed = vdEditId ? videos.filter(function(x){ return x.id === vdEditId })[0] : null;
   var tip = $('#vdFlowTip');
   if(tip){
@@ -5923,8 +6054,8 @@ function buildVdSummary(){
   $('#vdSummaryBox').innerHTML =
     row('视频名称', $('#vdName').value + ' ' + ($('#vdVer').value || 'V1.0')) +
     row('分类', catLeafNames($('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value).join(' / ')) +
-    row('视频文件', f ? f.name + ' · ' + f.size + (f.dur ? ' · ' + f.dur : '') : '—') +
-    row('封面', $('#vdCover').classList.contains('got') ? '已上传' : '未上传（使用默认封面）') +
+    row('视频文件', f ? f.name + ' · ' + f.size + (f.dur ? ' · ' + f.dur : '') + fState : '—') +
+    row('封面', $('#vdCover').classList.contains('got') ? '已上传' : '未上传（取视频封面展示）') +
     row('标签', tags.length ? tags.join('、') : '—') +
     row('关联内容', (relD.length ? '关联资料 ' + relD.length + ' 份（' + relD.join('、') + '）' : '') + (relV.length ? (relD.length ? '；' : '') + '关联视频 ' + relV.length + ' 个（' + relV.join('、') + '）' : '') || '—') +
     row('可见范围', visPlainText(vdVis)) +
@@ -5938,6 +6069,9 @@ function submitVideo(status){
   if(!nm){ toast('请填写视频名称'); return }
   if(!catKindOk('video', $('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('所选分类不支持视频，请重新选择视频分类'); return }
   if(!catLeafOk($('#vdCat1').value, $('#vdCat2').value, $('#vdCat3').value)){ toast('视频只能挂在末级分类：存在三级分类时必须选择三级，二级无子级时直接挂在二级'); return }
+  var vTail = status === 'review' ? '再提交审核' : '再保存';
+  if(vdFiles.some(function(f){ return (f.st || 'done') === 'up' })){ toast('视频上传中，请等待上传完成后' + vTail); return }
+  if(vdFiles.some(function(f){ return f.st === 'fail' })){ toast('视频上传失败，请重试或移除后' + vTail); return }
   if(!vdFiles.length){ toast('请先上传视频文件（仅支持 1 个）'); return }
   if(status === 'review' && visEmpty(vdVis)){ toast('请至少配置一项可见范围后再提交审核'); return }
   if(status === 'review'){
@@ -6880,12 +7014,13 @@ function pVideoCard(v, hot){
     ? '<span title="近 30 天有效播放次数">近 30 天 ' + (v.p30 || 0).toLocaleString() + ' 播放</span>'
     : (badge + bar + '<span>' + v.plays.toLocaleString() + ' 播放</span>');
   return '<div class="p-vcard" onclick="pGo(\'videodetail\',' + v.id + ')">' +
-    '<div class="p-vcover" style="background:' + v.cover + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
+    '<div class="p-vcover" style="background:' + (v.cover || VFRAME) + '"><span class="pic"><svg><use href="#i-play"/></svg></span><span class="vt">' + (v.cat2 || v.cat1) + '</span><span class="dur">' + v.dur + '</span></div>' +
     '<div class="p-vbody"><div class="nm">' + v.name + '</div><div class="mt">' + mt + '</div></div></div>';
 }
 function pDocRow(d){
   var t = primaryType(d);
   return '<div class="p-docrow" onclick="pGo(\'docdetail\',' + d.id + ')">' +
+    docCover(d) +
     '<span class="ftype ' + (FTYPE_CLS[t] || 'pdf') + '">' + (FTYPE_TXT[t] || 'FILE') + '</span>' +
     '<div class="tt"><b>' + d.name + '<span class="ver">' + d.ver + '</span></b>' +
     '<div class="mt"><span>' + catPathTxt(d) + ' · ' + fileTypesOf(d).join(' / ') + '</span><span>' + d.tags.slice(0, 3).join(' · ') + '</span></div></div>' +
@@ -7322,6 +7457,7 @@ function kbTabTo(t){
   $('#kbSubMenu').style.display = 'block';
   if(t === 'downloads') renderDownloads();
   if(t === 'oplog') renderOplog();
+  if(t === 'behavior') renderBehavior();
 }
 
 /* ---------- 操作记录（ADM-16）与概览·最近操作（ADM-03） ---------- */
@@ -7338,7 +7474,7 @@ var oplogData = [
   { id:5196, m:210,  user:'陈晓', cat:'版本', sub:'版本生成', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'V1.1 → V1.2 · minor · 审核通过时写入' },
   { id:5195, m:260,  user:'王鹏', cat:'可见范围', sub:'范围变更', kind:'doc', did:4, name:'室内天花造型施工标准图集', ver:'V1.1', code:'KB-SG-2026-023', sum:'覆盖人数 186 → 240（+54 · M-19）· 内部角色 +1' },
   { id:5194, m:300,  user:'王鹏', cat:'状态流转', sub:'审核通过（定时生效）', name:'门店货架布局设计标准', ver:'V1.2', code:'KB-SJ-2026-028', sum:'待审核 → 待生效 · 将于 2026-11-05 09:00 自动上架', tl:'schedule', tlTxt:'<b>王鹏</b> 审核通过《门店货架布局设计标准 V1.2》，将于 11-05 09:00 自动上架' },
-  { id:5193, m:340,  user:'李敏', cat:'分享', sub:'创建链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'游客链接 · 有效期 7 天 · 带密码 · 分享 ID F-2026-0211' },
+  { id:5193, m:340,  user:'李敏', cat:'分享', sub:'创建链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'非游客链接 · 有效期 7 天 · 分享 ID F-2026-0211' },
   { id:5192, m:390,  user:'李敏', cat:'状态流转', sub:'驳回', name:'广告安装施工指引', ver:'V1.1', code:'KB-SG-2026-024', del:true, sum:'待审核 → 已驳回 · 原因：图示与正文不符', tl:'reject', tlTxt:'<b>李敏</b> 驳回《广告安装施工指引 V1.1》，原因：图示与正文不符' },
   { id:5191, m:420,  user:'陈晓', cat:'关联维护', sub:'新增关联', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'新增关联视频 1 个（KB-VD-2026-005）· 双向同步' },
   { id:5190, m:480,  user:'王鹏', cat:'导出', sub:'内容清单导出', name:'内容清单', ver:'', code:'—', sum:'导出范围：近 30 日 · 486 行 · 知识库内容清单.xlsx' },
@@ -7351,7 +7487,7 @@ var oplogData = [
   { id:5183, m:1800, user:'王鹏', cat:'编辑', sub:'文件清单变更', kind:'doc', did:13, name:'收银区水电施工标准图集', ver:'V1.2', code:'KB-SG-2026-020', sum:'文件新增 1 / 移除 1 · 图片清单' },
   { id:5182, m:2000, user:'陈晓', cat:'状态流转', sub:'提交审核', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'草稿 → 待审核 · MP4 · 时长 12:35' },
   { id:5181, m:2400, user:'李敏', cat:'版本', sub:'快照查看', kind:'doc', did:3, name:'沿海大风区域门店施工手册', ver:'V1.2', code:'KB-SG-2026-011', sum:'查看历史版本 V1.0 快照' },
-  { id:5180, m:2800, user:'陈晓', cat:'分享', sub:'撤销链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'撤销游客链接 · 分享 ID F-2026-0198' },
+  { id:5180, m:2800, user:'陈晓', cat:'分享', sub:'创建链接', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'非游客链接 · 有效期 30 天 · 分享 ID F-2026-0198' },
   { id:5179, m:3200, user:'李敏', cat:'可见范围', sub:'范围变更', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'覆盖人数 240 → 198（−42 · M-19）· 移除内部人员 42' },
   { id:5178, m:3600, user:'王鹏', cat:'关联维护', sub:'解除关联', kind:'doc', did:2, name:'初尺、复尺标准作业指引', ver:'V3.0', code:'KB-SJ-2026-006', sum:'解除关联视频 1 个（KB-VD-2026-002）' },
   { id:5177, m:4200, user:'陈晓', cat:'上传', sub:'提交审核', name:'冷库保温施工演示视频', ver:'V1.0', code:'KB-VD-2026-006', sum:'提交审核 · MP4 · 时长 08:12' },
@@ -7523,6 +7659,166 @@ function exportOplog(){
   toast('导出任务已创建：操作记录_' + (names[opApplied.range] || '近7日') + '_2026-11-04.xlsx（导出动作已写入操作日志）', 1);
 }
 
+/* ---------- 用户行为（ADM-17） ---------- */
+var BH_CATS = { '浏览':'#1f6bf1','搜索与筛选':'#13c2c2','内容互动':'#722ed1','分享与下载':'#c46a00' };
+var BH_USERS = { '张倩':'#1f6bf1','刘芳':'#12a150','周强':'#fa8c16','吴刚':'#722ed1','陈晓':'#2f54eb' };
+var BH_SRCS = { pc:'PC 用户端', app:'内部 APP', mp:'鸣忙营造小程序' };
+var BH_SRC_COLOR = { pc:'#1f6bf1', app:'#12a150', mp:'#fa8c16' };
+var behaviorData = [
+  { id:7310, m:6,    user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'浏览', sub:'进入知识库', sum:'入口来源：PC 二级菜单「工程知识库」' },
+  { id:7309, m:9,    user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'浏览', sub:'端内主导航切换', sum:'目标页：资料中心' },
+  { id:7308, m:14,   user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'搜索与筛选', sub:'搜索提交', sum:'关键词「货架」· 结果：资料 3 / 视频 2 · 点击结果：是' },
+  { id:7307, m:18,   user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'内容互动', sub:'打开资料详情', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'来源：搜索 · 分类路径：施工篇 / 水电施工' },
+  { id:7306, m:22,   user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'内容互动', sub:'点击关联卡片', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'关联层级：延伸（经《门店水电施工标准手册》）' },
+  { id:7305, m:26,   user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'内容互动', sub:'关联卡片无权限点击', kind:'doc', did:9, name:'北方差异化施工项目清单', ver:'V1.0', code:'KB-SG-2026-013', sum:'提示：该内容未对你开放，请联系内容管理员' },
+  { id:7304, m:34,   user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'浏览', sub:'进入知识库', sum:'入口来源：APP 应用中心「知识库」入口' },
+  { id:7303, m:41,   user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'浏览', sub:'端内主导航切换', sum:'目标页：视频学堂' },
+  { id:7302, m:47,   user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'搜索与筛选', sub:'分类过滤 / 下钻', sum:'篇章：施工篇 → 二级：木工施工 · 排序：最新更新' },
+  { id:7301, m:55,   user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'内容互动', sub:'收藏', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'收藏视频 · 来源端：内部 APP' },
+  { id:7300, m:63,   user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'浏览', sub:'进入知识库', sum:'入口来源：小程序底部 Tab「知识库」' },
+  { id:7299, m:68,   user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'浏览', sub:'我的学习区块交互', sum:'区块：视频记录 · 动作：筛选切换「学习中」' },
+  { id:7298, m:75,   user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'搜索与筛选', sub:'搜索提交', sum:'关键词「水电验收」· 结果：资料 1 / 视频 0 · 点击结果：否' },
+  { id:7297, m:88,   user:'吴刚', org:'华东大区 · 工程', src:'app', cat:'分享与下载', sub:'访问分享链接', sum:'分享 ID F-2026-0211 · 登录与可见权限校验：通过 · 成功预览：是' },
+  { id:7296, m:96,   user:'吴刚', org:'华东大区 · 工程', src:'app', cat:'内容互动', sub:'打开资料详情', kind:'doc', did:5, name:'油漆施工标准手册', ver:'V2.0', code:'KB-SG-2026-015', sum:'来源：分享链接 · 分类路径：施工篇 / 油漆施工' },
+  { id:7295, m:110,  user:'陈晓', org:'工程中心 · 内勤', src:'pc', cat:'分享与下载', sub:'打开下载申请弹层', kind:'doc', did:13, name:'收银区水电施工标准图集', ver:'V1.2', code:'KB-SG-2026-020', sum:'内容类型：资料 · 来源端：pc' },
+  { id:7294, m:118,  user:'陈晓', org:'工程中心 · 内勤', src:'pc', cat:'分享与下载', sub:'提交下载申请', kind:'doc', did:13, name:'收银区水电施工标准图集', ver:'V1.2', code:'KB-SG-2026-020', sum:'申请编号 DL-2026-1104-036 · 原因摘要：现场比对收银区水电走位' },
+  { id:7293, m:132,  user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'搜索与筛选', sub:'标签筛选', sum:'维度：施工节点 · 标签值「水电验收」· 结果：资料 2 / 视频 1 · 叠加分类：否' },
+  { id:7292, m:141,  user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'内容互动', sub:'取消收藏', kind:'doc', did:2, name:'初尺、复尺标准作业指引', ver:'V3.0', code:'KB-SJ-2026-006', sum:'取消收藏资料 · 来源端：内部 APP' },
+  { id:7291, m:158,  user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'内容互动', sub:'打开资料详情', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'来源：列表 · 分类路径：招牌安装' },
+  { id:7290, m:170,  user:'吴刚', org:'华东大区 · 工程', src:'app', cat:'浏览', sub:'我的学习区块交互', sum:'区块：下载申请 · 动作：翻页 · 第 2 页' },
+  { id:7289, m:186,  user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'内容互动', sub:'收藏', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'收藏资料 · 来源端：PC 用户端' },
+  { id:7288, m:203,  user:'陈晓', org:'工程中心 · 内勤', src:'pc', cat:'搜索与筛选', sub:'搜索提交', sum:'关键词「天花板造型」· 结果：资料 0 / 视频 2 · 点击结果：是' },
+  { id:7287, m:224,  user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'内容互动', sub:'点击关联卡片', kind:'doc', did:1, name:'门店水电施工标准手册', ver:'V2.1', code:'KB-SG-2026-018', sum:'关联层级：直接 · 来源端：内部 APP' },
+  { id:7286, m:246,  user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'分享与下载', sub:'打开下载申请弹层', kind:'doc', did:7, name:'室外招牌安装施工标准', ver:'V1.0', code:'KB-SG-2026-017', sum:'内容类型：资料 · 小程序仅在线查阅，不产生申请提交' },
+  { id:7285, m:268,  user:'吴刚', org:'华东大区 · 工程', src:'app', cat:'内容互动', sub:'关联卡片无权限点击', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'提示：该内容未对你开放，请联系内容管理员' },
+  { id:7284, m:290,  user:'陈晓', org:'工程中心 · 内勤', src:'pc', cat:'内容互动', sub:'打开资料详情', kind:'doc', did:15, name:'货架安装验收标准', ver:'V1.1', code:'KB-YS-2026-014', del:true, sum:'来源：关联 · 延伸（历史事件，内容已删除保留可查）' },
+  { id:7283, m:318,  user:'张倩', org:'工程中心 · 内勤', src:'pc', cat:'分享与下载', sub:'访问分享链接', sum:'分享 ID F-2026-0198 · 登录校验：通过 · 可见权限校验：未通过 · 成功预览：否' },
+  { id:7282, m:352,  user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'搜索与筛选', sub:'分类过滤 / 下钻', sum:'篇章：货架篇 → 二级：货架安装 · 类型：仅资料 · 排序：阅读量最高' },
+  { id:7281, m:390,  user:'周强', org:'鸣忙营造 · 施工方', src:'mp', cat:'浏览', sub:'端内主导航切换', sum:'目标页：我的学习' },
+  { id:7280, m:428,  user:'吴刚', org:'华东大区 · 工程', src:'app', cat:'内容互动', sub:'收藏', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'收藏视频 · 来源端：内部 APP' },
+  { id:7279, m:465,  user:'陈晓', org:'工程中心 · 内勤', src:'pc', cat:'浏览', sub:'进入知识库', sum:'入口来源：PC 二级菜单「工程知识库」' },
+  { id:7278, m:508,  user:'刘芳', org:'华南大区 · 工程', src:'app', cat:'分享与下载', sub:'提交下载申请', kind:'video', did:101, name:'室内天花造型施工工艺演示', ver:'V1.2', code:'KB-VD-2026-005', sum:'申请编号 DL-2026-1104-029 · 原因摘要：无网络环境现场播放' }
+];
+function bhUserBadge(u){ return '<span class="avatar-sm" style="background:' + (BH_USERS[u] || '#5a6270') + '">' + u[0] + '</span>' }
+function bhSrcChip(s){
+  var c = BH_SRC_COLOR[s] || '#5a6270';
+  return '<span style="font-size:11.5px;color:' + c + ';background:' + c + '1a;padding:2px 8px;border-radius:999px;font-weight:500">' + BH_SRCS[s] + '</span>';
+}
+var bhApplied = { range:'7d', from:'', to:'', types:[], src:'', user:'', kw:'' };
+var bhSelTypes = [];
+var bhPage = 1;
+function bhRangeChanged(){
+  var custom = $('#bhRange').value === 'custom';
+  $('#bhFrom').style.display = custom ? '' : 'none';
+  $('#bhTo').style.display = custom ? '' : 'none';
+  $('#bhToDate').style.display = custom ? '' : 'none';
+}
+function toggleBhTypes(ev){
+  if(ev) ev.stopPropagation();
+  var pop = $('#bhTypePop');
+  if(pop.style.display === 'none'){ buildBhTypePop(); pop.style.display = '' } else pop.style.display = 'none';
+}
+function buildBhTypePop(){
+  var chips = Object.keys(BH_CATS).map(function(c){
+    var on = bhSelTypes.indexOf(c) >= 0;
+    return '<label class="' + (on ? 'on' : '') + '" onclick="event.stopPropagation();bhTypeToggle(\'' + c + '\')"><input type="checkbox" ' + (on ? 'checked' : '') + ' onclick="event.stopPropagation()">' + c + '</label>';
+  }).join('');
+  $('#bhTypePop').innerHTML = '<div class="tp-g"><b>事件大类</b><span style="font-size:11.5px;color:#9aa2ae">多选 · 不选 = 全部</span></div>' +
+    '<div class="tp-g" style="padding:2px 0 4px">' + chips + '</div>' +
+    '<div class="tp-foot"><button class="btn ghost sm" onclick="event.stopPropagation();bhTypesClear()">清空</button><button class="btn primary sm" onclick="event.stopPropagation();$(\'#bhTypePop\').style.display=\'none\'">确定</button></div>';
+}
+function bhTypeToggle(c){
+  var i = bhSelTypes.indexOf(c);
+  if(i >= 0) bhSelTypes.splice(i, 1); else bhSelTypes.push(c);
+  var n = bhSelTypes.length;
+  var cnt = $('#bhTypeCnt');
+  cnt.style.display = n ? '' : 'none';
+  cnt.textContent = n;
+  buildBhTypePop();
+}
+function bhTypesClear(){
+  bhSelTypes = [];
+  $('#bhTypeCnt').style.display = 'none';
+  buildBhTypePop();
+}
+function bhFiltered(){
+  var a = bhApplied;
+  return behaviorData.filter(function(e){
+    if(a.range === 'custom'){
+      var ds = opDay(e);
+      if(a.from && ds < a.from) return false;
+      if(a.to && ds > a.to) return false;
+    } else {
+      var lim = a.range === 'today' ? OP_TODAY_M : (a.range === '7d' ? 10080 : 43200);
+      if(e.m > lim) return false;
+    }
+    if(a.types.length && a.types.indexOf(e.cat) < 0) return false;
+    if(a.src && e.src !== a.src) return false;
+    if(a.user && e.user.indexOf(a.user.trim()) < 0) return false;
+    if(a.kw){
+      var k = a.kw.trim();
+      if((e.name || '').indexOf(k) < 0 && (e.code || '').indexOf(k) < 0) return false;
+    }
+    return true;
+  }).sort(function(x, y){ return y.id - x.id });
+}
+function renderBehavior(){
+  var list = bhFiltered();
+  var pages = Math.max(1, Math.ceil(list.length / 20));
+  if(bhPage > pages) bhPage = pages;
+  var slice = list.slice((bhPage - 1) * 20, bhPage * 20);
+  var html = slice.map(function(e){
+    var color = BH_CATS[e.cat] || '#5a6270';
+    var catCell = '<span class="op-cat" style="color:' + color + ';background:' + color + '1a"><i></i>' + e.cat + '</span><div style="font-size:11.5px;color:#9aa2ae;margin-top:3px">' + e.sub + '</div>';
+    var nameTxt = e.name ? ((e.ver ? '《' + e.name + ' ' + e.ver + '》' : e.name) + (e.del ? '<span style="color:#9aa2ae">（已删除）</span>' : '')) : '—';
+    var nameCell = (e.did
+      ? '<a class="op-link" style="font-size:12.5px" onclick="' + (e.kind === 'video' ? 'openVideoPreview(' : 'openPreview(') + e.did + ')">' + nameTxt + '</a>'
+      : '<span style="font-size:12.5px;color:#3f4753">' + nameTxt + '</span>') +
+      '<div style="font-size:11.5px;color:#9aa2ae;margin-top:2px">' + (e.code || '—') + '</div>';
+    return '<tr><td style="color:#5a6270;white-space:nowrap;font-size:12.5px">' + opFmt(e) + '</td>' +
+      '<td><div class="u-cell">' + bhUserBadge(e.user) + '<span style="font-weight:500">' + e.user + '</span></div><div style="font-size:11.5px;color:#9aa2ae;margin:2px 0 0 28px">' + e.org + '</div></td>' +
+      '<td>' + bhSrcChip(e.src) + '</td><td>' + catCell + '</td><td>' + nameCell + '</td>' +
+      '<td><div class="op-sum">' + e.sum + '</div></td></tr>';
+  }).join('');
+  if(!slice.length) html = '<tr><td colspan="6" style="text-align:center;color:#9aa2ae;padding:40px 0">暂无行为记录</td></tr>';
+  $('#bhTbody').innerHTML = html;
+  var users = {};
+  list.forEach(function(e){ users[e.user] = 1 });
+  var st = {};
+  list.forEach(function(e){ st[e.cat] = (st[e.cat] || 0) + 1 });
+  var stHtml = '<b>' + list.length + '</b> 条事件 · 去重用户 <b>' + Object.keys(users).length + '</b> 人';
+  Object.keys(BH_CATS).forEach(function(c){ if(st[c]) stHtml += '<span class="st-chip">' + c + ' ' + st[c] + '</span>' });
+  stHtml += '<span style="flex:1"></span><span style="font-size:11.5px;color:#9aa2ae">保留 ≥ 1 年 · 默认按行为时间倒序</span>';
+  $('#bhStatBar').innerHTML = stHtml;
+  var pg = '<span>共 ' + list.length + ' 条</span>';
+  pg += '<button class="pg-btn" ' + (bhPage === 1 ? 'disabled' : '') + ' onclick="bhGo(' + (bhPage - 1) + ')">‹</button>';
+  for(var i = 1; i <= pages; i++) pg += '<button class="pg-btn ' + (i === bhPage ? 'active' : '') + '" onclick="bhGo(' + i + ')">' + i + '</button>';
+  pg += '<button class="pg-btn" ' + (bhPage === pages ? 'disabled' : '') + ' onclick="bhGo(' + (bhPage + 1) + ')">›</button>';
+  pg += '<span>每页 20 条</span>';
+  $('#bhPager').innerHTML = pg;
+}
+function bhGo(p){ bhPage = p; renderBehavior() }
+function bhQuery(){
+  bhApplied = { range:$('#bhRange').value, from:$('#bhFrom').value, to:$('#bhTo').value, types:bhSelTypes.slice(), src:$('#bhSrc').value, user:$('#bhUser').value, kw:$('#bhKw').value };
+  bhPage = 1;
+  $('#bhTypePop').style.display = 'none';
+  renderBehavior();
+}
+function bhReset(){
+  $('#bhRange').value = '7d';
+  bhRangeChanged();
+  $('#bhFrom').value = ''; $('#bhTo').value = '';
+  $('#bhSrc').value = '';
+  $('#bhUser').value = ''; $('#bhKw').value = '';
+  bhTypesClear();
+  $('#bhTypePop').style.display = 'none';
+  bhQuery();
+}
+function exportBehavior(){
+  var names = { 'today':'今日', '7d':'近7日', '30d':'近30日', 'custom':'自定义' };
+  toast('导出任务已创建：用户行为_' + (names[bhApplied.range] || '近7日') + '_2026-11-04.xlsx（导出动作已写入操作日志）', 1);
+}
+
 /* ---------- 初始化 ---------- */
 $('#upCat1').innerHTML = catL1For('doc').map(function(x){ return '<option>' + x + '</option>' }).join('');
 upCatSync();
@@ -7539,6 +7835,8 @@ refreshOverview();
 renderRecentOps();
 opRangeChanged();
 opQuery();
+bhRangeChanged();
+bhQuery();
 </script>
 </body>
 </html>
